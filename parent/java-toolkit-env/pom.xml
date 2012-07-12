@@ -1,0 +1,111 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+
+  <!--
+This POM:
+- Defines java version for source, target and compiler
+- Enables useful warnings and messages from compiler
+- Adds 3rdparty implementation of jsr305 (@nullable annotations)
+- Turns on source jar generation
+  -->
+  <groupId>org.nohope</groupId>
+  <artifactId>env-java</artifactId>
+  <version>1</version>
+  <name>env-java</name>
+  <packaging>pom</packaging>
+
+  <properties>
+    <!-- System -->
+    <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+    <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
+
+    <java.major.version>7</java.major.version>
+    <java.lang.level>1.${java.major.version}</java.lang.level>
+
+    <!-- Maven plugins -->
+    <maven.compiler-plugin.version>2.3.2</maven.compiler-plugin.version>
+    <maven.source-plugin.version>2.1.2</maven.source-plugin.version>
+
+    <!-- libs -->
+    <jsr305.version>1.3.9</jsr305.version>
+  </properties>
+
+  <profiles>
+    <!-- production profile -->
+    <profile>
+      <id>global-production</id>
+      <build>
+        <plugins>
+          <plugin>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-compiler-plugin</artifactId>
+            <version>${maven.compiler-plugin.version}</version>
+            <configuration>
+              <debug>false</debug>
+              <optimize>true</optimize>
+            </configuration>
+          </plugin>
+        </plugins>
+      </build>
+      <activation>
+        <property>
+          <name>production</name>
+        </property>
+      </activation>
+    </profile>
+  </profiles>
+
+
+  <build>
+    <finalName>PRJ: ${project.artifactId}</finalName>
+
+    <plugins>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-compiler-plugin</artifactId>
+        <version>${maven.compiler-plugin.version}</version>
+        <configuration>
+          <source>${java.lang.level}</source>
+          <target>${java.lang.level}</target>
+          <compilerVersion>${java.lang.level}</compilerVersion>
+          <showDeprecation>true</showDeprecation>
+          <showWarnings>true</showWarnings>
+
+          <compilerArgument>-Xlint:unchecked</compilerArgument>
+
+          <debug>true</debug>
+          <optimize>false</optimize>
+          <debuglevel>vars,lines,source</debuglevel>
+        </configuration>
+      </plugin>
+
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-source-plugin</artifactId>
+        <version>${maven.source-plugin.version}</version>
+        <executions>
+          <execution>
+            <id>attach-sources</id>
+            <goals>
+              <goal>jar-no-fork</goal>
+            </goals>
+          </execution>
+        </executions>
+      </plugin>
+
+    </plugins>
+  </build>
+
+  <dependencyManagement>
+    <dependencies>
+      <dependency>
+        <groupId>com.google.code.findbugs</groupId>
+        <artifactId>jsr305</artifactId>
+        <version>${jsr305.version}</version>
+      </dependency>
+    </dependencies>
+  </dependencyManagement>
+</project>
