@@ -4,16 +4,16 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
   <modelVersion>4.0.0</modelVersion>
 
-  <groupId>org.nohope</groupId>
+  <groupId>org.no-hope</groupId>
   <artifactId>env-ci</artifactId>
   <version>1</version>
   <name>env-integration</name>
   <packaging>pom</packaging>
 
   <parent>
-    <groupId>org.nohope</groupId>
+    <groupId>org.no-hope</groupId>
     <artifactId>env-java</artifactId>
-    <version>6</version>
+    <version>1</version>
     <!-- need to force importing pom from repositories  -->
     <!--relativePath>../java/pom.xml</relativePath-->
     <relativePath/>

@@ -11,7 +11,7 @@ This POM:
 - Adds 3rdparty implementation of jsr305 (@nullable annotations)
 - Turns on source jar generation
   -->
-  <groupId>org.nohope</groupId>
+  <groupId>org.no-hope</groupId>
   <artifactId>env-java</artifactId>
   <version>1</version>
   <name>env-java</name>
