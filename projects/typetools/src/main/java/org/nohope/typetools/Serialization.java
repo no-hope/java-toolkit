@@ -1,4 +1,4 @@
-package org.nohope.util.typetools;
+package org.nohope.typetools;
 
 import org.codehaus.jackson.map.ObjectMapper;
 
