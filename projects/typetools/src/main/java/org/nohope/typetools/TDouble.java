@@ -1,11 +1,11 @@
-package org.nohope.util.typetools;
+package org.nohope.typetools;
 
 /**
  * Date: 17.10.11
  * Time: 14:48
  */
-public final class DoubleTools {
-    private DoubleTools() {
+public final class TDouble {
+    private TDouble() {
     }
 
     public static boolean isDoubleCorrect(final Double val) {
