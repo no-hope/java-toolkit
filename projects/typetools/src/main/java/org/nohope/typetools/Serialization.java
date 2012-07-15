@@ -26,6 +26,7 @@ public final class Serialization {
 
             return mapper.writeValueAsString(obj);
         } catch (IOException e) {
+            e.printStackTrace();
             return onErrorMessage;
         }
     }
