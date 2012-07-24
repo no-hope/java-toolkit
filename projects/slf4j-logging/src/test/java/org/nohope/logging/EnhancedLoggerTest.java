@@ -29,6 +29,10 @@ public final class EnhancedLoggerTest {
         assertEquals("%s %s %s %s %s", formatC.getValue());
 
         verify(logger);
+
+        Logger logger1 = LoggerFactory.getLogger(EnhancedLoggerTest.class);
+        logger1.warn(new IllegalStateException(), "{} {}", 1, 2);
+
     }
 
 
