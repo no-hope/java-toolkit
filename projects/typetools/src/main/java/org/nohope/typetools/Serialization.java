@@ -1,6 +1,8 @@
 package org.nohope.typetools;
 
 import org.codehaus.jackson.map.ObjectMapper;
+import org.nohope.logging.Logger;
+import org.nohope.logging.LoggerFactory;
 
 import java.io.IOException;
 
@@ -13,6 +15,8 @@ import static org.codehaus.jackson.map.annotate.JsonSerialize.Inclusion.NON_EMPT
  * Time: 13:43
  */
 public final class Serialization {
+    private static final Logger LOG = LoggerFactory.getLogger(Serialization.class);
+
     private Serialization() {
     }
 
@@ -26,7 +30,8 @@ public final class Serialization {
 
             return mapper.writeValueAsString(obj);
         } catch (IOException e) {
-            e.printStackTrace();
+            LOG.debug(e, "Unable to serialize object of class {}",
+                    obj == null ? null : obj.getClass());
             return onErrorMessage;
         }
     }
@@ -38,6 +43,8 @@ public final class Serialization {
             mapper.setSerializationInclusion(NON_EMPTY);
             return mapper.writeValueAsString(obj);
         } catch (IOException e) {
+            LOG.debug(e, "Unable to serialize object of class {}",
+                    obj == null ? null : obj.getClass());
             return onErrorMessage;
         }
     }
