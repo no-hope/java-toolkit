@@ -12,12 +12,12 @@ public abstract class App {
 
     public void start() throws InterruptedException {
         Runtime.getRuntime()
-                .addShutdownHook(new Thread(new Runnable() {
-                    @Override
-                    public void run() {
-                        onVMShutdownWrapper();
-                    }
-                }));
+               .addShutdownHook(new Thread(new Runnable() {
+                   @Override
+                   public void run() {
+                       onVMShutdownWrapper();
+                   }
+               }));
 
         onStart();
     }
