@@ -7,7 +7,8 @@ package org.nohope.app;
 public abstract class App {
     protected abstract void onStart();
 
-    protected abstract void onVMShutdown();
+    protected void onVMShutdown() {
+    }
 
     public void start() throws InterruptedException {
         Runtime.getRuntime()

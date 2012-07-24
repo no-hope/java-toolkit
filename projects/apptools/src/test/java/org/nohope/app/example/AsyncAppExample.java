@@ -12,8 +12,8 @@ public class AsyncAppExample extends AsyncApp {
     private static final Logger LOG = LoggerFactory.getLogger(AsyncAppExample.class);
 
     @Override
-    protected void onStop() {
-        LOG.debug("AsyncAppExample.onStop()");
+    protected void onPlannedStop() {
+        LOG.debug("AsyncAppExample.onPlannedStop()");
     }
 
     @Override
