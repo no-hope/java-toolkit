@@ -13,9 +13,9 @@ public interface Logger extends org.slf4j.Logger {
      * Log an exception (throwable) at the TRACE level with an
      * accompanying message.
      *
-     * @param t the exception (throwable) to log
+     * @param t      the exception (throwable) to log
      * @param format the format string
-     * @param args an array of arguments
+     * @param args   an array of arguments
      */
     void trace(Throwable t, String format, Object... args);
 
@@ -29,9 +29,9 @@ public interface Logger extends org.slf4j.Logger {
      * Log an exception (throwable) at the DEBUG level with an
      * accompanying message.
      *
-     * @param t the exception (throwable) to log
+     * @param t      the exception (throwable) to log
      * @param format the format string
-     * @param args an array of arguments
+     * @param args   an array of arguments
      */
     void debug(Throwable t, String format, Object... args);
 
@@ -45,9 +45,9 @@ public interface Logger extends org.slf4j.Logger {
      * Log an exception (throwable) at the INFO level with an
      * accompanying message.
      *
-     * @param t the exception (throwable) to log
+     * @param t      the exception (throwable) to log
      * @param format the format string
-     * @param args an array of arguments
+     * @param args   an array of arguments
      */
     void info(Throwable t, String format, Object... args);
 
@@ -61,9 +61,9 @@ public interface Logger extends org.slf4j.Logger {
      * Log an exception (throwable) at the WARN level with an
      * accompanying message.
      *
-     * @param t the exception (throwable) to log
+     * @param t      the exception (throwable) to log
      * @param format the format string
-     * @param args an array of arguments
+     * @param args   an array of arguments
      */
     void warn(Throwable t, String format, Object... args);
 
@@ -77,9 +77,9 @@ public interface Logger extends org.slf4j.Logger {
      * Log an exception (throwable) at the ERROR level with an
      * accompanying message.
      *
-     * @param t the exception (throwable) to log
+     * @param t      the exception (throwable) to log
      * @param format the format string
-     * @param args an array of arguments
+     * @param args   an array of arguments
      */
     void error(Throwable t, String format, Object... args);
 

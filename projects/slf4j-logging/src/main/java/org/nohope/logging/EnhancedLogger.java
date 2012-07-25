@@ -22,7 +22,7 @@ class EnhancedLogger implements Logger {
     public void trace(final Throwable t, final String format, final Object... args) {
         if (isTraceEnabled()) {
             final FormattingTuple ft = MessageFormatter.arrayFormat(format, args);
-            logger.trace(ft.toString(), t);
+            logger.trace(ft.getMessage(), t);
         }
     }
 
@@ -30,7 +30,7 @@ class EnhancedLogger implements Logger {
     public void debug(final Throwable t, final String format, final Object... args) {
         if (isDebugEnabled()) {
             final FormattingTuple ft = MessageFormatter.format(format, args);
-            logger.debug(ft.toString(), t);
+            logger.debug(ft.getMessage(), t);
         }
     }
 
@@ -38,7 +38,7 @@ class EnhancedLogger implements Logger {
     public void info(final Throwable t, final String format, final Object... args) {
         if (isInfoEnabled()) {
             final FormattingTuple ft = MessageFormatter.arrayFormat(format, args);
-            logger.info(ft.toString(), t);
+            logger.info(ft.getMessage(), t);
         }
     }
 
@@ -54,7 +54,7 @@ class EnhancedLogger implements Logger {
     public void error(final Throwable t, final String format, final Object... args) {
         if (isErrorEnabled()) {
             final FormattingTuple ft = MessageFormatter.arrayFormat(format, args);
-            logger.error(ft.toString(), t);
+            logger.error(ft.getMessage(), t);
         }
     }
 
