@@ -14,14 +14,14 @@ import static org.codehaus.jackson.map.annotate.JsonSerialize.Inclusion.NON_EMPT
  * Date: 23.01.12
  * Time: 13:43
  */
-public final class Serialization {
-    private static final Logger LOG = LoggerFactory.getLogger(Serialization.class);
+public final class JSON {
+    private static final Logger LOG = LoggerFactory.getLogger(JSON.class);
 
-    private Serialization() {
+    private JSON() {
     }
 
-    public static String serializeForPrettyPrint(final Object obj,
-                                                 final String onErrorMessage) {
+    public static String jsonifyPretty(final Object obj,
+                                       final String onErrorMessage) {
         try {
             final ObjectMapper mapper = new ObjectMapper();
             mapper.configure(INDENT_OUTPUT, true);
@@ -30,20 +30,24 @@ public final class Serialization {
 
             return mapper.writeValueAsString(obj);
         } catch (IOException e) {
-            LOG.debug(e, "Unable to serialize object of class {}",
+            LOG.debug(e, "Unable to jsonify object of class {}",
                     obj == null ? null : obj.getClass());
             return onErrorMessage;
         }
     }
 
-    public static String serialize(final Object obj,
-                                   final String onErrorMessage) {
+    public static String jsonifyPretty(final Object obj) {
+        return jsonifyPretty(obj, "<? " + obj.getClass().getName() + ">");
+    }
+
+    public static String jsonify(final Object obj,
+                                 final String onErrorMessage) {
         try {
             final ObjectMapper mapper = new ObjectMapper();
             mapper.setSerializationInclusion(NON_EMPTY);
             return mapper.writeValueAsString(obj);
         } catch (IOException e) {
-            LOG.debug(e, "Unable to serialize object of class {}",
+            LOG.debug(e, "Unable to jsonify object of class {}",
                     obj == null ? null : obj.getClass());
             return onErrorMessage;
         }
