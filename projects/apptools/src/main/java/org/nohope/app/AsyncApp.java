@@ -17,9 +17,11 @@ public abstract class AsyncApp extends App {
     private final CountDownLatch latch;
 
     protected abstract void onPlannedStop();
+
     protected void onForcedShutdown() {
 
     }
+
     protected void onPlannedShutdown() {
 
     }
@@ -45,7 +47,7 @@ public abstract class AsyncApp extends App {
         super.start();
         LOG.debug("Startup routine completed");
 
-        if (!(getState().equals(AppState.TERMINATED) || getState().equals(AppState.TERMINATING)) ) {
+        if (!(getState().equals(AppState.TERMINATED) || getState().equals(AppState.TERMINATING))) {
             setState(AppState.RUNNING);
             latch.await();
         } else {
