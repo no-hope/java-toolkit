@@ -3,6 +3,7 @@ package org.nohope.reflection;
 import org.junit.Test;
 
 import static junit.framework.Assert.assertEquals;
+import static junit.framework.Assert.fail;
 
 /**
  * Date: 25.07.12
@@ -32,8 +33,27 @@ public class MessageMethodInvokerTest {
         assertEquals(true, dblInvoked);
     }
 
-    @Test(expected = NoSuchMethodException.class)
+    @Test
     public void testNoMethod() throws NoSuchMethodException {
-        MessageMethodInvoker.invokeHandler(this, "xxx");
+        try {
+            MessageMethodInvoker.invokeHandler(this, "xxx");
+            fail();
+        } catch (final NoSuchMethodException e) {
+        }
+
+        try {
+            MessageMethodInvoker.invokeHandler(new TestClass(), "yyy");
+            fail();
+        } catch (final IllegalArgumentException e) {
+        }
+    }
+
+    private static class TestClass {
+        private native void onConcreteMessage(final String x);
+
+        @Override
+        public String toString() {
+            return "TestClass";
+        }
     }
 }
