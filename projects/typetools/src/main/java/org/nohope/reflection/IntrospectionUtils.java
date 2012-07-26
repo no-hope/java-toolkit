@@ -571,6 +571,10 @@ public final class IntrospectionUtils {
         return getClassNames(getClasses(arguments));
     }
 
+    public static String getCanonicalClassName(final Object obj) {
+        return obj == null ? null : obj.getClass().getCanonicalName();
+    }
+
     /**
      * Transforms list of classes to list of their canonical names.
      *
