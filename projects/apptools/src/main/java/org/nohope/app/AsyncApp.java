@@ -16,14 +16,13 @@ public abstract class AsyncApp extends App {
 
     private final CountDownLatch latch;
 
-    protected abstract void onPlannedStop();
+    protected void onPlannedStop() {
+    }
 
     protected void onForcedShutdown() {
-
     }
 
     protected void onPlannedShutdown() {
-
     }
 
     protected AsyncApp() {
