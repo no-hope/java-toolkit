@@ -9,7 +9,7 @@ import org.junit.Test;
 public class AppExampleTest {
 
     @Test
-    public void syncApp() throws InterruptedException {
+    public void syncApp() throws Exception {
         final SyncAppExample test = new SyncAppExample();
 
         new Thread(new Runnable() {
@@ -28,7 +28,7 @@ public class AppExampleTest {
     }
 
     @Test
-    public void asyncApp() throws InterruptedException {
+    public void asyncApp() throws Exception {
         final AsyncAppExample test = new AsyncAppExample();
 
         new Thread(new Runnable() {

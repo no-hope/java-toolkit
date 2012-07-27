@@ -42,7 +42,7 @@ public abstract class AsyncApp extends App {
     }
 
     @Override
-    public final void start() throws InterruptedException {
+    public final void start() throws Exception {
         LOG.debug("Performing application startup");
         super.start();
         LOG.debug("Startup routine completed");

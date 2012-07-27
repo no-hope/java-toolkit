@@ -5,12 +5,12 @@ package org.nohope.app;
  * @since 7/15/12 3:13 PM
  */
 public abstract class App {
-    protected abstract void onStart();
+    protected abstract void onStart() throws Exception;
 
     protected void onVMShutdown() {
     }
 
-    public void start() throws InterruptedException {
+    public void start() throws Exception {
         Runtime.getRuntime()
                 .addShutdownHook(new Thread(new Runnable() {
                     @Override
