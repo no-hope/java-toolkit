@@ -1,7 +1,5 @@
 package org.nohope.akka;
 
-import java.lang.reflect.InvocationTargetException;
-
 /**
  * Date: 25.07.12
  * Time: 11:26

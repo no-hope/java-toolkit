@@ -11,6 +11,7 @@ import static junit.framework.Assert.assertEquals;
 public class MessageMethodInvokerTest {
     boolean intInvoked = false;
     boolean dblInvoked = false;
+
     private void onConcreteMessage(final Integer a) {
         intInvoked = true;
     }
@@ -33,6 +34,6 @@ public class MessageMethodInvokerTest {
 
     @Test(expected = NoSuchMethodException.class)
     public void testNoMethod() throws NoSuchMethodException {
-            MessageMethodInvoker.invokeHandler(this, "xxx");
+        MessageMethodInvoker.invokeHandler(this, "xxx");
     }
 }
