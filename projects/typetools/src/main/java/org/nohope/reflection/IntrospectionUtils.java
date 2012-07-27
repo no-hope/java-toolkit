@@ -6,8 +6,6 @@ import org.nohope.typetools.StringUtils;
 import java.lang.reflect.*;
 import java.util.*;
 
-import static org.apache.commons.lang3.ArrayUtils.subarray;
-
 /**
  * Set of introspection utils aimed to reduce problems caused by reflecting
  * native/inherited types.
