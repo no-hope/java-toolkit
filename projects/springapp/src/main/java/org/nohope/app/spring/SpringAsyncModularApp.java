@@ -19,9 +19,9 @@ import java.util.Map;
 import java.util.Properties;
 
 /**
- * <b>Technical background</b><p />
+ * <b>Technical background</b>
+ * <p />
  * This class assumes following classpath hierarchy:
- * <p/>
  * <pre>
  *     classpath:
  *          META-INF/[appMetaInfNamespace]/[appName]-defaultContext.xml // mandatory
@@ -44,7 +44,6 @@ import java.util.Properties;
  * Module name retrieved from properties file name.
  * <p/>
  * <b>Start procedure</b>
- * <p/>
  * <p/>
  * On {@link  #start() start} app will search for it's default service context, override it
  * with optionally passed service context. Then it searches for module definitions,
