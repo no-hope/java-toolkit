@@ -38,7 +38,7 @@ public class JacksonProcessor implements Unmarshaller, Marshaller {
 
     private final ObjectMapper mapper;
 
-    public JacksonProcessor(ObjectMapper mapper) {
+    public JacksonProcessor(final ObjectMapper mapper) {
         this.mapper = mapper;
     }
 
@@ -47,28 +47,30 @@ public class JacksonProcessor implements Unmarshaller, Marshaller {
 
     }
 
-    public <T> T unmarshall(String json, Class<T> clazz) throws MarshallingException {
+    @Override
+    public <T> T unmarshall(final String json, final Class<T> clazz) throws MarshallingException {
         try {
             return mapper.readValue(json, clazz);
         } catch (Exception e) {
-            String message = String.format("Unable to unmarshall from json: %s to %s", json, clazz);
+            final String message = String.format("Unable to unmarshall from json: %s to %s", json, clazz);
             throw new MarshallingException(message, e);
         }
     }
 
-    public <T> String marshall(T obj) throws MarshallingException {
+    @Override
+    public <T> String marshall(final T obj) throws MarshallingException {
         try {
-            Writer writer = new StringWriter();
+            final Writer writer = new StringWriter();
             mapper.writeValue(writer, obj);
             return writer.toString();
         } catch (Exception e) {
-            String message = String.format("Unable to marshall json from: %s", obj);
+            final String message = String.format("Unable to marshall json from: %s", obj);
             throw new MarshallingException(message, e);
         }
     }
 
     public static ObjectMapper createPreConfiguredMapper() {
-        ObjectMapper mapper = new ObjectMapper();
+        final ObjectMapper mapper = new ObjectMapper();
         mapper.registerModule(new JodaModule());
         mapper.configure(FAIL_ON_UNKNOWN_PROPERTIES, false);
         mapper.configure(AUTO_DETECT_GETTERS, false);
@@ -76,7 +78,7 @@ public class JacksonProcessor implements Unmarshaller, Marshaller {
         mapper.setSerializationInclusion(NON_NULL);
         mapper.setVisibilityChecker(VisibilityChecker.Std.defaultInstance().withFieldVisibility(ANY));
 
-        SimpleModule module = new SimpleModule("jongo", new Version(1, 0, 0, null, null, null));
+        final SimpleModule module = new SimpleModule("jongo", new Version(1, 0, 0, null, null, null));
         //addBSONTypeSerializers(module);
         mapper.registerModule(module);
         return mapper;
