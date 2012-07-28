@@ -1,9 +1,9 @@
 package org.nohope.app.spring;
 
 import org.junit.Test;
+import org.nohope.app.spring.module.IModule;
 
 import java.util.Properties;
-import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicReference;
 
 import static org.junit.Assert.*;
@@ -15,19 +15,74 @@ import static org.junit.Assert.*;
 public class SpringAsyncModularAppTest {
 
     @Test
+    public void appIsAnonymousClass() throws Exception {
+        final AppWithContainer app = new AppWithContainer(null, "", "/") {
+        };
+        assertEquals("springAsyncModularAppTest", app.getAppName());
+        assertEquals("/", app.getAppMetaInfNamespace());
+        assertEquals("/", app.getModuleMetaInfNamespace());
+    }
+
+    @Test
+    public void appDefaultContextOverriding() throws Exception {
+        final AppWithContainer app = new AppWithContainer("appo", "appContextOverriding");
+        probe(app);
+
+        assertNotNull(app.getContext());
+        assertEquals("appBeanOverridden", app.getContext().getBean("appBean"));
+    }
+
+    @Test
+    public void moduleDefaultContextOverriding() throws Exception {
+        final AppWithContainer app = new AppWithContainer("app", "", "moduleContextOverriding");
+        probe(app);
+
+        assertEquals(1, app.getModules().size());
+        final InjectModuleWithContextValue m = getModule(app, 0);
+        assertEquals("overridden", m.getValue());
+        assertEquals("moduleo", m.getName());
+    }
+
+    @Test
+    public void searchPathsDetermining() throws Exception {
+        final AppWithContainer app = new AppWithContainer();
+        assertEquals("appWithContainer", app.getAppName());
+        assertEquals("sev/omnitrack/app/spring/", app.getAppMetaInfNamespace());
+        assertEquals("sev/omnitrack/app/spring/module/", app.getModuleMetaInfNamespace());
+        assertEquals(IModule.class, app.getTargetModuleClass());
+    }
+
+    @Test
     public void illegalModuleDescriptor() throws Exception {
-        final AppWithContainer app = new AppWithContainer("app", "", "illegalDescriptor") {};
-        start(app);
-        app.stop();
+        final AppWithContainer app = new AppWithContainer("app", "", "illegalDescriptor") {
+        };
+        probe(app);
+        assertEquals(0, app.getModules().size());
+    }
+
+    @Test
+    public void nonexistentModuleClass() throws Exception {
+        final AppWithContainer app = new AppWithContainer("app", "", "nonexistentClass") {
+        };
+        probe(app);
+
+        assertEquals(0, app.getModules().size());
+    }
+
+    @Test
+    public void notAModuleClass() throws Exception {
+        final AppWithContainer app = new AppWithContainer("app", "", "notAModule") {
+        };
+        probe(app);
 
         assertEquals(0, app.getModules().size());
     }
 
     @Test
     public void legalModuleDefaultContext() throws Exception {
-        final AppWithContainer app = new AppWithContainer("app", "", "legalModuleDefaultContext") {};
-        start(app);
-        app.stop();
+        final AppWithContainer app = new AppWithContainer("app", "", "legalModuleDefaultContext") {
+        };
+        probe(app);
 
         assertEquals(1, app.getModules().size());
         final InjectModuleWithContextValue m = getModule(app, 0);
@@ -55,23 +110,22 @@ public class SpringAsyncModularAppTest {
         }
     }
 
-    private static void start(final AppWithContainer app) throws InterruptedException {
+    private static void probe(final AppWithContainer app) throws InterruptedException {
         final AtomicReference<Throwable> ref = new AtomicReference<Throwable>();
-        new Thread(new Runnable() {
+        final Thread t = new Thread(new Runnable() {
             @Override
             public void run() {
                 try {
                     app.start();
                 } catch (final Exception e) {
-                    e.printStackTrace();
                     ref.set(e);
                 }
             }
-        }).start();
+        });
 
-        while (!app.isStarted()) {
-            TimeUnit.SECONDS.sleep(1);
-        }
+        t.start();
+        app.stop();
+        t.join();
 
         if (ref.get() != null) {
             throw new IllegalStateException(ref.get());

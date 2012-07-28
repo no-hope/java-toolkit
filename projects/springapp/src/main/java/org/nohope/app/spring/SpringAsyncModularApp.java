@@ -21,7 +21,7 @@ import java.util.Properties;
 /**
  * <b>Technical background</b><p />
  * This class assumes following classpath hierarchy:
- *
+ * <p/>
  * <pre>
  *     classpath:
  *          META-INF/[appMetaInfNamespace]/[appName]-defaultContext.xml // mandatory
@@ -31,7 +31,7 @@ import java.util.Properties;
  *          META-INF/[moduleMetaInfNamespace]/[moduleName1]-defaultContext.xml // mandatory
  *          [moduleName1]-context.xml // <-- optional, will override default module context
  * </pre>
- *
+ * <p/>
  * Module descriptor is simple properties file content should looks like:
  * <pre>
  *     class=com.mypackage.ConcreteModule  // reserved
@@ -40,23 +40,23 @@ import java.util.Properties;
  *     key1=val1
  *     key2=val2
  * </pre>
- *
+ * <p/>
  * Module name retrieved from properties file name.
- * <p />
+ * <p/>
  * <b>Start procedure</b>
- * <p />
- *
+ * <p/>
+ * <p/>
  * On {@link  #start() start} app will search for it's default service context, override it
  * with optionally passed service context. Then it searches for module definitions,
  * doing the same operations with their context (<b>note:</b> service context will be passed as a
  * parent to module context, so module will have access to all app beans) invoking appropriate
  * methods ({@link #onModuleDiscovered(Class, ConfigurableApplicationContext, Properties, String)
- *                  onModuleDiscovered},
- *          {@link #onModuleCreated(Object, ConfigurableApplicationContext, Properties, String)
- *                  onModuleDiscovered}). After all
- *          {@link #onModuleDiscoveryFinished(ConfigurableApplicationContext)
- *                  onModuleDiscoveryFinished}
- *                  will be executed.
+ * onModuleDiscovered},
+ * {@link #onModuleCreated(Object, ConfigurableApplicationContext, Properties, String)
+ * onModuleDiscovered}). After all
+ * {@link #onModuleDiscoveryFinished(ConfigurableApplicationContext)
+ * onModuleDiscoveryFinished}
+ * will be executed.
  *
  * @param <M> module interface
  * @author <a href="mailto:ketoth.xupack@gmail.com">ketoth xupack</a>
@@ -68,7 +68,7 @@ public abstract class SpringAsyncModularApp<M> extends AsyncApp {
     protected static final String META_INF = "META-INF/";
     protected static final String DEFAULT_CONTEXT_POSTFIX = "-defaultContext.xml";
     protected static final String PROPERTIES_EXTENSION = ".properties";
-    protected static final String CONTEXT_POSTFIX = "-defaultContext.xml";
+    protected static final String CONTEXT_POSTFIX = "-context.xml";
 
     private final ResourceFinder finder = new ResourceFinder(META_INF);
 
@@ -104,7 +104,7 @@ public abstract class SpringAsyncModularApp<M> extends AsyncApp {
                         : toValidPath(moduleMetaInfNamespace);
         this.appName =
                 appName == null
-                        ? lowercaseFirstChar(getClass().getSimpleName())
+                        ? lowercaseClassName(getClass())
                         : appName;
     }
 
@@ -118,14 +118,15 @@ public abstract class SpringAsyncModularApp<M> extends AsyncApp {
         this(targetModuleClass, null, null, null);
     }
 
-    /**
-     * Searches for plugin definitions in classpath and instantiates them.
-     */
+    /** Searches for plugin definitions in classpath and instantiates them. */
     @Override
     protected final void onStart() throws IOException {
         final ConfigurableApplicationContext ctx = getConfig(
-                new ClassPathXmlApplicationContext(META_INF + appMetaInfNamespace + appName +
-                                                   DEFAULT_CONTEXT_POSTFIX),
+                new ClassPathXmlApplicationContext(
+                        META_INF
+                        + appMetaInfNamespace
+                        + appName
+                        + DEFAULT_CONTEXT_POSTFIX),
                 appName + CONTEXT_POSTFIX);
 
         final Map<String, Properties> properties = finder.mapAvailableProperties(moduleMetaInfNamespace);
@@ -180,9 +181,11 @@ public abstract class SpringAsyncModularApp<M> extends AsyncApp {
             onModuleCreated(module, moduleContext, moduleProperties, moduleName);
         }
 
+        /*
         if (!finder.getResourcesNotLoaded().isEmpty()) {
             LOG.warn("Suspicious modules found in classpath: {}", finder.getResourcesNotLoaded());
         }
+        */
 
         onModuleDiscoveryFinished(ctx);
 
@@ -250,12 +253,16 @@ public abstract class SpringAsyncModularApp<M> extends AsyncApp {
         return clazz.getPackage().getName().replaceAll("\\.", "/") + '/';
     }
 
-    private static String lowercaseFirstChar(final String str) {
-        return str.substring(0,1).toLowerCase() + str.substring(1);
+    private static String lowercaseClassName(final Class<?> clazz) {
+        if (clazz.isAnonymousClass()) {
+            return lowercaseClassName(clazz.getEnclosingClass());
+        }
+        final String str = clazz.getSimpleName();
+        return str.substring(0, 1).toLowerCase() + str.substring(1);
     }
 
     private static String toValidPath(final String str) {
-        return str.endsWith("/") ? str : (str +'/');
+        return str.endsWith("/") ? str : (str + '/');
     }
 
     private static ConfigurableApplicationContext getConfig(final ConfigurableApplicationContext parent, final String path) {

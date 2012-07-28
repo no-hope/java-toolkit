@@ -1,19 +1,26 @@
 package org.nohope.app.spring;
 
 import org.springframework.context.ConfigurableApplicationContext;
+import org.nohope.app.spring.module.IModule;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Properties;
 
 /**
-* @author <a href="mailto:ketoth.xupack@gmail.com">ketoth xupack</a>
-* @since 7/27/12 5:33 PM
-*/
-public abstract class AppWithContainer extends SpringAsyncModularApp<IModule> {
+ * @author <a href="mailto:ketoth.xupack@gmail.com">ketoth xupack</a>
+ * @since 7/27/12 5:33 PM
+ */
+class AppWithContainer extends SpringAsyncModularApp<IModule> {
+    private ConfigurableApplicationContext context = null;
+
     protected AppWithContainer(final String appName,
                                final String metaInfNamespace) {
         super(IModule.class, appName, metaInfNamespace, metaInfNamespace);
+    }
+
+    protected AppWithContainer() {
+        super(IModule.class);
     }
 
     protected AppWithContainer(final String appName,
@@ -29,6 +36,7 @@ public abstract class AppWithContainer extends SpringAsyncModularApp<IModule> {
                                    final ConfigurableApplicationContext ctx,
                                    final Properties properties,
                                    final String name) {
+        super.onModuleCreated(module, ctx, properties, name);
         modules.add(module);
     }
 
@@ -37,9 +45,20 @@ public abstract class AppWithContainer extends SpringAsyncModularApp<IModule> {
                                       final ConfigurableApplicationContext ctx,
                                       final Properties properties,
                                       final String name) {
+        super.onModuleDiscovered(clazz, ctx, properties, name);
         ctx.getBeanFactory().registerSingleton("name", name);
         ctx.getBeanFactory().registerSingleton("properties", properties);
         ctx.getBeanFactory().registerSingleton("ctx", ctx);
+    }
+
+    @Override
+    protected void onModuleDiscoveryFinished(final ConfigurableApplicationContext ctx) {
+        super.onModuleDiscoveryFinished(ctx);
+        context = ctx;
+    }
+
+    public ConfigurableApplicationContext getContext() {
+        return context;
     }
 
     public List<IModule> getModules() {

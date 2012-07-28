@@ -6,6 +6,6 @@
          http://www.springframework.org/schema/beans/spring-beans-3.0.xsd
        ">
     <bean id="appBean" class="java.lang.String">
-        <constructor-arg value="appBean"/>
+        <constructor-arg value="appBeanOverridden"/>
     </bean>
 </beans>

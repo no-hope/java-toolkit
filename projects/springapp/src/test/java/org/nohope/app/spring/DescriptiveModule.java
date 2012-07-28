@@ -1,6 +1,7 @@
 package org.nohope.app.spring;
 
 import org.springframework.context.ConfigurableApplicationContext;
+import org.nohope.app.spring.module.IModule;
 
 import java.util.Properties;
 
@@ -8,7 +9,7 @@ import java.util.Properties;
  * @author <a href="mailto:ketoth.xupack@gmail.com">ketoth xupack</a>
  * @since 7/27/12 5:34 PM
  */
-public class DescriptiveModule implements IModule {
+class DescriptiveModule implements IModule {
     private String name;
     private Properties properties;
     private ConfigurableApplicationContext context;

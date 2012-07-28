@@ -10,7 +10,7 @@ import java.util.Properties;
  * @author <a href="mailto:ketoth.xupack@gmail.com">ketoth xupack</a>
  * @since 7/27/12 5:34 PM
  */
-public class InjectModuleWithContextValue extends InjectModule {
+class InjectModuleWithContextValue extends InjectModule {
 
     private final String value;
 
