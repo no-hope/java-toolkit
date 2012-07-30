@@ -20,7 +20,7 @@ import java.util.Properties;
 
 /**
  * <b>Technical background</b>
- * <p />
+ * <p/>
  * This class assumes following classpath hierarchy:
  * <pre>
  *     classpath:
@@ -79,14 +79,14 @@ public abstract class SpringAsyncModularApp<M> extends AsyncApp {
     /**
      * {@link SpringAsyncModularApp} constructor.
      *
-     * @param targetModuleClass module type
-     * @param appName this app name (if {@code null} passed then class name with lowercase
-     * first letter will be used)
-     * @param appMetaInfNamespace path relative to {@code META-INF} folder in classpath
-     * to discover app context (if {@code null} passed then package path of app class will be used)
+     * @param targetModuleClass      module type
+     * @param appName                this app name (if {@code null} passed then class name with lowercase
+     *                               first letter will be used)
+     * @param appMetaInfNamespace    path relative to {@code META-INF} folder in classpath
+     *                               to discover app context (if {@code null} passed then package path of app class will be used)
      * @param moduleMetaInfNamespace path relative to {@code META-INF} folder in classpath
-     * to discover module context (if {@code null} passed then package path of targetClass
-     * parameter will be used will be used)
+     *                               to discover module context (if {@code null} passed then package path of targetClass
+     *                               parameter will be used will be used)
      */
     protected SpringAsyncModularApp(@Nonnull final Class<? extends M> targetModuleClass,
                                     @Nullable final String appName,
@@ -117,15 +117,17 @@ public abstract class SpringAsyncModularApp<M> extends AsyncApp {
         this(targetModuleClass, null, null, null);
     }
 
-    /** Searches for plugin definitions in classpath and instantiates them. */
+    /**
+     * Searches for plugin definitions in classpath and instantiates them.
+     */
     @Override
     protected final void onStart() throws IOException {
         final ConfigurableApplicationContext ctx = getConfig(
                 new ClassPathXmlApplicationContext(
                         META_INF
-                        + appMetaInfNamespace
-                        + appName
-                        + DEFAULT_CONTEXT_POSTFIX),
+                                + appMetaInfNamespace
+                                + appName
+                                + DEFAULT_CONTEXT_POSTFIX),
                 appName + CONTEXT_POSTFIX);
 
         final Map<String, Properties> properties = finder.mapAvailableProperties(moduleMetaInfNamespace);
@@ -196,10 +198,10 @@ public abstract class SpringAsyncModularApp<M> extends AsyncApp {
      * Here is a good place to pass additional beans to module context
      * or process custom annotations of module class/class methods.
      *
-     * @param ctx final module context
-     * @param clazz module class
+     * @param ctx        final module context
+     * @param clazz      module class
      * @param properties module descriptor
-     * @param name module name
+     * @param name       module name
      */
     protected void onModuleDiscovered(final Class<? extends M> clazz,
                                       final ConfigurableApplicationContext ctx,
@@ -211,10 +213,10 @@ public abstract class SpringAsyncModularApp<M> extends AsyncApp {
      * This method executed when app successfully instantiated module using it's context.
      * Here is a good place to pass do some module postprocessing.
      *
-     * @param module module class
-     * @param ctx final module context
+     * @param module     module class
+     * @param ctx        final module context
      * @param properties module descriptor
-     * @param name module name
+     * @param name       module name
      */
     protected void onModuleCreated(final M module,
                                    final ConfigurableApplicationContext ctx,
