@@ -10,12 +10,12 @@ import java.util.Properties;
  * @author <a href="mailto:ketoth.xupack@gmail.com">ketoth xupack</a>
  * @since 7/27/12 5:34 PM
  */
-class InjectModuleWithContextValue extends InjectModule {
+final class InjectModuleWithContextValue extends InjectModule {
 
     private final String value;
 
     @Inject
-    public InjectModuleWithContextValue(
+    private InjectModuleWithContextValue(
             @Named("value") final String val,
             @Named("name") final String name,
             @Named("properties") final Properties properties,

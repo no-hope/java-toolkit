@@ -5,6 +5,7 @@ import org.nohope.logging.Logger;
 import org.nohope.logging.LoggerFactory;
 import org.springframework.beans.factory.annotation.AutowiredAnnotationBeanPostProcessor;
 import org.springframework.beans.factory.config.AutowireCapableBeanFactory;
+import org.springframework.beans.factory.config.SmartInstantiationAwareBeanPostProcessor;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.context.annotation.CommonAnnotationBeanPostProcessor;
@@ -122,11 +123,11 @@ public abstract class SpringAsyncModularApp<M> extends AsyncApp {
     @Override
     protected final void onStart() throws Exception {
         final ConfigurableApplicationContext ctx = getConfig(
-                new ClassPathXmlApplicationContext(
+                propagateAnnotationProcessing(new ClassPathXmlApplicationContext(
                         META_INF
                                 + appMetaInfNamespace
                                 + appName
-                                + DEFAULT_CONTEXT_POSTFIX),
+                                + DEFAULT_CONTEXT_POSTFIX)),
                 appName + CONTEXT_POSTFIX);
 
         final Map<String, Properties> properties = finder.mapAvailableProperties(moduleMetaInfNamespace);
