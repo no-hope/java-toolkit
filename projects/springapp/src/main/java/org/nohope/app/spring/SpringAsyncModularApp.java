@@ -190,7 +190,7 @@ public abstract class SpringAsyncModularApp<M> extends AsyncApp {
 
         onModuleDiscoveryFinished(ctx);
 
-        LOG.info("Collector server started");
+        LOG.info("Service started: {}", this.getClass().getCanonicalName());
     }
 
     /**
