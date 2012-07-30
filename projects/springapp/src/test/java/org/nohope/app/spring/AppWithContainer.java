@@ -52,7 +52,7 @@ class AppWithContainer extends SpringAsyncModularApp<IModule> {
     }
 
     @Override
-    protected void onModuleDiscoveryFinished(final ConfigurableApplicationContext ctx) {
+    protected void onModuleDiscoveryFinished(final ConfigurableApplicationContext ctx) throws Exception {
         super.onModuleDiscoveryFinished(ctx);
         context = ctx;
     }

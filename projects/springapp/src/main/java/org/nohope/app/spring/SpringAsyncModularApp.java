@@ -14,7 +14,6 @@ import org.nohope.app.AsyncApp;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
-import java.io.IOException;
 import java.util.Map;
 import java.util.Properties;
 
@@ -121,7 +120,7 @@ public abstract class SpringAsyncModularApp<M> extends AsyncApp {
      * Searches for plugin definitions in classpath and instantiates them.
      */
     @Override
-    protected final void onStart() throws IOException {
+    protected final void onStart() throws Exception {
         final ConfigurableApplicationContext ctx = getConfig(
                 new ClassPathXmlApplicationContext(
                         META_INF
@@ -229,7 +228,7 @@ public abstract class SpringAsyncModularApp<M> extends AsyncApp {
      *
      * @param ctx final app context
      */
-    protected void onModuleDiscoveryFinished(final ConfigurableApplicationContext ctx) {
+    protected void onModuleDiscoveryFinished(final ConfigurableApplicationContext ctx) throws Exception {
     }
 
     protected final Class<? extends M> getTargetModuleClass() {
