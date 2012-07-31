@@ -11,4 +11,8 @@ public final class TBool {
     public static boolean asBoolean(final Boolean bool) {
         return (bool != null) && bool;
     }
+
+    public static boolean safeAsBoolean(final Object bool) {
+        return Cast.as(bool, Boolean.class);
+    }
 }
