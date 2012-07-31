@@ -41,10 +41,14 @@ public class GetImplementationsTest {
         class M2Impl implements Marker2, Iface {
 
         }
-        allModules.add(new ModuleDescriptor<Iface>("M1-1", new M1Impl() {}, null));
-        allModules.add(new ModuleDescriptor<Iface>("M1-2", new M1Impl() {}, null));
-        allModules.add(new ModuleDescriptor<Iface>("M2-1", new M2Impl() {}, null));
-        allModules.add(new ModuleDescriptor<Iface>("M2-2", new M2Impl() {}, null));
+        allModules.add(new ModuleDescriptor<Iface>("M1-1", new M1Impl() {
+        }, null));
+        allModules.add(new ModuleDescriptor<Iface>("M1-2", new M1Impl() {
+        }, null));
+        allModules.add(new ModuleDescriptor<Iface>("M2-1", new M2Impl() {
+        }, null));
+        allModules.add(new ModuleDescriptor<Iface>("M2-2", new M2Impl() {
+        }, null));
 
         List<Marker1> lst = SpringAsyncModularAppWithModuleStorage.getImplementations(Marker1.class, allModules);
         assertEquals(2, lst.size());

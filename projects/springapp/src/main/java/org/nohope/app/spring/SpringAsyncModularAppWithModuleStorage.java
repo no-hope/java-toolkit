@@ -14,7 +14,6 @@ public class SpringAsyncModularAppWithModuleStorage<M> extends SpringAsyncModula
     private final Map<String, ModuleDescriptor<M>> modules = new HashMap<>();
 
     /**
-     *
      * @return Map of descriptors of all the available modules
      */
     public Map<String, ModuleDescriptor<M>> getModules() {
@@ -22,12 +21,10 @@ public class SpringAsyncModularAppWithModuleStorage<M> extends SpringAsyncModula
     }
 
     /**
-     *
-     * @deprecated You should avoid of using this method if possible
-     *
      * @param clazz
      * @param <Subtype> supertype of modules to be filtered
      * @return All the implementations of given superclass
+     * @deprecated You should avoid of using this method if possible
      */
     public <Subtype> List<Subtype> getImplementations(final Class<Subtype> clazz) {
         return getImplementations(clazz, modules.values());
