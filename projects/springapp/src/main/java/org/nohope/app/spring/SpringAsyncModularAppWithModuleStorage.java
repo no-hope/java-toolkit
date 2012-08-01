@@ -4,7 +4,13 @@ import org.springframework.context.ConfigurableApplicationContext;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
-import java.util.*;
+import javax.annotation.OverridingMethodsMustInvokeSuper;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Properties;
 
 /**
  * Date: 30.07.12
@@ -53,6 +59,7 @@ public class SpringAsyncModularAppWithModuleStorage<M> extends SpringAsyncModula
     }
 
     @Override
+    @OverridingMethodsMustInvokeSuper
     protected void onModuleCreated(final M module,
                                    final ConfigurableApplicationContext ctx,
                                    final Properties properties,

@@ -3,6 +3,7 @@ package org.nohope.app.spring;
 import org.apache.xbean.finder.ResourceFinder;
 import org.nohope.logging.Logger;
 import org.nohope.logging.LoggerFactory;
+import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.annotation.AutowiredAnnotationBeanPostProcessor;
 import org.springframework.beans.factory.config.AutowireCapableBeanFactory;
 import org.springframework.context.ApplicationContext;
@@ -16,6 +17,7 @@ import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.util.Map;
 import java.util.Properties;
+import java.util.concurrent.atomic.AtomicReference;
 
 /**
  * <b>Technical background</b>
@@ -70,6 +72,7 @@ public abstract class SpringAsyncModularApp<M> extends AsyncApp {
 
     private final ResourceFinder finder = new ResourceFinder(META_INF);
 
+    private final AtomicReference<ConfigurableApplicationContext> contextReference = new AtomicReference<>();
     private final Class<? extends M> targetModuleClass;
     private final String appMetaInfNamespace;
     private final String moduleMetaInfNamespace;
@@ -121,13 +124,10 @@ public abstract class SpringAsyncModularApp<M> extends AsyncApp {
      */
     @Override
     protected final void onStart() throws Exception {
-        final ConfigurableApplicationContext ctx = getConfig(
-                propagateAnnotationProcessing(new ClassPathXmlApplicationContext(
-                        META_INF
-                                + appMetaInfNamespace
-                                + appName
-                                + DEFAULT_CONTEXT_POSTFIX)),
+        final ConfigurableApplicationContext ctx = createAndOverride(
+                META_INF + appMetaInfNamespace + appName + DEFAULT_CONTEXT_POSTFIX,
                 appName + CONTEXT_POSTFIX);
+        contextReference.set(ctx);
 
         final Map<String, Properties> properties = finder.mapAvailableProperties(moduleMetaInfNamespace);
         for (final Map.Entry<String, Properties> e : properties.entrySet()) {
@@ -167,7 +167,7 @@ public abstract class SpringAsyncModularApp<M> extends AsyncApp {
                 continue;
             }
 
-            final ConfigurableApplicationContext moduleContext = getConfig(ctx,
+            final ConfigurableApplicationContext moduleContext = override(ctx,
                     META_INF + moduleMetaInfNamespace + moduleName + DEFAULT_CONTEXT_POSTFIX,
                     moduleName + CONTEXT_POSTFIX);
 
@@ -175,7 +175,7 @@ public abstract class SpringAsyncModularApp<M> extends AsyncApp {
 
             onModuleDiscovered(finalClass, moduleContext, moduleProperties, moduleName);
 
-            final M module = createBean(moduleContext, finalClass);
+            final M module = instantiate(moduleContext, finalClass);
             LOG.debug("Module {}(class={}) loaded", moduleName, moduleClassName);
 
             onModuleCreated(module, moduleContext, moduleProperties, moduleName);
@@ -186,7 +186,6 @@ public abstract class SpringAsyncModularApp<M> extends AsyncApp {
             LOG.warn("Suspicious modules found in classpath: {}", finder.getResourcesNotLoaded());
         }
         */
-
         onModuleDiscoveryFinished(ctx);
 
         LOG.info("Service started: {}", this.getClass().getCanonicalName());
@@ -247,6 +246,23 @@ public abstract class SpringAsyncModularApp<M> extends AsyncApp {
         return appName;
     }
 
+    protected final ConfigurableApplicationContext getAppContext() {
+        final ConfigurableApplicationContext ctx = contextReference.get();
+        if (ctx != null) {
+            return ctx;
+        }
+
+        throw new IllegalStateException("Unable to find application context. App not started?");
+    }
+
+    protected <T> T getOrInstantiate(final Class<? extends T> clazz) {
+        try {
+            return getAppContext().getBean(clazz);
+        } catch (final BeansException e) {
+            return instantiate(getAppContext(), clazz);
+        }
+    }
+
     //TODO: move to utility classes?
 
     private static String getPackagePath(final Class<?> clazz) {
@@ -265,36 +281,104 @@ public abstract class SpringAsyncModularApp<M> extends AsyncApp {
         return str.endsWith("/") ? str : (str + '/');
     }
 
-    private static ConfigurableApplicationContext getConfig(final ConfigurableApplicationContext parent, final String path) {
+    /**
+     * Overrides given context with context specified by classpath file.
+     *
+     * @param parent spring context
+     * @param path classpath path to context
+     * @return overridden context ({@code null} if file not exists)
+     */
+    private static ConfigurableApplicationContext override(final ConfigurableApplicationContext parent,
+                                                           final String path) {
+        final ClassPathResource config = new ClassPathResource(path);
+        if (config.exists()) {
+            return propagateAnnotationProcessing(
+                    new ClassPathXmlApplicationContext(new String[] {path}, parent));
+        }
+
+        return null;
+    }
+
+    private static ConfigurableApplicationContext create(final String path) {
         final ClassPathResource config = new ClassPathResource(path);
 
         if (config.exists()) {
-            return propagateAnnotationProcessing(new ClassPathXmlApplicationContext(
-                    new String[]{path},
-                    parent
-            ));
+            return propagateAnnotationProcessing(new ClassPathXmlApplicationContext(path));
         }
 
-        LOG.warn("Unable to override {} with {}", parent, path);
-        return parent;
+        return null;
     }
 
-    private static ConfigurableApplicationContext getConfig(final ConfigurableApplicationContext parent, final String... paths) {
-        ConfigurableApplicationContext ctx = parent;
-        for (final String path : paths) {
-            ctx = getConfig(ctx, path);
+    private static ConfigurableApplicationContext override(final ConfigurableApplicationContext ctx,
+                                                           final String parentPath,
+                                                           final String childPath) {
+        final ConfigurableApplicationContext parentContext = override(ctx, parentPath);
+        if (parentContext == null) {
+            throw new IllegalArgumentException("Unable to create parent context for " + parentPath);
         }
-        return ctx;
+
+        final ConfigurableApplicationContext childContext = create(childPath);
+        if (childContext != null) {
+            return childContext;
+        }
+
+        LOG.warn("Unable to override {} with {}", parentPath, childPath);
+        return parentContext;
+    }
+
+    private static ConfigurableApplicationContext createAndOverride(final String parentPath,
+                                                                    final String childPath) {
+
+        final ConfigurableApplicationContext parentContext = create(parentPath);
+        if (parentContext == null) {
+            throw new IllegalArgumentException("Unable to create parent context for " + parentPath);
+        }
+
+        final ConfigurableApplicationContext childContext = create(childPath);
+        if (childContext != null) {
+            return childContext;
+        }
+
+        LOG.warn("Unable to override {} with {}", parentPath, childPath);
+        return parentContext;
+    }
+
+    protected static <T> T getOrInstantiate(final ApplicationContext ctx, final Class<? extends T> clazz) {
+        try {
+            return ctx.getBean(clazz);
+        } catch (final BeansException e) {
+            return instantiate(ctx, clazz);
+        }
     }
 
     @SuppressWarnings("unchecked")
-    private static <T> T createBean(final ApplicationContext ctx, final Class<? extends T> clazz) {
+    protected static <T> T instantiate(final ApplicationContext ctx, final Class<? extends T> clazz) {
         final AutowireCapableBeanFactory factory = ctx.getAutowireCapableBeanFactory();
         return (T) factory.createBean(
                 clazz,
                 AutowireCapableBeanFactory.AUTOWIRE_NO,
                 true
         );
+    }
+
+    protected <T> T get(final String beanId, final Class<T> clazz) {
+        return getAppContext().getBean(beanId, clazz);
+    }
+
+    protected <T> T get(final Class<T> clazz) {
+        return getAppContext().getBean(clazz);
+    }
+
+    protected <T> T registerSingleton(final String name, final T obj) {
+        registerSingleton(getAppContext(), name, obj);
+        return obj;
+    }
+
+    protected static <T> T registerSingleton(final ConfigurableApplicationContext ctx,
+                                             final String name,
+                                             final T obj) {
+        ctx.getBeanFactory().registerSingleton(name, obj);
+        return obj;
     }
 
     private static ConfigurableApplicationContext propagateAnnotationProcessing(
