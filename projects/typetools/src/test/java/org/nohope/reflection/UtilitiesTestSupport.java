@@ -24,5 +24,5 @@ public abstract class UtilitiesTestSupport {
         cons[0].newInstance((Object[]) null);
     }
 
-    public abstract Class<?> getUtilityClass();
+    protected abstract Class<?> getUtilityClass();
 }

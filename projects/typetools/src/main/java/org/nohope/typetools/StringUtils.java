@@ -14,11 +14,11 @@ public final class StringUtils {
     /**
      * Default representation for {@code null} reference.
      */
-    public static final String NULL_STRING = "null";
+    private static final String NULL_STRING = "null";
     /**
      * Default element separator.
      */
-    public static final String DEFAULT_SEPARATOR = ", ";
+    private static final String DEFAULT_SEPARATOR = ", ";
 
     /**
      * Utility constructor.
@@ -147,9 +147,9 @@ public final class StringUtils {
      *                   array are represented by this string
      * @return the joined string, {@code null} if null collection input
      */
-    public static String join(final Object[] objects,
-                              final String separator,
-                              final String nullString) {
+    private static String join(final Object[] objects,
+                               final String separator,
+                               final String nullString) {
         return objects == null
                 ? null
                 : join(Arrays.asList(objects), separator, nullString);
@@ -167,8 +167,8 @@ public final class StringUtils {
      * @see #NULL_STRING
      * @see #join(java.util.Collection, String, String)
      */
-    public static String join(final Object[] objects,
-                              final String separator) {
+    private static String join(final Object[] objects,
+                               final String separator) {
         return join(objects, separator, NULL_STRING);
     }
 

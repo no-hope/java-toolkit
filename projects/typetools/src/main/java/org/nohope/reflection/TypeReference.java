@@ -11,7 +11,7 @@ import java.lang.reflect.Type;
  * @author <a href="mailto:ketoth.xupack@gmail.com">ketoth xupack</a>
  * @since 6/21/11 5:31 PM
  */
-public abstract class TypeReference<T> {
+abstract class TypeReference<T> {
     /**
      * Type of token.
      */
@@ -20,7 +20,7 @@ public abstract class TypeReference<T> {
     /**
      * Default constructor.
      */
-    protected TypeReference() {
+    TypeReference() {
         final Type superClass = getClass().getGenericSuperclass();
         if (!(superClass instanceof ParameterizedType)) {
             throw new IllegalArgumentException("missing type parameter.");
