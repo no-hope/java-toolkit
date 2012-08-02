@@ -50,7 +50,7 @@ public class GetImplementationsTest {
         allModules.add(new ModuleDescriptor<Iface>("M2-2", new M2Impl() {
         }, null));
 
-        List<Marker1> lst = SpringAsyncModularAppWithModuleStorage.getImplementations(Marker1.class, allModules);
+        final List<Marker1> lst = SpringAsyncModularAppWithModuleStorage.getImplementations(Marker1.class, allModules);
         assertEquals(2, lst.size());
 
         assertThat(lst, JUnitMatchers.everyItem(new BaseMatcher<Marker1>() {
