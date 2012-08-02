@@ -14,18 +14,18 @@ import java.util.Properties;
 class AppWithContainer extends SpringAsyncModularApp<IModule> {
     private ConfigurableApplicationContext context = null;
 
-    protected AppWithContainer(final String appName,
-                               final String metaInfNamespace) {
+    AppWithContainer(final String appName,
+                     final String metaInfNamespace) {
         super(IModule.class, appName, metaInfNamespace, metaInfNamespace);
     }
 
-    protected AppWithContainer() {
+    AppWithContainer() {
         super(IModule.class);
     }
 
-    protected AppWithContainer(final String appName,
-                               final String appMetaInfNamespace,
-                               final String metaInfNamespace) {
+    AppWithContainer(final String appName,
+                     final String appMetaInfNamespace,
+                     final String metaInfNamespace) {
         super(IModule.class, appName, appMetaInfNamespace, metaInfNamespace);
     }
 

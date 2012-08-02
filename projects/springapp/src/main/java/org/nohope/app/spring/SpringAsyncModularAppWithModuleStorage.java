@@ -32,7 +32,7 @@ public class SpringAsyncModularAppWithModuleStorage<M> extends SpringAsyncModula
      * @return All the implementations of given superclass
      * @deprecated You should avoid of using this method if possible
      */
-    public <Subtype> List<Subtype> getImplementations(final Class<Subtype> clazz) {
+    protected <Subtype> List<Subtype> getImplementations(final Class<Subtype> clazz) {
         return getImplementations(clazz, modules.values());
     }
 

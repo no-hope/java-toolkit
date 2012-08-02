@@ -111,7 +111,7 @@ public class SpringAsyncModularAppTest {
     }
 
     private static void probe(final AppWithContainer app) throws InterruptedException {
-        final AtomicReference<Throwable> ref = new AtomicReference<Throwable>();
+        final AtomicReference<Throwable> ref = new AtomicReference<>();
         final Thread t = new Thread(new Runnable() {
             @Override
             public void run() {

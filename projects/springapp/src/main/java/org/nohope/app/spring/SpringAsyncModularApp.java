@@ -65,10 +65,10 @@ import java.util.concurrent.atomic.AtomicReference;
 public abstract class SpringAsyncModularApp<M> extends AsyncApp {
     private static final Logger LOG = LoggerFactory.getLogger(SpringAsyncModularApp.class);
 
-    protected static final String META_INF = "META-INF/";
-    protected static final String DEFAULT_CONTEXT_POSTFIX = "-defaultContext.xml";
-    protected static final String PROPERTIES_EXTENSION = ".properties";
-    protected static final String CONTEXT_POSTFIX = "-context.xml";
+    private static final String META_INF = "META-INF/";
+    private static final String DEFAULT_CONTEXT_POSTFIX = "-defaultContext.xml";
+    private static final String PROPERTIES_EXTENSION = ".properties";
+    private static final String CONTEXT_POSTFIX = "-context.xml";
 
     private final ResourceFinder finder = new ResourceFinder(META_INF);
 
@@ -90,10 +90,10 @@ public abstract class SpringAsyncModularApp<M> extends AsyncApp {
      *                               to discover module context (if {@code null} passed then package path of targetClass
      *                               parameter will be used will be used)
      */
-    protected SpringAsyncModularApp(@Nonnull final Class<? extends M> targetModuleClass,
-                                    @Nullable final String appName,
-                                    @Nullable final String appMetaInfNamespace,
-                                    @Nullable final String moduleMetaInfNamespace) {
+    SpringAsyncModularApp(@Nonnull final Class<? extends M> targetModuleClass,
+                          @Nullable final String appName,
+                          @Nullable final String appMetaInfNamespace,
+                          @Nullable final String moduleMetaInfNamespace) {
         this.targetModuleClass = targetModuleClass;
         this.appMetaInfNamespace =
                 appMetaInfNamespace == null
@@ -115,7 +115,7 @@ public abstract class SpringAsyncModularApp<M> extends AsyncApp {
      *
      * @param targetModuleClass module type
      */
-    protected SpringAsyncModularApp(final Class<? extends M> targetModuleClass) {
+    SpringAsyncModularApp(final Class<? extends M> targetModuleClass) {
         this(targetModuleClass, null, null, null);
     }
 
@@ -216,10 +216,10 @@ public abstract class SpringAsyncModularApp<M> extends AsyncApp {
      * @param properties module descriptor
      * @param name       module name
      */
-    protected void onModuleCreated(final M module,
-                                   final ConfigurableApplicationContext ctx,
-                                   final Properties properties,
-                                   final String name) {
+    void onModuleCreated(final M module,
+                         final ConfigurableApplicationContext ctx,
+                         final Properties properties,
+                         final String name) {
     }
 
     /**
@@ -230,23 +230,23 @@ public abstract class SpringAsyncModularApp<M> extends AsyncApp {
     protected void onModuleDiscoveryFinished(final ConfigurableApplicationContext ctx) throws Exception {
     }
 
-    protected final Class<? extends M> getTargetModuleClass() {
+    final Class<? extends M> getTargetModuleClass() {
         return targetModuleClass;
     }
 
-    protected final String getAppMetaInfNamespace() {
+    final String getAppMetaInfNamespace() {
         return appMetaInfNamespace;
     }
 
-    protected final String getModuleMetaInfNamespace() {
+    final String getModuleMetaInfNamespace() {
         return moduleMetaInfNamespace;
     }
 
-    protected final String getAppName() {
+    final String getAppName() {
         return appName;
     }
 
-    protected final ConfigurableApplicationContext getAppContext() {
+    final ConfigurableApplicationContext getAppContext() {
         final ConfigurableApplicationContext ctx = contextReference.get();
         if (ctx != null) {
             return ctx;
@@ -352,7 +352,7 @@ public abstract class SpringAsyncModularApp<M> extends AsyncApp {
     }
 
     @SuppressWarnings("unchecked")
-    protected static <T> T instantiate(final ApplicationContext ctx, final Class<? extends T> clazz) {
+    private static <T> T instantiate(final ApplicationContext ctx, final Class<? extends T> clazz) {
         final AutowireCapableBeanFactory factory = ctx.getAutowireCapableBeanFactory();
         return (T) factory.createBean(
                 clazz,
