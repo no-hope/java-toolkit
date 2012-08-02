@@ -22,14 +22,14 @@ public abstract class AsyncApp extends App {
     protected void onForcedShutdown() {
     }
 
-    protected void onPlannedShutdown() {
+    void onPlannedShutdown() {
     }
 
     protected AsyncApp() {
         this(1);
     }
 
-    protected AsyncApp(final int count) {
+    private AsyncApp(final int count) {
         latch = new CountDownLatch(count);
     }
 

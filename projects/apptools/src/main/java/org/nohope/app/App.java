@@ -22,7 +22,7 @@ public abstract class App {
         onStart();
     }
 
-    protected void onVMShutdownWrapper() {
+    void onVMShutdownWrapper() {
         onVMShutdown();
     }
 }

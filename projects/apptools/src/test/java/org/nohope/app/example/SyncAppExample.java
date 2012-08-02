@@ -10,7 +10,7 @@ import org.nohope.app.App;
  */
 public class SyncAppExample extends App {
     private static final Logger LOG = LoggerFactory.getLogger(SyncAppExample.class);
-    public boolean done = false;
+    private boolean done = false;
 
     public void stop() {
         done = true;
