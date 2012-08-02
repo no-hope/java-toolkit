@@ -29,7 +29,7 @@ public final class IntrospectionUtils {
     /**
      * Method name for constructor (value: "new"). *
      */
-    public static final String CONSTRUCTOR = "new";
+    private static final String CONSTRUCTOR = "new";
 
     /**
      * list of java primitive types.
@@ -274,7 +274,7 @@ public final class IntrospectionUtils {
      * @throws NoSuchMethodException if no or more than one constructor found
      */
     @SuppressWarnings("unchecked")
-    public static <T> Constructor<T> searchConstructor(
+    private static <T> Constructor<T> searchConstructor(
             final Class<T> type, final Class[] signature)
             throws NoSuchMethodException {
 
@@ -581,7 +581,7 @@ public final class IntrospectionUtils {
      * @param arguments list of classes
      * @return canonical names for given classes
      */
-    public static String[] getClassNames(final Class... arguments) {
+    private static String[] getClassNames(final Class... arguments) {
         final String[] names = new String[arguments.length];
         {
             int i = 0;
@@ -599,7 +599,7 @@ public final class IntrospectionUtils {
      * @param arguments array of object
      * @return array of classes of given objects
      */
-    public static Class[] getClasses(final Object... arguments) {
+    private static Class[] getClasses(final Object... arguments) {
         final Class[] signature = new Class[arguments.length];
         {
             int i = 0;
@@ -773,10 +773,10 @@ public final class IntrospectionUtils {
      * @param signature  method signature
      * @return constructed exception
      */
-    static NoSuchMethodException abort(final String message,
-                                       final Class type,
-                                       final String methodName,
-                                       final Class[] signature) {
+    private static NoSuchMethodException abort(final String message,
+                                               final Class type,
+                                               final String methodName,
+                                               final Class[] signature) {
         return new NoSuchMethodException(String.format(message,
                 type.getCanonicalName(), methodName,
                 StringUtils.join(getClassNames(signature))));

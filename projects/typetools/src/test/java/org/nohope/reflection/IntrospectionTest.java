@@ -109,9 +109,7 @@ public final class IntrospectionTest extends UtilitiesTestSupport {
     }
 
     @Test
-    public void autoboxing()
-            throws InvocationTargetException, NoSuchMethodException,
-            InstantiationException, IllegalAccessException {
+    public void autoboxing() {
         for (final Class<?> primitive : getPrimitives()) {
             final Class<?> referenced = primitiveToWrapper(primitive);
             assertNotNull(referenced);
@@ -548,7 +546,7 @@ public final class IntrospectionTest extends UtilitiesTestSupport {
     // Test methods and classes.
     //-----------------------------------------------------------------------
 
-    public String testCall() {
+    String testCall() {
         return IntrospectionUtils.reflectCallerName();
     }
 
@@ -588,7 +586,7 @@ public final class IntrospectionTest extends UtilitiesTestSupport {
     }
 
     @SuppressWarnings("unused")
-    public static class VarargConstructable {
+    private static class VarargConstructable {
         VarargConstructable(final Integer... args) {
         }
 
@@ -614,7 +612,7 @@ public final class IntrospectionTest extends UtilitiesTestSupport {
         }
     }
 
-    interface ChildInterface {
+    private interface ChildInterface {
     }
 
     public static class GrandGrandParentObject {
@@ -626,10 +624,10 @@ public final class IntrospectionTest extends UtilitiesTestSupport {
     public static class ParentObject extends GrandParentObject {
     }
 
-    public static class ChildObject extends ParentObject implements ChildInterface {
+    private static class ChildObject extends ParentObject implements ChildInterface {
     }
 
-    public static class ParentObject2 extends GrandParentObject {
+    private static class ParentObject2 extends GrandParentObject {
     }
 
     public static class A11 {
@@ -638,10 +636,10 @@ public final class IntrospectionTest extends UtilitiesTestSupport {
     public static class A21 extends A11 {
     }
 
-    public static class A32 extends A21 {
+    private static class A32 extends A21 {
     }
 
-    public static class B21 extends A11 {
+    private static class B21 extends A11 {
     }
 
 

@@ -12,8 +12,7 @@ public final class Cast {
     @SuppressWarnings("unchecked")
     public static <T> T as(final Object value, final Class clazz) {
         if (clazz.isAssignableFrom(value.getClass())) {
-            final T ret = (T) value;
-            return ret;
+            return (T) value;
         }
 
         return null;

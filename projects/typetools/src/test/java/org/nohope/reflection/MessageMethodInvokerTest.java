@@ -10,8 +10,8 @@ import static junit.framework.Assert.fail;
  * Time: 11:29
  */
 public class MessageMethodInvokerTest {
-    boolean intInvoked = false;
-    boolean dblInvoked = false;
+    private boolean intInvoked = false;
+    private boolean dblInvoked = false;
 
     private void onConcreteMessage(final Integer a) {
         intInvoked = true;
