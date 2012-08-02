@@ -34,11 +34,11 @@ import static com.fasterxml.jackson.databind.DeserializationFeature.FAIL_ON_UNKN
 import static com.fasterxml.jackson.databind.MapperFeature.AUTO_DETECT_GETTERS;
 import static com.fasterxml.jackson.databind.MapperFeature.AUTO_DETECT_SETTERS;
 
-public class JacksonProcessor implements Unmarshaller, Marshaller {
+class JacksonProcessor implements Unmarshaller, Marshaller {
 
     private final ObjectMapper mapper;
 
-    public JacksonProcessor(final ObjectMapper mapper) {
+    private JacksonProcessor(final ObjectMapper mapper) {
         this.mapper = mapper;
     }
 
@@ -69,7 +69,7 @@ public class JacksonProcessor implements Unmarshaller, Marshaller {
         }
     }
 
-    public static ObjectMapper createPreConfiguredMapper() {
+    private static ObjectMapper createPreConfiguredMapper() {
         final ObjectMapper mapper = new ObjectMapper();
         mapper.registerModule(new JodaModule());
         mapper.configure(FAIL_ON_UNKNOWN_PROPERTIES, false);
