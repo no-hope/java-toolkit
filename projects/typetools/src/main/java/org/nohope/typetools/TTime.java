@@ -11,6 +11,9 @@ import java.util.TimeZone;
  * Time: 13:19
  */
 public class TTime {
+    private TTime() {
+    }
+
     public static int deltaInSeconds(final DateTime ts1, final DateTime ts2) {
         final Period delta = new Period(ts1, ts2);
         final int deltaSec = delta.toStandardSeconds().getSeconds();
