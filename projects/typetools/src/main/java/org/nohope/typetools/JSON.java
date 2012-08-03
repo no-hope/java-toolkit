@@ -32,6 +32,8 @@ public final class JSON {
 
             return mapper.writeValueAsString(obj);
         } catch (IOException e) {
+            System.err.println(e);
+            e.printStackTrace();
             LOG.debug(e, "Unable to jsonify object of class {}",
                     obj == null ? null : obj.getClass());
             return onErrorMessage;
