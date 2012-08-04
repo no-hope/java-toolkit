@@ -15,6 +15,7 @@ import org.nohope.app.AsyncApp;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
+import java.io.File;
 import java.util.Map;
 import java.util.Properties;
 import java.util.concurrent.atomic.AtomicReference;
@@ -66,6 +67,7 @@ public abstract class SpringAsyncModularApp<M> extends AsyncApp {
     private static final Logger LOG = LoggerFactory.getLogger(SpringAsyncModularApp.class);
 
     private static final String META_INF = "META-INF/";
+    private static final String DEFAULT_MODULE_FOLDER = "module/";
     private static final String DEFAULT_CONTEXT_POSTFIX = "-defaultContext.xml";
     private static final String PROPERTIES_EXTENSION = ".properties";
     private static final String CONTEXT_POSTFIX = "-context.xml";
@@ -97,11 +99,11 @@ public abstract class SpringAsyncModularApp<M> extends AsyncApp {
         this.targetModuleClass = targetModuleClass;
         this.appMetaInfNamespace =
                 appMetaInfNamespace == null
-                        ? getPackagePath(getClass())
+                        ? getPackage()
                         : toValidPath(appMetaInfNamespace);
         this.moduleMetaInfNamespace =
                 moduleMetaInfNamespace == null
-                        ? getPackagePath(targetModuleClass)
+                        ? getPackage() + DEFAULT_MODULE_FOLDER
                         : toValidPath(moduleMetaInfNamespace);
         this.appName =
                 appName == null
@@ -119,14 +121,27 @@ public abstract class SpringAsyncModularApp<M> extends AsyncApp {
         this(targetModuleClass, null, null, null);
     }
 
+    private static ConfigurableApplicationContext overrideRule(final String namespace,
+                                                               final String name) {
+        return createAndOverride(
+                concat(META_INF, namespace, name + DEFAULT_CONTEXT_POSTFIX),
+                concat(namespace, name + CONTEXT_POSTFIX));
+    }
+
+    private static ConfigurableApplicationContext overrideRule(final ConfigurableApplicationContext ctx,
+                                                               final String namespace,
+                                                               final String name) {
+        return override(ctx,
+                concat(META_INF, namespace, name + DEFAULT_CONTEXT_POSTFIX),
+                concat(namespace, name + CONTEXT_POSTFIX));
+    }
+
     /**
      * Searches for plugin definitions in classpath and instantiates them.
      */
     @Override
     protected final void onStart() throws Exception {
-        final ConfigurableApplicationContext ctx = createAndOverride(
-                META_INF + appMetaInfNamespace + appName + DEFAULT_CONTEXT_POSTFIX,
-                appName + CONTEXT_POSTFIX);
+        final ConfigurableApplicationContext ctx = overrideRule(appMetaInfNamespace, appName);
         contextReference.set(ctx);
 
         final Map<String, Properties> properties = finder.mapAvailableProperties(moduleMetaInfNamespace);
@@ -167,9 +182,8 @@ public abstract class SpringAsyncModularApp<M> extends AsyncApp {
                 continue;
             }
 
-            final ConfigurableApplicationContext moduleContext = override(ctx,
-                    META_INF + moduleMetaInfNamespace + moduleName + DEFAULT_CONTEXT_POSTFIX,
-                    moduleName + CONTEXT_POSTFIX);
+            final ConfigurableApplicationContext moduleContext = overrideRule(ctx,
+                    moduleMetaInfNamespace, moduleName);
 
             final Class<? extends M> finalClass = moduleClazz.asSubclass(targetModuleClass);
 
@@ -263,10 +277,27 @@ public abstract class SpringAsyncModularApp<M> extends AsyncApp {
         }
     }
 
+    private String getPackage() {
+        return getPackage(getClass());
+    }
+
     //TODO: move to utility classes?
 
-    private static String getPackagePath(final Class<?> clazz) {
-        return clazz.getPackage().getName().replaceAll("\\.", "/") + '/';
+    static String concat(final String... paths) {
+        if (paths.length == 0) {
+            return "";
+        }
+
+        File file = new File(paths[0]);
+        for (int i = 1; i < paths.length ; i++) {
+            file = new File(file, paths[i]);
+        }
+
+        return file.getPath();
+    }
+
+    private static String getPackage(final Class<?> clazz) {
+        return toValidPath(clazz.getPackage().getName());
     }
 
     private static String lowercaseClassName(final Class<?> clazz) {
@@ -324,6 +355,11 @@ public abstract class SpringAsyncModularApp<M> extends AsyncApp {
 
         LOG.warn("Unable to override {} with {}", parentPath, childPath);
         return parentContext;
+    }
+
+    private static ConfigurableApplicationContext appCreateAndOverride(final String... parts) {
+        final String childPath = concat(parts);
+        return createAndOverride(concat(META_INF, childPath), childPath);
     }
 
     private static ConfigurableApplicationContext createAndOverride(final String parentPath,

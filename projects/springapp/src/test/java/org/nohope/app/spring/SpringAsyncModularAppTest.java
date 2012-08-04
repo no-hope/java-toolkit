@@ -47,9 +47,14 @@ public class SpringAsyncModularAppTest {
     public void searchPathsDetermining() throws Exception {
         final AppWithContainer app = new AppWithContainer();
         assertEquals("appWithContainer", app.getAppName());
-        assertEquals("sev/omnitrack/app/spring/", app.getAppMetaInfNamespace());
-        assertEquals("sev/omnitrack/app/spring/module/", app.getModuleMetaInfNamespace());
+        assertEquals("org.nohope.app.spring/", app.getAppMetaInfNamespace());
+        assertEquals("org.nohope.app.spring/module/", app.getModuleMetaInfNamespace());
         assertEquals(IModule.class, app.getTargetModuleClass());
+    }
+
+    @Test
+    public void concatTest() {
+        assertEquals("test1/test2/test3", AppWithContainer.concat("test1", "test2/", "/test3"));
     }
 
     @Test
