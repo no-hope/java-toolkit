@@ -1,5 +1,7 @@
 package org.nohope.typetools;
 
+import com.fasterxml.jackson.core.type.TypeReference;
+
 /**
  * Date: 31.07.12
  * Time: 15:12
@@ -10,8 +12,17 @@ public final class Cast {
     }
 
     @SuppressWarnings("unchecked")
-    public static <T> T as(final Object value, final Class clazz) {
+    public static <T> T as(final Object value, final Class<T> clazz) {
         if (clazz.isAssignableFrom(value.getClass())) {
+            return (T) value;
+        }
+
+        return null;
+    }
+
+    @SuppressWarnings("unchecked")
+    public static <T> T as(final Object value, final TypeReference<T> ref) {
+        if (ref.getClass().isAssignableFrom(value.getClass())) {
             return (T) value;
         }
 
