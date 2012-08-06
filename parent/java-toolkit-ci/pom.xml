@@ -6,7 +6,7 @@
 
   <groupId>org.no-hope</groupId>
   <artifactId>env-ci</artifactId>
-  <version>3</version>
+  <version>4</version>
   <name>env-integration</name>
   <packaging>pom</packaging>
 
@@ -213,7 +213,7 @@
           <threadCount>10</threadCount>
           <argLine>${jacoco.argline.unit}</argLine>
           <excludes>
-            <exclude>**/*IntegrationTest.java</exclude>
+            <exclude>**/*IT.java</exclude>
           </excludes>
         </configuration>
       </plugin>
@@ -233,7 +233,7 @@
 
         <configuration>
           <includes>
-            <include>**/*IntegrationTest.java</include>
+            <include>**/*IT.java</include>
           </includes>
           <argLine>${jacoco.argline.it}</argLine>
         </configuration>
