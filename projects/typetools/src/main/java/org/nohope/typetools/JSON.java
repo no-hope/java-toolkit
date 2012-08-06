@@ -32,16 +32,14 @@ public final class JSON {
 
             return mapper.writeValueAsString(obj);
         } catch (IOException e) {
-            System.err.println(e);
-            e.printStackTrace();
-            LOG.debug(e, "Unable to jsonify object of class {}",
+            LOG.error(e, "Unable to jsonify object of class {}",
                     obj == null ? null : obj.getClass());
             return onErrorMessage;
         }
     }
 
     public static String jsonifyPretty(final Object obj) {
-        return jsonifyPretty(obj, "<? " + obj.getClass().getName() + ">");
+        return jsonifyPretty(obj, defaultErrorMessage(obj));
     }
 
     public static String jsonify(final Object obj,
@@ -52,9 +50,17 @@ public final class JSON {
             mapper.setSerializationInclusion(NON_EMPTY);
             return mapper.writeValueAsString(obj);
         } catch (IOException e) {
-            LOG.debug(e, "Unable to jsonify object of class {}",
+            LOG.error(e, "Unable to jsonify object of class {}",
                     obj == null ? null : obj.getClass());
             return onErrorMessage;
         }
+    }
+
+    public static String jsonify(final Object obj) {
+        return jsonify(obj, defaultErrorMessage(obj));
+    }
+
+    private static String defaultErrorMessage(final Object obj) {
+        return "<? " + obj.getClass().getName() + "/>";
     }
 }
