@@ -1,9 +1,7 @@
 package org.nohope.typetools;
 
-import com.fasterxml.jackson.core.type.TypeReference;
 import org.junit.Test;
-
-import java.lang.reflect.Type;
+import org.nohope.reflection.TypeReference;
 
 import static junit.framework.Assert.assertEquals;
 import static junit.framework.Assert.assertNull;

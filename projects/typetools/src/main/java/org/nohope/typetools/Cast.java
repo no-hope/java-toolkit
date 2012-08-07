@@ -1,6 +1,6 @@
 package org.nohope.typetools;
 
-import com.fasterxml.jackson.core.type.TypeReference;
+import org.nohope.reflection.TypeReference;
 
 /**
  * Date: 31.07.12
@@ -26,7 +26,7 @@ public final class Cast {
 
     @SuppressWarnings("unchecked")
     public static <T> T as(final Object value, final TypeReference<T> ref) {
-        final Class<T> clazz = (Class)ref.getType();
+        final Class<T> clazz = ref.getTypeClass();
         return as(value, clazz);
     }
 }

@@ -1,6 +1,6 @@
 package org.nohope.typetools;
 
-import com.fasterxml.jackson.core.type.TypeReference;
+import org.nohope.reflection.TypeReference;
 
 import java.util.Map;
 
@@ -20,14 +20,14 @@ public class TMap {
         return map.get(key.toString());
     }
 
-    public static <V, T extends V> T safeGet(final Map<String, V> map, final String key, final Class<T> clazz) {
+    public static <V, T extends V, K> T safeGet(final Map<K, V> map, final K key, final Class<T> clazz) {
         return Cast.as(map.get(key), clazz);
     }
     public static <V, T extends V> T safeGet(final Map<String, V> map, final Enum key, final Class<T> clazz) {
         return Cast.as(map.get(key.toString()), clazz);
     }
 
-    public static <V, T extends V> T safeGet(final Map<String, V> map, final String key, final TypeReference<T> ref) {
+    public static <V, T extends V, K> T safeGet(final Map<K, V> map, final K key, final TypeReference<T> ref) {
         return Cast.as(map.get(key), ref);
     }
     public static <V, T extends V> T safeGet(final Map<String, V> map, final Enum key, final TypeReference<T> ref) {
