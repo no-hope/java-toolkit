@@ -13,6 +13,10 @@ public final class TBool {
     }
 
     public static boolean safeAsBoolean(final Object bool) {
-        return Cast.as(bool, Boolean.class);
+        final Boolean value = Cast.as(bool, Boolean.class);
+        if (null == value) {
+            return false;
+        }
+        return value;
     }
 }
