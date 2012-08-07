@@ -12,9 +12,9 @@ public final class TDouble {
         return null != val && !(val.isNaN() || val.isInfinite());
     }
 
-    public static double asDouble(final Double val) {
+    /*public static double asDouble(final Double val) {
         return isDoubleCorrect(val) ? val : Double.NaN;
-    }
+    }*/
 
     public static Double toFiniteDouble(final Double val) {
         return isDoubleCorrect(val) ? val : null;

@@ -13,6 +13,10 @@ public final class Cast {
 
     @SuppressWarnings("unchecked")
     public static <T> T as(final Object value, final Class<T> clazz) {
+        if (null == value) {
+            return null;
+        }
+
         if (clazz.isAssignableFrom(value.getClass())) {
             return (T) value;
         }
@@ -22,10 +26,7 @@ public final class Cast {
 
     @SuppressWarnings("unchecked")
     public static <T> T as(final Object value, final TypeReference<T> ref) {
-        if (ref.getClass().isAssignableFrom(value.getClass())) {
-            return (T) value;
-        }
-
-        return null;
+        final Class<T> clazz = (Class)ref.getType();
+        return as(value, clazz);
     }
 }

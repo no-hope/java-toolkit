@@ -1,6 +1,9 @@
 package org.nohope.typetools;
 
+import com.fasterxml.jackson.core.type.TypeReference;
 import org.junit.Test;
+
+import java.lang.reflect.Type;
 
 import static junit.framework.Assert.assertEquals;
 import static junit.framework.Assert.assertNull;
@@ -23,6 +26,51 @@ public class CastTest {
     @Test(expected = java.lang.NullPointerException.class)
     public void testCastExceptional() {
         final boolean value2 = Cast.as(23.0, Boolean.class);
+        assertNull(value2);
+    }
+
+    @Test
+    public void testNull() {
+        final Boolean value1 = Cast.as(null, Boolean.class);
+        assertNull(value1);
+    }
+
+
+    @Test(expected = java.lang.NullPointerException.class)
+    public void testCastExceptional2() {
+        final boolean value2 = Cast.as(null, Boolean.class);
+        assertNull(value2);
+    }
+
+    // type reference
+
+    private static final TypeReference<Boolean> trb = new TypeReference<Boolean>() {};
+
+    @Test
+    public void testCastTR() {
+        final boolean value1 = Cast.as(true, trb);
+        assertEquals(true, value1);
+
+        final Boolean value2 = Cast.as(23.0, trb);
+        assertNull(value2);
+    }
+
+    @Test(expected = java.lang.NullPointerException.class)
+    public void testCastExceptionalTR() {
+        final boolean value2 = Cast.as(23.0, trb);
+        assertNull(value2);
+    }
+
+    @Test
+    public void testNullTR() {
+        final Boolean value1 = Cast.as(null, trb);
+        assertNull(value1);
+    }
+
+
+    @Test(expected = java.lang.NullPointerException.class)
+    public void testCastExceptionalTR2() {
+        final boolean value2 = Cast.as(null, trb);
         assertNull(value2);
     }
 }
