@@ -286,6 +286,8 @@
                                          resource="net/sf/antcontrib/antlib.xml"
                                          classpathref="maven.plugin.classpath"/>
 
+                                <mkdir dir="${jacoco.exec.dir}" />
+
                                 <ac:trycatch property="e">
                                     <ac:try>
                                         <jacoco:merge destfile="${jacoco.exec.all}">
@@ -379,7 +381,7 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-project-info-reports-plugin</artifactId>
-                <version>${maven-project-info-reports-plugin.version}</version>
+                <version>${maven.project-info-reports-plugin.version}</version>
             </plugin>
 
             <plugin>
