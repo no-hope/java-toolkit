@@ -6,7 +6,7 @@
 
     <groupId>org.no-hope</groupId>
     <artifactId>env-ci</artifactId>
-    <version>5</version>
+    <version>6</version>
     <name>env-integration</name>
     <packaging>pom</packaging>
 
@@ -30,6 +30,7 @@
         <maven.javadoc-plugin.version>2.7</maven.javadoc-plugin.version>
         <maven.jdepend-plugin.version>2.0-beta-2</maven.jdepend-plugin.version>
         <maven.pmd-plugin.version>2.5</maven.pmd-plugin.version>
+        <maven.project-info-reports-plugin.version>2.4</maven.project-info-reports-plugin.version>
         <maven.site-plugin.version>3.0</maven.site-plugin.version>
         <maven.surefire-plugin.version>2.12.1</maven.surefire-plugin.version>
 
@@ -293,7 +294,7 @@
                                         </jacoco:merge>
                                     </ac:try>
                                     <ac:catch>
-                                        <echo>${e}</echo>
+                                        <echo>[WARNING] Could not aggregate JaCoCo exec files ${e}</echo>
                                     </ac:catch>
                                 </ac:trycatch>
                             </target>
@@ -306,7 +307,7 @@
                     <!-- reports aggregation -->
                     <execution>
                         <id>jacoco-reports-aggregating</id>
-                        <phase>install</phase>
+                        <phase>pre-site</phase>
                         <configuration>
                             <target xmlns:jacoco="antlib:org.jacoco.ant"
                                     xmlns:ac="antlib:net.sf.antcontrib">
@@ -317,30 +318,35 @@
 
                                 <macrodef name="report">
                                     <attribute name="postfix"/>
+                                    <attribute name="file"/>
                                     <attribute name="folder"/>
                                     <sequential>
                                         <ac:trycatch property="e">
                                             <ac:try>
                                                 <ac:if>
-                                                    <equals arg1="${project.parent.relativePath}"
-                                                            arg2="$${project.parent.relativePath}"/>
+                                                    <not>
+                                                        <equals arg1="${project.parent.relativePath}"
+                                                                arg2="$${project.parent.relativePath}"/>
+                                                    </not>
                                                     <ac:then>
+                                                        <dirname property="parent.dir" file="${project.parent.relativePath}"/>
+                                                        <mkdir dir="${parent.dir}/@{folder}" />
+
                                                         <jacoco:report>
                                                             <executiondata>
-                                                                <fileset dir="${project.parent.relativePath}"
-                                                                         includes="**/*-@{postfix}.exec"/>
+                                                                <file file="@{file}" />
                                                             </executiondata>
-                                                            <structure name="[@{postfix}] rweb-java">
+                                                            <structure name="[@{postfix}] ${project.name}">
                                                                 <classfiles>
-                                                                    <fileset dir="${project.parent.relativePath}"
+                                                                    <fileset dir="${parent.dir}"
                                                                              includes="**/target/classes/**/*.class"/>
                                                                 </classfiles>
                                                                 <sourcefiles encoding="UTF-8">
-                                                                    <fileset dir="${project.parent.relativePath}"
-                                                                             includes="**/src/**/*.class"/>
+                                                                    <fileset dir="${parent.dir}"
+                                                                             includes="**/src/**/*.java"/>
                                                                 </sourcefiles>
                                                             </structure>
-                                                            <html destdir="${project.parent.relativePath}/@{folder}"/>
+                                                            <html destdir="${parent.dir}/@{folder}"/>
                                                         </jacoco:report>
                                                     </ac:then>
                                                 </ac:if>
@@ -352,9 +358,15 @@
                                     </sequential>
                                 </macrodef>
 
-                                <report postfix="all" folder="${jacoco.report.floder.all}"/>
-                                <report postfix="it" folder="${jacoco.report.floder.it}"/>
-                                <report postfix="unit" folder="${jacoco.report.floder.unit}"/>
+                                <report postfix="all"
+                                        file="${jacoco.exec.all}"
+                                        folder="${jacoco.report.floder.all}"/>
+                                <report postfix="it"
+                                        file="${jacoco.exec.it}"
+                                        folder="${jacoco.report.floder.it}"/>
+                                <report postfix="unit"
+                                        file="${jacoco.exec.unit}"
+                                        folder="${jacoco.report.floder.unit}"/>
                             </target>
                         </configuration>
                         <goals>
@@ -362,6 +374,12 @@
                         </goals>
                     </execution>
                 </executions>
+            </plugin>
+
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-project-info-reports-plugin</artifactId>
+                <version>${maven-project-info-reports-plugin.version}</version>
             </plugin>
 
             <plugin>
