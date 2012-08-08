@@ -34,7 +34,7 @@ import static com.fasterxml.jackson.databind.DeserializationFeature.FAIL_ON_UNKN
 import static com.fasterxml.jackson.databind.MapperFeature.AUTO_DETECT_GETTERS;
 import static com.fasterxml.jackson.databind.MapperFeature.AUTO_DETECT_SETTERS;
 
-class JacksonProcessor implements Unmarshaller, Marshaller {
+public class JacksonProcessor implements Unmarshaller, Marshaller {
 
     private final ObjectMapper mapper;
 
