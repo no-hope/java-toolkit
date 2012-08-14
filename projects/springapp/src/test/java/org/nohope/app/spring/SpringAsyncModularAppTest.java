@@ -7,6 +7,7 @@ import java.util.Properties;
 import java.util.concurrent.atomic.AtomicReference;
 
 import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
 
 /**
  * @author <a href="mailto:ketoth.xupack@gmail.com">ketoth xupack</a>
@@ -81,6 +82,15 @@ public class SpringAsyncModularAppTest {
         probe(app);
 
         assertEquals(0, app.getModules().size());
+    }
+
+    /* all beans in contexts should be constructed ONCE! */
+    @Test
+    public void multipleConstructing() throws Exception {
+        final AppWithContainer app = new AppWithContainer("app", "once", "once/module");
+        probe(app);
+
+        assertEquals(2, app.get(OnceConstructable.class).getId());
     }
 
     @Test

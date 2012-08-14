@@ -330,14 +330,21 @@ public abstract class SpringAsyncModularApp<M> extends AsyncApp {
         return null;
     }
 
-    private static ConfigurableApplicationContext create(final String path) {
+    private static boolean isResourceExists(final String path) {
+        return new ClassPathResource(path).exists();
+    }
+
+    private static ConfigurableApplicationContext createIfExists(final String path) {
         final ClassPathResource config = new ClassPathResource(path);
 
         if (config.exists()) {
-            return propagateAnnotationProcessing(new ClassPathXmlApplicationContext(path));
+            return create(path);
         }
 
         return null;
+    }
+    private static ConfigurableApplicationContext create(final String... paths) {
+        return propagateAnnotationProcessing(new ClassPathXmlApplicationContext(paths));
     }
 
     private static ConfigurableApplicationContext override(final ConfigurableApplicationContext ctx,
@@ -348,7 +355,7 @@ public abstract class SpringAsyncModularApp<M> extends AsyncApp {
             throw new IllegalArgumentException("Unable to create parent context for " + parentPath);
         }
 
-        final ConfigurableApplicationContext childContext = create(childPath);
+        final ConfigurableApplicationContext childContext = createIfExists(childPath);
         if (childContext != null) {
             return childContext;
         }
@@ -364,19 +371,16 @@ public abstract class SpringAsyncModularApp<M> extends AsyncApp {
 
     private static ConfigurableApplicationContext createAndOverride(final String parentPath,
                                                                     final String childPath) {
-
-        final ConfigurableApplicationContext parentContext = create(parentPath);
-        if (parentContext == null) {
+        if (!isResourceExists(parentPath)) {
             throw new IllegalArgumentException("Unable to create parent context for " + parentPath);
         }
 
-        final ConfigurableApplicationContext childContext = create(childPath);
-        if (childContext != null) {
-            return childContext;
+        if (isResourceExists(childPath)) {
+            return create(parentPath, childPath);
         }
 
         LOG.warn("Unable to override {} with {}", parentPath, childPath);
-        return parentContext;
+        return create(parentPath);
     }
 
     protected static <T> T getOrInstantiate(final ApplicationContext ctx, final Class<? extends T> clazz) {
