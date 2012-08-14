@@ -121,27 +121,12 @@ public abstract class SpringAsyncModularApp<M> extends AsyncApp {
         this(targetModuleClass, null, null, null);
     }
 
-    private static ConfigurableApplicationContext overrideRule(final String namespace,
-                                                               final String name) {
-        return createAndOverride(
-                concat(META_INF, namespace, name + DEFAULT_CONTEXT_POSTFIX),
-                concat(namespace, name + CONTEXT_POSTFIX));
-    }
-
-    private static ConfigurableApplicationContext overrideRule(final ConfigurableApplicationContext ctx,
-                                                               final String namespace,
-                                                               final String name) {
-        return override(ctx,
-                concat(META_INF, namespace, name + DEFAULT_CONTEXT_POSTFIX),
-                concat(namespace, name + CONTEXT_POSTFIX));
-    }
-
     /**
      * Searches for plugin definitions in classpath and instantiates them.
      */
     @Override
     protected final void onStart() throws Exception {
-        final ConfigurableApplicationContext ctx = overrideRule(appMetaInfNamespace, appName);
+        final ConfigurableApplicationContext ctx = overrideRule(null, appMetaInfNamespace, appName);
         contextReference.set(ctx);
 
         final Map<String, Properties> properties = finder.mapAvailableProperties(moduleMetaInfNamespace);
@@ -260,6 +245,14 @@ public abstract class SpringAsyncModularApp<M> extends AsyncApp {
         return appName;
     }
 
+    private String getPackage() {
+        return getPackage(getClass());
+    }
+
+    /**
+     * @return context of this application
+     * @throws IllegalStateException if {@link #start()} wasn't called yet
+     */
     final ConfigurableApplicationContext getAppContext() {
         final ConfigurableApplicationContext ctx = contextReference.get();
         if (ctx != null) {
@@ -269,6 +262,14 @@ public abstract class SpringAsyncModularApp<M> extends AsyncApp {
         throw new IllegalStateException("Unable to find application context. App not started?");
     }
 
+    /**
+     * Retrieves bean from application context of instantiates it using
+     * autowired rules instead.
+     *
+     * @param clazz target bean class
+     * @param <T> bean type
+     * @return created bean
+     */
     protected <T> T getOrInstantiate(final Class<? extends T> clazz) {
         try {
             return getAppContext().getBean(clazz);
@@ -277,8 +278,35 @@ public abstract class SpringAsyncModularApp<M> extends AsyncApp {
         }
     }
 
-    private String getPackage() {
-        return getPackage(getClass());
+    protected <T> T get(final String beanId, final Class<T> clazz) {
+        return getAppContext().getBean(beanId, clazz);
+    }
+
+    protected <T> T get(final Class<T> clazz) {
+        return getAppContext().getBean(clazz);
+    }
+
+    protected <T> T registerSingleton(final String name, final T obj) {
+        registerSingleton(getAppContext(), name, obj);
+        return obj;
+    }
+
+    private static ConfigurableApplicationContext overrideRule(@Nullable final ConfigurableApplicationContext ctx,
+                                                               final String namespace,
+                                                               final String name) {
+        final String parentPath = concat(META_INF, namespace, name + DEFAULT_CONTEXT_POSTFIX);
+        final String childPath = concat(namespace, name + CONTEXT_POSTFIX);
+
+        if (!isResourceExists(parentPath)) {
+            throw new IllegalArgumentException("Unable to create parent context for " + parentPath);
+        }
+
+        if (isResourceExists(childPath)) {
+            return ensureCreate(ctx, parentPath, childPath);
+        }
+
+        LOG.warn("Unable to override {} with {}", parentPath, childPath);
+        return ensureCreate(ctx, parentPath);
     }
 
     //TODO: move to utility classes?
@@ -312,75 +340,27 @@ public abstract class SpringAsyncModularApp<M> extends AsyncApp {
         return str.endsWith("/") ? str : (str + '/');
     }
 
-    /**
-     * Overrides given context with context specified by classpath file.
-     *
-     * @param parent spring context
-     * @param path classpath path to context
-     * @return overridden context ({@code null} if file not exists)
-     */
-    private static ConfigurableApplicationContext override(final ConfigurableApplicationContext parent,
-                                                           final String path) {
-        final ClassPathResource config = new ClassPathResource(path);
-        if (config.exists()) {
-            return propagateAnnotationProcessing(
-                    new ClassPathXmlApplicationContext(new String[] {path}, parent));
-        }
-
-        return null;
-    }
-
     private static boolean isResourceExists(final String path) {
         return new ClassPathResource(path).exists();
     }
 
-    private static ConfigurableApplicationContext createIfExists(final String path) {
-        final ClassPathResource config = new ClassPathResource(path);
-
-        if (config.exists()) {
-            return create(path);
+    /**
+     * Overrides given context with sequential list of contexts specified by classpath file names.
+     *
+     * @param parent spring context
+     * @param paths contexts path
+     * @return overridden context ({@code null} if one of given files not exists)
+     */
+    private static ConfigurableApplicationContext ensureCreate(@Nullable final ConfigurableApplicationContext parent,
+                                                               final String... paths) {
+        for (final String path: paths) {
+            final ClassPathResource config = new ClassPathResource(path);
+            if (!config.exists()) {
+                return null;
+            }
         }
 
-        return null;
-    }
-    private static ConfigurableApplicationContext create(final String... paths) {
-        return propagateAnnotationProcessing(new ClassPathXmlApplicationContext(paths));
-    }
-
-    private static ConfigurableApplicationContext override(final ConfigurableApplicationContext ctx,
-                                                           final String parentPath,
-                                                           final String childPath) {
-        final ConfigurableApplicationContext parentContext = override(ctx, parentPath);
-        if (parentContext == null) {
-            throw new IllegalArgumentException("Unable to create parent context for " + parentPath);
-        }
-
-        final ConfigurableApplicationContext childContext = createIfExists(childPath);
-        if (childContext != null) {
-            return childContext;
-        }
-
-        LOG.warn("Unable to override {} with {}", parentPath, childPath);
-        return parentContext;
-    }
-
-    private static ConfigurableApplicationContext appCreateAndOverride(final String... parts) {
-        final String childPath = concat(parts);
-        return createAndOverride(concat(META_INF, childPath), childPath);
-    }
-
-    private static ConfigurableApplicationContext createAndOverride(final String parentPath,
-                                                                    final String childPath) {
-        if (!isResourceExists(parentPath)) {
-            throw new IllegalArgumentException("Unable to create parent context for " + parentPath);
-        }
-
-        if (isResourceExists(childPath)) {
-            return create(parentPath, childPath);
-        }
-
-        LOG.warn("Unable to override {} with {}", parentPath, childPath);
-        return create(parentPath);
+        return propagateAnnotationProcessing(new ClassPathXmlApplicationContext(paths, parent));
     }
 
     protected static <T> T getOrInstantiate(final ApplicationContext ctx, final Class<? extends T> clazz) {
@@ -399,19 +379,6 @@ public abstract class SpringAsyncModularApp<M> extends AsyncApp {
                 AutowireCapableBeanFactory.AUTOWIRE_NO,
                 true
         );
-    }
-
-    protected <T> T get(final String beanId, final Class<T> clazz) {
-        return getAppContext().getBean(beanId, clazz);
-    }
-
-    protected <T> T get(final Class<T> clazz) {
-        return getAppContext().getBean(clazz);
-    }
-
-    protected <T> T registerSingleton(final String name, final T obj) {
-        registerSingleton(getAppContext(), name, obj);
-        return obj;
     }
 
     protected static <T> T registerSingleton(final ConfigurableApplicationContext ctx,

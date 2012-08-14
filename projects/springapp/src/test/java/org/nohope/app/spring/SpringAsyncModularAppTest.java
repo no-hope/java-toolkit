@@ -42,6 +42,7 @@ public class SpringAsyncModularAppTest {
         final InjectModuleWithContextValue m = getModule(app, 0);
         assertEquals("overridden", m.getValue());
         assertEquals("moduleo", m.getName());
+        assertEquals("appBean", m.getContext().getBean("appBean"));
     }
 
     @Test
