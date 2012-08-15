@@ -3,6 +3,7 @@ package org.nohope.app.spring;
 import org.junit.Test;
 import org.nohope.app.spring.module.IModule;
 
+import java.io.File;
 import java.util.Properties;
 import java.util.concurrent.atomic.AtomicReference;
 
@@ -56,7 +57,8 @@ public class SpringAsyncModularAppTest {
 
     @Test
     public void concatTest() {
-        assertEquals("test1/test2/test3", AppWithContainer.concat("test1", "test2/", "/test3"));
+
+        assertEquals("test1" + File.separator + "test2" + File.separator +"test3" , AppWithContainer.concat("test1", "test2/", "/test3"));
     }
 
     @Test
