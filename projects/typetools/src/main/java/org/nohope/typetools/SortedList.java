@@ -15,6 +15,8 @@ import java.util.Comparator;
  * compare.</p>
  */
 public class SortedList<T> extends ArrayList<T> {
+    private static final long serialVersionUID = 1L;
+
     private final Comparator<T> comparator;
 
     /**
