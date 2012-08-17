@@ -111,6 +111,41 @@ class EnhancedLogger implements Logger {
     }
 
     @Override
+    public void error(final Throwable t) {
+        if (isErrorEnabled()) {
+            logger.error("", t);
+        }
+    }
+
+    @Override
+    public void debug(final Throwable t) {
+        if (isDebugEnabled()) {
+            logger.debug("", t);
+        }
+    }
+
+    @Override
+    public void info(final Throwable t) {
+        if (isInfoEnabled()) {
+            logger.info("", t);
+        }
+    }
+
+    @Override
+    public void warn(final Throwable t) {
+        if (isWarnEnabled()) {
+            logger.warn("", t);
+        }
+    }
+
+    @Override
+    public void trace(final Throwable t) {
+        if (isTraceEnabled()) {
+            logger.trace("", t);
+        }
+    }
+
+    @Override
     public String getName() {
         return logger.getName();
     }

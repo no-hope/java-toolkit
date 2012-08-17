@@ -88,4 +88,10 @@ public interface Logger extends org.slf4j.Logger {
 
     @Override
     void error(Marker marker, String format, Object... args);
+
+    void trace(Throwable t);
+    void debug(Throwable t);
+    void info(Throwable t);
+    void warn(Throwable t);
+    void error(Throwable t);
 }
