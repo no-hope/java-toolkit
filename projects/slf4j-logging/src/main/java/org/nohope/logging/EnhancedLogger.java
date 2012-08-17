@@ -1,8 +1,8 @@
 package org.nohope.logging;
 
 import org.slf4j.Marker;
-import org.slf4j.helpers.FormattingTuple;
-import org.slf4j.helpers.MessageFormatter;
+
+import static org.slf4j.helpers.MessageFormatter.arrayFormat;
 
 /**
  * This class is just wrapper for foreign {@link org.slf4j.Logger}
@@ -11,7 +11,7 @@ import org.slf4j.helpers.MessageFormatter;
  * @author <a href="mailto:ketoth.xupack@gmail.com">ketoth xupack</a>
  * @since 2012-02-22 12:16
  */
-class EnhancedLogger implements Logger {
+final class EnhancedLogger implements Logger {
     private final org.slf4j.Logger logger;
 
     EnhancedLogger(final org.slf4j.Logger logger) {
@@ -21,130 +21,144 @@ class EnhancedLogger implements Logger {
     @Override
     public void trace(final Throwable t, final String format, final Object... args) {
         if (isTraceEnabled()) {
-            final FormattingTuple ft = MessageFormatter.arrayFormat(format, args);
-            logger.trace(ft.getMessage(), t);
+            logger.trace(arrayFormat(format, args).getMessage(), t);
         }
     }
 
     @Override
     public void debug(final Throwable t, final String format, final Object... args) {
         if (isDebugEnabled()) {
-            final FormattingTuple ft = MessageFormatter.format(format, args);
-            logger.debug(ft.getMessage(), t);
+            logger.debug(arrayFormat(format, args).getMessage(), t);
         }
     }
 
     @Override
     public void info(final Throwable t, final String format, final Object... args) {
         if (isInfoEnabled()) {
-            final FormattingTuple ft = MessageFormatter.arrayFormat(format, args);
-            logger.info(ft.getMessage(), t);
+            logger.info(arrayFormat(format, args).getMessage(), t);
         }
     }
 
     @Override
     public void warn(final Throwable t, final String format, final Object... args) {
         if (isWarnEnabled()) {
-            final FormattingTuple ft = MessageFormatter.arrayFormat(format, args);
-            logger.warn(ft.getMessage(), t);
+            logger.warn(arrayFormat(format, args).getMessage(), t);
         }
     }
 
     @Override
     public void error(final Throwable t, final String format, final Object... args) {
         if (isErrorEnabled()) {
-            final FormattingTuple ft = MessageFormatter.arrayFormat(format, args);
-            logger.error(ft.getMessage(), t);
+            logger.error(arrayFormat(format, args).getMessage(), t);
         }
     }
 
-    // the rest is just proxying
-
     @Override
     public void trace(final String format, final Object... args) {
-        logger.trace(format, args);
+        if (isTraceEnabled()) {
+            logger.trace(arrayFormat(format, args).getMessage());
+        }
     }
 
     @Override
     public void trace(final Marker marker, final String format, final Object... args) {
-        logger.trace(marker, format, args);
+        if (isTraceEnabled(marker)) {
+            logger.trace(marker, arrayFormat(format, args).getMessage());
+        }
     }
 
     @Override
     public void debug(final String format, final Object... args) {
-        logger.debug(format, args);
+        if (isDebugEnabled()) {
+            logger.debug(arrayFormat(format, args).getMessage());
+        }
     }
 
     @Override
     public void debug(final Marker marker, final String format, final Object... args) {
-        logger.debug(marker, format, args);
+        if (isDebugEnabled(marker)) {
+            logger.debug(marker, arrayFormat(format, args).getMessage());
+        }
     }
 
     @Override
     public void info(final String format, final Object... args) {
-        logger.debug(format, args);
+        if (isInfoEnabled()) {
+            logger.info(arrayFormat(format, args).getMessage());
+        }
     }
 
     @Override
     public void info(final Marker marker, final String format, final Object... args) {
-        logger.info(marker, format, args);
+        if (isInfoEnabled(marker)) {
+            logger.info(marker, arrayFormat(format, args).getMessage());
+        }
     }
 
     @Override
     public void warn(final String format, final Object... args) {
-        logger.warn(format, args);
+        if (isWarnEnabled()) {
+            logger.warn(arrayFormat(format, args).getMessage());
+        }
     }
 
     @Override
     public void warn(final Marker marker, final String format, final Object... args) {
-        logger.warn(marker, format, args);
+        if (isWarnEnabled(marker)) {
+            logger.warn(marker, arrayFormat(format, args).getMessage());
+        }
     }
 
     @Override
     public void error(final String format, final Object... args) {
-        logger.error(format, args);
+        if (isErrorEnabled()) {
+            logger.error(arrayFormat(format, args).getMessage());
+        }
     }
 
     @Override
     public void error(final Marker marker, final String format, final Object... args) {
-        logger.error(marker, format, args);
+        if (isErrorEnabled(marker)) {
+            logger.error(marker, arrayFormat(format, args).getMessage());
+        }
     }
 
     @Override
     public void error(final Throwable t) {
         if (isErrorEnabled()) {
-            logger.error("", t);
+            logger.error(null, t);
         }
     }
 
     @Override
     public void debug(final Throwable t) {
         if (isDebugEnabled()) {
-            logger.debug("", t);
+            logger.debug(null, t);
         }
     }
 
     @Override
     public void info(final Throwable t) {
         if (isInfoEnabled()) {
-            logger.info("", t);
+            logger.info(null, t);
         }
     }
 
     @Override
     public void warn(final Throwable t) {
         if (isWarnEnabled()) {
-            logger.warn("", t);
+            logger.warn(null, t);
         }
     }
 
     @Override
     public void trace(final Throwable t) {
         if (isTraceEnabled()) {
-            logger.trace("", t);
+            logger.trace(null, t);
         }
     }
 
+    // the rest is just proxying
     @Override
     public String getName() {
         return logger.getName();
@@ -399,6 +413,44 @@ class EnhancedLogger implements Logger {
     public void error(final Marker marker, final String msg, final Throwable t) {
         logger.error(marker, msg, t);
     }
+
+    /*
+    private static final Pattern ptrn = Pattern.compile("(?<!\\\\)(\\\\\\\\)*\\{\\}");
+    protected static int count(final String target) {
+        if (target == null) {
+            return 0;
+        }
+
+        final Matcher matcher = ptrn.matcher(target);
+        int count = 0;
+        while (matcher.find()) {
+            count++;
+        }
+        return count;
+    }
+
+    protected static boolean isOne(final String target) {
+        if (target == null) {
+            return false;
+        }
+
+        final Matcher matcher = ptrn.matcher(target);
+        int count = 0;
+        while (matcher.find()) {
+            count++;
+            if (count > 1) {
+                return false;
+            }
+        }
+        return count == 1;
+    }
+
+    private static FormattingTuple detectWarargsFormat(final String format, final Object[] args) {
+        if (count(format) != args.length){//isOne(format)) {
+            return format(format, args);
+        }
+        return arrayFormat(format, args);
+    }*/
 }
 
 
