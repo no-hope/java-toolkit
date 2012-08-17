@@ -20,11 +20,11 @@ public class NonnullTest {
         try {
             test(null);
             doFail();
-        } catch (final IllegalStateException e) {
+        } catch (final IllegalArgumentException e) {
             assertEquals(e.getMessage(),
-                    "Argument 1 for @Nonnull parameter of class "
-                    + "org.nohope.validation.NonnullTest.test(java.lang.String) must"
-                    + " not be null");
+                    "Argument 1 for @Nonnull parameter of "
+                    + "'void org.nohope.validation.NonnullTest.test(java.lang.String)'"
+                    + " must not be null");
         }
     }
 
@@ -38,21 +38,21 @@ public class NonnullTest {
         try {
             test2(1, null);
             doFail();
-        } catch (final IllegalStateException e) {
+        } catch (final IllegalArgumentException e) {
             assertEquals(e.getMessage(),
-                    "Argument 2 for @Nonnull parameter of class "
-                    + "org.nohope.validation.NonnullTest.test2(java.lang.Integer, java.lang.String) must"
-                    + " not be null");
+                    "Argument 2 for @Nonnull parameter of "
+                    + "'void org.nohope.validation.NonnullTest.test2(java.lang.Integer, java.lang.String)'"
+                    + " must not be null");
         }
 
         try {
             test2(null, 1);
             doFail();
-        } catch (final IllegalStateException e) {
+        } catch (final IllegalArgumentException e) {
             assertEquals(e.getMessage(),
-                    "Argument 1 for @Nonnull parameter of class "
-                    + "org.nohope.validation.NonnullTest.test2(java.lang.String, java.lang.Integer) must"
-                    + " not be null");
+                    "Argument 1 for @Nonnull parameter of "
+                    + "'void org.nohope.validation.NonnullTest.test2(java.lang.String, java.lang.Integer)'"
+                    + " must not be null");
         }
     }
 
@@ -61,11 +61,11 @@ public class NonnullTest {
         try {
             test("", null, "");
             doFail();
-        } catch (final IllegalStateException e) {
+        } catch (final IllegalArgumentException e) {
             assertEquals(e.getMessage(),
-                    "Argument 2 for @Nonnull parameter of class "
-                    + "org.nohope.validation.NonnullTest.test(java.lang.String, java.lang.String, java.lang.String) must"
-                    + " not be null");
+                    "Argument 2 for @Nonnull parameter of "
+                    + "'void org.nohope.validation.NonnullTest.test(java.lang.String, java.lang.String, "
+                    + "java.lang.String)' must not be null");
         }
     }
 
@@ -74,20 +74,20 @@ public class NonnullTest {
         try {
             nullObject();
             doFail();
-        } catch (Exception e) {
+        } catch (IllegalStateException e) {
             assertEquals(e.getMessage(),
-                    "@Nonnull method class "
-                    + "org.nohope.validation.NonnullTest.nullObject() "
+                    "@Nonnull method "
+                    + "'Object org.nohope.validation.NonnullTest.nullObject()' "
                     + "must not return null");
         }
 
         try {
             staticNullObject();
             doFail();
-        } catch (Exception e) {
+        } catch (IllegalStateException e) {
             assertEquals(e.getMessage(),
-                    "@Nonnull method class "
-                    + "org.nohope.validation.NonnullTest.staticNullObject() "
+                    "@Nonnull method "
+                    + "'Object org.nohope.validation.NonnullTest.staticNullObject()' "
                     + "must not return null");
         }
     }
