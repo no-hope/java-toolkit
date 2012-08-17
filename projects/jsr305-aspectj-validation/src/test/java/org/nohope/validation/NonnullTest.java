@@ -93,6 +93,11 @@ public class NonnullTest {
     }
 
     @Test
+    public void returnValueCheck2() {
+        assertEquals("xxx", valid());
+    }
+
+    @Test
     public void inheritance() {
         try {
             // annotations are not inherited anyway
@@ -124,6 +129,10 @@ public class NonnullTest {
 
     @Nonnull static Object staticNullObject() {
         return null;
+    }
+
+    @Nonnull static Object valid() {
+        return "xxx";
     }
 
     private static void doFail() {
