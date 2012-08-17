@@ -143,12 +143,10 @@ public class NonnullTest {
         @Nonnull String getName();
     }
 
-
-    public class NonnullInheritance implements TestInterfaceWithNonnull {
+    public static class NonnullInheritance implements TestInterfaceWithNonnull {
         @Override
         public String getName() {
             return null;
         }
     }
-
 }
