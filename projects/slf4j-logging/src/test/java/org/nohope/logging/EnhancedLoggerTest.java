@@ -10,6 +10,7 @@ import java.util.UUID;
 
 import static org.easymock.EasyMock.*;
 import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
 
 /**
  * @author ketoth xupack <ketoth.xupack@gmail.com>
@@ -20,6 +21,20 @@ public final class EnhancedLoggerTest {
             new ThreadLocal<Capture<String>>() {
                 @Override
                 protected Capture<String> initialValue() {
+                    return new Capture<>();
+                }
+            };
+    private static final ThreadLocal<Capture<Object>> LOG_ARGUMENT1 =
+            new ThreadLocal<Capture<Object>>() {
+                @Override
+                protected Capture<Object> initialValue() {
+                    return new Capture<>();
+                }
+            };
+    private static final ThreadLocal<Capture<Object>> LOG_ARGUMENT2 =
+            new ThreadLocal<Capture<Object>>() {
+                @Override
+                protected Capture<Object> initialValue() {
                     return new Capture<>();
                 }
             };
@@ -46,23 +61,8 @@ public final class EnhancedLoggerTest {
             };
 
     @Test
-    public void trace() {
-        assertVarargs(new ReflectiveVarargTester("trace"));
-    }
-
-    @Test
     public void debug() {
         assertVarargs(new ReflectiveVarargTester("debug"));
-    }
-
-    @Test
-    public void info() {
-        assertVarargs(new ReflectiveVarargTester("info"));
-    }
-
-    @Test
-    public void warn() {
-        assertVarargs(new ReflectiveVarargTester("warn"));
     }
 
     @Test
@@ -71,15 +71,14 @@ public final class EnhancedLoggerTest {
     }
 
     @Test
-    public void properties() {
-        final String randomName = UUID.randomUUID().toString();
-        final org.nohope.logging.Logger log = LoggerFactory.getLogger(randomName);
-        assertEquals(randomName, log.getName());
-
-        final org.nohope.logging.Logger log1 = LoggerFactory.getLogger(getClass());
-        assertEquals(getClass().getCanonicalName(), log1.getName());
+    public void info() {
+        assertVarargs(new ReflectiveVarargTester("info"));
     }
 
+    @Test
+    public void trace() {
+        assertVarargs(new ReflectiveVarargTester("trace"));
+    }
 
     public static void assertVarargs(final VarargsTester tester) {
         assertCorrectLogging(tester
@@ -103,6 +102,7 @@ public final class EnhancedLoggerTest {
         assertCorrectLogging(tester, "{}", "[]", "{}");
         assertCorrectLogging(tester, "{}", "null", "{}", (Object[]) null);
         assertCorrectLogging(tester, "null", "[null]", "{}", (Object) null);
+        assertCorrectLogging(tester);
     }
 
     public static void assertCorrectLogging(final VarargsTester tester,
@@ -196,34 +196,196 @@ public final class EnhancedLoggerTest {
         verify(silentSlf4jLogger, slf4jLogger);
     }
 
-    private interface VarargsTester {
-        void doLogging(EnhancedLogger logger, String format, Object... args);
-        boolean requestLogLevel(final org.slf4j.Logger mock);
-        boolean requestLogLevel(final org.slf4j.Logger mock, final Marker m);
+    public static void assertCorrectLogging(final VarargsTester tester) {
+        final org.slf4j.Logger delegateSlf4jLogger = createMock(org.slf4j.Logger.class);
+        expect(tester.requestLogLevel(delegateSlf4jLogger)).andReturn(false).times(5);
+        expect(tester.requestLogLevel(delegateSlf4jLogger, capture(LOG_MARKER.get()))).andReturn(false).times(2);
+        final EnhancedLogger delegateLogger = new EnhancedLogger(delegateSlf4jLogger);
 
+        tester.check(
+                delegateSlf4jLogger,
+                capture(LOG_ARGUMENT.get())
+        );
+        expectLastCall().anyTimes();
+
+        tester.check(
+                delegateSlf4jLogger,
+                capture(LOG_ARGUMENT.get()),
+                capture(LOG_EXCEPTIONAL_THROWABLE.get())
+        );
+        expectLastCall().anyTimes();
+
+        tester.check(
+                delegateSlf4jLogger,
+                capture(LOG_ARGUMENT.get()),
+                capture(LOG_ARGUMENT1.get())
+        );
+        expectLastCall().anyTimes();
+
+        tester.check(
+                delegateSlf4jLogger,
+                capture(LOG_ARGUMENT.get()),
+                capture(LOG_ARGUMENT1.get()),
+                capture(LOG_ARGUMENT2.get())
+        );
+        expectLastCall().anyTimes();
+
+        tester.check(
+                delegateSlf4jLogger,
+                capture(LOG_MARKER.get()),
+                capture(LOG_ARGUMENT.get())
+        );
+        expectLastCall().anyTimes();
+
+        tester.check(
+                delegateSlf4jLogger,
+                capture(LOG_MARKER.get()),
+                capture(LOG_ARGUMENT.get()),
+                capture(LOG_EXCEPTIONAL_THROWABLE.get())
+        );
+        expectLastCall().anyTimes();
+
+        tester.check(
+                delegateSlf4jLogger,
+                capture(LOG_MARKER.get()),
+                capture(LOG_ARGUMENT.get()),
+                capture(LOG_ARGUMENT1.get())
+        );
+        expectLastCall().anyTimes();
+
+        tester.check(
+                delegateSlf4jLogger,
+                capture(LOG_MARKER.get()),
+                capture(LOG_ARGUMENT.get()),
+                capture(LOG_ARGUMENT1.get()),
+                capture(LOG_ARGUMENT2.get())
+        );
+        expectLastCall().anyTimes();
+
+        replay(delegateSlf4jLogger);
+
+        final String format = UUID.randomUUID().toString();
+        final Marker marker = createMock(Marker.class);
+        final Throwable ex = new Throwable(UUID.randomUUID().toString());
+        final Object arg1 = UUID.randomUUID().toString();
+        final Object arg2 = UUID.randomUUID().toString();
+
+        {
+            tester.doDelegatedLogging(delegateLogger, format);
+            assertSame(format, LOG_ARGUMENT.get().getValue());
+        }
+
+        {
+            tester.doDelegatedLogging(delegateLogger, format, ex);
+            assertSame(format, LOG_ARGUMENT.get().getValue());
+            assertSame(ex, LOG_EXCEPTIONAL_THROWABLE.get().getValue());
+        }
+
+        {
+            tester.doDelegatedLogging(delegateLogger, format, arg1);
+            assertSame(format, LOG_ARGUMENT.get().getValue());
+            assertSame(arg1, LOG_ARGUMENT1.get().getValue());
+        }
+
+        {
+            tester.doDelegatedLogging(delegateLogger, format, arg1, arg2);
+            assertSame(format, LOG_ARGUMENT.get().getValue());
+            assertSame(arg1, LOG_ARGUMENT1.get().getValue());
+            assertSame(arg2, LOG_ARGUMENT2.get().getValue());
+        }
+
+        {
+            tester.doDelegatedLogging(delegateLogger, marker, format);
+            assertSame(format, LOG_ARGUMENT.get().getValue());
+            assertSame(marker, LOG_MARKER.get().getValue());
+        }
+
+        {
+            tester.doDelegatedLogging(delegateLogger, marker, format, ex);
+            assertSame(format, LOG_ARGUMENT.get().getValue());
+            assertSame(ex, LOG_EXCEPTIONAL_THROWABLE.get().getValue());
+            assertSame(marker, LOG_MARKER.get().getValue());
+        }
+
+        {
+            tester.doDelegatedLogging(delegateLogger, marker, format, arg1);
+            assertSame(format, LOG_ARGUMENT.get().getValue());
+            assertSame(arg1, LOG_ARGUMENT1.get().getValue());
+            assertSame(marker, LOG_MARKER.get().getValue());
+        }
+
+        {
+            tester.doDelegatedLogging(delegateLogger, marker, format, arg1, arg2);
+            assertSame(format, LOG_ARGUMENT.get().getValue());
+            assertSame(arg1, LOG_ARGUMENT1.get().getValue());
+            assertSame(arg2, LOG_ARGUMENT2.get().getValue());
+            assertSame(marker, LOG_MARKER.get().getValue());
+        }
+    }
+
+    @Test
+    public void warn() {
+        assertVarargs(new ReflectiveVarargTester("warn"));
+    }
+
+    private interface VarargsTester {
+        void check(org.slf4j.Logger logger, String message);
+        void check(org.slf4j.Logger logger, String message, Object arg1);
+        void check(org.slf4j.Logger logger, final String str, final Throwable e);
+
+        void check(org.slf4j.Logger logger, final Marker marker, String message);
+        void check(org.slf4j.Logger logger, String message, Object arg1, Object arg2);
+        void check(org.slf4j.Logger logger, final Marker marker, String message, Object arg1);
+        void check(org.slf4j.Logger logger, final Marker marker, final String str, final Throwable e);
+        void check(org.slf4j.Logger logger, final Marker marker, String message, Object arg1, Object arg2);
+
+        // ordinary delegated methods
+        void doDelegatedLogging(EnhancedLogger logger,
+                                String message);
+        void doDelegatedLogging(EnhancedLogger logger,
+                                String format,
+                                Throwable e);
+        void doDelegatedLogging(EnhancedLogger logger,
+                                String format,
+                                Object e);
+        void doDelegatedLogging(EnhancedLogger logger,
+                                Marker marker,
+                                String message);
+        void doDelegatedLogging(EnhancedLogger logger,
+                                String format,
+                                Object arg1,
+                                Object arg2);
+        void doDelegatedLogging(EnhancedLogger logger,
+                                Marker marker,
+                                String format,
+                                Throwable e);
+        void doDelegatedLogging(EnhancedLogger logger,
+                                Marker marker,
+                                String format,
+                                Object e);
+        void doDelegatedLogging(EnhancedLogger logger,
+                                Marker marker,
+                                String format,
+                                Object arg1,
+                                Object arg2);
+        void doLogging(EnhancedLogger logger, Throwable e);
+        void doLogging(EnhancedLogger logger, String format, Object... args);
+
+        // special methods
         void doLogging(EnhancedLogger logger,
                        Throwable e,
                        String format,
                        Object... args);
-
-        void doLogging(EnhancedLogger logger, Throwable e);
-
         void doLogging(EnhancedLogger logger,
-                       Marker m,
+                       Marker marker,
                        String format,
                        Object... args);
-
-        void check(org.slf4j.Logger logger, String message);
-        void check(org.slf4j.Logger logger, final String str, final Throwable e);
-        void check(org.slf4j.Logger logger, final Marker e, final String str);
+        boolean requestLogLevel(final org.slf4j.Logger mock);
+        boolean requestLogLevel(final org.slf4j.Logger mock, final Marker m);
     }
 
     private static class ReflectiveVarargTester implements VarargsTester {
         private final String level;
-
-        public ReflectiveVarargTester(final String level) {
-            this.level = level;
-        }
 
         @SuppressWarnings("unchecked")
         private static<T> T invoke(final Object target,
@@ -235,6 +397,10 @@ public final class EnhancedLoggerTest {
             } catch (IllegalAccessException | NoSuchMethodException | InvocationTargetException e) {
                 throw new IllegalStateException(e);
             }
+        }
+
+        public ReflectiveVarargTester(final String level) {
+            this.level = level;
         }
 
         @Override
@@ -257,8 +423,15 @@ public final class EnhancedLoggerTest {
         }
 
         @Override
-        public void doLogging(final EnhancedLogger logger, final Throwable e, final String format, final Object... args) {
-            invoke(logger, level, new Class[]{Throwable.class, String.class, Object[].class}, e, format, args);
+        public void doLogging(final EnhancedLogger logger,
+                              final Throwable e,
+                              final String format,
+                              final Object... args) {
+            invoke(logger, level, new Class[]{
+                    Throwable.class,
+                    String.class,
+                    Object[].class
+            }, e, format, args);
         }
 
         @Override
@@ -267,13 +440,125 @@ public final class EnhancedLoggerTest {
         }
 
         @Override
-        public void doLogging(final EnhancedLogger logger, final Marker m, final String format, final Object... args) {
-            invoke(logger, level, new Class[]{Marker.class, String.class, Object[].class}, m, format, args);
+        public void doLogging(final EnhancedLogger logger,
+                              final Marker m,
+                              final String format,
+                              final Object... args) {
+            invoke(logger, level, new Class[]{
+                    Marker.class,
+                    String.class,
+                    Object[].class
+            }, m, format, args);
+        }
+
+        @Override
+        public void doDelegatedLogging(final EnhancedLogger logger,
+                                       final String message) {
+            invoke(logger, level, new Class[]{String.class}, message);
+        }
+
+        @Override
+        public void doDelegatedLogging(final EnhancedLogger logger,
+                                       final String format,
+                                       final Throwable e) {
+            invoke(logger, level, new Class[]{
+                    String.class,
+                    Throwable.class
+            }, format, e);
+        }
+
+        @Override
+        public void doDelegatedLogging(final EnhancedLogger logger,
+                                       final String format,
+                                       final Object e) {
+            invoke(logger, level, new Class[]{
+                    String.class,
+                    Object.class
+            }, format, e);
+        }
+
+        @Override
+        public void doDelegatedLogging(final EnhancedLogger logger,
+                                       final String format,
+                                       final Object arg1,
+                                       final Object arg2) {
+            invoke(logger, level, new Class[]{
+                    String.class,
+                    Object.class,
+                    Object.class
+            }, format, arg1, arg2);
+        }
+
+        @Override
+        public void doDelegatedLogging(final EnhancedLogger logger,
+                                       final Marker marker,
+                                       final String message) {
+            invoke(logger, level, new Class[]{
+                    Marker.class,
+                    String.class
+            }, marker, message);
+        }
+
+        @Override
+        public void doDelegatedLogging(final EnhancedLogger logger,
+                                       final Marker marker,
+                                       final String format,
+                                       final Throwable e) {
+            invoke(logger, level, new Class[]{
+                    Marker.class,
+                    String.class,
+                    Throwable.class
+            }, marker, format, e);
+        }
+
+        @Override
+        public void doDelegatedLogging(final EnhancedLogger logger,
+                                       final Marker marker,
+                                       final String format,
+                                       final Object e) {
+            invoke(logger, level, new Class[]{
+                    Marker.class,
+                    String.class,
+                    Object.class
+            }, marker, format, e);
+        }
+
+        @Override
+        public void doDelegatedLogging(final EnhancedLogger logger,
+                                       final Marker marker,
+                                       final String format,
+                                       final Object arg1,
+                                       final Object arg2) {
+            invoke(logger, level, new Class[]{
+                    Marker.class,
+                    String.class,
+                    Object.class,
+                    Object.class
+            }, marker, format, arg1, arg2);
         }
 
         @Override
         public void check(final Logger logger, final String message) {
             invoke(logger, level, new Class[]{String.class}, message);
+        }
+
+        // delegating
+
+        @Override
+        public void check(final Logger logger, final String message, final Object arg1) {
+            invoke(logger, level, new Class[]{String.class, Object.class}, message, arg1);
+        }
+
+        @Override
+        public void check(final Logger logger,
+                          final String message,
+                          final Object arg1,
+                          final Object arg2) {
+            invoke(logger, level, new Class[]{
+                    String.class,
+                    Object.class,
+                    Object.class
+            }, message, arg1, arg2);
         }
 
         @Override
@@ -284,6 +569,44 @@ public final class EnhancedLoggerTest {
         @Override
         public void check(final Logger logger, final Marker e, final String str) {
             invoke(logger, level, new Class[]{Marker.class, String.class}, e, str);
+        }
+
+        @Override
+        public void check(final Logger logger,
+                          final Marker marker,
+                          final String message,
+                          final Object arg1) {
+            invoke(logger, level, new Class[]{
+                    Marker.class,
+                    String.class,
+                    Object.class
+            }, marker, message, arg1);
+        }
+
+        @Override
+        public void check(final Logger logger,
+                          final Marker marker,
+                          final String message,
+                          final Object arg1,
+                          final Object arg2) {
+            invoke(logger, level, new Class[]{
+                    Marker.class,
+                    String.class,
+                    Object.class,
+                    Object.class
+            }, marker, message, arg1, arg2);
+        }
+
+        @Override
+        public void check(final Logger logger,
+                          final Marker marker,
+                          final String str,
+                          final Throwable e) {
+            invoke(logger, level, new Class[]{
+                    Marker.class,
+                    String.class,
+                    Throwable.class,
+            }, marker, str, e);
         }
     }
 }
