@@ -5,7 +5,7 @@ import org.junit.Test;
 import java.util.UUID;
 
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertSame;
+import static org.junit.Assert.assertTrue;
 
 /**
  * @author <a href="mailto:ketoth.xupack@gmail.com">ketoth xupack</a>
@@ -26,7 +26,7 @@ public class LoggerFactoryTest extends UtilitiesTestSupport {
         final org.nohope.logging.Logger log1 = LoggerFactory.getLogger(getClass());
         assertEquals(getClass().getCanonicalName(), log1.getName());
 
-        assertSame(LoggerFactory.getILoggerFactory(),
-                org.slf4j.LoggerFactory.getILoggerFactory());
+        assertTrue(LoggerFactory.getILoggerFactory() instanceof EnhancedLoggerFactory);
+        assertTrue(LoggerFactory.getILoggerFactory().getLogger("test") instanceof EnhancedLogger);
     }
 }

@@ -1,5 +1,6 @@
 package org.nohope.logging;
 
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import org.slf4j.Marker;
 
 /**
@@ -8,6 +9,10 @@ import org.slf4j.Marker;
  * @author <a href="mailto:ketoth.xupack@gmail.com">ketoth xupack</a>
  * @since 2012-02-22 12:13
  */
+@SuppressFBWarnings(
+        value = "NM_SAME_SIMPLE_NAME_AS_INTERFACE",
+        justification = "The whole point was to use same names"
+)
 public interface Logger extends org.slf4j.Logger {
     /**
      * Log an exception (throwable) at the TRACE level with an
