@@ -3,8 +3,22 @@ package org.nohope.reflection;
 import org.apache.commons.lang3.ArrayUtils;
 import org.nohope.typetools.StringUtils;
 
-import java.lang.reflect.*;
-import java.util.*;
+import java.lang.reflect.Array;
+import java.lang.reflect.Constructor;
+import java.lang.reflect.GenericArrayType;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
+import java.lang.reflect.Modifier;
+import java.lang.reflect.ParameterizedType;
+import java.lang.reflect.Type;
+import java.security.AccessController;
+import java.security.PrivilegedAction;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 /**
  * Set of introspection utils aimed to reduce problems caused by reflecting
@@ -22,6 +36,26 @@ import java.util.*;
  * @since 8/12/11 5:42 PM
  */
 public final class IntrospectionUtils {
+    /**
+     * Synthetic "package default" modifier. Can be used with
+     * {@link #searchMethod(Object, int, String, Class[]) searchMethod}
+     * and {@link #invoke(Object, int, String, Object...) invoke}.
+     *
+     * @see Modifier
+     */
+    public static final int PACKAGE_DEFAULT = 0x80000000;
+
+    /**
+     * This modifier is used for
+     * {@link #searchMethod(Object, int, String, Class[]) searchMethod}
+     * and {@link #invoke(Object, int, String, Object...) invoke}
+     * to search/invoke for method with any visibility modifier.
+     */
+    public static final int ANY_VISIBILITY = Modifier.PUBLIC
+                                | Modifier.PRIVATE
+                                | Modifier.PROTECTED
+                                | PACKAGE_DEFAULT;
+
     /**
      * Default stake trace depth for method invocation.
      */
@@ -124,7 +158,16 @@ public final class IntrospectionUtils {
 
         try {
             final Object[] params = adaptTo(args, signature);
-            constructor.setAccessible(true);
+
+            // request privileges
+            AccessController.doPrivileged(new PrivilegedAction<Void>() {
+                @Override
+                public Void run() {
+                    constructor.setAccessible(true);
+                    return null;
+                }
+            });
+
             return constructor.newInstance(params);
         } catch (final ClassCastException e) {
             throw cantInvoke(type, CONSTRUCTOR, signature, args, e);
@@ -132,7 +175,7 @@ public final class IntrospectionUtils {
     }
 
     /**
-     * Invokes compatible method of given instance with given name and
+     * Invokes compatible <b>public</b> method of given instance with given name and
      * parameters.
      *
      * @param instance   target object object
@@ -150,14 +193,55 @@ public final class IntrospectionUtils {
                                 final Object... args)
             throws NoSuchMethodException, InvocationTargetException,
             IllegalAccessException {
+        return invoke(instance, Modifier.PUBLIC, methodName, args);
+    }
 
+    /**
+     * Invokes compatible method of given instance with given
+     * modifiers, name and parameters.
+     * <p />
+     * Example
+     * <pre>
+     * invoke(this, {@link #ANY_VISIBILITY ANY_VISIBILITY}, "method");
+     * </pre>
+     *
+     * @param instance   target object object
+     * @param methodName name of method
+     * @param args       method arguments
+     * @return method invocation result
+     * @throws NoSuchMethodException     if no or more than one compatible
+     *                                   method found
+     * @throws InvocationTargetException on method invocation exception
+     * @throws IllegalAccessException    on on attempt to invoke
+     *                                   protected/private method
+     *
+     * @see #searchMethod(Object, int, String, Class[])
+     */
+    public static Object invoke(final Object instance,
+                                final int modifiers,
+                                final String methodName,
+                                final Object... args)
+            throws NoSuchMethodException, InvocationTargetException,
+                   IllegalAccessException {
         final Method method =
-                searchMethod(instance, methodName, getClasses(args));
+                searchMethod(instance, modifiers, methodName, getClasses(args));
         final Class[] sig = method.getParameterTypes();
 
         try {
             final Object[] params = adaptTo(args, sig);
-            method.setAccessible(true);
+            final int flags = method.getModifiers();
+
+            // request privileges for non-public method
+            if ((flags & ~Modifier.PUBLIC) != 0) {
+                AccessController.doPrivileged(new PrivilegedAction<Void>() {
+                    @Override
+                    public Void run() {
+                        method.setAccessible(true);
+                        return null;
+                    }
+                });
+            }
+
             return method.invoke(instance, params);
         } catch (final ClassCastException e) {
             throw cantInvoke(instance.getClass(), methodName, sig, args, e);
@@ -315,8 +399,38 @@ public final class IntrospectionUtils {
     }
 
     /**
-     * Searches for method of given instance with given name and compatible
-     * signature.
+     * Searches for <b>public</b> method of given instance with given name
+     * and compatible signature.
+     *
+     * @param instance   instance
+     * @param methodName method name
+     * @param signature  method signature
+     * @return constructor compatible with given signature
+     * @throws NoSuchMethodException if no or more than one method found
+     *
+     * @see #searchMethod(Object, int, String, Class[])
+     */
+    public static Method searchMethod(final Object instance,
+                                      final String methodName,
+                                      final Class... signature)
+            throws NoSuchMethodException {
+        return searchMethod(instance, Modifier.PUBLIC, methodName, signature);
+    }
+
+    /**
+     * Searches for method with given modifiers (public methods will be always
+     * included in search) of given instance with given name and compatible signature.
+     *
+     * <p />
+     * Example usage:
+     * <pre>
+     * searchMethod(this,
+     *              {@link Modifier#PRIVATE PRIVATE} | {@link Modifier#PROTECTED PROTECTED},
+     *              "invokeMe");
+     * </pre>
+     * <p />
+     * Take a note java lacks of package default modifier. In case you need
+     * search for package default modifier use {@link #PACKAGE_DEFAULT} or {@link #ANY_VISIBILITY} flags.
      *
      * @param instance   instance
      * @param methodName method name
@@ -325,6 +439,7 @@ public final class IntrospectionUtils {
      * @throws NoSuchMethodException if no or more than one method found
      */
     public static Method searchMethod(final Object instance,
+                                      final int modifiers,
                                       final String methodName,
                                       final Class... signature)
             throws NoSuchMethodException {
@@ -336,14 +451,24 @@ public final class IntrospectionUtils {
             type = instance.getClass();
         }
 
-        final List<Method> mth = new ArrayList<>();
-        mth.addAll(Arrays.asList(type.getDeclaredMethods()));
+        final Set<Method> mth = new HashSet<>();
 
-        // FIXME
-        for (final Method m : type.getMethods()) {
-            if (!mth.contains(m)) {
-                mth.add(m);
+        Class<?> parent = type;
+        while (parent != null) {
+            for (final Method m : parent.getDeclaredMethods()) {
+                final int flags = m.getModifiers();
+                if (((modifiers & flags) != 0)
+                     || ((modifiers & PACKAGE_DEFAULT) != 0
+                         && (flags & ~Modifier.PRIVATE) == 0
+                         && (flags & ~Modifier.PUBLIC) == 0
+                         && (flags & ~Modifier.PROTECTED) == 0)) {
+                    if (!mth.contains(m)) {
+                        mth.add(m);
+                    }
+                }
             }
+
+            parent = parent.getSuperclass();
         }
 
         final Method[] methods = mth.toArray(new Method[mth.size()]);
