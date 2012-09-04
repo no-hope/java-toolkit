@@ -3,11 +3,7 @@ package org.nohope.typetools;
 import org.junit.Test;
 import org.nohope.reflection.UtilitiesTestSupport;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.Iterator;
-import java.util.List;
+import java.util.*;
 
 import static junit.framework.Assert.assertEquals;
 import static junit.framework.Assert.assertNull;
