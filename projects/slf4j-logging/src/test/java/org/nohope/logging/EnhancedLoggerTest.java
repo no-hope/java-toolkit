@@ -10,7 +10,6 @@ import java.util.UUID;
 
 import static org.easymock.EasyMock.*;
 import static org.junit.Assert.*;
-import static org.junit.Assert.assertEquals;
 
 /**
  * @author ketoth xupack <ketoth.xupack@gmail.com>
