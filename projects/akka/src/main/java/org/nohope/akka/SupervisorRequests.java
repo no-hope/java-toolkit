@@ -1,6 +1,6 @@
 package org.nohope.akka;
 
-import org.nohope.domain.device.DeviceId;
+import akka.actor.ActorRef;
 
 /**
  * Date: 07.08.12
@@ -12,24 +12,33 @@ public final class SupervisorRequests {
 
     public static class StartupRequest {
 
-    }
+        private final ActorRef supervisor;
 
-    private static class BaseDeviceRequest {
-        protected final DeviceId deviceId;
-
-        public BaseDeviceRequest(final DeviceId deviceId) {
-            this.deviceId = deviceId;
+        public StartupRequest(final ActorRef supervisor) {
+            this.supervisor = supervisor;
         }
 
-        public DeviceId getDeviceId() {
-            return deviceId;
+        public ActorRef getSupervisor() {
+            return supervisor;
         }
     }
 
-    public static class StartupReply extends BaseDeviceRequest {
+    private static class BaseSupervisorRequest {
+        protected final NamedActorIdentifier actorIdentifier;
 
-        public StartupReply(final DeviceId deviceId) {
-            super(deviceId);
+        public BaseSupervisorRequest(final NamedActorIdentifier actorIdentifier) {
+            this.actorIdentifier = actorIdentifier;
+        }
+
+        public NamedActorIdentifier getActorIdentifier() {
+            return actorIdentifier;
+        }
+    }
+
+    public static class StartupReply extends BaseSupervisorRequest {
+
+        public StartupReply(final NamedActorIdentifier actorIdentifier) {
+            super(actorIdentifier);
         }
 
     }
