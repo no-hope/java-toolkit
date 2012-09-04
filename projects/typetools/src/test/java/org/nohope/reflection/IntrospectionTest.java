@@ -1,5 +1,6 @@
 package org.nohope.reflection;
 
+import junit.framework.Assert;
 import org.junit.AfterClass;
 import org.junit.Test;
 
@@ -12,6 +13,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 
+import static java.lang.reflect.Modifier.*;
 import static junit.framework.Assert.assertEquals;
 import static junit.framework.Assert.assertNull;
 import static junit.framework.Assert.assertTrue;
@@ -251,7 +253,7 @@ public final class IntrospectionTest extends UtilitiesTestSupport {
     public void privateMethodInvoke()
             throws InvocationTargetException, NoSuchMethodException,
             IllegalAccessException {
-        final Object result = invoke(this, "method4", 3);
+        final Object result = invoke(this, PRIVATE, "method4", 3);
         assertTrue(result instanceof Integer);
         assertEquals(3, result);
     }
@@ -424,7 +426,7 @@ public final class IntrospectionTest extends UtilitiesTestSupport {
 
     @Test
     public void methodSearch() throws NoSuchMethodException {
-        assertNotNull(searchMethod(getClass(), "testCall"));
+        assertNotNull(searchMethod(getClass(), PACKAGE_DEFAULT, "testCall"));
     }
 
     @Test
@@ -644,7 +646,16 @@ public final class IntrospectionTest extends UtilitiesTestSupport {
 
 
     private static class Parent {
-        public final void setName(final String test) {
+        protected final void protectedMethod() {
+        }
+
+        private void privateMethod() {
+        }
+
+        public void publicMethod() {
+        }
+
+        void packageDefaultMethod() {
         }
     }
 
@@ -652,7 +663,67 @@ public final class IntrospectionTest extends UtilitiesTestSupport {
     }
 
     @Test
-    public void inheritedMethod() throws NoSuchMethodException {
-        searchMethod(Child.class, "setName", String.class);
+    public void inheritedMethod() {
+        try {
+            searchMethod(Child.class, "publicMethod");
+            searchMethod(Child.class, PUBLIC | PROTECTED, "publicMethod");
+            searchMethod(Child.class, PUBLIC | PRIVATE, "publicMethod");
+            searchMethod(Child.class, PUBLIC | PRIVATE | PROTECTED, "publicMethod");
+        } catch (NoSuchMethodException e) {
+            Assert.fail(e.getMessage());
+        }
+
+        try {
+            searchMethod(Child.class, "protectedMethod");
+            Assert.fail();
+        } catch (NoSuchMethodException ignored) {
+        }
+
+        try {
+            searchMethod(Child.class, PRIVATE, "protectedMethod");
+            Assert.fail();
+        } catch (NoSuchMethodException ignored) {
+        }
+
+        try {
+            searchMethod(Child.class, PROTECTED, "protectedMethod");
+            searchMethod(Child.class, PRIVATE | PROTECTED, "protectedMethod");
+        } catch (NoSuchMethodException e) {
+            Assert.fail(e.getMessage());
+        }
+
+        try {
+            searchMethod(Child.class, "privateMethod");
+            Assert.fail();
+        } catch (NoSuchMethodException ignored) {
+        }
+
+        try {
+            searchMethod(Child.class, PROTECTED, "privateMethod");
+            Assert.fail();
+        } catch (NoSuchMethodException ignored) {
+        }
+
+        try {
+            searchMethod(Child.class, PRIVATE, "privateMethod");
+            searchMethod(Child.class, PRIVATE | PROTECTED, "privateMethod");
+        } catch (NoSuchMethodException e) {
+            Assert.fail(e.getMessage());
+        }
+
+        try {
+            searchMethod(Child.class, PACKAGE_DEFAULT, "packageDefaultMethod");
+        } catch (NoSuchMethodException e) {
+            Assert.fail(e.getMessage());
+        }
+
+        try {
+            searchMethod(Child.class, ANY_VISIBILITY, "publicMethod");
+            searchMethod(Child.class, ANY_VISIBILITY, "protectedMethod");
+            searchMethod(Child.class, ANY_VISIBILITY, "privateMethod");
+            searchMethod(Child.class, ANY_VISIBILITY, "packageDefaultMethod");
+        } catch (NoSuchMethodException e) {
+            Assert.fail(e.getMessage());
+        }
     }
 }
