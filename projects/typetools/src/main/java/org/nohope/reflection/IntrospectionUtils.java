@@ -8,6 +8,8 @@ import java.security.AccessController;
 import java.security.PrivilegedAction;
 import java.util.*;
 
+import static java.lang.reflect.Modifier.*;
+
 /**
  * Set of introspection utils aimed to reduce problems caused by reflecting
  * native/inherited types.
@@ -31,18 +33,7 @@ public final class IntrospectionUtils {
      *
      * @see Modifier
      */
-    public static final int PACKAGE_DEFAULT = 0x80000000;
-
-    /**
-     * This modifier is used for
-     * {@link #searchMethod(Object, int, String, Class[]) searchMethod}
-     * and {@link #invoke(Object, int, String, Object...) invoke}
-     * to search/invoke for method with any visibility modifier.
-     */
-    public static final int ANY_VISIBILITY = Modifier.PUBLIC
-                                | Modifier.PRIVATE
-                                | Modifier.PROTECTED
-                                | PACKAGE_DEFAULT;
+    public static final int PACKAGE_DEFAULT = ~(PUBLIC | PROTECTED | PRIVATE);
 
     /**
      * Default stake trace depth for method invocation.
@@ -181,7 +172,7 @@ public final class IntrospectionUtils {
                                 final Object... args)
             throws NoSuchMethodException, InvocationTargetException,
             IllegalAccessException {
-        return invoke(instance, Modifier.PUBLIC, methodName, args);
+        return invoke(instance, PUBLIC, methodName, args);
     }
 
     /**
@@ -190,7 +181,7 @@ public final class IntrospectionUtils {
      * <p />
      * Example
      * <pre>
-     * invoke(this, {@link #ANY_VISIBILITY ANY_VISIBILITY}, "method");
+     * invoke(this, {@link #PACKAGE_DEFAULT PACKAGE_DEFAULT}, "method");
      * </pre>
      *
      * @param instance   target object object
@@ -220,7 +211,7 @@ public final class IntrospectionUtils {
             final int flags = method.getModifiers();
 
             // request privileges for non-public method
-            if ((flags & ~Modifier.PUBLIC) != 0) {
+            if ((flags & ~PUBLIC) != 0) {
                 AccessController.doPrivileged(new PrivilegedAction<Void>() {
                     @Override
                     public Void run() {
@@ -402,7 +393,7 @@ public final class IntrospectionUtils {
                                       final String methodName,
                                       final Class... signature)
             throws NoSuchMethodException {
-        return searchMethod(instance, Modifier.PUBLIC, methodName, signature);
+        return searchMethod(instance, PUBLIC, methodName, signature);
     }
 
     /**
@@ -416,9 +407,6 @@ public final class IntrospectionUtils {
      *              {@link Modifier#PRIVATE PRIVATE} | {@link Modifier#PROTECTED PROTECTED},
      *              "invokeMe");
      * </pre>
-     * <p />
-     * Take a note java lacks of package default modifier. In case you need
-     * search for package default modifier use {@link #PACKAGE_DEFAULT} or {@link #ANY_VISIBILITY} flags.
      *
      * @param instance   instance
      * @param methodName method name
@@ -444,12 +432,14 @@ public final class IntrospectionUtils {
         Class<?> parent = type;
         while (parent != null) {
             for (final Method m : parent.getDeclaredMethods()) {
+                if (!methodName.equals(m.getName())) {
+                    continue;
+                }
+
                 final int flags = m.getModifiers();
-                if (((modifiers & flags) != 0)
-                     || ((modifiers & PACKAGE_DEFAULT) != 0
-                         && (flags & ~Modifier.PRIVATE) == 0
-                         && (flags & ~Modifier.PUBLIC) == 0
-                         && (flags & ~Modifier.PROTECTED) == 0)) {
+                if ((modifiers & flags) != 0
+                    || ((modifiers & PACKAGE_DEFAULT) != 0
+                        && (flags & ~PACKAGE_DEFAULT) == 0)) {
                     if (!mth.contains(m)) {
                         mth.add(m);
                     }
