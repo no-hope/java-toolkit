@@ -3,9 +3,7 @@ package org.nohope.reflection;
 import java.lang.reflect.InvocationTargetException;
 import java.text.MessageFormat;
 
-import static org.nohope.reflection.IntrospectionUtils.ANY_VISIBILITY;
-import static org.nohope.reflection.IntrospectionUtils.getCanonicalClassName;
-import static org.nohope.reflection.IntrospectionUtils.invoke;
+import static org.nohope.reflection.IntrospectionUtils.*;
 
 /**
  * Date: 25.07.12
