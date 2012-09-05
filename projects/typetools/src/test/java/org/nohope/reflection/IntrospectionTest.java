@@ -718,10 +718,10 @@ public final class IntrospectionTest extends UtilitiesTestSupport {
         }
 
         try {
-            searchMethod(Child.class, ANY_VISIBILITY, "publicMethod");
-            searchMethod(Child.class, ANY_VISIBILITY, "protectedMethod");
-            searchMethod(Child.class, ANY_VISIBILITY, "privateMethod");
-            searchMethod(Child.class, ANY_VISIBILITY, "packageDefaultMethod");
+            searchMethod(Child.class, methodModifiers(), "publicMethod");
+            searchMethod(Child.class, methodModifiers(), "protectedMethod");
+            searchMethod(Child.class, methodModifiers(), "privateMethod");
+            searchMethod(Child.class, methodModifiers(), "packageDefaultMethod");
         } catch (NoSuchMethodException e) {
             Assert.fail(e.getMessage());
         }

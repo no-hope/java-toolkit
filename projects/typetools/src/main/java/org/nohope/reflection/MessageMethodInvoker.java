@@ -3,7 +3,9 @@ package org.nohope.reflection;
 import java.lang.reflect.InvocationTargetException;
 import java.text.MessageFormat;
 
-import static org.nohope.reflection.IntrospectionUtils.*;
+import static java.lang.reflect.Modifier.methodModifiers;
+import static org.nohope.reflection.IntrospectionUtils.getCanonicalClassName;
+import static org.nohope.reflection.IntrospectionUtils.invoke;
 
 /**
  * Date: 25.07.12
@@ -15,9 +17,10 @@ public final class MessageMethodInvoker {
     private MessageMethodInvoker() {
     }
 
-    public static void invokeHandler(final Object target, final Object message) throws NoSuchMethodException {
+    public static void invokeHandler(final Object target, final Object message)
+            throws NoSuchMethodException {
         try {
-            invoke(target, ANY_VISIBILITY, METHOD, message);
+            invoke(target, methodModifiers(), METHOD, message);
         } catch (InvocationTargetException | IllegalAccessException e) {
             throw new IllegalArgumentException(MessageFormat.format(
                     "Unable to invoke {0}.{1}({2})",
