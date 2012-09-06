@@ -65,7 +65,7 @@ public abstract class BaseSupervisor extends UntypedActor {
                 deviceRef = getContext().actorOf(newInputProps(inputClassId)
                         , actId);
                 startingActors.put(inputClassId, deviceRef);
-                deviceRef.tell(new SupervisorRequests.StartupRequest(getSelf()));
+                deviceRef.tell(new SupervisorRequests.StartupRequest(), getSelf());
             } else {
                 log.debug("Passing existing device actor...");
             }
