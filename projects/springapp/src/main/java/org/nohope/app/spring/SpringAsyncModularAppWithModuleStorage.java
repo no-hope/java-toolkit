@@ -25,7 +25,6 @@ public class SpringAsyncModularAppWithModuleStorage<M> extends SpringAsyncModula
      * @param clazz
      * @param <Subtype> supertype of modules to be filtered
      * @return All the implementations of given superclass
-     * @deprecated You should avoid of using this method if possible
      */
     protected <Subtype> List<Subtype> getImplementations(final Class<Subtype> clazz) {
         return getImplementations(clazz, modules.values());
