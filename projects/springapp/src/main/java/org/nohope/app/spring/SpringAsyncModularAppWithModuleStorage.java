@@ -43,6 +43,21 @@ public class SpringAsyncModularAppWithModuleStorage<M> extends SpringAsyncModula
         return ret;
     }
 
+    protected M getModule(final String moduleName) {
+        return modules.get(moduleName).getModule();
+    }
+
+    protected <Subtype extends M> Subtype getModule(final Class<Subtype> clazz, final String moduleName) {
+        final ModuleDescriptor<M> md = modules.get(moduleName);
+        if (clazz.isAssignableFrom(md.getClass())) {
+            @SuppressWarnings("unchecked")
+            final Subtype module = (Subtype) md.getModule();
+            return module;
+        }
+        throw new IllegalArgumentException("No module '"+moduleName+"' with given type "+clazz.getCanonicalName());
+    }
+
+
 
     protected SpringAsyncModularAppWithModuleStorage(@Nonnull final Class<? extends M> targetModuleClass, @Nullable final String appName, @Nullable final String appMetaInfNamespace, @Nullable final String moduleMetaInfNamespace) {
         super(targetModuleClass, appName, appMetaInfNamespace, moduleMetaInfNamespace);
