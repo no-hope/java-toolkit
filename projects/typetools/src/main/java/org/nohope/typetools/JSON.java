@@ -8,6 +8,7 @@ import org.nohope.logging.LoggerFactory;
 import java.io.IOException;
 
 import static com.fasterxml.jackson.annotation.JsonInclude.Include.NON_EMPTY;
+import static com.fasterxml.jackson.databind.SerializationFeature.FAIL_ON_EMPTY_BEANS;
 import static com.fasterxml.jackson.databind.SerializationFeature.INDENT_OUTPUT;
 import static com.fasterxml.jackson.databind.SerializationFeature.WRITE_DATES_AS_TIMESTAMPS;
 
@@ -28,6 +29,7 @@ public final class JSON {
             mapper.registerModule(new JodaModule());
             mapper.configure(INDENT_OUTPUT, true);
             mapper.configure(WRITE_DATES_AS_TIMESTAMPS, false);
+            mapper.configure(FAIL_ON_EMPTY_BEANS, false);
             mapper.setSerializationInclusion(NON_EMPTY);
 
             return mapper.writeValueAsString(obj);
@@ -61,6 +63,6 @@ public final class JSON {
     }
 
     private static String defaultErrorMessage(final Object obj) {
-        return "<? " + obj.getClass().getName() + "/>";
+        return "<? " + obj.getClass().getCanonicalName() + "/>";
     }
 }
