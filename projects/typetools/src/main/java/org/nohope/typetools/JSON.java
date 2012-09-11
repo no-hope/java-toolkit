@@ -8,9 +8,7 @@ import org.nohope.logging.LoggerFactory;
 import java.io.IOException;
 
 import static com.fasterxml.jackson.annotation.JsonInclude.Include.NON_EMPTY;
-import static com.fasterxml.jackson.databind.SerializationFeature.FAIL_ON_EMPTY_BEANS;
-import static com.fasterxml.jackson.databind.SerializationFeature.INDENT_OUTPUT;
-import static com.fasterxml.jackson.databind.SerializationFeature.WRITE_DATES_AS_TIMESTAMPS;
+import static com.fasterxml.jackson.databind.SerializationFeature.*;
 
 /**
  * Date: 23.01.12
