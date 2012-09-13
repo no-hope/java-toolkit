@@ -9,8 +9,12 @@ import java.io.Serializable;
 public class NamedWorkerMetadata implements Serializable {
     private static final long serialVersionUID = 1L;
 
-    private final String identifier;
-    private final Object data;
+    private String identifier;
+
+    private Object data;
+
+    public NamedWorkerMetadata() {
+    }
 
     public NamedWorkerMetadata(final String identifier, final Object data) {
         this.identifier = identifier;
@@ -19,6 +23,10 @@ public class NamedWorkerMetadata implements Serializable {
 
     public String getIdentifier() {
         return identifier;
+    }
+
+    public void setData(final Object data) {
+        this.data = data;
     }
 
     public Object getData() {
