@@ -141,6 +141,7 @@ public abstract class SpringAsyncModularApp<M> extends AsyncApp {
 
             /*
             TODO: in fact we'll never face with such problem ?
+            I think we need to throw exception here. pshirshov.
             if (modules.containsKey(moduleName)) {
                 LOG.warn("Module '{}' was already loaded, skipping", moduleName);
                 continue;
