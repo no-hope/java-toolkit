@@ -20,17 +20,26 @@ public final class JSON {
     private JSON() {
     }
 
+    private static final ObjectMapper prettyMapper = new ObjectMapper();
+    private static final ObjectMapper usualMapper = new ObjectMapper();
+
+    static {
+        prettyMapper.registerModule(new JodaModule());
+        prettyMapper.configure(INDENT_OUTPUT, true);
+        prettyMapper.configure(WRITE_DATES_AS_TIMESTAMPS, false);
+        prettyMapper.configure(FAIL_ON_EMPTY_BEANS, false);
+        prettyMapper.setSerializationInclusion(NON_EMPTY);
+
+        usualMapper.registerModule(new JodaModule());
+        usualMapper.setSerializationInclusion(NON_EMPTY);
+    }
+
     public static String jsonifyPretty(final Object obj,
                                        final String onErrorMessage) {
         try {
-            final ObjectMapper mapper = new ObjectMapper();
-            mapper.registerModule(new JodaModule());
-            mapper.configure(INDENT_OUTPUT, true);
-            mapper.configure(WRITE_DATES_AS_TIMESTAMPS, false);
-            mapper.configure(FAIL_ON_EMPTY_BEANS, false);
-            mapper.setSerializationInclusion(NON_EMPTY);
 
-            return mapper.writeValueAsString(obj);
+
+            return prettyMapper.writeValueAsString(obj);
         } catch (IOException e) {
             LOG.error(e, "Unable to jsonify object of class {}",
                     obj == null ? null : obj.getClass());
@@ -45,10 +54,7 @@ public final class JSON {
     public static String jsonify(final Object obj,
                                  final String onErrorMessage) {
         try {
-            final ObjectMapper mapper = new ObjectMapper();
-            mapper.registerModule(new JodaModule());
-            mapper.setSerializationInclusion(NON_EMPTY);
-            return mapper.writeValueAsString(obj);
+            return usualMapper.writeValueAsString(obj);
         } catch (IOException e) {
             LOG.error(e, "Unable to jsonify object of class {}",
                     obj == null ? null : obj.getClass());
@@ -61,6 +67,13 @@ public final class JSON {
     }
 
     private static String defaultErrorMessage(final Object obj) {
-        return "<? " + obj.getClass().getCanonicalName() + "/>";
+        if (null != obj) {
+            return "<? " + obj.getClass().getCanonicalName() + "/>";
+        }
+        return "<?null />";
+    }
+
+    public static <T> T restoreTyped(final Object source, final Class<T> clazz) throws IOException {
+        return usualMapper.readValue(usualMapper.writeValueAsBytes(source), clazz);
     }
 }
