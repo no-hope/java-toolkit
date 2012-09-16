@@ -8,7 +8,8 @@ import java.security.AccessController;
 import java.security.PrivilegedAction;
 import java.util.*;
 
-import static java.lang.reflect.Modifier.*;
+//import static java.lang.reflect.Modifier.PUBLIC;
+import static org.nohope.reflection.ModifierMatcher.*;
 
 /**
  * Set of introspection utils aimed to reduce problems caused by reflecting
@@ -26,15 +27,6 @@ import static java.lang.reflect.Modifier.*;
  * @since 8/12/11 5:42 PM
  */
 public final class IntrospectionUtils {
-    /**
-     * Synthetic "package default" modifier. Can be used with
-     * {@link #searchMethod(Object, int, String, Class[]) searchMethod}
-     * and {@link #invoke(Object, int, String, Object...) invoke}.
-     *
-     * @see Modifier
-     */
-    public static final int PACKAGE_DEFAULT = ~(PUBLIC | PROTECTED | PRIVATE);
-
     /**
      * Default stake trace depth for method invocation.
      */
@@ -172,7 +164,7 @@ public final class IntrospectionUtils {
                                 final Object... args)
             throws NoSuchMethodException, InvocationTargetException,
             IllegalAccessException {
-        return invoke(instance, PUBLIC, methodName, args);
+        return invoke(instance, and(PUBLIC, not(ABSTRACT)), methodName, args);
     }
 
     /**
@@ -181,7 +173,7 @@ public final class IntrospectionUtils {
      * <p />
      * Example
      * <pre>
-     * invoke(this, {@link #PACKAGE_DEFAULT PACKAGE_DEFAULT}, "method");
+     * invoke(this, {@link ModifierMatcher#PACKAGE_DEFAULT PACKAGE_DEFAULT}, "method");
      * </pre>
      *
      * @param instance   target object object
@@ -194,16 +186,16 @@ public final class IntrospectionUtils {
      * @throws IllegalAccessException    on on attempt to invoke
      *                                   protected/private method
      *
-     * @see #searchMethod(Object, int, String, Class[])
+     * @see #searchMethod(Object, IModifierMatcher, String, Class[])
      */
     public static Object invoke(final Object instance,
-                                final int modifiers,
+                                final IModifierMatcher matcher,
                                 final String methodName,
                                 final Object... args)
             throws NoSuchMethodException, InvocationTargetException,
                    IllegalAccessException {
         final Method method =
-                searchMethod(instance, modifiers, methodName, getClasses(args));
+                searchMethod(instance, matcher, methodName, getClasses(args));
         final Class[] sig = method.getParameterTypes();
 
         try {
@@ -211,7 +203,7 @@ public final class IntrospectionUtils {
             final int flags = method.getModifiers();
 
             // request privileges for non-public method
-            if ((flags & ~PUBLIC) != 0) {
+            if ((flags & ~Modifier.PUBLIC) != 0) {
                 AccessController.doPrivileged(new PrivilegedAction<Void>() {
                     @Override
                     public Void run() {
@@ -353,7 +345,7 @@ public final class IntrospectionUtils {
             if (areTypesCompatible(types, signature)) {
                 if (found != null) {
                     // we got one compatible constructor already...
-                    throw tooMuch(type, CONSTRUCTOR, signature);
+                    throw tooMuch(type, CONSTRUCTOR, signature, ALL);
                 }
                 found = constructor;
             } else if (areTypesVarargCompatible(types, signature)) {
@@ -365,16 +357,28 @@ public final class IntrospectionUtils {
         // there is no such constructor at all...
         if (found == null) {
             if (varargsFound > 1) {
-                throw tooMuch(type, CONSTRUCTOR, signature);
+                throw tooMuch(type, CONSTRUCTOR, signature, ALL);
             }
             if (varargsFound == 1) {
                 return vararg;
             }
-            throw notFound(type, CONSTRUCTOR, signature);
+            throw notFound(type, CONSTRUCTOR, signature, ALL);
         }
 
         // this _should_ be an Constructor<T> huh?
         return (Constructor<T>) found;
+    }
+
+    /**
+     * Checks if lower method overrides higher method.
+     *
+     * @param higher method used to be higher in class hierarchy
+     * @param lower method used to be lower in class hierarchy
+     * @return true if lower overrides higher
+     */
+    public static boolean isOverridden(final Method higher, final Method lower) {
+        return higher.getDeclaringClass().isAssignableFrom(lower.getDeclaringClass())
+               && Arrays.deepEquals(higher.getParameterTypes(), lower.getParameterTypes());
     }
 
     /**
@@ -387,13 +391,13 @@ public final class IntrospectionUtils {
      * @return constructor compatible with given signature
      * @throws NoSuchMethodException if no or more than one method found
      *
-     * @see #searchMethod(Object, int, String, Class[])
+     * @see #searchMethod(Object, IModifierMatcher, String, Class[])
      */
     public static Method searchMethod(final Object instance,
                                       final String methodName,
                                       final Class... signature)
             throws NoSuchMethodException {
-        return searchMethod(instance, PUBLIC, methodName, signature);
+        return searchMethod(instance, and(PUBLIC, not(ABSTRACT)), methodName, signature);
     }
 
     /**
@@ -415,7 +419,7 @@ public final class IntrospectionUtils {
      * @throws NoSuchMethodException if no or more than one method found
      */
     public static Method searchMethod(final Object instance,
-                                      final int modifiers,
+                                      final IModifierMatcher matcher,
                                       final String methodName,
                                       final Class... signature)
             throws NoSuchMethodException {
@@ -437,10 +441,24 @@ public final class IntrospectionUtils {
                 }
 
                 final int flags = m.getModifiers();
-                if ((modifiers & flags) != 0
+                if (matcher.matches(flags)
+                    /*(flags & modifiers) == modifiers
                     || ((modifiers & PACKAGE_DEFAULT) != 0
-                        && (flags & ~PACKAGE_DEFAULT) == 0)) {
-                    if (!mth.contains(m)) {
+                        && (flags & ~PACKAGE_DEFAULT) == 0)*/
+                   ) {
+
+                    /* Here we need to ensure no overridden methods from parent
+                       will be added in search result */
+                    boolean toBeAdded = true;
+                    for (final Method added : mth) {
+                        if (isOverridden(m, added)) {
+                            // skipping overridden methods from parent
+                            toBeAdded = false;
+                            break;
+                        }
+                    }
+
+                    if (toBeAdded) {
                         mth.add(m);
                     }
                 }
@@ -458,16 +476,11 @@ public final class IntrospectionUtils {
         for (final Method method : methods) {
             final Class[] types = method.getParameterTypes();
 
-            // wrong method name...
-            if (!methodName.equals(method.getName())) {
-                continue;
-            }
-
             // Check for signature types compatibility
             if (areTypesCompatible(types, signature)) {
                 if (found != null) {
                     // we got one compatible method already...
-                    throw tooMuch(type, methodName, signature);
+                    throw tooMuch(type, methodName, signature, matcher);
                 }
                 found = method;
             } else if (areTypesVarargCompatible(types, signature)) {
@@ -478,13 +491,14 @@ public final class IntrospectionUtils {
 
         // there is no such method at all...
         if (found == null) {
-            if (varargsFound > 1) {
-                throw tooMuch(type, methodName, signature);
+            switch (varargsFound) {
+                case 0:
+                    throw notFound(type, methodName, signature, matcher);
+                case 1:
+                    return vararg;
+                default:
+                    throw tooMuch(type, methodName, signature, matcher);
             }
-            if (varargsFound == 1) {
-                return vararg;
-            }
-            throw notFound(type, methodName, signature);
         }
 
         return found;
@@ -879,10 +893,11 @@ public final class IntrospectionUtils {
     private static NoSuchMethodException abort(final String message,
                                                final Class type,
                                                final String methodName,
-                                               final Class[] signature) {
+                                               final Class[] signature,
+                                               final IModifierMatcher matcher) {
         return new NoSuchMethodException(String.format(message,
                 type.getCanonicalName(), methodName,
-                StringUtils.join(getClassNames(signature))));
+                StringUtils.join(getClassNames(signature)), matcher));
     }
 
     /**
@@ -895,9 +910,10 @@ public final class IntrospectionUtils {
      */
     private static NoSuchMethodException tooMuch(
             final Class type, final String methodName,
-            final Class[] signature) {
-        return abort("More than one method %s#%s found conforms signature [%s]",
-                type, methodName, signature);
+            final Class[] signature,
+            final IModifierMatcher matcher) {
+        return abort("More than one method %s#%s found conforms signature [%s] and matcher %s",
+                type, methodName, signature, matcher);
     }
 
     /**
@@ -910,9 +926,9 @@ public final class IntrospectionUtils {
      */
     private static NoSuchMethodException notFound(
             final Class type, final String methodName,
-            final Class[] signature) {
-        return abort("No methods %s#%s found to conform signature [%s]",
-                type, methodName, signature);
+            final Class[] signature, final IModifierMatcher matcher) {
+        return abort("No methods %s#%s found to conform signature [%s] and matcher %s",
+                type, methodName, signature, matcher);
     }
 
     /**
