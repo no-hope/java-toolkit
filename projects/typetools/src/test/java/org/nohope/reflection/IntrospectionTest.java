@@ -13,7 +13,6 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 
-import static java.lang.reflect.Modifier.*;
 import static junit.framework.Assert.assertEquals;
 import static junit.framework.Assert.assertNull;
 import static junit.framework.Assert.assertTrue;
@@ -23,6 +22,7 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertSame;
 import static org.junit.Assert.fail;
+import static org.nohope.reflection.ModifierMatcher.*;
 import static org.nohope.reflection.IntrospectionUtils.*;
 
 /**
@@ -426,7 +426,7 @@ public final class IntrospectionTest extends UtilitiesTestSupport {
 
     @Test
     public void methodSearch() throws NoSuchMethodException {
-        assertNotNull(searchMethod(getClass(), PACKAGE_DEFAULT, "testCall"));
+        assertNotNull(searchMethod(getClass(), not(or(PUBLIC, PROTECTED, PRIVATE)), "testCall"));
     }
 
     @Test
@@ -646,7 +646,7 @@ public final class IntrospectionTest extends UtilitiesTestSupport {
 
 
     private static class Parent {
-        protected final void protectedMethod() {
+        protected void protectedMethod() {
         }
 
         private void privateMethod() {
@@ -662,34 +662,40 @@ public final class IntrospectionTest extends UtilitiesTestSupport {
     private static class Child extends Parent {
     }
 
+    private static class ChildOverride extends Parent {
+        @Override
+        public void publicMethod() {
+        }
+
+        @Override
+        void packageDefaultMethod() {
+        }
+
+        @Override
+        protected void protectedMethod() {
+        }
+    }
+
     @Test
     public void inheritedMethod() {
         try {
             searchMethod(Child.class, "publicMethod");
-            searchMethod(Child.class, PUBLIC | PROTECTED, "publicMethod");
-            searchMethod(Child.class, PUBLIC | PRIVATE, "publicMethod");
-            searchMethod(Child.class, PUBLIC | PRIVATE | PROTECTED, "publicMethod");
+            searchMethod(Child.class, PROTECTED, "protectedMethod");
+            searchMethod(Child.class, PRIVATE, "privateMethod");
+            searchMethod(Child.class, PACKAGE_DEFAULT, "packageDefaultMethod");
+
+            searchMethod(Child.class, ALL, "publicMethod");
+            searchMethod(Child.class, ALL, "protectedMethod");
+            searchMethod(Child.class, ALL, "privateMethod");
+            searchMethod(Child.class, ALL, "packageDefaultMethod");
         } catch (NoSuchMethodException e) {
             Assert.fail(e.getMessage());
         }
 
         try {
             searchMethod(Child.class, "protectedMethod");
-            Assert.fail();
+            fail();
         } catch (NoSuchMethodException ignored) {
-        }
-
-        try {
-            searchMethod(Child.class, PRIVATE, "protectedMethod");
-            Assert.fail();
-        } catch (NoSuchMethodException ignored) {
-        }
-
-        try {
-            searchMethod(Child.class, PROTECTED, "protectedMethod");
-            searchMethod(Child.class, PRIVATE | PROTECTED, "protectedMethod");
-        } catch (NoSuchMethodException e) {
-            Assert.fail(e.getMessage());
         }
 
         try {
@@ -699,31 +705,25 @@ public final class IntrospectionTest extends UtilitiesTestSupport {
         }
 
         try {
-            searchMethod(Child.class, PROTECTED, "privateMethod");
+            searchMethod(Child.class, "packageDefaultMethod");
             Assert.fail();
         } catch (NoSuchMethodException ignored) {
         }
+    }
 
-        try {
-            searchMethod(Child.class, PRIVATE, "privateMethod");
-            searchMethod(Child.class, PRIVATE | PROTECTED, "privateMethod");
-        } catch (NoSuchMethodException e) {
-            Assert.fail(e.getMessage());
-        }
+    private abstract static class AbstractParent {
+        public abstract void absMethod();
+    }
 
-        try {
-            searchMethod(Child.class, PACKAGE_DEFAULT, "packageDefaultMethod");
-        } catch (NoSuchMethodException e) {
-            Assert.fail(e.getMessage());
+    private static class ChildOfAbstractParent extends AbstractParent {
+        @Override
+        public final void absMethod() {
         }
+    }
 
-        try {
-            searchMethod(Child.class, methodModifiers(), "publicMethod");
-            searchMethod(Child.class, methodModifiers(), "protectedMethod");
-            searchMethod(Child.class, methodModifiers(), "privateMethod");
-            searchMethod(Child.class, methodModifiers(), "packageDefaultMethod");
-        } catch (NoSuchMethodException e) {
-            Assert.fail(e.getMessage());
-        }
+    @Test
+    public void inheritedMethodOverride() throws NoSuchMethodException {
+        searchMethod(ChildOfAbstractParent.class, "absMethod");
+        searchMethod(ChildOverride.class, "publicMethod");
     }
 }
