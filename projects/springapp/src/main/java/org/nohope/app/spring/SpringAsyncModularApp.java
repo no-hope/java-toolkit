@@ -4,11 +4,8 @@ import org.apache.xbean.finder.ResourceFinder;
 import org.nohope.logging.Logger;
 import org.nohope.logging.LoggerFactory;
 import org.springframework.beans.BeansException;
-import org.springframework.beans.factory.annotation.AutowiredAnnotationBeanPostProcessor;
-import org.springframework.beans.factory.config.AutowireCapableBeanFactory;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ConfigurableApplicationContext;
-import org.springframework.context.annotation.CommonAnnotationBeanPostProcessor;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
 import org.springframework.core.io.ClassPathResource;
 import org.nohope.app.AsyncApp;
@@ -19,6 +16,9 @@ import java.io.File;
 import java.util.Map;
 import java.util.Properties;
 import java.util.concurrent.atomic.AtomicReference;
+
+import static org.nohope.app.spring.SpringUtils.instantiate;
+import static org.nohope.app.spring.SpringUtils.propagateAnnotationProcessing;
 
 /**
  * <b>Technical background</b>
@@ -292,6 +292,12 @@ public abstract class SpringAsyncModularApp<M> extends AsyncApp {
         return obj;
     }
 
+    protected static <T> T registerSingleton(final ConfigurableApplicationContext ctx,
+                                             final String name,
+                                             final T obj) {
+        return SpringUtils.registerSingleton(ctx, name, obj);
+    }
+
     private static ConfigurableApplicationContext overrideRule(@Nullable final ConfigurableApplicationContext ctx,
                                                                final String namespace,
                                                                final String name) {
@@ -365,34 +371,6 @@ public abstract class SpringAsyncModularApp<M> extends AsyncApp {
     }
 
     protected static <T> T getOrInstantiate(final ApplicationContext ctx, final Class<? extends T> clazz) {
-        try {
-            return ctx.getBean(clazz);
-        } catch (final BeansException e) {
-            return instantiate(ctx, clazz);
-        }
-    }
-
-    @SuppressWarnings("unchecked")
-    private static <T> T instantiate(final ApplicationContext ctx, final Class<? extends T> clazz) {
-        final AutowireCapableBeanFactory factory = ctx.getAutowireCapableBeanFactory();
-        return (T) factory.createBean(
-                clazz,
-                AutowireCapableBeanFactory.AUTOWIRE_NO,
-                true
-        );
-    }
-
-    protected static <T> T registerSingleton(final ConfigurableApplicationContext ctx,
-                                             final String name,
-                                             final T obj) {
-        ctx.getBeanFactory().registerSingleton(name, obj);
-        return obj;
-    }
-
-    private static ConfigurableApplicationContext propagateAnnotationProcessing(
-            final ConfigurableApplicationContext ctx) {
-        ctx.getBeanFactory().addBeanPostProcessor(new CommonAnnotationBeanPostProcessor());
-        ctx.getBeanFactory().addBeanPostProcessor(new AutowiredAnnotationBeanPostProcessor());
-        return ctx;
+        return SpringUtils.getOrInstantiate(ctx, clazz);
     }
 }
