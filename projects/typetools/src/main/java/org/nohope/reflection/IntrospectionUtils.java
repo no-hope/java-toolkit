@@ -201,10 +201,12 @@ public final class IntrospectionUtils {
 
         try {
             final Object[] params = adaptTo(args, sig);
-            final int flags = method.getModifiers();
 
+            // TODO: need more complex algorithm for checking security permissions
             // request privileges for non-public method
-            if ((flags & ~Modifier.PUBLIC) != 0) {
+            //final int flags = method.getModifiers();
+            //final int classFlags = instance.getClass().getModifiers();
+            //if ((flags & ~Modifier.PUBLIC) != 0 || (classFlags & ~Modifier.PUBLIC) != 0) {
                 AccessController.doPrivileged(new PrivilegedAction<Void>() {
                     @Override
                     public Void run() {
@@ -212,7 +214,7 @@ public final class IntrospectionUtils {
                         return null;
                     }
                 });
-            }
+            //}
 
             return method.invoke(instance, params);
         } catch (final ClassCastException e) {
