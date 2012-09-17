@@ -53,6 +53,11 @@ public abstract class BaseSupervisor extends UntypedActor {
 
     @SuppressWarnings("unused")
     public void onConcreteMessage(final NamedWorkerMetadata inputClassId) {
+        final ActorRef deviceRef = obtainWorkerRef(inputClassId);
+        getSender().tell(deviceRef);
+    }
+
+    protected ActorRef obtainWorkerRef(final NamedWorkerMetadata inputClassId) {
         ActorRef deviceRef = startingActors.get(inputClassId);
 
         if (null == deviceRef) {
@@ -72,8 +77,7 @@ public abstract class BaseSupervisor extends UntypedActor {
         } else {
             log.debug("Passing existing device actor which is starting now...");
         }
-
-        getSender().tell(deviceRef);
+        return deviceRef;
     }
 
     @SuppressWarnings("unused")
