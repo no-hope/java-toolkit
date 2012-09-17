@@ -3,9 +3,9 @@ package org.nohope.reflection;
 import java.lang.reflect.InvocationTargetException;
 import java.text.MessageFormat;
 
-import static org.nohope.reflection.ModifierMatcher.ALL;
 import static org.nohope.reflection.IntrospectionUtils.getCanonicalClassName;
 import static org.nohope.reflection.IntrospectionUtils.invoke;
+import static org.nohope.reflection.ModifierMatcher.ALL;
 
 /**
  * Date: 25.07.12
