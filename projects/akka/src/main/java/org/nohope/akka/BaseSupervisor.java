@@ -1,7 +1,6 @@
 package org.nohope.akka;
 
 import akka.actor.ActorRef;
-import akka.actor.ActorSystem;
 import akka.actor.Props;
 import akka.actor.UntypedActor;
 import akka.event.Logging;
