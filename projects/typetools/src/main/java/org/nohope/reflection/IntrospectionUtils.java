@@ -8,8 +8,9 @@ import java.security.AccessController;
 import java.security.PrivilegedAction;
 import java.util.*;
 
-//import static java.lang.reflect.Modifier.PUBLIC;
 import static org.nohope.reflection.ModifierMatcher.*;
+
+//import static java.lang.reflect.Modifier.PUBLIC;
 
 /**
  * Set of introspection utils aimed to reduce problems caused by reflecting

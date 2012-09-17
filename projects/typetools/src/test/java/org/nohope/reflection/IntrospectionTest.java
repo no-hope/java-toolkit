@@ -22,8 +22,8 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertSame;
 import static org.junit.Assert.fail;
-import static org.nohope.reflection.ModifierMatcher.*;
 import static org.nohope.reflection.IntrospectionUtils.*;
+import static org.nohope.reflection.ModifierMatcher.*;
 
 /**
  * @author <a href="mailto:ketoth.xupack@gmail.com">ketoth xupack</a>
