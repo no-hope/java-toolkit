@@ -3,6 +3,7 @@ package org.nohope.reflection;
 import org.apache.commons.lang3.ArrayUtils;
 import org.nohope.typetools.StringUtils;
 
+import javax.annotation.Nonnull;
 import java.lang.reflect.*;
 import java.security.AccessController;
 import java.security.PrivilegedAction;
@@ -189,7 +190,7 @@ public final class IntrospectionUtils {
      *
      * @see #searchMethod(Object, IModifierMatcher, String, Class[])
      */
-    public static Object invoke(final Object instance,
+    public static Object invoke(@Nonnull final Object instance,
                                 final IModifierMatcher matcher,
                                 final String methodName,
                                 final Object... args)
@@ -201,12 +202,14 @@ public final class IntrospectionUtils {
 
         try {
             final Object[] params = adaptTo(args, sig);
+            final int flags = method.getModifiers();
+            final Class<?> clazz = instance.getClass();
+            final int classFlags = clazz.getModifiers();
 
-            // TODO: need more complex algorithm for checking security permissions
-            // request privileges for non-public method
-            //final int flags = method.getModifiers();
-            //final int classFlags = instance.getClass().getModifiers();
-            //if ((flags & ~Modifier.PUBLIC) != 0 || (classFlags & ~Modifier.PUBLIC) != 0) {
+            // request privileges for non-public method/instance class/parent class
+            if (!PUBLIC.matches(flags)
+                || !PUBLIC.matches(classFlags)
+                || clazz != method.getDeclaringClass()) {
                 AccessController.doPrivileged(new PrivilegedAction<Void>() {
                     @Override
                     public Void run() {
@@ -214,7 +217,7 @@ public final class IntrospectionUtils {
                         return null;
                     }
                 });
-            //}
+            }
 
             return method.invoke(instance, params);
         } catch (final ClassCastException e) {
