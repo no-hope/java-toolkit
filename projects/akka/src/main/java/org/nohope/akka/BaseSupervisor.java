@@ -28,12 +28,10 @@ import java.util.Map;
 public abstract class BaseSupervisor extends UntypedActor {
     private final LoggingAdapter log = Logging.getLogger(getContext().system(), this);
     private final Map<NamedWorkerMetadata, ActorRef> startingActors = new HashMap<>();
-    protected final ActorSystem system;
 
     protected abstract Props newInputProps(final NamedWorkerMetadata inputClassId);
 
     protected BaseSupervisor(final BaseSupervisorParameters parameters) {
-        this.system = parameters.getSystem();
     }
 
     @Override
