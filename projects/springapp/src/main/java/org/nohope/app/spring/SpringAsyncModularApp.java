@@ -92,7 +92,7 @@ public abstract class SpringAsyncModularApp<M> extends AsyncApp {
      *                               to discover module context (if {@code null} passed then package path of targetClass
      *                               parameter will be used will be used)
      */
-    SpringAsyncModularApp(@Nonnull final Class<? extends M> targetModuleClass,
+    protected SpringAsyncModularApp(@Nonnull final Class<? extends M> targetModuleClass,
                           @Nullable final String appName,
                           @Nullable final String appMetaInfNamespace,
                           @Nullable final String moduleMetaInfNamespace) {
@@ -117,7 +117,7 @@ public abstract class SpringAsyncModularApp<M> extends AsyncApp {
      *
      * @param targetModuleClass module type
      */
-    SpringAsyncModularApp(final Class<? extends M> targetModuleClass) {
+    protected SpringAsyncModularApp(final Class<? extends M> targetModuleClass) {
         this(targetModuleClass, null, null, null);
     }
 
