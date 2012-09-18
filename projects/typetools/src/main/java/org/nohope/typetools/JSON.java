@@ -37,12 +37,10 @@ public final class JSON {
     public static String jsonifyPretty(final Object obj,
                                        final String onErrorMessage) {
         try {
-
-
             return prettyMapper.writeValueAsString(obj);
         } catch (IOException e) {
             LOG.error(e, "Unable to jsonify object of class {}",
-                    obj == null ? null : obj.getClass());
+                    obj == null ? null : obj.getClass().getCanonicalName());
             return onErrorMessage;
         }
     }
