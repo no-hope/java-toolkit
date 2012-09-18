@@ -4,6 +4,7 @@ import org.junit.Test;
 
 import java.util.List;
 
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertSame;
 
 /**
@@ -15,6 +16,7 @@ public class CollectionUtilsTest {
     public void fillListTest() {
         final Object marker = new Object();
         final List<Object> list = CollectionUtils.fillList(10, marker);
+        assertEquals(10, list.size());
         for (final Object obj : list) {
             assertSame(marker, obj);
         }

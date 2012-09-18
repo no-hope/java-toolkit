@@ -1,7 +1,6 @@
 package org.nohope.typetools.collection;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 
 /**
@@ -13,8 +12,10 @@ public class CollectionUtils {
     }
 
     public static<T> List<T> fillList(final int count, final T placeholder) {
-        final List<T> placeholders = new ArrayList<>(count);
-        Collections.fill(placeholders, placeholder);
+        final List<T> placeholders = new ArrayList<>();
+        for (int i = 1; i <= count; ++i ) {
+            placeholders.add(placeholder);
+        }
         return placeholders;
     }
 }
