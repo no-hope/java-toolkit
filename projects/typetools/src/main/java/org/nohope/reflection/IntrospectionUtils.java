@@ -1,13 +1,27 @@
 package org.nohope.reflection;
 
 import org.apache.commons.lang3.ArrayUtils;
+import org.nohope.IMatcher;
 import org.nohope.typetools.StringUtils;
 
 import javax.annotation.Nonnull;
-import java.lang.reflect.*;
+import java.lang.reflect.Array;
+import java.lang.reflect.Constructor;
+import java.lang.reflect.GenericArrayType;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
+import java.lang.reflect.Modifier;
+import java.lang.reflect.ParameterizedType;
+import java.lang.reflect.Type;
 import java.security.AccessController;
 import java.security.PrivilegedAction;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 import static org.nohope.reflection.ModifierMatcher.*;
 
@@ -383,8 +397,46 @@ public final class IntrospectionUtils {
      * @return true if lower overrides higher
      */
     public static boolean isOverridden(final Method higher, final Method lower) {
-        return higher.getDeclaringClass().isAssignableFrom(lower.getDeclaringClass())
-               && Arrays.deepEquals(higher.getParameterTypes(), lower.getParameterTypes());
+        final Class<?> higherClass = higher.getDeclaringClass();
+        final Class<?> lowerClass = lower.getDeclaringClass();
+        return higherClass != lowerClass // child
+               && higherClass.isAssignableFrom(lowerClass)
+               && higher.getName().equals(lower.getName())
+               && Arrays.deepEquals(higher.getParameterTypes(), lower.getParameterTypes()) //TODO: Too strict?
+               && higher.getReturnType().isAssignableFrom(lower.getReturnType());
+    }
+
+    public static Set<Method> searchMethods(final Class<?> clazz,
+                                            final IMatcher<Method> matcher) {
+        final Set<Method> mth = new HashSet<>();
+
+        Class<?> parent = clazz;
+        while (parent != null) {
+            for (final Method m : parent.getDeclaredMethods()) {
+                if (!matcher.matches(m)) {
+                    continue;
+                }
+
+                /* Here we need to ensure no overridden methods from parent
+                   will be added in search result */
+                boolean toBeAdded = true;
+                for (final Method added : mth) {
+                    if (isOverridden(m, added)) {
+                        // skipping overridden methods from parent
+                        toBeAdded = false;
+                        break;
+                    }
+                }
+
+                if (toBeAdded) {
+                    mth.add(m);
+                }
+            }
+
+            parent = parent.getSuperclass();
+        }
+
+        return mth;
     }
 
     /**
@@ -430,14 +482,20 @@ public final class IntrospectionUtils {
                                       final Class... signature)
             throws NoSuchMethodException {
 
-        final Class type;
+        final Class<?> type;
         if (instance instanceof Class) {
             type = (Class) instance;
         } else {
             type = instance.getClass();
         }
 
-        final Set<Method> mth = new HashSet<>();
+        final Set<Method> mth = searchMethods(type, new IMatcher<Method>() {
+            @Override
+            public boolean matches(final Method target) {
+                return methodName.equals(target.getName())
+                       && matcher.matches(target.getModifiers());
+            }
+        });
 
         Class<?> parent = type;
         while (parent != null) {
@@ -447,11 +505,7 @@ public final class IntrospectionUtils {
                 }
 
                 final int flags = m.getModifiers();
-                if (matcher.matches(flags)
-                    /*(flags & modifiers) == modifiers
-                    || ((modifiers & PACKAGE_DEFAULT) != 0
-                        && (flags & ~PACKAGE_DEFAULT) == 0)*/
-                   ) {
+                if (matcher.matches(flags)) {
 
                     /* Here we need to ensure no overridden methods from parent
                        will be added in search result */
