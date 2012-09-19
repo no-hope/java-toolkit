@@ -7,7 +7,8 @@ import org.nohope.reflection.UtilitiesTestSupport;
 
 import java.lang.reflect.InvocationTargetException;
 
-import static org.nohope.reflection.IntrospectionUtils.*;
+import static org.nohope.reflection.IntrospectionUtils.invoke;
+import static org.nohope.reflection.IntrospectionUtils.searchMethod;
 
 /**
  * @author <a href="mailto:ketoth.xupack@gmail.com">ketoth xupack</a>
