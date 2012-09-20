@@ -32,4 +32,8 @@ public final class Ask {
         // TODO: is it good idea to hardcode timeout?
         return waitReply(ref, message, 5000);
     }
+
+    public static boolean waitAckReply(final ActorRef ref, final Object message) throws Exception {
+        return Ack.ACK.equals(waitReply(ref, message));
+    }
 }
