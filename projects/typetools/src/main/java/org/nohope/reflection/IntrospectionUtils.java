@@ -497,38 +497,6 @@ public final class IntrospectionUtils {
             }
         });
 
-        Class<?> parent = type;
-        while (parent != null) {
-            for (final Method m : parent.getDeclaredMethods()) {
-                if (!methodName.equals(m.getName())) {
-                    continue;
-                }
-
-                final int flags = m.getModifiers();
-                if (matcher.matches(flags)) {
-
-                    /* Here we need to ensure no overridden methods from parent
-                       will be added in search result */
-                    boolean toBeAdded = true;
-                    for (final Method added : mth) {
-                        if (isOverridden(m, added)) {
-                            // skipping overridden methods from parent
-                            toBeAdded = false;
-                            break;
-                        }
-                    }
-
-                    if (toBeAdded) {
-                        mth.add(m);
-                    }
-                }
-            }
-
-            parent = parent.getSuperclass();
-        }
-
-        final Method[] methods = mth.toArray(new Method[mth.size()]);
-
         Method found = null;
         Method vararg = null;
         int varargsFound = 0;
