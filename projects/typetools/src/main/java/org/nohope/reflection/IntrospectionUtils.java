@@ -5,10 +5,24 @@ import org.nohope.IMatcher;
 import org.nohope.typetools.StringUtils;
 
 import javax.annotation.Nonnull;
-import java.lang.reflect.*;
+import javax.annotation.Nullable;
+import java.lang.reflect.Array;
+import java.lang.reflect.Constructor;
+import java.lang.reflect.GenericArrayType;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
+import java.lang.reflect.Modifier;
+import java.lang.reflect.ParameterizedType;
+import java.lang.reflect.Type;
 import java.security.AccessController;
 import java.security.PrivilegedAction;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 import static org.nohope.reflection.ModifierMatcher.*;
 
@@ -476,7 +490,7 @@ public final class IntrospectionUtils {
             type = instance.getClass();
         }
 
-        final Set<Method> mth = searchMethods(type, new IMatcher<Method>() {
+        final Set<Method> methods = searchMethods(type, new IMatcher<Method>() {
             @Override
             public boolean matches(final Method target) {
                 return methodName.equals(target.getName())
@@ -743,6 +757,72 @@ public final class IntrospectionUtils {
         }
 
         return signature;
+    }
+
+    /**
+     * Safely casts given object to given class.
+     *
+     * @param obj
+     * @param clazz
+     * @param defaultValue
+     * @param <T>
+     * @return
+     */
+    @SuppressWarnings("unchecked")
+    public static<T> T cast(@Nullable final Object obj,
+                            @Nonnull final Class<T> clazz,
+                            @Nullable final T defaultValue) {
+        if (instanceOf(obj, clazz)) {
+            return (T) obj;
+        }
+
+        return defaultValue;
+    }
+
+    public static<T> T cast(final Object obj, @Nonnull final Class<T> clazz) {
+        return cast(obj, clazz, null);
+    }
+
+    public static<T> T cast(final Object obj, @Nonnull final TypeReference<T> ref) {
+        return cast(obj, ref, null);
+    }
+
+    public static<T> T cast(final Object obj,
+                            @Nonnull final TypeReference<T> ref,
+                            @Nullable final T defaultValue) {
+        return cast(obj, ref.getTypeClass(), defaultValue);
+    }
+
+    /**
+     * Check if lower object is instance of higher class.
+     *
+     * @param lower object
+     * @param higher class
+     * @return {@code true} if lower object is instance of higher object class.
+     *         {@code false} if one of arguments is {@code null}
+     */
+    public static boolean instanceOf(@Nullable final Object lower,
+                                     @Nonnull final Class<?> higher) {
+        return lower != null && higher.isAssignableFrom(lower.getClass());
+    }
+
+    /**
+     * Returns give object class if it's possible.
+     *
+     * @param obj some object
+     * @return {@link Class class} of given object or itself if
+     *         it is already a class instance, {@code null} if {@code null} passed.
+     */
+    private static Class<?> getClass(@Nullable final Object obj) {
+        if (obj == null) {
+            return null;
+        }
+
+        if (obj instanceof Class) {
+            return (Class) obj;
+        }
+
+        return obj.getClass();
     }
 
     /**

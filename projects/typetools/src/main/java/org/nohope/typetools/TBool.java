@@ -1,5 +1,7 @@
 package org.nohope.typetools;
 
+import static org.nohope.reflection.IntrospectionUtils.cast;
+
 /**
  * Date: 20.10.11
  * Time: 15:21
@@ -13,10 +15,6 @@ public final class TBool {
     }
 
     public static boolean safeAsBoolean(final Object bool) {
-        final Boolean value = Cast.as(bool, Boolean.class);
-        if (null == value) {
-            return false;
-        }
-        return value;
+        return cast(bool, Boolean.class, false);
     }
 }

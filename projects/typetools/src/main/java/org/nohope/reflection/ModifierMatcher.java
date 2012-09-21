@@ -6,9 +6,9 @@ import javax.annotation.Nonnull;
 import java.lang.reflect.Modifier;
 
 /**
-* @author <a href="mailto:ketoth.xupack@gmail.com">ketoth xupack</a>
-* @since 9/13/12 1:11 AM
-*/
+ * @author <a href="mailto:ketoth.xupack@gmail.com">ketoth xupack</a>
+ * @since 9/13/12 1:11 AM
+ */
 public enum ModifierMatcher implements IModifierMatcher {
     PUBLIC  {
         @Override

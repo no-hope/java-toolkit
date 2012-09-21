@@ -2,31 +2,30 @@ package org.nohope.typetools;
 
 import org.nohope.reflection.TypeReference;
 
+import static org.nohope.reflection.IntrospectionUtils.cast;
+
 /**
  * Date: 31.07.12
  * Time: 15:12
  */
+@Deprecated
 public final class Cast {
     private Cast() {
-
     }
 
-    @SuppressWarnings("unchecked")
+    /**
+     * @deprecated use {@link org.nohope.reflection.IntrospectionUtils#cast} instead
+     */
+    @Deprecated
     public static <T> T as(final Object value, final Class<T> clazz) {
-        if (null == value) {
-            return null;
-        }
-
-        if (clazz.isAssignableFrom(value.getClass())) {
-            return (T) value;
-        }
-
-        return null;
+        return cast(value, clazz);
     }
 
-    @SuppressWarnings("unchecked")
+    /**
+     * @deprecated use {@link org.nohope.reflection.IntrospectionUtils#cast} instead
+     */
+    @Deprecated
     public static <T> T as(final Object value, final TypeReference<T> ref) {
-        final Class<T> clazz = ref.getTypeClass();
-        return as(value, clazz);
+        return cast(value, ref);
     }
 }
