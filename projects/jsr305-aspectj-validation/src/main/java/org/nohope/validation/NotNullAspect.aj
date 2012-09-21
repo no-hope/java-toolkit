@@ -1,5 +1,6 @@
 package org.nohope.validation;
 
+import org.aspectj.lang.annotation.SuppressAjWarnings;
 import org.aspectj.lang.reflect.MethodSignature;
 
 import javax.annotation.Nonnull;
@@ -21,6 +22,7 @@ public final aspect NotNullAspect {
     pointcut validatedReturnValue():
             execution(@javax.annotation.Nonnull Object+ *.*(..));
 
+    @SuppressAjWarnings
     after() returning(final Object ret): validatedReturnValue() {
         final MethodSignature sig = (MethodSignature) thisJoinPoint.getSignature();
         if (ret == null) {
@@ -32,6 +34,7 @@ public final aspect NotNullAspect {
         }
     }
 
+    @SuppressAjWarnings
     before(): nonNullParameter() {
         final MethodSignature sig = (MethodSignature) thisJoinPoint.getSignature();
         final Method method = sig.getMethod();
