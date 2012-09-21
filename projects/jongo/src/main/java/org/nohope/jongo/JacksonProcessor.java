@@ -44,7 +44,6 @@ public class JacksonProcessor implements Unmarshaller, Marshaller {
 
     public JacksonProcessor() {
         this(createPreConfiguredMapper());
-
     }
 
     @Override
@@ -78,7 +77,7 @@ public class JacksonProcessor implements Unmarshaller, Marshaller {
         mapper.setSerializationInclusion(NON_NULL);
         mapper.setVisibilityChecker(VisibilityChecker.Std.defaultInstance().withFieldVisibility(ANY));
 
-        final SimpleModule module = new SimpleModule("jongo", new Version(1, 0, 0, null, null, null));
+        final SimpleModule module = new SimpleModule("jongo", Version.unknownVersion());
         //addBSONTypeSerializers(module);
         mapper.registerModule(module);
         return mapper;
