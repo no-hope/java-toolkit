@@ -5,14 +5,6 @@ package org.nohope.akka;
  * Time: 15:49
  */
 public final class SupervisorRequests {
-    private SupervisorRequests() {
-    }
-
-    public static class StartupRequest {
-
-        public StartupRequest() {
-        }
-    }
 
     private static class BaseSupervisorRequest {
         protected final NamedWorkerMetadata workerMetadata;
@@ -27,10 +19,11 @@ public final class SupervisorRequests {
     }
 
     public static class StartupReply extends BaseSupervisorRequest {
-
         public StartupReply(final NamedWorkerMetadata workerMetadata) {
             super(workerMetadata);
         }
+    }
 
+    public static class StartupRequest {
     }
 }
