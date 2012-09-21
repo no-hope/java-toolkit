@@ -1,5 +1,7 @@
 package org.nohope.typetools;
 
+import org.nohope.reflection.IntrospectionUtils;
+
 import static org.nohope.reflection.IntrospectionUtils.cast;
 
 /**
@@ -15,6 +17,6 @@ public final class TBool {
     }
 
     public static boolean safeAsBoolean(final Object bool) {
-        return cast(bool, Boolean.class, false);
+        return IntrospectionUtils.safeCast(bool, Boolean.class, false);
     }
 }

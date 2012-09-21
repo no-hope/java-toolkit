@@ -760,18 +760,38 @@ public final class IntrospectionUtils {
     }
 
     /**
-     * Safely casts given object to given class.
+     * Casts object to a given class.
      *
-     * @param obj
-     * @param clazz
-     * @param defaultValue
-     * @param <T>
-     * @return
+     * @param obj object to cast
+     * @param clazz type to cast to
+     * @param <T> type
+     * @throws ClassCastException if cast failed
+     * @return casted object
      */
     @SuppressWarnings("unchecked")
     public static<T> T cast(@Nullable final Object obj,
-                            @Nonnull final Class<T> clazz,
-                            @Nullable final T defaultValue) {
+                            @Nonnull final Class<T> clazz) {
+        if (instanceOf(obj, clazz)) {
+            return (T) obj;
+        }
+
+        throw new ClassCastException("Unable to cast " + obj + " to " + clazz);
+    }
+
+    /**
+     * Safely casts given object to given class.
+     *
+     * @param obj object to cast
+     * @param clazz type to cast to
+     * @param defaultValue default value in case object cannot be casted
+     * @param <T> type
+     * @return casted object or {@code null} if object not an instance
+     *         of given class
+     */
+    @SuppressWarnings("unchecked")
+    public static<T> T safeCast(@Nullable final Object obj,
+                                @Nonnull final Class<T> clazz,
+                                @Nullable final T defaultValue) {
         if (instanceOf(obj, clazz)) {
             return (T) obj;
         }
@@ -779,18 +799,20 @@ public final class IntrospectionUtils {
         return defaultValue;
     }
 
-    public static<T> T cast(final Object obj, @Nonnull final Class<T> clazz) {
-        return cast(obj, clazz, null);
+    public static<T> T safeCast(@Nullable final Object obj,
+                                @Nonnull final Class<T> clazz) {
+        return safeCast(obj, clazz, null);
     }
 
-    public static<T> T cast(final Object obj, @Nonnull final TypeReference<T> ref) {
-        return cast(obj, ref, null);
+    public static<T> T safeCast(@Nullable final Object obj,
+                                @Nonnull final TypeReference<T> ref) {
+        return safeCast(obj, ref, null);
     }
 
-    public static<T> T cast(final Object obj,
-                            @Nonnull final TypeReference<T> ref,
-                            @Nullable final T defaultValue) {
-        return cast(obj, ref.getTypeClass(), defaultValue);
+    public static<T> T safeCast(@Nullable final Object obj,
+                                @Nonnull final TypeReference<T> ref,
+                                @Nullable final T defaultValue) {
+        return safeCast(obj, ref.getTypeClass(), defaultValue);
     }
 
     /**
