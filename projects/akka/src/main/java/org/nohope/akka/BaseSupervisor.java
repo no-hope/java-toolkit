@@ -38,7 +38,7 @@ public abstract class BaseSupervisor extends UntypedActor {
         try {
             MessageMethodInvoker.invokeHandler(this, message);
         } catch (Exception e) {
-            log.error(e, "Bad message received: {}", JSON.jsonifyPretty(message));
+            log.error(e, "Bad message received: {}", JSON.pretty(message));
         }
     }
 
@@ -79,7 +79,7 @@ public abstract class BaseSupervisor extends UntypedActor {
 
     @SuppressWarnings("unused")
     public void onConcreteMessage(final SupervisorRequests.StartupReply reply) {
-        log.debug("Successful startup notification in {}: {}", getSelf().path().name(), JSON.jsonifyPretty(reply));
+        log.debug("Successful startup notification in {}: {}", getSelf().path().name(), JSON.pretty(reply));
         if (!startingActors.containsKey(reply.workerMetadata)) {
             throw new IllegalStateException("Request to remove non-existing actor: " + reply.workerMetadata);
         }
