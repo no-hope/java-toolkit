@@ -1,5 +1,9 @@
 package org.nohope.test;
 
+import org.nohope.logging.Logger;
+import org.nohope.logging.LoggerFactory;
+import org.nohope.jongo.JacksonProcessor;
+
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -15,6 +19,8 @@ import static org.junit.Assert.fail;
  * @since 9/21/12 12:48 AM
  */
 public final class SerializationUtils {
+    private static final Logger LOG = LoggerFactory.getLogger(SerializationUtils.class);
+
     private SerializationUtils() {
     }
 
@@ -34,5 +40,13 @@ public final class SerializationUtils {
         }
 
         return null;
+    }
+
+    @SuppressWarnings("unchecked")
+    public static <T> T cloneMongo(final T object) {
+        final JacksonProcessor processor = new JacksonProcessor();
+        final String marshall = processor.marshall(object);
+        LOG.debug("marshalled value {}", marshall);
+        return (T) processor.unmarshall(marshall, object.getClass());
     }
 }
