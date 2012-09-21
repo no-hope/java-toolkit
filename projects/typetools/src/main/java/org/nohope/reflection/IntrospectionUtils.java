@@ -806,6 +806,11 @@ public final class IntrospectionUtils {
         return lower != null && higher.isAssignableFrom(lower.getClass());
     }
 
+    public static boolean instanceOf(@Nonnull final Class<?> lower,
+                                     @Nonnull final Class<?> higher) {
+        return higher.isAssignableFrom(lower);
+    }
+
     /**
      * Returns give object class if it's possible.
      *
