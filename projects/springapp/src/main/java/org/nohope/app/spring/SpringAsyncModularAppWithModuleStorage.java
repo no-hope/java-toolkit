@@ -50,7 +50,7 @@ public class SpringAsyncModularAppWithModuleStorage<M> extends SpringAsyncModula
     protected <Subtype extends M> Subtype getModule(final Class<Subtype> clazz, final String moduleName) {
         final ModuleDescriptor<M> md = modules.get(moduleName);
         if (clazz.isAssignableFrom(md.getClass())) {
-            @SuppressWarnings("unchecked")
+            @SuppressWarnings({"unchecked", "UnnecessaryLocalVariable"})
             final Subtype module = (Subtype) md.getModule();
             return module;
         }
