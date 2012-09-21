@@ -6,7 +6,7 @@
 
     <groupId>org.no-hope</groupId>
     <artifactId>env-ci</artifactId>
-    <version>6</version>
+    <version>7</version>
     <name>env-integration</name>
     <packaging>pom</packaging>
 
@@ -378,11 +378,13 @@
                 </executions>
             </plugin>
 
+            <!--
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-project-info-reports-plugin</artifactId>
                 <version>${maven.project-info-reports-plugin.version}</version>
             </plugin>
+            -->
 
             <plugin>
                 <artifactId>maven-deploy-plugin</artifactId>
