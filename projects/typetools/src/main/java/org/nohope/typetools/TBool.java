@@ -2,8 +2,6 @@ package org.nohope.typetools;
 
 import org.nohope.reflection.IntrospectionUtils;
 
-import static org.nohope.reflection.IntrospectionUtils.cast;
-
 /**
  * Date: 20.10.11
  * Time: 15:21
