@@ -6,6 +6,7 @@ import org.nohope.logging.Logger;
 import org.nohope.logging.LoggerFactory;
 
 import java.io.IOException;
+import java.util.Arrays;
 
 import static com.fasterxml.jackson.annotation.JsonInclude.Include.NON_EMPTY;
 import static com.fasterxml.jackson.databind.SerializationFeature.*;
@@ -53,7 +54,8 @@ public final class JSON {
      * @throws IOException
      */
     public static <T> T copyAs(final Object source, final Class<T> clazz) throws IOException {
-        return usualMapper.readValue(usualMapper.writeValueAsBytes(source), clazz);
+        final byte [] marshalled = usualMapper.writeValueAsBytes(source);
+        return usualMapper.readValue(marshalled, clazz);
     }
 
 
