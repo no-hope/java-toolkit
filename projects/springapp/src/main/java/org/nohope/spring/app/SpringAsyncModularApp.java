@@ -6,7 +6,6 @@ import org.nohope.logging.LoggerFactory;
 import org.springframework.beans.BeansException;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ConfigurableApplicationContext;
-import org.springframework.context.support.ClassPathXmlApplicationContext;
 import org.springframework.core.io.ClassPathResource;
 import org.nohope.app.AsyncApp;
 import org.nohope.spring.SpringUtils;
@@ -18,8 +17,8 @@ import java.util.Map;
 import java.util.Properties;
 import java.util.concurrent.atomic.AtomicReference;
 
+import static org.nohope.spring.SpringUtils.ensureCreate;
 import static org.nohope.spring.SpringUtils.instantiate;
-import static org.nohope.spring.SpringUtils.propagateAnnotationProcessing;
 
 /**
  * <b>Technical background</b>
@@ -350,25 +349,6 @@ public abstract class SpringAsyncModularApp<M> extends AsyncApp {
 
     private static boolean isResourceExists(final String path) {
         return new ClassPathResource(path).exists();
-    }
-
-    /**
-     * Overrides given context with sequential list of contexts specified by classpath file names.
-     *
-     * @param parent spring context
-     * @param paths contexts path
-     * @return overridden context ({@code null} if one of given files not exists)
-     */
-    private static ConfigurableApplicationContext ensureCreate(@Nullable final ConfigurableApplicationContext parent,
-                                                               final String... paths) {
-        for (final String path: paths) {
-            final ClassPathResource config = new ClassPathResource(path);
-            if (!config.exists()) {
-                return null;
-            }
-        }
-
-        return propagateAnnotationProcessing(new ClassPathXmlApplicationContext(paths, parent));
     }
 
     protected static <T> T getOrInstantiate(final ApplicationContext ctx, final Class<? extends T> clazz) {

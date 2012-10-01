@@ -3,7 +3,10 @@ package org.nohope.spring.app;
 import org.junit.Test;
 import org.nohope.spring.app.module.IModule;
 
+import javax.annotation.Resource;
+import javax.inject.Inject;
 import java.io.File;
+import java.util.List;
 import java.util.Properties;
 import java.util.concurrent.atomic.AtomicReference;
 
@@ -111,6 +114,34 @@ public class SpringAsyncModularAppTest {
 
         // check for app beans inheritance
         assertEquals("appBean", m.getContext().getBean("appBean"));
+    }
+
+    public static class UtilsBean {
+        // http://stackoverflow.com/a/1363435
+        @Resource(name = "testList")
+        private List<String> list;
+
+        public List<String> getList() {
+            return list;
+        }
+    }
+
+    @Test
+    public void utilsSupport() throws InterruptedException {
+        final AppWithContainer app = new AppWithContainer(
+                "utils",
+                "utils",
+                "legalModuleDefaultContext") {
+        };
+        probe(app);
+        assertNotNull(app.get("testList", List.class));
+        final UtilsBean bean = app.getOrInstantiate(UtilsBean.class);
+
+        final List<String> list = bean.getList();
+        assertNotNull(list);
+        assertEquals("one", list.get(0));
+        assertEquals("two", list.get(1));
+        assertEquals("three", list.get(2));
     }
 
     @SuppressWarnings("unchecked")
