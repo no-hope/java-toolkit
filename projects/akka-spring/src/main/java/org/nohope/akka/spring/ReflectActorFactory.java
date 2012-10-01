@@ -16,7 +16,37 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import static org.nohope.spring.SpringUtils.instantiate;
+import static org.nohope.spring.SpringUtils.registerSingleton;
+
 /**
+ * This class is used for spring-driven actor creation. Allows to inject
+ * bean dependencies in actor and add external inject dependencies which
+ * can be not defined in given context.
+ * <p/>
+ * <b>Typical usage</b>:
+ * <pre>
+ *     class MyActor extends {@link akka.actor.UntypedActor UntypedActor} {
+ *          &#064;{@link javax.inject.Inject Inject}
+ *          MyActor (&#064;{@link javax.inject.Named Named}(name="stringFromContext") String param,
+ *                   GlobalBean beanFromContext,
+ *                   &#064;{@link javax.inject.Named Named}(name="bean") Bean bean,
+ *                   OtherBean otherBean) {
+ *              ...
+ *          }
+ *     }
+ *
+ *     {@link org.springframework.context.ApplicationContext ApplicationContext} ctx;
+ *     {@link akka.actor.ActorSystem ActorSystem} system;
+ *
+ *     {@link akka.actor.ActorRef ActorRef} ref = system.actorOf(
+ *          {@link ReflectActorFactory#create() create}(ctx, MyActor.class)
+ *              .addBean("bean", new Bean()) // additional @Named inject
+ *              .addBean(new OtherBean())    // additional typed inject
+ *              .getProps(),
+ *          "myActor");
+ * </pre>
+ *
  * @author <a href="mailto:ketoth.xupack@gmail.com">ketoth xupack</a>
  * @since 9/16/12 11:09 PM
  */
@@ -31,6 +61,12 @@ public class ReflectActorFactory<T extends UntypedActor> implements UntypedActor
     public ReflectActorFactory(@Nonnull final ApplicationContext ctx,
                                @Nonnull final Class<T> clazz) {
         this(ctx, clazz, null, null);
+    }
+
+    public static<T extends UntypedActor> ReflectActorFactory<T> create(
+            @Nonnull final ApplicationContext ctx,
+            @Nonnull final Class<T> clazz) {
+        return new ReflectActorFactory<>(ctx, clazz);
     }
 
     public ReflectActorFactory(@Nonnull final ApplicationContext ctx,
@@ -64,13 +100,13 @@ public class ReflectActorFactory<T extends UntypedActor> implements UntypedActor
                 SpringUtils.propagateAnnotationProcessing(
                         new GenericApplicationContext(ctx));
         for (final Object obj : beans) {
-            SpringUtils.registerSingleton(child, obj);
+            registerSingleton(child, obj);
         }
         for (final Map.Entry<String, Object> e : namedBeans.entrySet()) {
-            SpringUtils.registerSingleton(child, e.getKey(), e.getValue());
+            registerSingleton(child, e.getKey(), e.getValue());
         }
 
-        return SpringUtils.instantiate(child, clazz);
+        return instantiate(child, clazz);
     }
 
     public Class<T> getTragetClass() {
