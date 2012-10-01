@@ -3,6 +3,7 @@ package org.nohope.akka.spring;
 import akka.actor.ActorRef;
 import akka.actor.ActorSystem;
 import akka.actor.Props;
+import org.junit.Assert;
 import org.junit.Test;
 import org.springframework.context.support.GenericApplicationContext;
 import org.nohope.spring.SpringUtils;
@@ -28,8 +29,8 @@ public class ReflectActorFactoryTest {
         final ActorSystem system = ActorSystem.create();
         final ActorRef ref = system.actorOf(new Props(beanFactory));
 
-        assertEquals(1, waitReply(ref, PARAM1));
-        assertEquals("test1", waitReply(ref, PARAM2));
-        assertEquals("test2", waitReply(ref, PARAM3));
+        Assert.assertEquals(1, waitReply(ref, PARAM1));
+        Assert.assertEquals("test1", waitReply(ref, PARAM2));
+        Assert.assertEquals("test2", waitReply(ref, PARAM3));
     }
 }
