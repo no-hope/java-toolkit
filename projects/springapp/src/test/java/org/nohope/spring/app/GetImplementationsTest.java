@@ -1,4 +1,4 @@
-package org.nohope.app.spring;
+package org.nohope.spring.app;
 
 import org.hamcrest.BaseMatcher;
 import org.hamcrest.Description;

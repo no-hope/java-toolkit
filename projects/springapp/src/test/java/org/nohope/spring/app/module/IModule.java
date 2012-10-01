@@ -1,4 +1,4 @@
-package org.nohope.app.spring.module;
+package org.nohope.spring.app.module;
 
 import org.springframework.context.ConfigurableApplicationContext;
 

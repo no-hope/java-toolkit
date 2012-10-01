@@ -1,4 +1,4 @@
-package org.nohope.app.spring;
+package org.nohope.spring.app;
 
 import java.util.concurrent.atomic.AtomicInteger;
 

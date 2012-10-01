@@ -1,7 +1,7 @@
-package org.nohope.app.spring;
+package org.nohope.spring.app;
 
 import org.junit.Test;
-import org.nohope.app.spring.module.IModule;
+import org.nohope.spring.app.module.IModule;
 
 import java.io.File;
 import java.util.Properties;
@@ -49,8 +49,8 @@ public class SpringAsyncModularAppTest {
     public void searchPathsDetermining() throws Exception {
         final AppWithContainer app = new AppWithContainer();
         assertEquals("appWithContainer", app.getAppName());
-        assertEquals("org.nohope.app.spring/", app.getAppMetaInfNamespace());
-        assertEquals("org.nohope.app.spring/module/", app.getModuleMetaInfNamespace());
+        assertEquals("org.nohope.spring.app/", app.getAppMetaInfNamespace());
+        assertEquals("org.nohope.spring.app/module/", app.getModuleMetaInfNamespace());
         assertEquals(IModule.class, app.getTargetModuleClass());
     }
 

@@ -1,4 +1,4 @@
-package org.nohope.app.spring;
+package org.nohope.spring;
 
 import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.annotation.AutowiredAnnotationBeanPostProcessor;

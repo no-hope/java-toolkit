@@ -1,4 +1,4 @@
-package org.nohope.app.spring;
+package org.nohope.spring.app;
 
 import org.apache.xbean.finder.ResourceFinder;
 import org.nohope.logging.Logger;
@@ -9,6 +9,7 @@ import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
 import org.springframework.core.io.ClassPathResource;
 import org.nohope.app.AsyncApp;
+import org.nohope.spring.SpringUtils;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -17,8 +18,8 @@ import java.util.Map;
 import java.util.Properties;
 import java.util.concurrent.atomic.AtomicReference;
 
-import static org.nohope.app.spring.SpringUtils.instantiate;
-import static org.nohope.app.spring.SpringUtils.propagateAnnotationProcessing;
+import static org.nohope.spring.SpringUtils.instantiate;
+import static org.nohope.spring.SpringUtils.propagateAnnotationProcessing;
 
 /**
  * <b>Technical background</b>

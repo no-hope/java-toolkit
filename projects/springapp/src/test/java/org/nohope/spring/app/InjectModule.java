@@ -1,7 +1,7 @@
-package org.nohope.app.spring;
+package org.nohope.spring.app;
 
 import org.springframework.context.ConfigurableApplicationContext;
-import org.nohope.app.spring.module.IModule;
+import org.nohope.spring.app.module.IModule;
 
 import javax.inject.Inject;
 import javax.inject.Named;
