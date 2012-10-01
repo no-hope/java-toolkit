@@ -4,7 +4,6 @@ import org.junit.Test;
 import org.nohope.spring.app.module.IModule;
 
 import javax.annotation.Resource;
-import javax.inject.Inject;
 import java.io.File;
 import java.util.List;
 import java.util.Properties;
