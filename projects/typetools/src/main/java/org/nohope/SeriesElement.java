@@ -3,6 +3,8 @@ package org.nohope;
 import org.joda.time.DateTime;
 import org.nohope.typetools.JSON;
 
+import javax.annotation.Nonnull;
+
 /**
 * Date: 9/20/12
 * Time: 11:27 AM
@@ -20,7 +22,7 @@ public class SeriesElement<T> {
         return timestamp;
     }
 
-    public T getValue() {
+    @Nonnull public T getValue() {
         return value;
     }
 
