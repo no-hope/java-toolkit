@@ -200,6 +200,14 @@ public final class IntrospectionUtils {
                    IllegalAccessException {
         final Method method =
                 searchMethod(instance, matcher, methodName, getClasses(args));
+        return invoke(method, instance, args);
+    }
+
+    public static Object invoke(final Method method,
+                                @Nonnull final Object instance,
+                                final Object... args)
+            throws NoSuchMethodException, InvocationTargetException,
+                   IllegalAccessException {
         final Class[] sig = method.getParameterTypes();
 
         try {
@@ -223,7 +231,7 @@ public final class IntrospectionUtils {
 
             return method.invoke(instance, params);
         } catch (final ClassCastException e) {
-            throw cantInvoke(instance.getClass(), methodName, sig, args, e);
+            throw cantInvoke(instance.getClass(), method.getName(), sig, args, e);
         }
     }
 
@@ -714,7 +722,7 @@ public final class IntrospectionUtils {
      * @param arguments list of classes
      * @return canonical names for given classes
      */
-    private static String[] getClassNames(final Class... arguments) {
+    public static String[] getClassNames(final Class... arguments) {
         final String[] names = new String[arguments.length];
         {
             int i = 0;
@@ -732,7 +740,7 @@ public final class IntrospectionUtils {
      * @param arguments array of object
      * @return array of classes of given objects
      */
-    private static Class[] getClasses(final Object... arguments) {
+    public static Class[] getClasses(final Object... arguments) {
         final Class[] signature = new Class[arguments.length];
         {
             int i = 0;
@@ -827,7 +835,7 @@ public final class IntrospectionUtils {
      * @return {@link Class class} of given object or itself if
      *         it is already a class instance, {@code null} if {@code null} passed.
      */
-    private static Class<?> getClass(@Nullable final Object obj) {
+    public static Class<?> getClass(@Nullable final Object obj) {
         if (obj == null) {
             return null;
         }
