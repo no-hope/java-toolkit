@@ -21,6 +21,15 @@ public class MessageMethodInvokerTest {
         dblInvoked = true;
     }
 
+    private static class TestClass {
+        private native void onConcreteMessage(final String x);
+
+        @Override
+        public String toString() {
+            return "TestClass";
+        }
+    }
+
     @Test
     public void testInvoker() throws NoSuchMethodException {
         final Object a1 = 100;
@@ -48,12 +57,86 @@ public class MessageMethodInvokerTest {
         }
     }
 
-    private static class TestClass {
+    /// Annotated version of tests
+
+    @OnReceive
+    private Integer processInteger(final Integer a) {
+        return a;
+    }
+
+    @OnReceive
+    private Double processDouble(final Double b) {
+        return b;
+    }
+
+    @Test
+    public void testAnnotatedInvoker() throws NoSuchMethodException {
+        final Object a1 = 100;
+        assertEquals(a1, MessageMethodInvoker.invokeOnReceive(this, a1));
+        final Object a2 = 100.0;
+        assertEquals(a2, MessageMethodInvoker.invokeOnReceive(this, a2));
+    }
+
+    @Test
+    public void testNoAnnotatedMethod() throws NoSuchMethodException {
+        try {
+            MessageMethodInvoker.invokeOnReceive(this, "xxx");
+            fail();
+        } catch (final NoSuchMethodException e) {
+        }
+
+        try {
+            MessageMethodInvoker.invokeOnReceive(new AnnotatedTestClass(), "yyy");
+            fail();
+        } catch (final IllegalArgumentException e) {
+        }
+    }
+
+    @Test
+    public void inheritance() throws NoSuchMethodException {
+        assertEquals(1, MessageMethodInvoker.invokeOnReceive(new AnnotatedTestClass(), 1));
+        assertEquals(2, MessageMethodInvoker.invokeOnReceive(new AnnotatedParentClass(), 2));
+    }
+
+    @Test
+    public void multipleMatch() {
+        try {
+            MessageMethodInvoker.invokeOnReceive(new AnnotatedTestClass(), 1L);
+            fail();
+        } catch (final NoSuchMethodException e) {
+        }
+
+        try {
+            MessageMethodInvoker.invokeOnReceive(new AnnotatedParentClass(), 1L);
+            fail();
+        } catch (final NoSuchMethodException e) {
+        }
+    }
+
+    private static class AnnotatedTestClass extends AnnotatedParentClass {
+        @OnReceive
         private native void onConcreteMessage(final String x);
 
         @Override
         public String toString() {
             return "TestClass";
+        }
+    }
+
+    private static class AnnotatedParentClass {
+        @OnReceive
+        private Integer onConcreteMessage(final Integer x) {
+            return x;
+        }
+
+        @OnReceive
+        private Long one(final Long x) {
+            return x;
+        }
+
+        @OnReceive
+        private Long another(final Long x) {
+            return x;
         }
     }
 }

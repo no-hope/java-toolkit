@@ -6,7 +6,6 @@ import akka.actor.UntypedActor;
 import akka.event.Logging;
 import akka.event.LoggingAdapter;
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
-import org.nohope.akka.MessageMethodInvoker;
 import org.nohope.typetools.JSON;
 
 import java.text.MessageFormat;
