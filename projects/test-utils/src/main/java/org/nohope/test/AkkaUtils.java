@@ -3,9 +3,13 @@ package org.nohope.test;
 import akka.actor.ActorSystem;
 import com.typesafe.config.ConfigFactory;
 
+import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.net.URI;
 import java.net.URISyntaxException;
+
+import static org.apache.commons.io.FileUtils.readFileToString;
+import static org.apache.commons.io.FileUtils.toFile;
 
 /**
  * @author <a href="mailto:ketoth.xupack@gmail.com">ketoth xupack</a>
@@ -32,30 +36,25 @@ public final class AkkaUtils {
         }
     }
 
-    public static ActorSystem createDefaultSystem(final String systemName) {
-        return ActorSystem.create(systemName,
-                ConfigFactory.parseString(String.format(
-                        "akka {"
-                        + "  loglevel = DEBUG\n"
-                        + "  actor.provider = akka.remote.RemoteActorRefProvider\n"
-                        + "  remote {\n"
-                        + "    netty {\n"
-                        + "      hostname = \"localhost\"\n"
-                        + "      port = %d"
-                        + "    }\n"
-                        + "    transport = \"akka.remote.netty.NettyRemoteTransport\"\n"
-                        + "    log-sent-messages = on\n"
-                        + "    log-received-messages = on\n"
-                        + "    log-remote-lifecycle-events = on"
-                        + "  }\n"
-                        + "  event-handlers = [akka.event.slf4j.Slf4jEventHandler]\n"
-                        + "  default-dispatcher {\n"
-                        + "    fork-join-executor {\n"
-                        + "      parallelism-min = 16\n"
-                        + "    }\n"
-                        + "  }\n"
-                        + "  event-handler-startup-timeout = 20s\n"
-                        + "}", SocketUtils.getAvailablePort())));
+    public static ActorSystem createLocalSystem(final String systemName) {
+        return buildSystem(systemName).build();
+    }
+
+    public static ActorSystemBuilder buildSystem(final String systemName) {
+        return new ActorSystemBuilder(systemName);
+    }
+
+    public static ActorSystem createRemoteSystem(final String systemName) {
+        return new ActorSystemBuilder(systemName)
+                .put("actor.provider", "akka.remote.RemoteActorRefProvider")
+                .put("remote.transport", "akka.remote.netty.NettyRemoteTransport")
+                .put("remote.log-sent-messages", "on")
+                .put("remote.log-received-messages", "on")
+                .put("remote.log-received-messages", "on")
+                .put("remote.netty.hostname", "localhost")
+                .put("remote.netty.port", SocketUtils.getAvailablePort())
+                .put("remote.netty.port", SocketUtils.getAvailablePort())
+                .build();
     }
 
     public static URI generateLocalHostActorUri(final String actorSystemName,
@@ -63,5 +62,36 @@ public final class AkkaUtils {
         return generateActorUri(actorSystemName,
                 SocketUtils.getLocalHostAddress(),
                 actorName);
+    }
+
+    public static class ActorSystemBuilder {
+        private final StringBuilder config = new StringBuilder();
+        private final String name;
+
+        public ActorSystemBuilder(final String name) {
+            this.name = name;
+        }
+
+        public ActorSystemBuilder put(final String key, final Object value) {
+            config.append(key)
+                  .append(" = ")
+                  .append(value)
+                  .append('\n');
+            return this;
+        }
+
+        public ActorSystem build() {
+            final String conf;
+            try {
+                conf = readFileToString(toFile(
+                        getClass().getResource("/test/akka.conf")
+                ));
+            } catch (final IOException e) {
+                throw new IllegalStateException(e);
+            }
+
+            final String config = String.format(conf, this.config.toString());
+            return ActorSystem.create(name, ConfigFactory.parseString(config));
+        }
     }
 }
