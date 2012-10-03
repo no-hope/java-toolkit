@@ -8,6 +8,7 @@ import org.springframework.context.ApplicationContext;
 import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.core.io.ClassPathResource;
 import org.nohope.app.AsyncApp;
+import org.nohope.reflection.TypeReference;
 import org.nohope.spring.SpringUtils;
 
 import javax.annotation.Nonnull;
