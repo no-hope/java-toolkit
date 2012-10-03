@@ -860,6 +860,7 @@ public final class IntrospectionUtils {
                 return Array.newInstance(componentClass, 0).getClass();
             }
         }
+        //TODO: java.lang.reflect.TypeVariable, java.lang.reflect.WildcardType
         return null;
     }
 
