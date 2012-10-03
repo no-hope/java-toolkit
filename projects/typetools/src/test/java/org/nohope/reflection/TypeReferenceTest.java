@@ -6,6 +6,7 @@ import java.net.InetSocketAddress;
 import java.util.ArrayList;
 
 import static junit.framework.Assert.assertEquals;
+import static junit.framework.Assert.assertNull;
 
 /**
  * @author <a href="mailto:ketoth.xupack@gmail.com">ketoth xupack</a>
@@ -14,14 +15,37 @@ import static junit.framework.Assert.assertEquals;
 public final class TypeReferenceTest {
 
     @Test(expected = IllegalArgumentException.class)
-    public void missedType() {
+    public void erasedType() {
         new ReferenceHolderAbstractChild() {
         };
     }
 
     @Test(expected = IllegalArgumentException.class)
-    public void erasedType() {
+    public void erasedType2() {
+        new ReferenceHolderChild() {
+        };
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void nonAnonymousClass() {
         new ReferenceHolderChild();
+    }
+
+    @Test
+    public void childReferenceSaving() {
+        new ReferenceHolder<Integer[]>(){
+        };
+    }
+
+    private static <T> TypeReference<T> getReference() {
+        return new TypeReference<T>() {
+        };
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void missedTypeParameter() {
+        final TypeReference<String> reference = getReference();
+        assertNull(reference.getTypeClass());
     }
 
     @Test
