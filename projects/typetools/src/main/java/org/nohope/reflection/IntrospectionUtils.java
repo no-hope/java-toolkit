@@ -860,8 +860,32 @@ public final class IntrospectionUtils {
                 return Array.newInstance(componentClass, 0).getClass();
             }
         }
+
         //TODO: java.lang.reflect.TypeVariable, java.lang.reflect.WildcardType
         return null;
+    }
+
+    public static Class<?>[] getAllBounds(final Type type) {
+        final List<Class<?>> result = new ArrayList<>();
+        if (type instanceof TypeVariable) {
+            final TypeVariable variable = (TypeVariable) type;
+            final Type[] bounds = variable.getBounds();
+            for (final Type bound : bounds) {
+                result.add(getClass(bound));
+            }
+        }
+        if (type instanceof WildcardType) {
+            final WildcardType wildcard = (WildcardType) type;
+            // TODO: ...
+            for (final Type bound : wildcard.getLowerBounds()) {
+                result.add(getClass(bound));
+            }
+            for (final Type bound : wildcard.getUpperBounds()) {
+                result.add(getClass(bound));
+            }
+        }
+
+        return result.toArray(new Class<?>[result.size()]);
     }
 
     /**

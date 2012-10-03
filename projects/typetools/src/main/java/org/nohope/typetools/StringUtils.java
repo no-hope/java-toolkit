@@ -11,18 +11,17 @@ import static org.nohope.reflection.IntrospectionUtils.toObjArray;
  * @since 10/29/11 5:16 PM
  */
 public final class StringUtils {
-    /**
-     * Default representation for {@code null} reference.
-     */
+    /** Default representation for {@code null} reference. */
     private static final String NULL_STRING = "null";
-    /**
-     * Default element separator.
-     */
+    /** Default element separator. */
     private static final String DEFAULT_SEPARATOR = ", ";
 
-    /**
-     * Utility constructor.
-     */
+    /** Array start symbol. */
+    private static final char START_ARRAY = '[';
+    /** Array end symbol. */
+    private static final char END_ARRAY = ']';
+
+    /** Utility constructor. */
     private StringUtils() {
     }
 
@@ -76,19 +75,19 @@ public final class StringUtils {
             if (obj != null) {
                 final Class clazz = obj.getClass();
                 if (clazz.isArray()) {
-                    buf.append('[');
+                    buf.append(START_ARRAY);
                     buf.append(join(clazz.getComponentType().isPrimitive()
                             ? obj
                             : (Object[]) obj,
                             delimiter,
                             nullString));
-                    buf.append(']');
+                    buf.append(END_ARRAY);
                 } else if (obj instanceof Collection) {
-                    buf.append('[');
+                    buf.append(START_ARRAY);
                     buf.append(join((Collection<?>) obj,
                             delimiter,
                             nullString));
-                    buf.append(']');
+                    buf.append(END_ARRAY);
                 } else {
                     buf.append(obj);
                 }
@@ -147,9 +146,9 @@ public final class StringUtils {
      *                   array are represented by this string
      * @return the joined string, {@code null} if null collection input
      */
-    private static String join(final Object[] objects,
-                               final String separator,
-                               final String nullString) {
+    private static <T> String join(final T[] objects,
+                                   final String separator,
+                                   final String nullString) {
         return objects == null
                 ? null
                 : join(Arrays.asList(objects), separator, nullString);
@@ -167,8 +166,8 @@ public final class StringUtils {
      * @see #NULL_STRING
      * @see #join(java.util.Collection, String, String)
      */
-    private static String join(final Object[] objects,
-                               final String separator) {
+    private static <T> String join(final T[] objects,
+                                   final String separator) {
         return join(objects, separator, NULL_STRING);
     }
 
@@ -184,7 +183,7 @@ public final class StringUtils {
      * @see #NULL_STRING
      * @see #join(java.util.Collection, String, String)
      */
-    public static String join(final Object[] objects) {
+    public static <T> String join(final T[] objects) {
         return join(objects, DEFAULT_SEPARATOR);
     }
 
