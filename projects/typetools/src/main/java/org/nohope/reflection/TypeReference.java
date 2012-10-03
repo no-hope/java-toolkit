@@ -21,16 +21,22 @@ public abstract class TypeReference<T> {
      * Default constructor.
      */
     public TypeReference() {
+        if (!getClass().isAnonymousClass()) {
+            throw new IllegalArgumentException(getClass() + " should be anonymous");
+        }
+
         final Type superClass = getClass().getGenericSuperclass();
         if (!(superClass instanceof ParameterizedType)) {
-            throw new IllegalArgumentException("missing type parameter.");
+            throw new IllegalArgumentException("missing type parameter due to type erasure");
         }
+
         this.type = ((ParameterizedType) superClass).getActualTypeArguments()[0];
 
         // type parameter can't be retrieved
         if (null == getTypeClass()) {
-            throw new IllegalArgumentException(
-                    "missing type parameter for type " + type);
+            throw new IllegalArgumentException("missing type parameter for type "
+                                               + type
+                                               + " (external parametrization used?)");
         }
     }
 
