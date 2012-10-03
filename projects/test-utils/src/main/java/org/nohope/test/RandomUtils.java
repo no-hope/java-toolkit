@@ -9,14 +9,14 @@ import java.security.SecureRandom;
  * @author <a href="mailto:ketoth.xupack@gmail.com">ketoth xupack</a>
  * @since 9/21/12 6:55 PM
  */
-public class RandomUtils  {
+public final class RandomUtils  {
     private static final SecureRandom RANDOM = new SecureRandom();
 
     private RandomUtils() {
     }
 
     public static String nextString() {
-        return Integer.toString(Math.abs(RANDOM.nextInt()));
+        return Long.toString(Math.abs(RANDOM.nextLong()));
     }
 
     public static int nextInt() {
@@ -32,6 +32,11 @@ public class RandomUtils  {
     }
 
     public static boolean nextBoolean() {
+
         return RANDOM.nextBoolean();
+    }
+
+    public static double nextDouble() {
+        return RANDOM.nextDouble();
     }
 }
