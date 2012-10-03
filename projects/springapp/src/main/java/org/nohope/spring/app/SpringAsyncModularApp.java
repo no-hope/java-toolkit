@@ -264,8 +264,7 @@ public abstract class SpringAsyncModularApp<M> extends AsyncApp {
     }
 
     /**
-     * Retrieves bean from application context of instantiates it using
-     * autowired rules instead.
+     * Retrieves bean from application context or instantiates it using autowiring rules.
      *
      * @param clazz target bean class
      * @param <T> bean type
@@ -283,8 +282,16 @@ public abstract class SpringAsyncModularApp<M> extends AsyncApp {
         return getAppContext().getBean(beanId, clazz);
     }
 
+    protected <T> T get(final String beanId, final TypeReference<T> reference) {
+        return get(beanId, reference.getTypeClass());
+    }
+
     protected <T> T get(final Class<T> clazz) {
         return getAppContext().getBean(clazz);
+    }
+
+    protected <T> T get(final TypeReference<T> reference) {
+        return get(reference.getTypeClass());
     }
 
     protected <T> T registerSingleton(final String name, final T obj) {
