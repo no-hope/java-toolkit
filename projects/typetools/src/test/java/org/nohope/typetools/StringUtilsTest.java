@@ -3,10 +3,14 @@ package org.nohope.typetools;
 import org.junit.Test;
 import org.nohope.reflection.UtilitiesTestSupport;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.List;
 
 import static junit.framework.Assert.assertEquals;
 import static junit.framework.Assert.assertNull;
+import static org.easymock.EasyMock.*;
 import static org.nohope.typetools.StringUtils.join;
 
 /**
@@ -14,75 +18,6 @@ import static org.nohope.typetools.StringUtils.join;
  * @since 10/31/11 7:12 PM
  */
 public final class StringUtilsTest extends UtilitiesTestSupport {
-    /**
-     * Collection with null iterator.
-     */
-    private static final Collection<?> NULL_ITERATOR =
-            new Collection<Object>() {
-                @Override
-                public int size() {
-                    return 0;
-                }
-
-                @Override
-                public boolean isEmpty() {
-                    return true;
-                }
-
-                @Override
-                public boolean contains(final Object o) {
-                    return false;
-                }
-
-                @Override
-                public Iterator<Object> iterator() {
-                    return null;
-                }
-
-                @Override
-                public Object[] toArray() {
-                    return new Object[0];
-                }
-
-                @Override
-                public <T> T[] toArray(final T[] a) {
-                    return null;
-                }
-
-                @Override
-                public boolean add(final Object o) {
-                    return false;
-                }
-
-                @Override
-                public boolean remove(final Object o) {
-                    return false;
-                }
-
-                @Override
-                public boolean containsAll(final Collection<?> c) {
-                    return false;
-                }
-
-                @Override
-                public boolean addAll(final Collection<?> c) {
-                    return false;
-                }
-
-                @Override
-                public boolean removeAll(final Collection<?> c) {
-                    return false;
-                }
-
-                @Override
-                public boolean retainAll(final Collection<?> c) {
-                    return false;
-                }
-
-                @Override
-                public void clear() {
-                }
-            };
 
     @Override
     public Class<?> getUtilityClass() {
@@ -98,7 +33,13 @@ public final class StringUtilsTest extends UtilitiesTestSupport {
 
     @Test
     public void nullIterator() {
-        assertNull(StringUtils.join(NULL_ITERATOR));
+        // emulating collection with null iterator
+        final Collection<?> collection = createMock(Collection.class);
+        expect(collection.iterator()).andReturn(null).once();
+        replay(collection);
+
+        assertNull(StringUtils.join(collection));
+        verify(collection);
     }
 
     @Test
