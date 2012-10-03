@@ -72,7 +72,7 @@ public final class JSON {
     private static String jsonifyWith(final ObjectMapper mapper, final Object obj, final String onErrorMessage) {
         try {
             return mapper.writeValueAsString(obj);
-        } catch (IOException e) {
+        } catch (Throwable e) {
             LOG.error(e, "Unable to jsonify object of class {}",
                     obj == null ? null : obj.getClass());
             return onErrorMessage;
