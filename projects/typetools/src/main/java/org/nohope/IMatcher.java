@@ -5,5 +5,5 @@ package org.nohope;
  * @since 9/17/12 9:05 PM
  */
 public interface IMatcher<T> {
-    boolean matches(final T flags);
+    boolean matches(final T obj);
 }
