@@ -2,14 +2,12 @@ package org.nohope.test;
 
 import akka.actor.ActorSystem;
 import com.typesafe.config.ConfigFactory;
+import org.apache.commons.io.IOUtils;
 
 import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.net.URI;
 import java.net.URISyntaxException;
-
-import static org.apache.commons.io.FileUtils.readFileToString;
-import static org.apache.commons.io.FileUtils.toFile;
 
 /**
  * @author <a href="mailto:ketoth.xupack@gmail.com">ketoth xupack</a>
@@ -83,9 +81,11 @@ public final class AkkaUtils {
         public ActorSystem build() {
             final String conf;
             try {
-                conf = readFileToString(toFile(
-                        getClass().getResource("/test/akka.conf")
-                ));
+                conf = IOUtils.toString(
+                        Thread.currentThread()
+                              .getContextClassLoader()
+                              .getResourceAsStream("test/akka.conf")
+                );
             } catch (final IOException e) {
                 throw new IllegalStateException(e);
             }
