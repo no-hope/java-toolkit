@@ -29,7 +29,7 @@ public abstract class BaseSupervisor extends UntypedActor {
 
     protected abstract Props newInputProps(final NamedWorkerMetadata inputClassId);
 
-    protected BaseSupervisor(final BaseSupervisorParameters parameters) {
+    protected BaseSupervisor() {
     }
 
     @Override
