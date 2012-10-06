@@ -16,7 +16,7 @@ import javax.annotation.Nullable;
  * @author <a href="mailto:ketoth.xupack@gmail.com">ketoth xupack</a>
  * @since 9/16/12 10:40 PM
  */
-public class SpringUtils {
+public final class SpringUtils {
     private SpringUtils() {
     }
 
