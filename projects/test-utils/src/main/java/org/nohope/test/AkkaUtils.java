@@ -2,7 +2,6 @@ package org.nohope.test;
 
 import akka.actor.ActorSystem;
 import com.typesafe.config.ConfigFactory;
-import org.apache.commons.io.IOUtils;
 
 import java.io.IOException;
 import java.net.InetSocketAddress;
@@ -81,11 +80,7 @@ public final class AkkaUtils {
         public ActorSystem build() {
             final String conf;
             try {
-                conf = IOUtils.toString(
-                        Thread.currentThread()
-                              .getContextClassLoader()
-                              .getResourceAsStream("test/akka.conf")
-                );
+                conf = ResourceUtils.getResourceAsString("test/akka.conf");
             } catch (final IOException e) {
                 throw new IllegalStateException(e);
             }
