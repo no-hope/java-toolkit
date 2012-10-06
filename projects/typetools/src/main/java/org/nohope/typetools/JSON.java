@@ -57,9 +57,7 @@ public final class JSON {
         return usualMapper.readValue(marshalled, clazz);
     }
 
-
-    // TODO: make this private after legacy eradication
-    public static String jsonify(final Object obj,
+    private static String jsonify(final Object obj,
                                  final String onErrorMessage) {
         return jsonifyWith(usualMapper, obj, onErrorMessage);
     }
