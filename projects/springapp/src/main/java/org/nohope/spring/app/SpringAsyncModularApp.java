@@ -243,7 +243,7 @@ public abstract class SpringAsyncModularApp<M> extends AsyncApp {
         return moduleMetaInfNamespace;
     }
 
-    final String getAppName() {
+    protected final String getAppName() {
         return appName;
     }
 
