@@ -11,54 +11,19 @@ import java.text.MessageFormat;
 import java.util.Set;
 
 import static org.nohope.reflection.IntrospectionUtils.*;
-import static org.nohope.reflection.ModifierMatcher.ALL;
 
 /**
  * Date: 25.07.12
  * Time: 11:26
  */
 public final class MessageMethodInvoker {
-    private static final String METHOD_NAME = "onConcreteMessage";
-
     private MessageMethodInvoker() {
-    }
-
-    /**
-     * @deprecated consider to move to {@link OnReceive} and {@link #invokeOnReceive(Object, Object)}
-     */
-    @Deprecated
-    public static Object invokeHandler(final Object target, final Object message)
-            throws NoSuchMethodException {
-        return invokeHandler(target, message, false);
-    }
-
-    /**
-     * @deprecated consider to move to {@link OnReceive} and {@link #invokeOnReceive(Object, Object)}
-     */
-    @Deprecated
-    public static Object invokeHandler(final Object target,
-                                       final Object message,
-                                       final boolean expandObjectArray)
-            throws NoSuchMethodException {
-        try {
-            if (expandObjectArray && message instanceof Object[]) {
-                return invoke(target, ALL, METHOD_NAME, (Object[]) message);
-            } else {
-                return invoke(target, ALL, METHOD_NAME, message);
-            }
-        } catch (InvocationTargetException | IllegalAccessException e) {
-            throw new IllegalArgumentException(MessageFormat.format(
-                    "Unable to invoke {0}.{1}({2})",
-                    getCanonicalClassName(target),
-                    METHOD_NAME,
-                    getCanonicalClassName(message)), e);
-        }
     }
 
     /** @see #invokeOnReceive(Object, Object, boolean) */
     public static Object invokeOnReceive(final Object target,
                                          final Object message)
-            throws NoSuchMethodException {
+            throws Exception {
         return invokeOnReceive(target, message, false);
     }
 
@@ -86,6 +51,7 @@ public final class MessageMethodInvoker {
      *     invokeOnReceive(new A(), new Object[] {1, 2.3}, false);
      * </pre>
      *
+     *
      * @param target target object/class
      * @param message message to be passed to target object method
      * @param expandObjectArray {@code true} allows object array expanding
@@ -96,7 +62,7 @@ public final class MessageMethodInvoker {
     public static Object invokeOnReceive(@Nonnull final Object target,
                                          @Nonnull final Object message,
                                          final boolean expandObjectArray)
-            throws NoSuchMethodException {
+            throws Exception {
         final boolean expandNeeded = expandObjectArray && message instanceof Object[];
         final Class[] classes = expandNeeded
                 ? getClasses((Object[]) message)
@@ -120,13 +86,34 @@ public final class MessageMethodInvoker {
             } else {
                 return invoke(method, target, message);
             }
-        } catch (InvocationTargetException | IllegalAccessException e) {
-            throw new IllegalArgumentException(MessageFormat.format(
-                    "Unable to invoke {0}.{1}({2})",
-                    getCanonicalClassName(target),
-                    method.getName(),
-                    getCanonicalClassName(message)), e);
+        } catch (InvocationTargetException e) {
+            final Throwable targetException = e.getTargetException();
+
+            // trying to rethrow original exception
+            if (targetException instanceof Exception) {
+                throw (Exception) targetException;
+            } else if (targetException instanceof Error) {
+                throw (Error) targetException;
+            }
+
+            // unsupported exception - wrapping with runtime
+            throw illegal(target, message, method, e);
+        } catch (IllegalAccessException | NoSuchMethodException e) {
+            // this exception shouldn't be processed by underlying client logic
+            throw illegal(target, message, method, e);
         }
+    }
+
+    private static IllegalArgumentException
+            illegal(@Nonnull final Object target,
+                    @Nonnull final Object message,
+                    final Method method,
+                    final Throwable e) {
+        return new IllegalArgumentException(MessageFormat.format(
+                "Unable to invoke {0}.{1}({2})",
+                getCanonicalClassName(target),
+                method.getName(),
+                getCanonicalClassName(message)), e);
     }
 
     private static class SignatureMatcher implements IMatcher<Method> {

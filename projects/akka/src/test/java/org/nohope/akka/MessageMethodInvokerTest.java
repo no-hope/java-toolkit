@@ -9,55 +9,8 @@ import static junit.framework.Assert.fail;
  * Date: 25.07.12
  * Time: 11:29
  */
+@SuppressWarnings("MethodMayBeStatic")
 public class MessageMethodInvokerTest {
-    private boolean intInvoked = false;
-    private boolean dblInvoked = false;
-
-    private void onConcreteMessage(final Integer a) {
-        intInvoked = true;
-    }
-
-    private void onConcreteMessage(final Double b) {
-        dblInvoked = true;
-    }
-
-    private static class TestClass {
-        private native void onConcreteMessage(final String x);
-
-        @Override
-        public String toString() {
-            return "TestClass";
-        }
-    }
-
-    @Test
-    public void testInvoker() throws NoSuchMethodException {
-        final Object a1 = 100;
-        MessageMethodInvoker.invokeHandler(this, a1);
-        assertEquals(true, intInvoked);
-        assertEquals(false, dblInvoked);
-        final Object a2 = 100.0;
-        MessageMethodInvoker.invokeHandler(this, a2);
-        assertEquals(true, intInvoked);
-        assertEquals(true, dblInvoked);
-    }
-
-    @Test
-    public void testNoMethod() throws NoSuchMethodException {
-        try {
-            MessageMethodInvoker.invokeHandler(this, "xxx");
-            fail();
-        } catch (final NoSuchMethodException e) {
-        }
-
-        try {
-            MessageMethodInvoker.invokeHandler(new TestClass(), "yyy");
-            fail();
-        } catch (final IllegalArgumentException e) {
-        }
-    }
-
-    /// Annotated version of tests
 
     @OnReceive
     private Integer processInteger(final Integer a) {
@@ -70,7 +23,7 @@ public class MessageMethodInvokerTest {
     }
 
     @Test
-    public void testAnnotatedInvoker() throws NoSuchMethodException {
+    public void testAnnotatedInvoker() throws Exception {
         final Object a1 = 100;
         assertEquals(a1, MessageMethodInvoker.invokeOnReceive(this, a1));
         final Object a2 = 100.0;
@@ -78,7 +31,7 @@ public class MessageMethodInvokerTest {
     }
 
     @Test
-    public void testNoAnnotatedMethod() throws NoSuchMethodException {
+    public void testNoAnnotatedMethod() throws Exception {
         try {
             MessageMethodInvoker.invokeOnReceive(this, "xxx");
             fail();
@@ -88,18 +41,18 @@ public class MessageMethodInvokerTest {
         try {
             MessageMethodInvoker.invokeOnReceive(new AnnotatedTestClass(), "yyy");
             fail();
-        } catch (final IllegalArgumentException e) {
+        } catch (final NoSuchMethodException e) {
         }
     }
 
     @Test
-    public void inheritance() throws NoSuchMethodException {
+    public void inheritance() throws Exception {
         assertEquals(1, MessageMethodInvoker.invokeOnReceive(new AnnotatedTestClass(), 1));
         assertEquals(2, MessageMethodInvoker.invokeOnReceive(new AnnotatedParentClass(), 2));
     }
 
     @Test
-    public void multipleMatch() {
+    public void multipleMatch() throws Exception {
         try {
             MessageMethodInvoker.invokeOnReceive(new AnnotatedTestClass(), 1L);
             fail();
@@ -113,22 +66,48 @@ public class MessageMethodInvokerTest {
         }
     }
 
-    private static class AnnotatedTestClass extends AnnotatedParentClass {
-        @OnReceive
-        private native void onConcreteMessage(final String x);
+    @Test(expected = UserException.class)
+    public void exceptionRethrowing() throws Exception {
+        MessageMethodInvoker.invokeOnReceive(new AnnotatedParentClass(), String.class);
+    }
 
-        @Override
-        public String toString() {
-            return "TestClass";
-        }
+    @Test(expected = UserRuntimeException.class)
+    public void runtimeExceptionRethrowing() throws Exception {
+        MessageMethodInvoker.invokeOnReceive(new AnnotatedParentClass(), '\n');
+    }
+
+    @Test(expected = UserError.class)
+    public void errorRethrowing() throws Exception {
+        MessageMethodInvoker.invokeOnReceive(new AnnotatedParentClass(), 1d);
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void throwableRethrowing() throws Exception {
+        MessageMethodInvoker.invokeOnReceive(new AnnotatedParentClass(), 1f);
+    }
+
+    private static class UserException extends Exception {
+        private static final long serialVersionUID = 5588207554344224650L;
+    }
+
+    private static class UserRuntimeException extends RuntimeException {
+        private static final long serialVersionUID = 5588207554344224650L;
+    }
+
+    private static class UserError extends Error {
+        private static final long serialVersionUID = 5588207554344224650L;
+    }
+
+    private static class UserThrowable extends Throwable {
+        private static final long serialVersionUID = 5588207554344224650L;
     }
 
     private static class AnnotatedParentClass {
+
         @OnReceive
         private Integer onConcreteMessage(final Integer x) {
             return x;
         }
-
         @OnReceive
         private Long one(final Long x) {
             return x;
@@ -137,6 +116,36 @@ public class MessageMethodInvokerTest {
         @OnReceive
         private Long another(final Long x) {
             return x;
+        }
+
+        @OnReceive
+        private void exceptional(final Class<?> x) throws UserException {
+            throw new UserException();
+        }
+
+        @OnReceive
+        private void runtimeExceptional(final Character x) {
+            throw new UserRuntimeException();
+        }
+
+        @OnReceive
+        private void erroneous(final Double x) {
+            throw new UserError();
+        }
+
+        @OnReceive
+        private void throwable(final Float x) throws UserThrowable {
+            throw new UserThrowable();
+        }
+    }
+
+    private static class AnnotatedTestClass extends AnnotatedParentClass {
+        @SuppressWarnings("unused")
+        private native void onConcreteMessage(final String x);
+
+        @Override
+        public String toString() {
+            return "TestClass";
         }
     }
 }

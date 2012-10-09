@@ -2,15 +2,14 @@ package org.nohope.akka;
 
 import akka.actor.ActorRef;
 import akka.actor.Props;
-import akka.actor.UntypedActor;
-import akka.event.Logging;
-import akka.event.LoggingAdapter;
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import org.nohope.typetools.JSON;
 
 import java.text.MessageFormat;
 import java.util.HashMap;
 import java.util.Map;
+
+import static org.nohope.akka.SupervisorRequests.StartupReply;
 
 
 /**
@@ -23,35 +22,31 @@ import java.util.Map;
         value = "UPM_UNCALLED_PRIVATE_METHOD",
         justification = "onConcreteMessage here is invoked "
                         + "reflectively to not to check types all the time")
-public abstract class BaseSupervisor extends UntypedActor {
-    @SuppressWarnings("ThisEscapedInObjectConstruction")
-    private final LoggingAdapter log = Logging.getLogger(getContext().system(), this);
+public abstract class BaseSupervisor extends ReflectiveActor {
     private final Map<NamedWorkerMetadata, ActorRef> startingActors = new HashMap<>();
-
-    protected abstract Props newInputProps(final NamedWorkerMetadata inputClassId);
 
     protected BaseSupervisor() {
     }
 
-    @Override
-    public void onReceive(final Object message) {
-        try {
-            MessageMethodInvoker.invokeHandler(this, message);
-        } catch (Exception e) {
-            log.error(e, "Bad message received: {}", JSON.pretty(message));
+    protected abstract Props newInputProps(final NamedWorkerMetadata inputClassId);
+
+    @OnReceive
+    public ActorRef obtainWorker(final NamedWorkerMetadata inputClassId) {
+        return obtainWorkerRef(inputClassId);
+    }
+
+    @OnReceive
+    public void processStartupReply(final StartupReply reply) {
+        log.debug("Successful startup notification in {}: {}", getSelf().path().name(), JSON.pretty(reply));
+        if (!startingActors.containsKey(reply.workerMetadata)) {
+            throw new IllegalStateException("Request to remove non-existing actor: " + reply.workerMetadata);
         }
+        startingActors.remove(reply.workerMetadata);
     }
 
     @Override
     public void postStop() {
         log.debug("Supervisor '{}' stopped", getSelf().path().name());
-    }
-
-
-    @SuppressWarnings("unused")
-    public void onConcreteMessage(final NamedWorkerMetadata inputClassId) {
-        final ActorRef deviceRef = obtainWorkerRef(inputClassId);
-        getSender().tell(deviceRef);
     }
 
     protected ActorRef obtainWorkerRef(final NamedWorkerMetadata inputClassId) {
@@ -75,15 +70,6 @@ public abstract class BaseSupervisor extends UntypedActor {
             log.debug("Passing existing device actor which is starting now...");
         }
         return deviceRef;
-    }
-
-    @SuppressWarnings("unused")
-    public void onConcreteMessage(final SupervisorRequests.StartupReply reply) {
-        log.debug("Successful startup notification in {}: {}", getSelf().path().name(), JSON.pretty(reply));
-        if (!startingActors.containsKey(reply.workerMetadata)) {
-            throw new IllegalStateException("Request to remove non-existing actor: " + reply.workerMetadata);
-        }
-        startingActors.remove(reply.workerMetadata);
     }
 
     private String getInputActorUrl(final NamedWorkerMetadata inputClassId) {
