@@ -10,6 +10,9 @@ import org.nohope.spring.SpringUtils;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
+import java.io.IOException;
+import java.io.NotSerializableException;
+import java.io.ObjectOutputStream;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -50,7 +53,7 @@ import static org.nohope.spring.SpringUtils.registerSingleton;
  * @author <a href="mailto:ketoth.xupack@gmail.com">ketoth xupack</a>
  * @since 9/16/12 11:09 PM
  */
-public class ReflectActorFactory<T extends UntypedActor> implements UntypedActorFactory {
+public final class ReflectActorFactory<T extends UntypedActor> implements UntypedActorFactory {
     private static final long serialVersionUID = 0L;
 
     private final Class<T> clazz;
@@ -109,23 +112,31 @@ public class ReflectActorFactory<T extends UntypedActor> implements UntypedActor
         return instantiate(child, clazz);
     }
 
-    public Class<T> getTragetClass() {
+    @Nonnull
+    public Class<T> getTargetClass() {
         return clazz;
     }
 
+    @Nonnull
     public List<Object> getBeans() {
         return beans;
     }
 
+    @Nonnull
     public Map<String, Object> getNamedBeans() {
         return namedBeans;
     }
 
+    @Nonnull
     public ApplicationContext getContext() {
         return ctx;
     }
 
     public Props getProps() {
         return new Props(this);
+    }
+
+    private void writeObject(final ObjectOutputStream oos) throws IOException {
+        throw new NotSerializableException();
     }
 }

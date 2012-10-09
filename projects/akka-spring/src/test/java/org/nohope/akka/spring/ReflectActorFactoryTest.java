@@ -3,12 +3,16 @@ package org.nohope.akka.spring;
 import akka.actor.ActorRef;
 import akka.actor.ActorSystem;
 import akka.actor.Props;
-import org.junit.Assert;
 import org.junit.Test;
 import org.springframework.context.support.GenericApplicationContext;
 import org.nohope.spring.SpringUtils;
+import org.nohope.test.SerializationUtils;
+
+import java.util.List;
+import java.util.Map;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 import static org.nohope.akka.Ask.waitReply;
 import static org.nohope.akka.spring.Bean.Props.*;
 
@@ -29,8 +33,22 @@ public class ReflectActorFactoryTest {
         final ActorSystem system = ActorSystem.create();
         final ActorRef ref = system.actorOf(new Props(beanFactory));
 
-        Assert.assertEquals(1, waitReply(ref, PARAM1));
-        Assert.assertEquals("test1", waitReply(ref, PARAM2));
-        Assert.assertEquals("test2", waitReply(ref, PARAM3));
+        assertEquals(1, waitReply(ref, PARAM1));
+        assertEquals("test1", waitReply(ref, PARAM2));
+        assertEquals("test2", waitReply(ref, PARAM3));
+
+        assertEquals(ctx, beanFactory.getContext());
+        final Map<String,Object> namedBeans = beanFactory.getNamedBeans();
+        assertTrue(namedBeans.containsKey("param2") && namedBeans.containsKey("param3"));
+        final List<Object> beans = beanFactory.getBeans();
+        assertEquals(0, beans.size());
+        assertEquals(Bean.class, beanFactory.getTargetClass());
+    }
+
+    @Test(expected = AssertionError.class)
+    public void javaSerialization() {
+        final GenericApplicationContext ctx = new GenericApplicationContext();
+        final ReflectActorFactory<Bean> beanFactory = new ReflectActorFactory<>(ctx, Bean.class);
+        SerializationUtils.cloneJava(beanFactory);
     }
 }
