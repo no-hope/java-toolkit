@@ -24,6 +24,7 @@ import java.util.Map;
         justification = "onConcreteMessage here is invoked "
                         + "reflectively to not to check types all the time")
 public abstract class BaseSupervisor extends UntypedActor {
+    @SuppressWarnings("ThisEscapedInObjectConstruction")
     private final LoggingAdapter log = Logging.getLogger(getContext().system(), this);
     private final Map<NamedWorkerMetadata, ActorRef> startingActors = new HashMap<>();
 
