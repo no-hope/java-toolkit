@@ -13,6 +13,26 @@ import static org.junit.Assert.fail;
  */
 @SuppressWarnings("ALL")
 public class NonnullTest {
+    private final class NonnullInConstructor {
+        private NonnullInConstructor(@Nonnull String test) {
+        }
+    }
+
+    private static final class NonnullInConstructor2 {
+        private NonnullInConstructor2(@Nonnull String test) {
+        }
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void callConstructor1() {
+        new NonnullInConstructor(null);
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void callConstructor2() {
+        new NonnullInConstructor2(null);
+    }
+
     @Test
     public void callTest() {
         test("");
@@ -97,6 +117,11 @@ public class NonnullTest {
         assertEquals("xxx", valid());
     }
 
+    @Test(expected = IllegalArgumentException.class)
+    public void privateMethodCall() {
+        test3(null);
+    }
+
     @Test
     public void inheritance() {
         try {
@@ -104,6 +129,16 @@ public class NonnullTest {
             new NonnullInheritance().getName();
         } catch (Exception e) {
             fail("wow! great news :)");
+        }
+    }
+
+    @Test
+    public void strictMethod() {
+        try {
+            // annotations are not inherited anyway
+            test4(null);
+            doFail();
+        } catch (IllegalArgumentException e) {
         }
     }
 
@@ -120,6 +155,14 @@ public class NonnullTest {
     }
 
     public void test2(final String a, @Nonnull final String test, final String b) {
+    }
+
+    private void test3(@Nonnull final String test) {
+    }
+
+    @Nonnull
+    private Object test4(@Nonnull final String test) {
+        return null;
     }
 
     @SuppressWarnings("MethodMayBeStatic")
