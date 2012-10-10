@@ -1,5 +1,7 @@
 package org.nohope.typetools;
 
+import javax.annotation.Nullable;
+
 /**
  * Date: 17.10.11
  * Time: 14:48
@@ -16,6 +18,7 @@ public final class TDouble {
         return isDoubleCorrect(val) ? val : Double.NaN;
     }*/
 
+    @Nullable
     public static Double toFiniteDouble(final Double val) {
         return isDoubleCorrect(val) ? val : null;
     }

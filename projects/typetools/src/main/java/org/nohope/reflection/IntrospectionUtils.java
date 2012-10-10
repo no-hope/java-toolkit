@@ -589,6 +589,7 @@ public final class IntrospectionUtils {
      * @param c2 second class
      * @return common parent class if exists {@code null} otherwise
      */
+    @Nullable
     public static Class<?> findCommonParent(final Class<?> c1,
                                             final Class<?> c2) {
         if (c1 == null) {
@@ -693,6 +694,7 @@ public final class IntrospectionUtils {
      * @return array of objects
      * @see #shrinkTypeTo(Object, Class)
      */
+    @Nullable
     public static Object[] toObjArray(final Object source) {
         if (source == null) {
             return null;
@@ -727,6 +729,7 @@ public final class IntrospectionUtils {
         return getClassNames(getClasses(arguments));
     }
 
+    @Nullable
     public static String getCanonicalClassName(final Object obj) {
         return obj == null ? null : obj.getClass().getCanonicalName();
     }
@@ -779,6 +782,7 @@ public final class IntrospectionUtils {
      * @return casted object
      */
     @SuppressWarnings("unchecked")
+    @Nonnull
     public static<T> T cast(@Nullable final Object obj,
                             @Nonnull final Class<T> clazz) {
         if (instanceOf(obj, clazz)) {
@@ -786,6 +790,12 @@ public final class IntrospectionUtils {
         }
 
         throw new ClassCastException("Unable to cast " + obj + " to " + clazz);
+    }
+
+    @Nonnull
+    public static<T> T cast(@Nullable final Object obj,
+                            @Nonnull final TypeReference<T> ref) {
+        return cast(obj, ref.getTypeClass());
     }
 
     /**
@@ -798,6 +808,7 @@ public final class IntrospectionUtils {
      * @return casted object or {@code null} if object not an instance
      *         of given class
      */
+    @Nullable
     @SuppressWarnings("unchecked")
     public static<T> T safeCast(@Nullable final Object obj,
                                 @Nonnull final Class<T> clazz,
@@ -809,16 +820,19 @@ public final class IntrospectionUtils {
         return defaultValue;
     }
 
+    @Nullable
     public static<T> T safeCast(@Nullable final Object obj,
                                 @Nonnull final Class<T> clazz) {
         return safeCast(obj, clazz, null);
     }
 
+    @Nullable
     public static<T> T safeCast(@Nullable final Object obj,
                                 @Nonnull final TypeReference<T> ref) {
         return safeCast(obj, ref, null);
     }
 
+    @Nullable
     public static<T> T safeCast(@Nullable final Object obj,
                                 @Nonnull final TypeReference<T> ref,
                                 @Nullable final T defaultValue) {
@@ -850,6 +864,7 @@ public final class IntrospectionUtils {
      * @return {@link Class class} of given object or itself if
      *         it is already a class instance, {@code null} if {@code null} passed.
      */
+    @Nullable
     public static Class<?> getClass(@Nullable final Object obj) {
         if (obj == null) {
             return null;
@@ -868,6 +883,7 @@ public final class IntrospectionUtils {
      * @param type type
      * @return class object
      */
+    @Nullable
     public static Class<?> getClass(final Type type) {
         if (type instanceof Class) {
             return (Class) type;

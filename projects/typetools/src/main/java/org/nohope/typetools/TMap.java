@@ -2,6 +2,7 @@ package org.nohope.typetools;
 
 import org.nohope.reflection.TypeReference;
 
+import javax.annotation.Nullable;
 import java.util.Map;
 
 import static org.nohope.reflection.IntrospectionUtils.safeCast;
@@ -19,10 +20,12 @@ public class TMap {
         return map.get(key);
     }
 
+    @Nullable
     public static <V, T extends V, K> T safeGet(final Map<K, V> map, final K key, final Class<T> clazz) {
         return safeCast(map.get(key), clazz);
     }
 
+    @Nullable
     public static <V, T extends V, K> T safeGet(final Map<K, V> map, final K key, final TypeReference<T> ref) {
         return safeCast(map.get(key), ref);
     }

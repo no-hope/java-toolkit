@@ -3,6 +3,7 @@ package org.nohope;
 import org.joda.time.DateTime;
 import org.joda.time.LocalTime;
 
+import javax.annotation.Nonnull;
 import java.io.Serializable;
 import java.util.HashSet;
 import java.util.Set;
@@ -21,18 +22,23 @@ public final class Interval implements Serializable {
     Interval() {
     }
 
-    public Interval(final LocalTime begin, final LocalTime end) {
+    public Interval(@Nonnull final LocalTime begin,
+                    @Nonnull final LocalTime end) {
         this.begin = begin;
         this.end = end;
     }
 
-    public Interval(final LocalTime begin, final LocalTime end, final Set<Integer> daysOfWeek) {
+    public Interval(@Nonnull final LocalTime begin,
+                    @Nonnull final LocalTime end,
+                    @Nonnull final Set<Integer> daysOfWeek) {
         this.begin = begin;
         this.end = end;
         setDaysOfWeek(daysOfWeek);
     }
 
-    public Interval(final LocalTime begin, final LocalTime end, final int day) {
+    public Interval(@Nonnull final LocalTime begin,
+                    @Nonnull final LocalTime end,
+                    final int day) {
         this.begin = begin;
         this.end = end;
         final Set<Integer> dayOfWeek = new HashSet<>();
@@ -40,6 +46,7 @@ public final class Interval implements Serializable {
         setDaysOfWeek(dayOfWeek);
     }
 
+    @Nonnull
     public Set<Integer> getDaysOfWeek() {
         return daysOfWeek;
     }
@@ -48,31 +55,33 @@ public final class Interval implements Serializable {
      * The values for the day of week are defined in {@link org.joda.time.DateTimeConstants}.
      *
      */
-    public Interval setDaysOfWeek(final Set<Integer> daysOfWeek) {
+    public Interval setDaysOfWeek(@Nonnull final Set<Integer> daysOfWeek) {
         this.daysOfWeek.clear();
         this.daysOfWeek.addAll(daysOfWeek);
         return this;
     }
 
+    @Nonnull
     public LocalTime getBegin() {
         return begin;
     }
 
-    public Interval setBegin(final LocalTime begin) {
+    public Interval setBegin(@Nonnull final LocalTime begin) {
         this.begin = begin;
         return this;
     }
 
+    @Nonnull
     public LocalTime getEnd() {
         return end;
     }
 
-    public Interval setEnd(final LocalTime end) {
+    public Interval setEnd(@Nonnull final LocalTime end) {
         this.end = end;
         return this;
     }
 
-    public boolean contains(final DateTime timestamp) {
+    public boolean contains(@Nonnull final DateTime timestamp) {
         if (!daysOfWeek.isEmpty()) {
             final int dayOfWeek = timestamp.getDayOfWeek();
             if (!daysOfWeek.contains(dayOfWeek)) {

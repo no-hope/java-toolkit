@@ -16,12 +16,13 @@ public final class SeriesElement<T extends Serializable> implements Serializable
     private final DateTime timestamp;
     private final T value;
 
-    public SeriesElement(final DateTime timestamp,
+    public SeriesElement(@Nonnull final DateTime timestamp,
                          @Nonnull final T value) {
         this.timestamp = timestamp;
         this.value = value;
     }
 
+    @Nonnull
     public DateTime getTimestamp() {
         return timestamp;
     }

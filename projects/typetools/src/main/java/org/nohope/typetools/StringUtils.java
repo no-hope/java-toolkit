@@ -1,5 +1,6 @@
 package org.nohope.typetools;
 
+import javax.annotation.Nullable;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Iterator;
@@ -50,6 +51,7 @@ public final class StringUtils {
      *                   represented by this string
      * @return the joined string, {@code null} if null collection input
      */
+    @Nullable
     public static <T> String join(final Collection<T> collection,
                                   final String separator,
                                   final String nullString) {
@@ -114,6 +116,7 @@ public final class StringUtils {
      * @see #NULL_STRING
      * @see #join(java.util.Collection, String, String)
      */
+    @Nullable
     public static <T> String join(final Collection<T> collection,
                                   final String separator) {
         return join(collection, separator, NULL_STRING);
@@ -132,6 +135,7 @@ public final class StringUtils {
      * @see #NULL_STRING
      * @see #join(java.util.Collection, String, String)
      */
+    @Nullable
     public static <T> String join(final Collection<T> collection) {
         return join(collection, DEFAULT_SEPARATOR, NULL_STRING);
     }
@@ -146,6 +150,7 @@ public final class StringUtils {
      *                   array are represented by this string
      * @return the joined string, {@code null} if null collection input
      */
+    @Nullable
     private static <T> String join(final T[] objects,
                                    final String separator,
                                    final String nullString) {
@@ -166,6 +171,7 @@ public final class StringUtils {
      * @see #NULL_STRING
      * @see #join(java.util.Collection, String, String)
      */
+    @Nullable
     private static <T> String join(final T[] objects,
                                    final String separator) {
         return join(objects, separator, NULL_STRING);
@@ -183,6 +189,7 @@ public final class StringUtils {
      * @see #NULL_STRING
      * @see #join(java.util.Collection, String, String)
      */
+    @Nullable
     public static <T> String join(final T[] objects) {
         return join(objects, DEFAULT_SEPARATOR);
     }
@@ -197,6 +204,7 @@ public final class StringUtils {
      *                   array are represented by this string
      * @return the joined string, {@code null} if null collection input
      */
+    @Nullable
     public static String join(final Object objects,
                               final String separator,
                               final String nullString) {
@@ -217,6 +225,7 @@ public final class StringUtils {
      * @see #NULL_STRING
      * @see #join(java.util.Collection, String, String)
      */
+    @Nullable
     public static String join(final Object objects,
                               final String separator) {
         return join(objects, separator, NULL_STRING);
@@ -234,6 +243,7 @@ public final class StringUtils {
      * @see #NULL_STRING
      * @see #join(java.util.Collection, String, String)
      */
+    @Nullable
     public static String join(final Object objects) {
         return join(objects, DEFAULT_SEPARATOR);
     }

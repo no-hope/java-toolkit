@@ -14,6 +14,7 @@ public final class TBool {
         return (bool != null) && bool;
     }
 
+    @SuppressWarnings("ConstantConditions")
     public static boolean safeAsBoolean(final Object bool) {
         return IntrospectionUtils.safeCast(bool, Boolean.class, false);
     }

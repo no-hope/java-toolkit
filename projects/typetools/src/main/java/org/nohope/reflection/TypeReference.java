@@ -1,5 +1,6 @@
 package org.nohope.reflection;
 
+import javax.annotation.Nonnull;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
@@ -12,14 +13,17 @@ import java.lang.reflect.Type;
  * @since 6/21/11 5:31 PM
  */
 public abstract class TypeReference<T> {
-    /**
-     * Type of token.
-     */
+
+    /** Type of token. */
     private final Type type;
+
+    /** Class of type parameter. */
+    private final Class<T> rawType;
 
     /**
      * Default constructor.
      */
+    @SuppressWarnings("unchecked")
     public TypeReference() {
         if (!getClass().isAnonymousClass()) {
             throw new IllegalArgumentException(getClass() + " should be anonymous");
@@ -32,8 +36,10 @@ public abstract class TypeReference<T> {
 
         this.type = ((ParameterizedType) superClass).getActualTypeArguments()[0];
 
+        this.rawType = (Class<T>) IntrospectionUtils.getClass(type);
+
         // type parameter can't be retrieved
-        if (null == getTypeClass()) {
+        if (null == rawType) {
             throw new IllegalArgumentException("missing type parameter for type "
                                                + type
                                                + " (external parametrization used?)");
@@ -60,14 +66,15 @@ public abstract class TypeReference<T> {
     /**
      * @return class of referenced type
      */
-    @SuppressWarnings("unchecked")
+    @Nonnull
     public final Class<T> getTypeClass() {
-        return (Class<T>) IntrospectionUtils.getClass(type);
+        return rawType;
     }
 
     /**
      * @return the referenced type
      */
+    @Nonnull
     public final Type getType() {
         return this.type;
     }
