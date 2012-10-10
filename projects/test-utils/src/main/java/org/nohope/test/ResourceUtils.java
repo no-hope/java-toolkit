@@ -2,6 +2,7 @@ package org.nohope.test;
 
 import org.apache.commons.io.IOUtils;
 
+import javax.annotation.Nullable;
 import java.io.IOException;
 import java.net.URL;
 
@@ -13,6 +14,7 @@ public final class ResourceUtils {
     private ResourceUtils() {
     }
 
+    @Nullable
     public static String getResourceAsString(final String resourceName) throws IOException {
         final URL resource = ClassLoader.getSystemResource(resourceName);
 

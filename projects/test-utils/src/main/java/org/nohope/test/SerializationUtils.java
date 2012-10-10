@@ -44,9 +44,13 @@ public final class SerializationUtils {
 
     @SuppressWarnings("unchecked")
     public static <T> T cloneMongo(final T object) {
-        final JacksonProcessor processor = new JacksonProcessor();
-        final String marshall = processor.marshall(object);
-        LOG.debug("marshalled value {}", marshall);
-        return (T) processor.unmarshall(marshall, object.getClass());
+        final JacksonProcessor marshaller = new JacksonProcessor();
+        final String marshalled = marshaller.marshall(object);
+        LOG.debug("marshalled value {}", marshalled);
+
+        // creating new processor just to be sure no state was shared
+        // between jackson serializrs/deserializers
+        final JacksonProcessor unmarshaller = new JacksonProcessor();
+        return (T) unmarshaller.unmarshall(marshalled, object.getClass());
     }
 }
