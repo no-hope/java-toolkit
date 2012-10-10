@@ -306,6 +306,7 @@ public abstract class SpringAsyncModularApp<M> extends AsyncApp {
         return SpringUtils.registerSingleton(ctx, name, obj);
     }
 
+    @Nullable
     private static ConfigurableApplicationContext overrideRule(@Nullable final ConfigurableApplicationContext ctx,
                                                                final String namespace,
                                                                final String name) {

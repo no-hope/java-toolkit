@@ -27,6 +27,7 @@ public final class SpringUtils {
      * @param paths contexts path
      * @return overridden context ({@code null} if one of given files not exists)
      */
+    @Nullable
     public static ConfigurableApplicationContext ensureCreate(@Nullable final ConfigurableApplicationContext parent,
                                                               @Nonnull final String... paths) {
         for (final String path: paths) {
