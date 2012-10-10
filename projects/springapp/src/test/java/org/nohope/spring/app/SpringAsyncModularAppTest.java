@@ -174,8 +174,9 @@ public class SpringAsyncModularAppTest {
         app.stop();
         t.join();
 
-        if (ref.get() != null) {
-            throw new IllegalStateException(ref.get());
+        final Throwable throwable = ref.get();
+        if (throwable != null) {
+            throw new IllegalStateException(throwable);
         }
     }
 }
