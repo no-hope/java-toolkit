@@ -4,16 +4,20 @@ import org.joda.time.DateTime;
 import org.nohope.typetools.JSON;
 
 import javax.annotation.Nonnull;
+import java.io.Serializable;
 
 /**
 * Date: 9/20/12
 * Time: 11:27 AM
 */
-public class SeriesElement<T> {
+public final class SeriesElement<T extends Serializable> implements Serializable {
+    private static final long serialVersionUID = 1L;
+
     private final DateTime timestamp;
     private final T value;
 
-    public SeriesElement(final DateTime timestamp, final T value) {
+    public SeriesElement(final DateTime timestamp,
+                         @Nonnull final T value) {
         this.timestamp = timestamp;
         this.value = value;
     }
@@ -22,7 +26,8 @@ public class SeriesElement<T> {
         return timestamp;
     }
 
-    @Nonnull public T getValue() {
+    @Nonnull
+    public T getValue() {
         return value;
     }
 
