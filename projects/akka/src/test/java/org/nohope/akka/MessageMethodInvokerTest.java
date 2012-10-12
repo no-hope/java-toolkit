@@ -3,7 +3,10 @@ package org.nohope.akka;
 import org.junit.Test;
 
 import static junit.framework.Assert.assertEquals;
+import static junit.framework.Assert.assertFalse;
 import static junit.framework.Assert.fail;
+import static org.junit.Assert.assertTrue;
+import static org.nohope.akka.MessageMethodInvoker.SignaturePair;
 
 /**
  * Date: 25.07.12
@@ -28,6 +31,13 @@ public class MessageMethodInvokerTest {
         assertEquals(a1, MessageMethodInvoker.invokeOnReceive(this, a1));
         final Object a2 = 100.0;
         assertEquals(a2, MessageMethodInvoker.invokeOnReceive(this, a2));
+    }
+
+    @Test
+    public void testCache() throws Exception {
+        MessageMethodInvoker.invokeOnReceive(this, 100);
+        assertTrue(MessageMethodInvoker.cache.containsKey(
+                SignaturePair.of(MessageMethodInvokerTest.class, new Class<?>[]{Integer.class})));
     }
 
     @Test
@@ -84,6 +94,22 @@ public class MessageMethodInvokerTest {
     @Test(expected = IllegalArgumentException.class)
     public void throwableRethrowing() throws Exception {
         MessageMethodInvoker.invokeOnReceive(new AnnotatedParentClass(), 1f);
+    }
+
+    @Test
+    public void signaturePairEquals() {
+        final SignaturePair pair1 = new SignaturePair(String.class,
+                new Class<?>[] {String.class, Integer.class});
+        final SignaturePair pair2 = new SignaturePair(String.class,
+                new Class<?>[] {String.class, Integer.class});
+        final SignaturePair pair3 = new SignaturePair(String.class,
+                new Class<?>[] {String.class, String.class});
+
+        assertEquals(pair1, pair2);
+        assertEquals(pair1.hashCode(), pair2.hashCode());
+
+        assertFalse(pair1.equals(pair3));
+        assertFalse(pair2.equals(pair3));
     }
 
     private static class UserException extends Exception {

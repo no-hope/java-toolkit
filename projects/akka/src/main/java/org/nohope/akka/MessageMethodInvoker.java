@@ -8,15 +8,22 @@ import javax.annotation.Nonnull;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.text.MessageFormat;
+import java.util.Arrays;
+import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 
 import static org.nohope.reflection.IntrospectionUtils.*;
+import static org.nohope.reflection.IntrospectionUtils.getClassNames;
 
 /**
  * Date: 25.07.12
  * Time: 11:26
  */
 public final class MessageMethodInvoker {
+    /** Cache for @OnReceive messages. */
+    static final Map<SignaturePair, Method> cache = new ConcurrentHashMap<>();
+
     private MessageMethodInvoker() {
     }
 
@@ -44,10 +51,10 @@ public final class MessageMethodInvoker {
      *         }
      *     }
      *
-     *     // multiarg method will be invoked
+     *     // multi-arg method will be invoked
      *     invokeOnReceive(new A(), new Object[] {1, 2.3}, true);
      *
-     *     // onearg method will be invoked
+     *     // one-arg method will be invoked
      *     invokeOnReceive(new A(), new Object[] {1, 2.3}, false);
      * </pre>
      *
@@ -64,22 +71,11 @@ public final class MessageMethodInvoker {
                                          final boolean expandObjectArray)
             throws Exception {
         final boolean expandNeeded = expandObjectArray && message instanceof Object[];
-        final Class[] classes = expandNeeded
+        final Class<?>[] classes = expandNeeded
                 ? getClasses((Object[]) message)
-                : getClasses(message);
-
-        final Set<Method> methods = searchMethods(IntrospectionUtils.getClass(target),
-                new SignatureMatcher(classes));
-
-        if (methods.size() != 1) {
-            throw new NoSuchMethodException(
-                    "Only one @OnReceive method expected to match ("
-                    + StringUtils.join(getClassNames(classes))
-                    + ") parameter types but found "
-                    + methods.size());
-        }
-
-        final Method method = methods.iterator().next();
+                : getClasses(message)
+                ;
+        final Method method = getOrCache(IntrospectionUtils.getClass(target), classes);
         try {
             if (expandNeeded) {
                 return invoke(method, target, (Object[]) message);
@@ -104,6 +100,31 @@ public final class MessageMethodInvoker {
         }
     }
 
+    private static Method getOrCache(final Class<?> targetClass,
+                                     final Class<?>[] parameterTypes)
+            throws NoSuchMethodException {
+        final SignaturePair pair = SignaturePair.of(targetClass, parameterTypes);
+        if (!cache.containsKey(pair)) {
+            final Set<Method> methods = searchMethods(
+                    targetClass,
+                    new SignatureMatcher(parameterTypes));
+            if (methods.size() != 1) {
+                throw new NoSuchMethodException(
+                        "Only one @OnReceive method expected to match ("
+                        + StringUtils.join(getClassNames(parameterTypes))
+                        + ") parameter types but found "
+                        + methods.size());
+            }
+
+            final Method m = methods.iterator().next();
+            cache.put(pair, m);
+
+            return m;
+        }
+
+        return cache.get(pair);
+    }
+
     private static IllegalArgumentException
             illegal(@Nonnull final Object target,
                     @Nonnull final Object message,
@@ -114,6 +135,39 @@ public final class MessageMethodInvoker {
                 getCanonicalClassName(target),
                 method.getName(),
                 getCanonicalClassName(message)), e);
+    }
+
+    static class SignaturePair {
+        private final Class<?> target;
+        private final Class<?>[] parameter;
+
+        SignaturePair(final Class<?> target, final Class<?>[] parameter) {
+            this.target = target;
+            this.parameter = parameter;
+        }
+
+        @Override
+        public boolean equals(final Object o) {
+            if (this == o) {
+                return true;
+            }
+            if (o == null || getClass() != o.getClass()) {
+                return false;
+            }
+
+            final SignaturePair that = (SignaturePair) o;
+            return Arrays.equals(parameter, that.parameter) && target.equals(that.target);
+
+        }
+
+        @Override
+        public int hashCode() {
+            return 31 * target.hashCode() + Arrays.hashCode(parameter);
+        }
+
+        public static SignaturePair of(final Class<?> target, final Class<?>[] parameter) {
+            return new SignaturePair(target, parameter);
+        }
     }
 
     private static class SignatureMatcher implements IMatcher<Method> {
@@ -128,7 +182,7 @@ public final class MessageMethodInvoker {
             final Class<?>[] params = method.getParameterTypes();
             return (areTypesCompatible(params, classes)
                     || areTypesVarargCompatible(params, classes))
-                   && method.isAnnotationPresent(OnReceive.class);
+                    && method.isAnnotationPresent(OnReceive.class);
         }
     }
 }
