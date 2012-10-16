@@ -64,6 +64,15 @@ public class SpringAsyncModularAppTest {
     }
 
     @Test
+    public void settersInvocation() throws Exception {
+        final AppWithSetters app = new AppWithSetters("app", "", "legalModuleDefaultContext") {
+        };
+        probe(app);
+
+        assertEquals("appBean", app.getAppBean());
+    }
+
+    @Test
     public void appIsAnonymousClass() throws Exception {
         final AppWithContainer app = new AppWithContainer(null, "", "/") {
         };
@@ -104,7 +113,6 @@ public class SpringAsyncModularAppTest {
 
     @Test
     public void concatTest() {
-
         assertEquals("test1" + File.separator + "test2" + File.separator +"test3" , AppWithContainer.concat("test1", "test2/", "/test3"));
     }
 
@@ -203,7 +211,7 @@ public class SpringAsyncModularAppTest {
         }
     }
 
-    private static void probe(final AppWithContainer app) throws InterruptedException {
+    private static void probe(final SpringAsyncModularApp<?> app) throws InterruptedException {
         final AtomicReference<Throwable> ref = new AtomicReference<>();
         final Thread t = new Thread(new Runnable() {
             @Override

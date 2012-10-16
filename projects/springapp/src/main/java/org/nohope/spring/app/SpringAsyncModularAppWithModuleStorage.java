@@ -22,6 +22,7 @@ public class SpringAsyncModularAppWithModuleStorage<M> extends SpringAsyncModula
     /**
      * @return Map of descriptors of all the available modules
      */
+    @Nonnull
     public Map<String, ModuleDescriptor<M>> getModules() {
         return modules;
     }
@@ -62,8 +63,6 @@ public class SpringAsyncModularAppWithModuleStorage<M> extends SpringAsyncModula
         throw new IllegalArgumentException("No module '"+moduleName+"' with given type "+clazz.getCanonicalName());
     }
 
-
-
     protected SpringAsyncModularAppWithModuleStorage(@Nonnull final Class<? extends M> targetModuleClass, @Nullable final String appName, @Nullable final String appMetaInfNamespace, @Nullable final String moduleMetaInfNamespace) {
         super(targetModuleClass, appName, appMetaInfNamespace, moduleMetaInfNamespace);
     }
@@ -74,10 +73,10 @@ public class SpringAsyncModularAppWithModuleStorage<M> extends SpringAsyncModula
 
     @Override
     @OverridingMethodsMustInvokeSuper
-    protected void onModuleCreated(final M module,
-                                   final ConfigurableApplicationContext ctx,
-                                   final Properties properties,
-                                   final String name) {
+    protected void onModuleCreated(@Nonnull final M module,
+                                   @Nonnull final ConfigurableApplicationContext ctx,
+                                   @Nonnull final Properties properties,
+                                   @Nonnull final String name) {
         modules.put(name, new ModuleDescriptor<>(name, module, properties));
     }
 }

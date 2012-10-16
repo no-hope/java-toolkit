@@ -17,10 +17,8 @@ import javax.annotation.Nullable;
 import java.io.File;
 import java.util.Map;
 import java.util.Properties;
-import java.util.concurrent.atomic.AtomicReference;
 
-import static org.nohope.spring.SpringUtils.ensureCreate;
-import static org.nohope.spring.SpringUtils.instantiate;
+import static org.nohope.spring.SpringUtils.*;
 
 /**
  * <b>Technical background</b>
@@ -76,11 +74,11 @@ public abstract class SpringAsyncModularApp<M> extends AsyncApp {
 
     private final ResourceFinder finder = new ResourceFinder(META_INF);
 
-    private final AtomicReference<ConfigurableApplicationContext> contextReference = new AtomicReference<>();
     private final Class<? extends M> targetModuleClass;
     private final String appMetaInfNamespace;
     private final String moduleMetaInfNamespace;
     private final String appName;
+    private final ConfigurableApplicationContext ctx;
 
     /**
      * {@link SpringAsyncModularApp} constructor.
@@ -111,6 +109,12 @@ public abstract class SpringAsyncModularApp<M> extends AsyncApp {
                 appName == null
                         ? lowercaseClassName(getClass())
                         : appName;
+
+        ctx = overrideRule(null, this.appMetaInfNamespace, this.appName);
+        if (ctx == null) {
+            throw new IllegalStateException("Application context not found");
+        }
+        setProperties(ctx, this);
     }
 
     /**
@@ -119,7 +123,7 @@ public abstract class SpringAsyncModularApp<M> extends AsyncApp {
      *
      * @param targetModuleClass module type
      */
-    protected SpringAsyncModularApp(final Class<? extends M> targetModuleClass) {
+    protected SpringAsyncModularApp(@Nonnull final Class<? extends M> targetModuleClass) {
         this(targetModuleClass, null, null, null);
     }
 
@@ -128,9 +132,6 @@ public abstract class SpringAsyncModularApp<M> extends AsyncApp {
      */
     @Override
     protected final void onStart() throws Exception {
-        final ConfigurableApplicationContext ctx = overrideRule(null, appMetaInfNamespace, appName);
-        contextReference.set(ctx);
-
         final Map<String, Properties> properties = finder.mapAvailableProperties(moduleMetaInfNamespace);
         for (final Map.Entry<String, Properties> e : properties.entrySet()) {
             final String moduleFileName = e.getKey();
@@ -174,7 +175,6 @@ public abstract class SpringAsyncModularApp<M> extends AsyncApp {
                     moduleMetaInfNamespace, moduleName);
 
             final Class<? extends M> finalClass = moduleClazz.asSubclass(targetModuleClass);
-
             onModuleDiscovered(finalClass, moduleContext, moduleProperties, moduleName);
 
             final M module = instantiate(moduleContext, finalClass);
@@ -203,10 +203,10 @@ public abstract class SpringAsyncModularApp<M> extends AsyncApp {
      * @param properties module descriptor
      * @param name       module name
      */
-    protected void onModuleDiscovered(final Class<? extends M> clazz,
-                                      final ConfigurableApplicationContext ctx,
-                                      final Properties properties,
-                                      final String name) {
+    protected void onModuleDiscovered(@Nonnull final Class<? extends M> clazz,
+                                      @Nonnull final ConfigurableApplicationContext ctx,
+                                      @Nonnull final Properties properties,
+                                      @Nonnull final String name) {
     }
 
     /**
@@ -218,10 +218,10 @@ public abstract class SpringAsyncModularApp<M> extends AsyncApp {
      * @param properties module descriptor
      * @param name       module name
      */
-    void onModuleCreated(final M module,
-                         final ConfigurableApplicationContext ctx,
-                         final Properties properties,
-                         final String name) {
+    void onModuleCreated(@Nonnull final M module,
+                         @Nonnull final ConfigurableApplicationContext ctx,
+                         @Nonnull final Properties properties,
+                         @Nonnull final String name) {
     }
 
     /**
@@ -229,40 +229,40 @@ public abstract class SpringAsyncModularApp<M> extends AsyncApp {
      *
      * @param ctx final app context
      */
-    protected void onModuleDiscoveryFinished(final ConfigurableApplicationContext ctx) throws Exception {
+    protected void onModuleDiscoveryFinished(@Nonnull final ConfigurableApplicationContext ctx) throws Exception {
     }
 
+    @Nonnull
     final Class<? extends M> getTargetModuleClass() {
         return targetModuleClass;
     }
 
+    @Nonnull
     final String getAppMetaInfNamespace() {
         return appMetaInfNamespace;
     }
 
+    @Nonnull
     final String getModuleMetaInfNamespace() {
         return moduleMetaInfNamespace;
     }
 
+    @Nonnull
     protected final String getAppName() {
         return appName;
     }
 
+    @Nonnull
     private String getPackage() {
         return getPackage(getClass());
     }
 
     /**
      * @return context of this application
-     * @throws IllegalStateException if {@link #start()} wasn't called yet
      */
+    @Nonnull
     final ConfigurableApplicationContext getAppContext() {
-        final ConfigurableApplicationContext ctx = contextReference.get();
-        if (ctx != null) {
-            return ctx;
-        }
-
-        throw new IllegalStateException("Unable to find application context. App not started?");
+        return ctx;
     }
 
     /**
@@ -272,7 +272,8 @@ public abstract class SpringAsyncModularApp<M> extends AsyncApp {
      * @param <T> bean type
      * @return created bean
      */
-    protected <T> T getOrInstantiate(final Class<? extends T> clazz) {
+    @Nonnull
+    protected <T> T getOrInstantiate(@Nonnull final Class<? extends T> clazz) {
         try {
             return getAppContext().getBean(clazz);
         } catch (final BeansException e) {
@@ -280,41 +281,47 @@ public abstract class SpringAsyncModularApp<M> extends AsyncApp {
         }
     }
 
-    protected <T> T get(final String beanId, final Class<T> clazz) {
+    @Nonnull
+    protected <T> T get(@Nonnull final String beanId, @Nonnull final Class<T> clazz) {
         return getAppContext().getBean(beanId, clazz);
     }
 
-    protected <T> T get(final String beanId, final TypeReference<T> reference) {
+    protected <T> T get(@Nonnull final String beanId, @Nonnull final TypeReference<T> reference) {
         return get(beanId, reference.getTypeClass());
     }
 
-    protected <T> T get(final Class<T> clazz) {
+    @Nonnull
+    protected <T> T get(@Nonnull final Class<T> clazz) {
         return getAppContext().getBean(clazz);
     }
 
-    protected <T> T get(final TypeReference<T> reference) {
+    @Nonnull
+    protected <T> T get(@Nonnull final TypeReference<T> reference) {
         return get(reference.getTypeClass());
     }
 
+    @Nonnull
     protected <T> T get(@Nonnull final BeanDefinition<T> definition) {
         return get(definition.getName(), definition.getBeanClass());
     }
 
-    protected <T> T registerSingleton(final String name, final T obj) {
+    @Nonnull
+    protected <T> T registerSingleton(@Nonnull final String name, @Nonnull final T obj) {
         registerSingleton(getAppContext(), name, obj);
         return obj;
     }
 
-    protected static <T> T registerSingleton(final ConfigurableApplicationContext ctx,
-                                             final String name,
-                                             final T obj) {
+    @Nonnull
+    protected static <T> T registerSingleton(@Nonnull final ConfigurableApplicationContext ctx,
+                                             @Nonnull final String name,
+                                             @Nonnull final T obj) {
         return SpringUtils.registerSingleton(ctx, name, obj);
     }
 
     @Nullable
     private static ConfigurableApplicationContext overrideRule(@Nullable final ConfigurableApplicationContext ctx,
-                                                               final String namespace,
-                                                               final String name) {
+                                                               @Nonnull final String namespace,
+                                                               @Nonnull final String name) {
         final String parentPath = concat(META_INF, namespace, name + DEFAULT_CONTEXT_POSTFIX);
         final String childPath = concat(namespace, name + CONTEXT_POSTFIX);
 
@@ -345,11 +352,12 @@ public abstract class SpringAsyncModularApp<M> extends AsyncApp {
         return file.getPath();
     }
 
-    private static String getPackage(final Class<?> clazz) {
+    private static String getPackage(@Nonnull final Class<?> clazz) {
         return toValidPath(clazz.getPackage().getName());
     }
 
-    private static String lowercaseClassName(final Class<?> clazz) {
+    @Nonnull
+    private static String lowercaseClassName(@Nonnull final Class<?> clazz) {
         if (clazz.isAnonymousClass()) {
             return lowercaseClassName(clazz.getEnclosingClass());
         }
@@ -357,15 +365,18 @@ public abstract class SpringAsyncModularApp<M> extends AsyncApp {
         return str.substring(0, 1).toLowerCase() + str.substring(1);
     }
 
-    private static String toValidPath(final String str) {
+    @Nonnull
+    private static String toValidPath(@Nonnull final String str) {
         return str.endsWith("/") ? str : (str + '/');
     }
 
-    private static boolean isResourceExists(final String path) {
+    private static boolean isResourceExists(@Nonnull final String path) {
         return new ClassPathResource(path).exists();
     }
 
-    protected static <T> T getOrInstantiate(final ApplicationContext ctx, final Class<? extends T> clazz) {
+    @Nonnull
+    protected static <T> T getOrInstantiate(@Nonnull final ApplicationContext ctx,
+                                            @Nonnull final Class<? extends T> clazz) {
         return SpringUtils.getOrInstantiate(ctx, clazz);
     }
 }

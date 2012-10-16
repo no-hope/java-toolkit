@@ -3,6 +3,7 @@ package org.nohope.spring;
 import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.annotation.AutowiredAnnotationBeanPostProcessor;
 import org.springframework.beans.factory.config.AutowireCapableBeanFactory;
+import org.springframework.beans.factory.config.ConfigurableListableBeanFactory;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.context.annotation.CommonAnnotationBeanPostProcessor;
@@ -43,30 +44,41 @@ public final class SpringUtils {
         return propagateAnnotationProcessing(ctx);
     }
 
+    @Nonnull
     public static ConfigurableApplicationContext propagateAnnotationProcessing(
-            final ConfigurableApplicationContext ctx) {
-        final CommonAnnotationBeanPostProcessor beanPostProcessor = new CommonAnnotationBeanPostProcessor();
-        beanPostProcessor.setBeanFactory(ctx.getBeanFactory());
-        ctx.getBeanFactory().addBeanPostProcessor(beanPostProcessor);
-        ctx.getBeanFactory().addBeanPostProcessor(new AutowiredAnnotationBeanPostProcessor());
+            @Nonnull final ConfigurableApplicationContext ctx) {
+        final ConfigurableListableBeanFactory factory = ctx.getBeanFactory();
+        {
+            final CommonAnnotationBeanPostProcessor processor = new CommonAnnotationBeanPostProcessor();
+            processor.setBeanFactory(factory);
+            factory.addBeanPostProcessor(processor);
+        }
+        {
+            final AutowiredAnnotationBeanPostProcessor processor = new AutowiredAnnotationBeanPostProcessor();
+            processor.setBeanFactory(factory);
+            factory.addBeanPostProcessor(processor);
+        }
         return ctx;
     }
 
-    public static <T> T registerSingleton(final ConfigurableApplicationContext ctx,
-                                          final String name,
-                                          final T obj) {
+    @Nonnull
+    public static <T> T registerSingleton(@Nonnull final ConfigurableApplicationContext ctx,
+                                          @Nonnull final String name,
+                                          @Nonnull final T obj) {
         ctx.getBeanFactory().registerSingleton(name, obj);
         return obj;
     }
 
-    public static <T> T registerSingleton(final ConfigurableApplicationContext ctx, @Nonnull final T obj) {
+    @Nonnull
+    public static <T> T registerSingleton(@Nonnull final ConfigurableApplicationContext ctx,
+                                          @Nonnull final T obj) {
         ctx.getBeanFactory().registerSingleton(obj.getClass().getCanonicalName(), obj);
         return obj;
     }
 
     @SuppressWarnings("unchecked")
-    public static <T> T instantiate(final ApplicationContext ctx,
-                                    final Class<? extends T> clazz) {
+    public static <T> T instantiate(@Nonnull final ApplicationContext ctx,
+                                    @Nonnull final Class<? extends T> clazz) {
         final AutowireCapableBeanFactory factory = ctx.getAutowireCapableBeanFactory();
         return (T) factory.createBean(
                 clazz,
@@ -75,8 +87,19 @@ public final class SpringUtils {
         );
     }
 
-    public static <T> T getOrInstantiate(final ApplicationContext ctx,
-                                         final Class<? extends T> clazz) {
+    public static void setProperties(@Nonnull final ApplicationContext ctx,
+                                     @Nonnull final Object bean) {
+        final AutowireCapableBeanFactory factory = ctx.getAutowireCapableBeanFactory();
+        factory.autowireBeanProperties(
+                bean,
+                AutowireCapableBeanFactory.AUTOWIRE_NO,
+                true
+        );
+    }
+
+    @Nonnull
+    public static <T> T getOrInstantiate(@Nonnull final ApplicationContext ctx,
+                                         @Nonnull final Class<? extends T> clazz) {
         try {
             return ctx.getBean(clazz);
         } catch (final BeansException e) {
