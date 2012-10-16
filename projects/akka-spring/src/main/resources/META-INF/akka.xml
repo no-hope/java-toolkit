@@ -1,0 +1,86 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans
+         http://www.springframework.org/schema/beans/spring-beans-3.0.xsd">
+
+    <bean id="akkaConfigTemplateString"
+          class="java.lang.String"
+          factory-method="format">
+        <constructor-arg>
+            <value><![CDATA[
+                akka {
+                    loglevel = DEBUG
+                    actor {
+                        provider = "akka.remote.RemoteActorRefProvider"
+                        debug {
+                              receive = on
+                              lifecycle = on
+                              autoreceive = on
+                              fsm = on
+                              event-stream = on
+                              log-sent-messages = on
+                              log-received-messages = on
+                        }
+                    }
+
+                    remote {
+                        netty {
+                            hostname = "%s"
+                            port = %d
+                        }
+                        transport = "akka.remote.netty.NettyRemoteTransport"
+                        log-sent-messages = on
+                        log-received-messages = on
+                        log-remote-lifecycle-events = on
+                    }
+
+                    event-handlers = ["akka.event.slf4j.Slf4jEventHandler"]
+
+                    default-dispatcher {
+                        fork-join-executor {
+                            parallelism-min = 16
+                        }
+                    }
+
+                    # for slow pc
+                    event-handler-startup-timeout = 20s
+                }
+            ]]></value>
+        </constructor-arg>
+        <constructor-arg>
+            <!--suppress InjectionValueTypeInspection -->
+            <list>
+                <bean factory-bean="localActorSystemAddress"
+                      factory-method="getHostString" />
+                <!--suppress SpringFactoryMethodInspection -->
+                <bean factory-bean="localActorSystemAddress"
+                      factory-method="getPort" />
+            </list>
+        </constructor-arg>
+    </bean>
+
+    <bean id="localActorSystemConfig"
+          class="com.typesafe.config.ConfigFactory"
+          factory-method="parseString"
+          scope="singleton">
+        <constructor-arg ref="akkaConfigTemplateString" />
+    </bean>
+
+    <bean id="localActorSystem"
+          class="akka.actor.ActorSystem"
+          factory-method="create"
+          scope="singleton">
+        <!--suppress AbstractBeanReferencesInspection -->
+        <constructor-arg ref="localActorSystemName" />
+        <constructor-arg ref="localActorSystemConfig" />
+    </bean>
+
+    <bean id="localActorSystemName"
+          class="java.lang.String"
+          abstract="true" />
+
+    <bean id="localActorSystemAddress"
+          class="java.net.InetSocketAddress"
+          abstract="true" />
+</beans>
