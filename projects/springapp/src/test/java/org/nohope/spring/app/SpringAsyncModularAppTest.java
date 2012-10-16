@@ -4,6 +4,8 @@ import org.junit.Test;
 import org.nohope.spring.app.module.IModule;
 
 import javax.annotation.Resource;
+import javax.inject.Inject;
+import javax.inject.Named;
 import java.io.File;
 import java.util.List;
 import java.util.Properties;
@@ -16,6 +18,50 @@ import static org.junit.Assert.*;
  * @since 7/27/12 5:29 PM
  */
 public class SpringAsyncModularAppTest {
+
+    public static class BeanWithId {
+        private final String value;
+
+        @Inject
+        BeanWithId(@Named("beanWithId") final String value) {
+            this.value = value;
+        }
+    }
+
+    public static class BeanWithoutId {
+        private final String value;
+
+        @Inject
+        BeanWithoutId(@Named("beanWithoutId") final String value) {
+            this.value = value;
+        }
+    }
+
+    public static class BeanWithIdAndName {
+        private final String value;
+
+        @Inject
+        BeanWithIdAndName(@Named("beanWithIdAndName") final String value) {
+            this.value = value;
+        }
+    }
+
+    @Test
+    public void generalInjectionTest() throws Exception {
+        final AppWithContainer app = new AppWithContainer("app", "", "legalModuleDefaultContext") {
+        };
+        probe(app);
+
+        assertEquals("beanWithId", app.get("beanWithId", String.class));
+        assertEquals("beanWithoutId", app.get("beanWithoutId", String.class));
+        assertEquals("beanWithIdAndName", app.get("beanWithIdAndName", String.class));
+        assertEquals("mixedBean", app.get("beanId", String.class));
+        assertEquals("mixedBean", app.get("beanName", String.class));
+
+        assertEquals("beanWithId", app.getOrInstantiate(BeanWithId.class).value);
+        assertEquals("beanWithoutId", app.getOrInstantiate(BeanWithoutId.class).value);
+        assertEquals("beanWithIdAndName", app.getOrInstantiate(BeanWithIdAndName.class).value);
+    }
 
     @Test
     public void appIsAnonymousClass() throws Exception {

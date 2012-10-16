@@ -8,4 +8,20 @@
     <bean id="appBean" class="java.lang.String">
         <constructor-arg value="appBean"/>
     </bean>
+
+    <bean id="beanWithId" class="java.lang.String">
+        <constructor-arg value="beanWithId"/>
+    </bean>
+
+    <bean id="beanWithIdAndName" name="beanWithIdAndName" class="java.lang.String">
+        <constructor-arg value="beanWithIdAndName"/>
+    </bean>
+
+    <bean name="beanWithoutId" class="java.lang.String">
+        <constructor-arg value="beanWithoutId"/>
+    </bean>
+
+    <bean id="beanId" name="beanName" class="java.lang.String">
+        <constructor-arg value="mixedBean"/>
+    </bean>
 </beans>
