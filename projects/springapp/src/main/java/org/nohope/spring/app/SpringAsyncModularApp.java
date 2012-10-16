@@ -297,11 +297,7 @@ public abstract class SpringAsyncModularApp<M> extends AsyncApp {
     }
 
     protected <T> T get(@Nonnull final BeanDefinition<T> definition) {
-        if (definition.getClazz() == null) {
-            return get(definition.getName(), definition.getClazz());
-        }
-
-        return get(definition.getName(), definition.getReference());
+        return get(definition.getName(), definition.getBeanClass());
     }
 
     protected <T> T registerSingleton(final String name, final T obj) {
