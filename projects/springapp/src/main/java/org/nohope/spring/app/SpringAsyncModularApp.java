@@ -9,6 +9,7 @@ import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.core.io.ClassPathResource;
 import org.nohope.app.AsyncApp;
 import org.nohope.reflection.TypeReference;
+import org.nohope.spring.BeanDefinition;
 import org.nohope.spring.SpringUtils;
 
 import javax.annotation.Nonnull;
@@ -293,6 +294,14 @@ public abstract class SpringAsyncModularApp<M> extends AsyncApp {
 
     protected <T> T get(final TypeReference<T> reference) {
         return get(reference.getTypeClass());
+    }
+
+    protected <T> T get(@Nonnull final BeanDefinition<T> definition) {
+        if (definition.getClazz() == null) {
+            return get(definition.getName(), definition.getClazz());
+        }
+
+        return get(definition.getName(), definition.getReference());
     }
 
     protected <T> T registerSingleton(final String name, final T obj) {
