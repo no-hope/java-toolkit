@@ -2,8 +2,9 @@ package org.nohope.reflection;
 
 import org.junit.Test;
 
-import static junit.framework.Assert.assertEquals;
-import static junit.framework.Assert.assertNull;
+import static org.junit.Assert.*;
+import static org.nohope.reflection.IntrospectionUtils.cast;
+import static org.nohope.reflection.IntrospectionUtils.instanceOf;
 import static org.nohope.reflection.IntrospectionUtils.safeCast;
 
 /**
@@ -68,5 +69,29 @@ public class CastTest {
     public void testCastExceptionalTR2() {
         final boolean value2 = safeCast(null, trb);
         assertNull(value2);
+    }
+
+    @Test
+    public void nullHandling() {
+        assertNull(cast(null, Object.class));
+        assertFalse(instanceOf((Object) null, Object.class));
+        //noinspection RedundantCast
+        assertFalse(instanceOf((Class) null, Object.class));
+    }
+
+    @Test
+    public void instanceOfTests() {
+        assertFalse(instanceOf((Object) null, Object.class));
+        //noinspection RedundantCast
+        assertFalse(instanceOf((Class) null, Object.class));
+
+        // primitive class test
+        assertFalse(instanceOf(1, int.class));
+
+        // ordinary cast test
+        assertTrue(instanceOf(1, Integer.class));
+        assertTrue(instanceOf(1, Number.class));
+
+        assertTrue(instanceOf(Integer.class, Number.class));
     }
 }

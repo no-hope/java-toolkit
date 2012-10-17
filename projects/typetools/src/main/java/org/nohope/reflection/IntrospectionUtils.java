@@ -779,12 +779,16 @@ public final class IntrospectionUtils {
      * @param clazz type to cast to
      * @param <T> type
      * @throws ClassCastException if cast failed
-     * @return casted object
+     * @return casted object, {@code null} if {@code null} object passed
      */
+    @Nullable
     @SuppressWarnings("unchecked")
-    @Nonnull
     public static<T> T cast(@Nullable final Object obj,
                             @Nonnull final Class<T> clazz) {
+        if (obj == null) {
+            return null;
+        }
+
         if (instanceOf(obj, clazz)) {
             return (T) obj;
         }
@@ -792,7 +796,7 @@ public final class IntrospectionUtils {
         throw new ClassCastException("Unable to cast " + obj + " to " + clazz);
     }
 
-    @Nonnull
+    @Nullable
     public static<T> T cast(@Nullable final Object obj,
                             @Nonnull final TypeReference<T> ref) {
         return cast(obj, ref.getTypeClass());
@@ -841,20 +845,36 @@ public final class IntrospectionUtils {
 
     /**
      * Check if lower object is instance of higher class.
+     * <p />
+     * This test works the same way as {@code instanceof} keyword.
+     * <pre>
+     *     (a instanceof SomeObject) == instanceOf(a, SomeObject.class)
+     * </pre>
      *
-     * @param lower object
-     * @param higher class
-     * @return {@code true} if lower object is instance of higher object class.
-     *         {@code false} if one of arguments is {@code null}
+     * <b>NOTE</b>: You can pass pass primitive type as class, but eventually
+     * you'll get {@code false} because of autoboxing. For example
+     * <pre>
+     *     instanceOf(1, int.class) == false
+     * </pre>
+     *
+     * @param object object
+     * @param clazz class
+     * @return {@code true} if object is instance of given class.
+     *         {@code false} if lower object is {@code null}.
      */
-    public static boolean instanceOf(@Nullable final Object lower,
-                                     @Nonnull final Class<?> higher) {
-        return lower != null && higher.isAssignableFrom(lower.getClass());
+    public static boolean instanceOf(@Nullable final Object object,
+                                     @Nonnull final Class<?> clazz) {
+        return object != null && clazz.isAssignableFrom(object.getClass());
     }
 
-    public static boolean instanceOf(@Nonnull final Class<?> lower,
+    /**
+     * @param lower class suppose to be lower in inheritance hierarchy
+     * @param higher class suppose to be higher in inheritance hierarchy
+     * @see #instanceOf(Object, Class)
+     */
+    public static boolean instanceOf(@Nullable final Class<?> lower,
                                      @Nonnull final Class<?> higher) {
-        return higher.isAssignableFrom(lower);
+        return lower != null && higher.isAssignableFrom(lower);
     }
 
     /**
