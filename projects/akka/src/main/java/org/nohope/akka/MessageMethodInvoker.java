@@ -75,6 +75,7 @@ public final class MessageMethodInvoker {
                 ? getClasses((Object[]) message)
                 : getClasses(message)
                 ;
+
         final Method method = getOrCache(IntrospectionUtils.getClass(target), classes);
         try {
             if (expandNeeded) {

@@ -1,12 +1,16 @@
 package org.nohope.akka;
 
 import akka.actor.ActorRef;
+import akka.actor.InvalidMessageException;
 import akka.util.Timeout;
 import scala.concurrent.Await;
 import scala.concurrent.Future;
 import scala.concurrent.util.Duration;
 
+import javax.annotation.Nonnull;
+
 import static akka.pattern.Patterns.ask;
+import static org.nohope.reflection.IntrospectionUtils.cast;
 
 /**
  * Date: 27.07.12
@@ -16,24 +20,45 @@ public final class Ask {
     private Ask() {
     }
 
-    public static <T> T waitReply(final ActorRef ref, final Object message, final long timeout) throws Exception {
+    @Nonnull
+    public static <T> T waitReply(@Nonnull final Class<T> clazz,
+                                  @Nonnull final ActorRef ref,
+                                  @Nonnull final Object message,
+                                  final long timeout) {
         try {
-            @SuppressWarnings("unchecked")
-            final Future<T> childResponse =
-                    (Future<T>) ask(ref, message, Timeout.longToTimeout(timeout));
+            final Future<Object> childResponse =
+                    ask(ref, message, Timeout.longToTimeout(timeout));
 
-            return Await.result(childResponse, Duration.Inf());
-        } catch (Exception e) { // just to make current stack visible
+            final Object result = Await.result(childResponse, Duration.Inf());
+            // will throw ClassCastException
+            final T reply = cast(result, clazz);
+
+            // maybe this is unnecessary check because
+            // akka not allows to send null messages
+            // (at least default dispatcher disallows)
+            if (reply != null) {
+                return reply;
+            }
+
+            throw new InvalidMessageException(
+                    ref + " replied with unexpected null value");
+        } catch (final Exception e) {
+            // just to make current stack visible
             throw new IllegalStateException(e);
         }
     }
 
-    public static <T> T waitReply(final ActorRef ref, final Object message) throws Exception {
+    @Nonnull
+    public static <T> T waitReply(@Nonnull final Class<T> clazz,
+                                  @Nonnull final ActorRef ref,
+                                  @Nonnull final Object message) {
         // TODO: is it good idea to hardcode timeout?
-        return waitReply(ref, message, 5000);
+        return waitReply(clazz, ref, message, 5000);
     }
 
-    public static boolean waitAckReply(final ActorRef ref, final Object message) throws Exception {
-        return Ack.ACK.equals(waitReply(ref, message));
+    @Nonnull
+    public static Object waitReply(@Nonnull final ActorRef ref,
+                                   @Nonnull final Object message) {
+        return waitReply(Object.class, ref, message);
     }
 }
