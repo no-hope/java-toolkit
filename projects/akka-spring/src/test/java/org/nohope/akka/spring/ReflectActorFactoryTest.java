@@ -33,9 +33,9 @@ public class ReflectActorFactoryTest {
         final ActorSystem system = ActorSystem.create();
         final ActorRef ref = system.actorOf(new Props(beanFactory));
 
-        assertEquals(1, waitReply(ref, PARAM1));
-        assertEquals("test1", waitReply(ref, PARAM2));
-        assertEquals("test2", waitReply(ref, PARAM3));
+        assertEquals(1, (int) waitReply(Integer.class, ref, PARAM1));
+        assertEquals("test1", waitReply(String.class, ref, PARAM2));
+        assertEquals("test2", waitReply(String.class, ref, PARAM3));
 
         assertEquals(ctx, beanFactory.getContext());
         final Map<String,Object> namedBeans = beanFactory.getNamedBeans();
