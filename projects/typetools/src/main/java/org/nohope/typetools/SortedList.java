@@ -1,5 +1,6 @@
 package org.nohope.typetools;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Comparator;
 
@@ -14,10 +15,10 @@ import java.util.Comparator;
  * they were added to this list. Add only objects that the comparator can
  * compare.</p>
  */
-public class SortedList<T> extends ArrayList<T> {
+public class SortedList<T extends Serializable> extends ArrayList<T> {
     private static final long serialVersionUID = 1L;
 
-    private final Comparator<T> comparator;
+    private final SerializableComparator<T> comparator;
 
     /**
      * <p>Constructs a new sorted list. The objects in the list will be sorted
@@ -25,7 +26,7 @@ public class SortedList<T> extends ArrayList<T> {
      *
      * @param c a comparator
      */
-    public SortedList(final Comparator<T> c) {
+    public SortedList(final SerializableComparator<T> c) {
         this.comparator = c;
     }
 
@@ -60,5 +61,8 @@ public class SortedList<T> extends ArrayList<T> {
         super.add(i,o);
         return true;
     }
+
+    public interface SerializableComparator<T extends Serializable>
+            extends Comparator<T>, Serializable {}
 }
 
