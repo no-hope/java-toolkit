@@ -111,9 +111,6 @@ public abstract class SpringAsyncModularApp<M> extends AsyncApp {
                         : appName;
 
         ctx = overrideRule(null, this.appMetaInfNamespace, this.appName);
-        if (ctx == null) {
-            throw new IllegalStateException("Application context not found");
-        }
         setProperties(ctx, this);
     }
 
@@ -318,7 +315,8 @@ public abstract class SpringAsyncModularApp<M> extends AsyncApp {
         return SpringUtils.registerSingleton(ctx, name, obj);
     }
 
-    @Nullable
+    @Nonnull
+    @SuppressWarnings("ConstantConditions")
     private static ConfigurableApplicationContext overrideRule(@Nullable final ConfigurableApplicationContext ctx,
                                                                @Nonnull final String namespace,
                                                                @Nonnull final String name) {
