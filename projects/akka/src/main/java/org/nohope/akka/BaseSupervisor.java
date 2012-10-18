@@ -25,7 +25,12 @@ import static org.nohope.akka.SupervisorRequests.StartupReply;
 public abstract class BaseSupervisor extends ReflectiveActor {
     private final Map<NamedWorkerMetadata, ActorRef> startingActors = new HashMap<>();
 
+    protected BaseSupervisor(final boolean expandObjectArrays) {
+        super(expandObjectArrays);
+    }
+
     protected BaseSupervisor() {
+        super();
     }
 
     protected abstract Props newInputProps(final NamedWorkerMetadata inputClassId);
