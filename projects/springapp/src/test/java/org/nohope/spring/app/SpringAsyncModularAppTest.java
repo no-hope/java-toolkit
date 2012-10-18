@@ -1,6 +1,8 @@
 package org.nohope.spring.app;
 
 import org.junit.Test;
+import org.springframework.context.ConfigurableApplicationContext;
+import org.nohope.spring.SpringUtils;
 import org.nohope.spring.app.module.IModule;
 
 import javax.annotation.Resource;
@@ -48,52 +50,36 @@ public class SpringAsyncModularAppTest {
 
     @Test
     public void generalInjectionTest() throws Exception {
-        final AppWithContainer app = new AppWithContainer("app", "", "legalModuleDefaultContext") {
-        };
-        probe(app);
+        final AppWithContainer app = probe("app", "", "legalModuleDefaultContext");
 
-        assertEquals("beanWithId", app.get("beanWithId", String.class));
-        assertEquals("beanWithoutId", app.get("beanWithoutId", String.class));
-        assertEquals("beanWithIdAndName", app.get("beanWithIdAndName", String.class));
-        assertEquals("mixedBean", app.get("beanId", String.class));
-        assertEquals("mixedBean", app.get("beanName", String.class));
+        final ConfigurableApplicationContext context = app.getAppContext();
+        assertEquals("beanWithId", context.getBean("beanWithId", String.class));
+        assertEquals("beanWithoutId", context.getBean("beanWithoutId", String.class));
+        assertEquals("beanWithIdAndName", context.getBean("beanWithIdAndName", String.class));
+        assertEquals("mixedBean", context.getBean("beanId", String.class));
+        assertEquals("mixedBean", context.getBean("beanName", String.class));
 
-        assertEquals("beanWithId", app.getOrInstantiate(BeanWithId.class).value);
-        assertEquals("beanWithoutId", app.getOrInstantiate(BeanWithoutId.class).value);
-        assertEquals("beanWithIdAndName", app.getOrInstantiate(BeanWithIdAndName.class).value);
+        assertEquals("beanWithId", SpringUtils.instantiate(context, BeanWithId.class).value);
+        assertEquals("beanWithoutId", SpringUtils.instantiate(context, BeanWithoutId.class).value);
+        assertEquals("beanWithIdAndName", SpringUtils.instantiate(context, BeanWithIdAndName.class).value);
     }
 
     @Test
     public void settersInvocation() throws Exception {
-        final AppWithSetters app = new AppWithSetters("app", "", "legalModuleDefaultContext") {
-        };
-        probe(app);
-
+        final AppWithSetters app = probe(AppWithSetters.class, "app", "", "legalModuleDefaultContext");
         assertEquals("appBean", app.getAppBean());
     }
 
     @Test
-    public void appIsAnonymousClass() throws Exception {
-        final AppWithContainer app = new AppWithContainer(null, "", "/") {
-        };
-        assertEquals("springAsyncModularAppTest", app.getAppName());
-        assertEquals("/", app.getAppMetaInfNamespace());
-        assertEquals("/", app.getModuleMetaInfNamespace());
-    }
-
-    @Test
     public void appDefaultContextOverriding() throws Exception {
-        final AppWithContainer app = new AppWithContainer("appo", "appContextOverriding");
-        probe(app);
-
+        final AppWithContainer app = probe("appo", "appContextOverriding", "appContextOverriding");
         assertNotNull(app.getContext());
         assertEquals("appBeanOverridden", app.getContext().getBean("appBean"));
     }
 
     @Test
     public void moduleDefaultContextOverriding() throws Exception {
-        final AppWithContainer app = new AppWithContainer("app", "", "moduleContextOverriding");
-        probe(app);
+        final AppWithContainer app = probe("app", "", "moduleContextOverriding");
 
         assertEquals(1, app.getModules().size());
         final InjectModuleWithContextValue m = getModule(app, 0);
@@ -104,7 +90,9 @@ public class SpringAsyncModularAppTest {
 
     @Test
     public void searchPathsDetermining() throws Exception {
-        final AppWithContainer app = new AppWithContainer();
+        final SpringAsyncModularApp<IModule, AppWithContainer> app =
+                new SpringAsyncModularApp<>(IModule.class, AppWithContainer.class);
+
         assertEquals("appWithContainer", app.getAppName());
         assertEquals("org.nohope.spring.app/", app.getAppMetaInfNamespace());
         assertEquals("org.nohope.spring.app/module/", app.getModuleMetaInfNamespace());
@@ -113,49 +101,39 @@ public class SpringAsyncModularAppTest {
 
     @Test
     public void concatTest() {
-        assertEquals("test1" + File.separator + "test2" + File.separator +"test3" , AppWithContainer.concat("test1", "test2/", "/test3"));
+        assertEquals("test1" + File.separator + "test2" + File.separator +"test3" ,
+                SpringAsyncModularApp.concat("test1", "test2/", "/test3"));
     }
 
     @Test
     public void illegalModuleDescriptor() throws Exception {
-        final AppWithContainer app = new AppWithContainer("app", "", "illegalDescriptor") {
-        };
-        probe(app);
+        final AppWithContainer app = probe("app", "", "illegalDescriptor");
         assertEquals(0, app.getModules().size());
     }
 
     @Test
     public void nonexistentModuleClass() throws Exception {
-        final AppWithContainer app = new AppWithContainer("app", "", "nonexistentClass") {
-        };
-        probe(app);
-
+        final AppWithContainer app = probe("app", "", "nonexistentClass");
         assertEquals(0, app.getModules().size());
     }
 
     @Test
     public void notAModuleClass() throws Exception {
-        final AppWithContainer app = new AppWithContainer("app", "", "notAModule") {
-        };
-        probe(app);
-
+        final AppWithContainer app = probe("app", "", "notAModule");
         assertEquals(0, app.getModules().size());
     }
 
     /* all beans in contexts should be constructed ONCE! */
     @Test
     public void multipleConstructing() throws Exception {
-        final AppWithContainer app = new AppWithContainer("app", "once", "once/module");
-        probe(app);
+        final AppWithContainer app = probe("app", "once", "once/module");
 
-        assertEquals(2, app.get(OnceConstructable.class).getId());
+        assertEquals(2, app.getContext().getBean(OnceConstructable.class).getId());
     }
 
     @Test
     public void legalModuleDefaultContext() throws Exception {
-        final AppWithContainer app = new AppWithContainer("app", "", "legalModuleDefaultContext") {
-        };
-        probe(app);
+        final AppWithContainer app = probe("app", "", "legalModuleDefaultContext");
 
         assertEquals(1, app.getModules().size());
         final InjectModuleWithContextValue m = getModule(app, 0);
@@ -181,14 +159,11 @@ public class SpringAsyncModularAppTest {
 
     @Test
     public void utilsSupport() throws InterruptedException {
-        final AppWithContainer app = new AppWithContainer(
+        final AppWithContainer app =  probe("utils",
                 "utils",
-                "utils",
-                "legalModuleDefaultContext") {
-        };
-        probe(app);
-        assertNotNull(app.get("testList", List.class));
-        final UtilsBean bean = app.getOrInstantiate(UtilsBean.class);
+                "legalModuleDefaultContext");
+        assertNotNull(app.getContext().getBean("testList", List.class));
+        final UtilsBean bean = SpringUtils.getOrInstantiate(app.getContext(), UtilsBean.class);
 
         final List<String> list = bean.getList();
         assertNotNull(list);
@@ -211,7 +186,19 @@ public class SpringAsyncModularAppTest {
         }
     }
 
-    private static void probe(final SpringAsyncModularApp<?> app) throws InterruptedException {
+    private static<T extends Handler<IModule>> T probe(final Class<T> clazz,
+                                                               final String appName,
+                                                               final String appMetaInfNamespace,
+                                                               final String metaInfNamespace)
+            throws InterruptedException {
+        final SpringAsyncModularApp<IModule, T> app = new SpringAsyncModularApp<>(
+                IModule.class,
+                clazz,
+                appName,
+                appMetaInfNamespace,
+                metaInfNamespace
+        );
+
         final AtomicReference<Throwable> ref = new AtomicReference<>();
         final Thread t = new Thread(new Runnable() {
             @Override
@@ -232,5 +219,15 @@ public class SpringAsyncModularAppTest {
         if (throwable != null) {
             throw new IllegalStateException(throwable);
         }
+
+        //noinspection unchecked
+        return app.getHandler();
+    }
+
+    private static AppWithContainer probe(final String appName,
+                                          final String appMetaInfNamespace,
+                                          final String metaInfNamespace)
+            throws InterruptedException {
+        return probe(AppWithContainer.class, appName, appMetaInfNamespace, metaInfNamespace);
     }
 }

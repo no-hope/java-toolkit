@@ -12,24 +12,7 @@ import java.util.Properties;
  * @author <a href="mailto:ketoth.xupack@gmail.com">ketoth xupack</a>
  * @since 7/27/12 5:33 PM
  */
-class AppWithContainer extends SpringAsyncModularApp<IModule> {
-    private ConfigurableApplicationContext context = null;
-
-    AppWithContainer(final String appName,
-                     final String metaInfNamespace) {
-        super(IModule.class, appName, metaInfNamespace, metaInfNamespace);
-    }
-
-    AppWithContainer() {
-        super(IModule.class);
-    }
-
-    AppWithContainer(final String appName,
-                     final String appMetaInfNamespace,
-                     final String metaInfNamespace) {
-        super(IModule.class, appName, appMetaInfNamespace, metaInfNamespace);
-    }
-
+class AppWithContainer extends Handler<IModule> {
     private final List<IModule> modules = new ArrayList<>();
 
     @Override
@@ -50,12 +33,6 @@ class AppWithContainer extends SpringAsyncModularApp<IModule> {
         ctx.getBeanFactory().registerSingleton("name", name);
         ctx.getBeanFactory().registerSingleton("properties", properties);
         ctx.getBeanFactory().registerSingleton("ctx", ctx);
-    }
-
-    @Override
-    protected void onModuleDiscoveryFinished(@Nonnull final ConfigurableApplicationContext ctx) throws Exception {
-        super.onModuleDiscoveryFinished(ctx);
-        context = ctx;
     }
 
     public ConfigurableApplicationContext getContext() {

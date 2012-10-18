@@ -10,12 +10,6 @@ import javax.inject.Named;
 public class AppWithSetters extends AppWithContainer {
     private String appBean;
 
-    AppWithSetters(final String appName,
-                   final String appMetaInfNamespace,
-                   final String metaInfNamespace) {
-        super(appName, appMetaInfNamespace, metaInfNamespace);
-    }
-
     public String getAppBean() {
         return appBean;
     }
