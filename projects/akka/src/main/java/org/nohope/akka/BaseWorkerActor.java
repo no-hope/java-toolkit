@@ -20,6 +20,10 @@ public abstract class BaseWorkerActor extends MessageTypeMatchingActor {
         this(workerMetadata, false);
     }
 
+    public NamedWorkerMetadata getWorkerMetadata() {
+        return workerMetadata;
+    }
+
     @OnReceive
     private StartupReply processStartupRequest(final StartupRequest request) {
         log.debug("Sending startup notification to supervisor");
