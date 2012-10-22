@@ -1,8 +1,5 @@
 package org.nohope.akka;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
-import com.fasterxml.jackson.annotation.JsonTypeInfo;
-
 import java.io.Serializable;
 
 /**
@@ -42,9 +39,6 @@ public class NamedWorkerMetadata implements Serializable {
         this.data = data;
     }
 
-    // without it jackson fails to deserialize
-    @JsonProperty
-    @JsonTypeInfo(use = JsonTypeInfo.Id.CLASS)
     public Serializable getData() {
         return data;
     }

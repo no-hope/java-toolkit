@@ -8,6 +8,7 @@ import scala.concurrent.Future;
 import scala.concurrent.util.Duration;
 
 import javax.annotation.Nonnull;
+import java.io.Serializable;
 
 import static akka.pattern.Patterns.ask;
 import static org.nohope.reflection.IntrospectionUtils.cast;
@@ -21,9 +22,9 @@ public final class Ask {
     }
 
     @Nonnull
-    public static <T> T waitReply(@Nonnull final Class<T> clazz,
+    public static <T extends Serializable> T waitReply(@Nonnull final Class<T> clazz,
                                   @Nonnull final ActorRef ref,
-                                  @Nonnull final Object message,
+                                  @Nonnull final Serializable message,
                                   final long timeout) {
         try {
             final Future<Object> childResponse =
@@ -49,16 +50,16 @@ public final class Ask {
     }
 
     @Nonnull
-    public static <T> T waitReply(@Nonnull final Class<T> clazz,
+    public static <T extends Serializable> T waitReply(@Nonnull final Class<T> clazz,
                                   @Nonnull final ActorRef ref,
-                                  @Nonnull final Object message) {
+                                  @Nonnull final Serializable message) {
         // TODO: is it good idea to hardcode timeout?
         return waitReply(clazz, ref, message, 5000);
     }
 
     @Nonnull
-    public static Object waitReply(@Nonnull final ActorRef ref,
-                                   @Nonnull final Object message) {
-        return waitReply(Object.class, ref, message);
+    public static Serializable waitReply(@Nonnull final ActorRef ref,
+                                   @Nonnull final Serializable message) {
+        return waitReply(Serializable.class, ref, message);
     }
 }

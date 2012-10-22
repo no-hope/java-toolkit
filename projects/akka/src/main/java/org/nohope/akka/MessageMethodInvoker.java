@@ -114,7 +114,9 @@ public final class MessageMethodInvoker {
                         "Only one @OnReceive method expected to match ("
                         + StringUtils.join(getClassNames(parameterTypes))
                         + ") parameter types but found "
-                        + methods.size());
+                        + methods.size()
+                        + "; happened at instance of class "
+                        + targetClass.getCanonicalName());
             }
 
             final Method m = methods.iterator().next();

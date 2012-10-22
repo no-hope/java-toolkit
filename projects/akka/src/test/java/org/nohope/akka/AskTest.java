@@ -5,8 +5,6 @@ import akka.actor.Props;
 import akka.testkit.TestActorRef;
 import org.junit.Test;
 
-import java.util.Comparator;
-
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
@@ -32,7 +30,7 @@ public class AskTest {
         assertEquals(123, (int) Ask.waitReply(Integer.class, ref, 123));
 
         try {
-            Ask.waitReply(Comparator.class, ref, 123);
+            Ask.waitReply(String.class, ref, 123);
             fail();
         } catch (Exception e) {
             assertTrue(e instanceof IllegalStateException);
