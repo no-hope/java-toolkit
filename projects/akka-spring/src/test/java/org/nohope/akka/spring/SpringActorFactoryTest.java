@@ -20,13 +20,13 @@ import static org.nohope.akka.spring.Bean.Props.*;
  * @author <a href="mailto:ketoth.xupack@gmail.com">ketoth xupack</a>
  * @since 9/16/12 11:11 PM
  */
-public class ReflectActorFactoryTest {
+public class SpringActorFactoryTest {
     @Test
     public void partialInject() throws Exception {
         final GenericApplicationContext ctx = new GenericApplicationContext();
         SpringUtils.registerSingleton(ctx, 1);
 
-        final ReflectActorFactory<Bean> beanFactory = new ReflectActorFactory<>(ctx, Bean.class);
+        final SpringActorFactory<Bean> beanFactory = new SpringActorFactory<>(ctx, Bean.class);
         beanFactory.addBean("param2", "test1");
         beanFactory.addBean("param3", "test2");
 
@@ -48,7 +48,7 @@ public class ReflectActorFactoryTest {
     @Test(expected = AssertionError.class)
     public void javaSerialization() {
         final GenericApplicationContext ctx = new GenericApplicationContext();
-        final ReflectActorFactory<Bean> beanFactory = new ReflectActorFactory<>(ctx, Bean.class);
+        final SpringActorFactory<Bean> beanFactory = new SpringActorFactory<>(ctx, Bean.class);
         SerializationUtils.cloneJava(beanFactory);
     }
 }

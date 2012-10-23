@@ -43,7 +43,7 @@ import static org.nohope.spring.SpringUtils.registerSingleton;
  *     {@link akka.actor.ActorSystem ActorSystem} system;
  *
  *     {@link akka.actor.ActorRef ActorRef} ref = system.actorOf(
- *          {@link ReflectActorFactory#create() create}(ctx, MyActor.class)
+ *          {@link SpringActorFactory#create() create}(ctx, MyActor.class)
  *              .addBean("bean", new Bean()) // additional @Named inject
  *              .addBean(new OtherBean())    // additional typed inject
  *              .getProps(),
@@ -53,7 +53,7 @@ import static org.nohope.spring.SpringUtils.registerSingleton;
  * @author <a href="mailto:ketoth.xupack@gmail.com">ketoth xupack</a>
  * @since 9/16/12 11:09 PM
  */
-public final class ReflectActorFactory<T extends UntypedActor> implements UntypedActorFactory {
+public final class SpringActorFactory<T extends UntypedActor> implements UntypedActorFactory {
     private static final long serialVersionUID = 0L;
 
     private final Class<T> clazz;
@@ -61,21 +61,21 @@ public final class ReflectActorFactory<T extends UntypedActor> implements Untype
     private final transient Map<String, Object> namedBeans = new HashMap<>();
     private final transient ApplicationContext ctx;
 
-    public ReflectActorFactory(@Nonnull final ApplicationContext ctx,
-                               @Nonnull final Class<T> clazz) {
+    public SpringActorFactory(@Nonnull final ApplicationContext ctx,
+                              @Nonnull final Class<T> clazz) {
         this(ctx, clazz, null, null);
     }
 
-    public static<T extends UntypedActor> ReflectActorFactory<T> create(
+    public static<T extends UntypedActor> SpringActorFactory<T> create(
             @Nonnull final ApplicationContext ctx,
             @Nonnull final Class<T> clazz) {
-        return new ReflectActorFactory<>(ctx, clazz);
+        return new SpringActorFactory<>(ctx, clazz);
     }
 
-    public ReflectActorFactory(@Nonnull final ApplicationContext ctx,
-                               @Nonnull final Class<T> clazz,
-                               @Nullable final List<Object> objects,
-                               @Nullable final Map<String, Object> namedObjects) {
+    public SpringActorFactory(@Nonnull final ApplicationContext ctx,
+                              @Nonnull final Class<T> clazz,
+                              @Nullable final List<Object> objects,
+                              @Nullable final Map<String, Object> namedObjects) {
         this.clazz = clazz;
         this.ctx = ctx;
 
@@ -87,12 +87,12 @@ public final class ReflectActorFactory<T extends UntypedActor> implements Untype
         }
     }
 
-    public ReflectActorFactory<T> addBeans(final Object... beans) {
+    public SpringActorFactory<T> addBeans(final Object... beans) {
         this.beans.addAll(Arrays.asList(beans));
         return this;
     }
 
-    public ReflectActorFactory<T> addBean(final String name, final Object bean) {
+    public SpringActorFactory<T> addBean(final String name, final Object bean) {
         this.namedBeans.put(name, bean);
         return this;
     }
