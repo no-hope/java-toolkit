@@ -793,7 +793,7 @@ public final class IntrospectionUtils {
             return (T) obj;
         }
 
-        throw new ClassCastException("Unable to cast " + obj + " to " + clazz);
+        throw new ClassCastException("Unable to cast " + obj.getClass() + " to " + clazz);
     }
 
     @Nullable
