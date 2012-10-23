@@ -2,7 +2,7 @@ package org.nohope.typetools;
 
 import org.junit.Test;
 
-import static junit.framework.Assert.assertEquals;
+import static org.junit.Assert.assertEquals;
 
 /**
  * Date: 07.08.12

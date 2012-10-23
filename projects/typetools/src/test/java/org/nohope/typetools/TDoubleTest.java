@@ -2,8 +2,8 @@ package org.nohope.typetools;
 
 import org.junit.Test;
 
-import static junit.framework.Assert.assertEquals;
-import static junit.framework.Assert.assertNull;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNull;
 
 /**
  * Date: 07.08.12
@@ -21,6 +21,6 @@ public class TDoubleTest {
         assertNull(TDouble.toFiniteDouble(Double.NaN));
         assertNull(TDouble.toFiniteDouble(Double.POSITIVE_INFINITY));
 
-        assertEquals(88.0, TDouble.toFiniteDouble(88.0));
+        assertEquals((Double) 88.0, TDouble.toFiniteDouble(88.0));
     }
 }

@@ -7,8 +7,8 @@ import org.junit.Test;
 import java.util.HashSet;
 import java.util.Set;
 
-import static junit.framework.Assert.assertFalse;
-import static junit.framework.Assert.assertTrue;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
 
 /**
  * Date: 10/4/12

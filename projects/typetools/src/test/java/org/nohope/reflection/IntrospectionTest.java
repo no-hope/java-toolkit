@@ -1,6 +1,6 @@
 package org.nohope.reflection;
 
-import junit.framework.Assert;
+import org.junit.Assert;
 import org.junit.AfterClass;
 import org.junit.Test;
 
@@ -13,9 +13,9 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 
-import static junit.framework.Assert.assertEquals;
-import static junit.framework.Assert.assertNull;
-import static junit.framework.Assert.assertTrue;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
 import static org.easymock.EasyMock.createMock;
 import static org.easymock.EasyMock.expect;
 import static org.junit.Assert.assertFalse;
