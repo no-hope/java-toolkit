@@ -7,7 +7,7 @@ import static org.nohope.akka.SupervisorRequests.StartupRequest;
  * Date: 9/21/12
  * Time: 10:53 AM
  */
-public abstract class BaseWorkerActor extends ReflectiveActor {
+public abstract class BaseWorkerActor extends MessageTypeMatchingActor {
     protected final NamedWorkerMetadata workerMetadata;
 
     protected BaseWorkerActor(final NamedWorkerMetadata workerMetadata,

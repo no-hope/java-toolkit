@@ -18,7 +18,7 @@ import static org.junit.Assert.fail;
 @SuppressWarnings("MethodMayBeStatic")
 public class AskTest {
 
-    public static class EchoActor extends ReflectiveActor {
+    public static class EchoActor extends MessageTypeMatchingActor {
         @OnReceive
         public Integer echo(final Integer param) {
             return param;

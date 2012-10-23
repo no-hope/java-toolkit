@@ -22,7 +22,7 @@ import static org.nohope.akka.SupervisorRequests.StartupReply;
         value = "UPM_UNCALLED_PRIVATE_METHOD",
         justification = "onConcreteMessage here is invoked "
                         + "reflectively to not to check types all the time")
-public abstract class BaseSupervisor extends ReflectiveActor {
+public abstract class BaseSupervisor extends MessageTypeMatchingActor {
     private final Map<NamedWorkerMetadata, ActorRef> startingActors = new HashMap<>();
 
     protected BaseSupervisor(final boolean expandObjectArrays) {
