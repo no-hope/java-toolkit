@@ -77,6 +77,8 @@ public class JacksonProcessor implements Unmarshaller, Marshaller {
         mapper.setSerializationInclusion(NON_NULL);
         mapper.setVisibilityChecker(VisibilityChecker.Std.defaultInstance().withFieldVisibility(ANY));
 
+        mapper.enableDefaultTypingAsProperty(ObjectMapper.DefaultTyping.NON_FINAL, "@class");
+
         final SimpleModule module = new SimpleModule("jongo", Version.unknownVersion());
         //addBSONTypeSerializers(module);
         mapper.registerModule(module);
