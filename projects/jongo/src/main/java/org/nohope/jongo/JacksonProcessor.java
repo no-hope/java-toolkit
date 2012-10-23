@@ -101,19 +101,6 @@ public class JacksonProcessor implements Unmarshaller, Marshaller {
         return mapper;
     }
 
-    private static final CharSequenceTranslator ESCAPE_AT =
-            new LookupTranslator(
-                    new String[][]{
-                            {"@", "\\@"},
-                            {"#", "\\#"},
-                    });
-    private static final CharSequenceTranslator UNESCAPE_AT =
-            new LookupTranslator(
-                    new String[][]{
-                            {"\\@", "@"},
-                            {"\\#", "#"},
-                    });
-
     private static final ObjectMapper keyMapper = createPreConfiguredMapper();
 
     static final class ComplexKeySerializer extends StdKeySerializer {
@@ -126,7 +113,7 @@ public class JacksonProcessor implements Unmarshaller, Marshaller {
         @Override
         public void serialize(final Object value, final JsonGenerator jgen, final SerializerProvider provider) throws IOException, JsonGenerationException {
             if (value.getClass().isAssignableFrom(String.class)) {
-                final String out = ESCAPE_AT.translate(value.toString());
+                final String out = escape(value.toString());
                 jgen.writeFieldName(out);
             } else if (value instanceof Integer) {
                 jgen.writeFieldName("#" + value.toString());
@@ -135,7 +122,7 @@ public class JacksonProcessor implements Unmarshaller, Marshaller {
                         , value
                         , value.getClass().getCanonicalName()
                         , StringUtils.join(Thread.currentThread().getStackTrace(), "\n ... "));
-                jgen.writeFieldName("@" + ESCAPE_AT.translate(keyMapper.writeValueAsString(value)));
+                jgen.writeFieldName("@" + escape(keyMapper.writeValueAsString(value)));
             }
 
         }
@@ -156,11 +143,36 @@ public class JacksonProcessor implements Unmarshaller, Marshaller {
                 LOG.warn("Complex key deserializer now will call json mapper recursively for key {}; stack was {}"
                         , key
                         , StringUtils.join(Thread.currentThread().getStackTrace(), "\n ... "));
-                final String marshalled = UNESCAPE_AT.translate(key.substring(1));
+                final String marshalled = unescape(key.substring(1));
                 return keyMapper.readValue(marshalled, Object.class);
             } else {
-                return UNESCAPE_AT.translate(key);
+                return unescape(key);
             }
         }
+    }
+
+    private static final CharSequenceTranslator ESCAPE_AT =
+            new LookupTranslator(
+                    new String[][]{
+                            {"@", "\\@"},
+                            {"#", "\\#"},
+                            {".", "_"},
+                            {"_", "\\_"},
+                    });
+    private static final CharSequenceTranslator UNESCAPE_AT =
+            new LookupTranslator(
+                    new String[][]{
+                            {"\\@", "@"},
+                            {"\\#", "#"},
+                            {"_", "."},
+                            {"\\_", "_"},
+                    });
+
+    static String escape(final String name) {
+        return ESCAPE_AT.translate(name);
+    }
+
+    static String unescape(final String name) {
+        return UNESCAPE_AT.translate(name);
     }
 }
