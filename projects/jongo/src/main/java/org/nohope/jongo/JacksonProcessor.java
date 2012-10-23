@@ -93,6 +93,7 @@ public class JacksonProcessor implements Unmarshaller, Marshaller {
 
         final SimpleModule module = new SimpleModule("jongo", Version.unknownVersion());
         module.addKeySerializer(Object.class, ComplexKeySerializer.sObject);
+        module.addKeyDeserializer(String.class, ComplexKeyDeserializer.sObject);
         module.addKeyDeserializer(Object.class, ComplexKeyDeserializer.sObject);
 
         //addBSONTypeSerializers(module);
@@ -112,6 +113,7 @@ public class JacksonProcessor implements Unmarshaller, Marshaller {
 
         @Override
         public void serialize(final Object value, final JsonGenerator jgen, final SerializerProvider provider) throws IOException, JsonGenerationException {
+            //System.err.println("Saving "+value);
             if (value.getClass().isAssignableFrom(String.class)) {
                 final String out = escape(value.toString());
                 jgen.writeFieldName(out);
@@ -137,6 +139,7 @@ public class JacksonProcessor implements Unmarshaller, Marshaller {
 
         @Override
         public Object _parse(final String key, final DeserializationContext ctxt) throws IOException {
+            //System.out.println("Restoring "+key);
             if (key.startsWith("#")) {
                 return Integer.parseInt(key.substring(1));
             } if (key.startsWith("@")) {
