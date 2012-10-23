@@ -16,7 +16,6 @@
 
 package org.nohope.jongo;
 
-import com.fasterxml.jackson.core.JsonGenerationException;
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.core.Version;
 import com.fasterxml.jackson.databind.DeserializationContext;
@@ -35,6 +34,7 @@ import org.jongo.marshall.MarshallingException;
 import org.jongo.marshall.Unmarshaller;
 import org.nohope.logging.Logger;
 
+import javax.annotation.Nonnull;
 import java.io.IOException;
 import java.io.StringWriter;
 import java.io.Writer;
@@ -45,114 +45,10 @@ import static com.fasterxml.jackson.databind.DeserializationFeature.FAIL_ON_UNKN
 import static com.fasterxml.jackson.databind.MapperFeature.AUTO_DETECT_GETTERS;
 import static com.fasterxml.jackson.databind.MapperFeature.AUTO_DETECT_SETTERS;
 
-public class JacksonProcessor implements Unmarshaller, Marshaller {
+public final class JacksonProcessor implements Unmarshaller, Marshaller {
     private static final Logger LOG = org.nohope.logging.LoggerFactory.getLogger(JacksonProcessor.class);
 
-    private final ObjectMapper mapper;
-
-    private JacksonProcessor(final ObjectMapper mapper) {
-        this.mapper = mapper;
-    }
-
-    public JacksonProcessor() {
-        this(createPreConfiguredMapper());
-    }
-
-    @Override
-    public <T> T unmarshall(final String json, final Class<T> clazz) throws MarshallingException {
-        try {
-            return mapper.readValue(json, clazz);
-        } catch (Exception e) {
-            final String message = String.format("Unable to unmarshall from json: %s to %s", json, clazz);
-            throw new MarshallingException(message, e);
-        }
-    }
-
-    @Override
-    public <T> String marshall(final T obj) throws MarshallingException {
-        try {
-            final Writer writer = new StringWriter();
-            mapper.writeValue(writer, obj);
-            return writer.toString();
-        } catch (Exception e) {
-            final String message = String.format("Unable to marshall json from: %s", obj);
-            throw new MarshallingException(message, e);
-        }
-    }
-
-    private static ObjectMapper createPreConfiguredMapper() {
-        final ObjectMapper mapper = new ObjectMapper();
-        mapper.registerModule(new JodaModule());
-        mapper.configure(FAIL_ON_UNKNOWN_PROPERTIES, false);
-        mapper.configure(AUTO_DETECT_GETTERS, false);
-        mapper.configure(AUTO_DETECT_SETTERS, false);
-        mapper.setSerializationInclusion(NON_NULL);
-        mapper.setVisibilityChecker(VisibilityChecker.Std.defaultInstance().withFieldVisibility(ANY));
-
-        mapper.enableDefaultTypingAsProperty(ObjectMapper.DefaultTyping.NON_FINAL, "@class");
-
-        final SimpleModule module = new SimpleModule("jongo", Version.unknownVersion());
-        module.addKeySerializer(Object.class, ComplexKeySerializer.sObject);
-        module.addKeyDeserializer(String.class, ComplexKeyDeserializer.sObject);
-        module.addKeyDeserializer(Object.class, ComplexKeyDeserializer.sObject);
-
-        //addBSONTypeSerializers(module);
-
-        mapper.registerModule(module);
-        return mapper;
-    }
-
-    private static final ObjectMapper keyMapper = createPreConfiguredMapper();
-
-    static final class ComplexKeySerializer extends StdKeySerializer {
-        static final ComplexKeySerializer sObject = new ComplexKeySerializer();
-
-        private ComplexKeySerializer() {
-            super();
-        }
-
-        @Override
-        public void serialize(final Object value, final JsonGenerator jgen, final SerializerProvider provider) throws IOException, JsonGenerationException {
-            //System.err.println("Saving "+value);
-            if (value.getClass().isAssignableFrom(String.class)) {
-                final String out = escape(value.toString());
-                jgen.writeFieldName(out);
-            } else if (value instanceof Integer) {
-                jgen.writeFieldName("#" + value.toString());
-            } else {
-                LOG.warn("Complex key serializer now will call json mapper recursively for value {}@{}; stack was {}"
-                        , value
-                        , value.getClass().getCanonicalName()
-                        , StringUtils.join(Thread.currentThread().getStackTrace(), "\n ... "));
-                jgen.writeFieldName("@" + escape(keyMapper.writeValueAsString(value)));
-            }
-
-        }
-    }
-
-    private static class ComplexKeyDeserializer extends StdKeyDeserializer {
-        static final ComplexKeyDeserializer sObject = new ComplexKeyDeserializer(Object.class);
-
-        private ComplexKeyDeserializer(final Class<?> nominalType) {
-            super(nominalType);
-        }
-
-        @Override
-        public Object _parse(final String key, final DeserializationContext ctxt) throws IOException {
-            //System.out.println("Restoring "+key);
-            if (key.startsWith("#")) {
-                return Integer.parseInt(key.substring(1));
-            } if (key.startsWith("@")) {
-                LOG.warn("Complex key deserializer now will call json mapper recursively for key {}; stack was {}"
-                        , key
-                        , StringUtils.join(Thread.currentThread().getStackTrace(), "\n ... "));
-                final String marshalled = unescape(key.substring(1));
-                return keyMapper.readValue(marshalled, Object.class);
-            } else {
-                return unescape(key);
-            }
-        }
-    }
+    private static final ObjectMapper KEY_MAPPER = createPreConfiguredMapper();
 
     private static final CharSequenceTranslator ESCAPE_AT =
             new LookupTranslator(
@@ -171,11 +67,125 @@ public class JacksonProcessor implements Unmarshaller, Marshaller {
                             {"\\_", "_"},
                     });
 
-    static String escape(final String name) {
+    private final ObjectMapper mapper;
+
+    private JacksonProcessor(@Nonnull final ObjectMapper mapper) {
+        this.mapper = mapper;
+    }
+
+    public JacksonProcessor() {
+        this(createPreConfiguredMapper());
+    }
+
+    @Nonnull
+    public ObjectMapper getMapper() {
+        return mapper;
+    }
+
+    @Override
+    public <T> T unmarshall(final String json, final Class<T> clazz) {
+        try {
+            return mapper.readValue(json, clazz);
+        } catch (Exception e) {
+            final String message = String.format("Unable to unmarshall from json: %s to %s", json, clazz);
+            throw new MarshallingException(message, e);
+        }
+    }
+
+    @Override
+    public <T> String marshall(final T obj) {
+        try {
+            final Writer writer = new StringWriter();
+            mapper.writeValue(writer, obj);
+            return writer.toString();
+        } catch (Exception e) {
+            final String message = String.format("Unable to marshall json from: %s", obj);
+            throw new MarshallingException(message, e);
+        }
+    }
+
+    @Nonnull
+    private static ObjectMapper createPreConfiguredMapper() {
+        final ObjectMapper mapper = new ObjectMapper();
+        mapper.registerModule(new JodaModule());
+        mapper.configure(FAIL_ON_UNKNOWN_PROPERTIES, false);
+        mapper.configure(AUTO_DETECT_GETTERS, false);
+        mapper.configure(AUTO_DETECT_SETTERS, false);
+        mapper.setSerializationInclusion(NON_NULL);
+        mapper.setVisibilityChecker(VisibilityChecker.Std.defaultInstance().withFieldVisibility(ANY));
+
+        mapper.enableDefaultTypingAsProperty(ObjectMapper.DefaultTyping.NON_FINAL, "@class");
+
+        final SimpleModule module = new SimpleModule("jongo", Version.unknownVersion());
+        module.addKeySerializer(Object.class, ComplexKeySerializer.S_OBJECT);
+        module.addKeyDeserializer(String.class, ComplexKeyDeserializer.S_OBJECT);
+        module.addKeyDeserializer(Object.class, ComplexKeyDeserializer.S_OBJECT);
+
+        //addBSONTypeSerializers(module);
+
+        mapper.registerModule(module);
+        return mapper;
+    }
+
+    public static String escape(final String name) {
         return ESCAPE_AT.translate(name);
     }
 
     static String unescape(final String name) {
         return UNESCAPE_AT.translate(name);
+    }
+
+    static final class ComplexKeySerializer extends StdKeySerializer {
+        static final ComplexKeySerializer S_OBJECT = new ComplexKeySerializer();
+
+        private ComplexKeySerializer() {
+            super();
+        }
+
+        @Override
+        public void serialize(final Object value, final JsonGenerator jgen,
+                              final SerializerProvider provider)
+                throws IOException {
+            //System.err.println("Saving "+value);
+            if (value.getClass().isAssignableFrom(String.class)) {
+                final String out = escape(value.toString());
+                jgen.writeFieldName(out);
+            } else if (value instanceof Integer) {
+                jgen.writeFieldName("#" + value.toString());
+            } else {
+                LOG.warn("Complex key serializer now will call json mapper recursively for value {}@{}; stack was {}"
+                        , value
+                        , value.getClass().getCanonicalName()
+                        , StringUtils.join(Thread.currentThread().getStackTrace(), "\n ... "));
+                jgen.writeFieldName("@" + escape(KEY_MAPPER.writeValueAsString(value)));
+            }
+
+        }
+    }
+
+    private static final class ComplexKeyDeserializer extends StdKeyDeserializer {
+        static final ComplexKeyDeserializer S_OBJECT = new ComplexKeyDeserializer(Object.class);
+
+        private ComplexKeyDeserializer(final Class<?> nominalType) {
+            super(nominalType);
+        }
+
+        @Override
+        //CHECKSTYLE:OFF
+        public Object _parse(final String key, final DeserializationContext ctxt) throws IOException {
+            //CHECKSTYLE:ON
+            //System.out.println("Restoring "+key);
+            if (key.startsWith("#")) {
+                return Integer.parseInt(key.substring(1));
+            } if (key.startsWith("@")) {
+                LOG.warn("Complex key deserializer now will call json mapper recursively for key {}; stack was {}"
+                        , key
+                        , StringUtils.join(Thread.currentThread().getStackTrace(), "\n ... "));
+                final String marshalled = unescape(key.substring(1));
+                return KEY_MAPPER.readValue(marshalled, Object.class);
+            } else {
+                return unescape(key);
+            }
+        }
     }
 }

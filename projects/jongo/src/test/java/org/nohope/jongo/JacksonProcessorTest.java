@@ -1,13 +1,11 @@
 package org.nohope.jongo;
 
-import org.jongo.Jongo;
 import org.junit.Test;
-import org.nohope.jongo.JacksonProcessor;
 
 import java.util.HashMap;
 import java.util.Map;
 
-import static junit.framework.Assert.assertEquals;
+import static org.junit.Assert.assertEquals;
 
 /**
  * Date: 04.08.12
