@@ -5,8 +5,8 @@ import org.junit.Test;
 import java.net.InetSocketAddress;
 import java.util.ArrayList;
 
-import static junit.framework.Assert.assertEquals;
-import static junit.framework.Assert.assertNull;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNull;
 
 /**
  * @author <a href="mailto:ketoth.xupack@gmail.com">ketoth xupack</a>

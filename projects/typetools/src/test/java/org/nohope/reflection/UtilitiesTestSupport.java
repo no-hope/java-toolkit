@@ -5,8 +5,8 @@ import org.junit.Test;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Modifier;
 
-import static junit.framework.Assert.assertEquals;
-import static junit.framework.Assert.assertTrue;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
 /**
  * @author <a href="mailto:ketoth.xupack@gmail.com">ketoth xupack</a>

@@ -3,7 +3,7 @@ package org.nohope.typetools;
 import org.joda.time.DateTime;
 import org.junit.Test;
 
-import static junit.framework.Assert.assertEquals;
+import static org.junit.Assert.assertEquals;
 
 /**
  * Date: 07.08.12
