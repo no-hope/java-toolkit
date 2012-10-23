@@ -3,9 +3,7 @@ package org.nohope.reflection;
 import org.junit.Test;
 
 import static org.junit.Assert.*;
-import static org.nohope.reflection.IntrospectionUtils.cast;
-import static org.nohope.reflection.IntrospectionUtils.instanceOf;
-import static org.nohope.reflection.IntrospectionUtils.safeCast;
+import static org.nohope.reflection.IntrospectionUtils.*;
 
 /**
  * Date: 31.07.12

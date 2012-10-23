@@ -1,12 +1,14 @@
 package org.nohope.typetools;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.introspect.VisibilityChecker;
 import com.fasterxml.jackson.datatype.joda.JodaModule;
 import org.nohope.logging.Logger;
 import org.nohope.logging.LoggerFactory;
 
 import java.io.IOException;
 
+import static com.fasterxml.jackson.annotation.JsonAutoDetect.Visibility.ANY;
 import static com.fasterxml.jackson.annotation.JsonInclude.Include.NON_EMPTY;
 import static com.fasterxml.jackson.databind.SerializationFeature.*;
 
@@ -29,9 +31,13 @@ public final class JSON {
         prettyMapper.configure(WRITE_DATES_AS_TIMESTAMPS, false);
         prettyMapper.configure(FAIL_ON_EMPTY_BEANS, false);
         prettyMapper.setSerializationInclusion(NON_EMPTY);
+        prettyMapper.enableDefaultTypingAsProperty(ObjectMapper.DefaultTyping.NON_FINAL, "@class");
+        prettyMapper.setVisibilityChecker(VisibilityChecker.Std.defaultInstance().withFieldVisibility(ANY));
 
         usualMapper.registerModule(new JodaModule());
         usualMapper.setSerializationInclusion(NON_EMPTY);
+        usualMapper.enableDefaultTypingAsProperty(ObjectMapper.DefaultTyping.NON_FINAL, "@class");
+        usualMapper.setVisibilityChecker(VisibilityChecker.Std.defaultInstance().withFieldVisibility(ANY));
     }
 
     public static String pretty(final Object obj) {
