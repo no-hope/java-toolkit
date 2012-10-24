@@ -1,6 +1,8 @@
 package org.nohope.typetools;
 
+import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
+import java.io.UnsupportedEncodingException;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Iterator;
@@ -246,5 +248,14 @@ public final class StringUtils {
     @Nullable
     public static String join(final Object objects) {
         return join(objects, DEFAULT_SEPARATOR);
+    }
+
+    @Nonnull
+    public static byte[] toLatin1(@Nonnull final String str) {
+        try {
+            return str.getBytes("latin1");
+        } catch (UnsupportedEncodingException e) {
+            throw new IllegalStateException(e);
+        }
     }
 }
