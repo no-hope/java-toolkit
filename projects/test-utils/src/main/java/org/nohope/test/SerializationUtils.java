@@ -11,6 +11,7 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.Serializable;
 
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotSame;
 import static org.junit.Assert.fail;
 
@@ -26,10 +27,11 @@ public final class SerializationUtils {
 
     @SuppressWarnings("unchecked")
     public static <T extends Serializable> T cloneJava(final T object) {
-        try(ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+        try(final ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
             ObjectOutputStream out = new ObjectOutputStream(outputStream)) {
             out.writeObject(object);
-            try(ByteArrayInputStream inputStream = new ByteArrayInputStream(outputStream.toByteArray());
+            try(final ByteArrayInputStream inputStream =
+                        new ByteArrayInputStream(outputStream.toByteArray());
                 ObjectInputStream in = new ObjectInputStream(inputStream)) {
                 final T result = (T) in.readObject();
                 assertNotSame(object, result);
@@ -42,15 +44,27 @@ public final class SerializationUtils {
         return null;
     }
 
+    public static<T extends Serializable> T assertJavaClonedEquals(final T origin) {
+        final T result = cloneJava(origin);
+        assertEquals(origin, result);
+        return result;
+    }
+
     @SuppressWarnings("unchecked")
     public static <T> T cloneMongo(final T object) {
         final JacksonProcessor marshaller = new JacksonProcessor();
         final String marshalled = marshaller.marshall(object);
-        LOG.debug("marshalled value {}", marshalled);
+        LOG.debug("marshaled value {}", marshalled);
 
         // creating new processor just to be sure no state was shared
         // between jackson serializrs/deserializers
         final JacksonProcessor unmarshaller = new JacksonProcessor();
         return (T) unmarshaller.unmarshall(marshalled, object.getClass());
+    }
+
+    public static<T> T assertMongoClonedEquals(final T origin) {
+        final T result = cloneMongo(origin);
+        assertEquals(origin, result);
+        return result;
     }
 }
