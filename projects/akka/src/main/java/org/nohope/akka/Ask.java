@@ -5,7 +5,7 @@ import akka.actor.InvalidMessageException;
 import akka.util.Timeout;
 import scala.concurrent.Await;
 import scala.concurrent.Future;
-import scala.concurrent.util.Duration;
+import scala.concurrent.duration.Duration;
 
 import javax.annotation.Nonnull;
 import java.io.Serializable;

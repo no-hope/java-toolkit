@@ -59,8 +59,7 @@ public class MessageTypeMatchingActor extends UntypedActor {
                     final Class<?>[] types = method.getParameterTypes();
                     for (final Class<?>[] prev : signatures) {
                         if (Arrays.deepEquals(prev, types)) {
-                            throw new ActorInitializationException(
-                                    "More than one @OnReceive "
+                            throw new IllegalStateException("More than one @OnReceive "
                                     + "method found conforming signature ["
                                     + join(getClassNames(types))
                                     + ']');

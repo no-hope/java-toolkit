@@ -1,5 +1,6 @@
 package org.nohope.akka;
 
+import akka.actor.ActorInitializationException;
 import akka.actor.ActorSystem;
 import akka.actor.InvalidMessageException;
 import akka.actor.Props;
@@ -7,6 +8,8 @@ import akka.testkit.TestActorRef;
 import akka.testkit.TestProbe;
 import org.junit.Test;
 import org.nohope.test.AkkaUtils;
+
+import java.util.concurrent.TimeoutException;
 
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
@@ -34,9 +37,9 @@ public class MessageTypeMatchingActorTest {
     @Test
     public void nullMessageReceiving() throws InterruptedException {
         final ActorSystem system = AkkaUtils.createLocalSystem("test");
-        final TestActorRef ref = TestActorRef.apply(new Props(IllegalParent.class), system);
+        final TestActorRef ref = TestActorRef.create(system, new Props(LegalParent.class), "actor");
         try {
-            ref.tell(null);
+            ref.receive(null);
             fail();
         } catch (final InvalidMessageException e) {
         }
