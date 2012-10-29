@@ -1,21 +1,18 @@
 package org.nohope.akka;
 
+import javax.annotation.concurrent.Immutable;
 import java.io.Serializable;
 
 /**
- *
- * data field must not contain "Object" field, otherwise
- * NamedWorkerMetadata will not be able to be restored from
- * mongoDb
- *
  * Date: 9/4/12
  * Time: 12:00 PM
  */
+@Immutable
 public class NamedWorkerMetadata implements Serializable {
     private static final long serialVersionUID = 1L;
 
-    private String identifier;
-    private Serializable data;
+    private final String identifier;
+    private final Serializable data;
 
     /**
      * @deprecated do not use this constructor directly.
@@ -24,19 +21,18 @@ public class NamedWorkerMetadata implements Serializable {
     @SuppressWarnings("unused")
     @Deprecated
     private NamedWorkerMetadata() {
+        data = null;
+        identifier = null;
     }
 
-    public NamedWorkerMetadata(final String identifier, final Serializable data) {
+    public NamedWorkerMetadata(final String identifier,
+                               final Serializable data) {
         this.identifier = identifier;
         this.data = data;
     }
 
     public String getIdentifier() {
         return identifier;
-    }
-
-    public void setData(final Serializable data) {
-        this.data = data;
     }
 
     public Serializable getData() {
