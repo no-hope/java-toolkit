@@ -1,6 +1,7 @@
 package org.nohope.spring.app;
 
 import org.springframework.context.ConfigurableApplicationContext;
+import org.nohope.reflection.TypeReference;
 
 import javax.annotation.Nonnull;
 import java.util.ArrayList;
@@ -9,6 +10,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
+import java.util.TreeMap;
 
 import static org.nohope.reflection.IntrospectionUtils.cast;
 import static org.nohope.reflection.IntrospectionUtils.instanceOf;
@@ -24,23 +26,51 @@ public abstract class HandlerWithStorage<M> extends Handler<M> {
      * @return Map of descriptors of all the available modules
      */
     @Nonnull
-    public Map<String, ModuleDescriptor<M>> getModules() {
-        return modules;
+    public Map<String, ModuleDescriptor<M>> getModuleDescriptors() {
+        return new TreeMap<>(modules);
+    }
+
+    protected <S> List<ModuleDescriptor<S>> getDescriptors(final Class<S> clazz) {
+        return getDescriptors(clazz, modules.values());
+    }
+
+    protected <S> Map<String, S> getModules(final Class<S> clazz) {
+        final Map<String, S> result = new HashMap<>();
+        for (final ModuleDescriptor<S> d: getDescriptors(clazz, modules.values())) {
+            result.put(d.getName(), d.getModule());
+        }
+        return result;
     }
 
     /**
      * @param clazz
-     * @param <Subtype> supertype of modules to be filtered
+     * @param <S> supertype of modules to be filtered
      * @return All the implementations of given superclass
      */
-    protected <Subtype> List<Subtype> getImplementations(final Class<Subtype> clazz) {
+    protected <S> List<S> getImplementations(final Class<S> clazz) {
         return getImplementations(clazz, modules.values());
     }
 
-    static <Subtype, MType> List<Subtype> getImplementations(final Class<Subtype> clazz, final Collection<ModuleDescriptor<MType>> source) {
-        final List<Subtype> ret = new ArrayList<>();
-        for (final ModuleDescriptor<MType> obj : source) {
-            final MType module = obj.getModule();
+    static <M, S> List<ModuleDescriptor<S>> getDescriptors(
+            final Class<S> clazz,
+            final Collection<ModuleDescriptor<M>> source) {
+
+        final List<ModuleDescriptor<S>> ret = new ArrayList<>();
+        for (final ModuleDescriptor<M> obj : source) {
+            final M module = obj.getModule();
+            if (instanceOf(module.getClass(), clazz)) {
+                ret.add(cast(obj, new TypeReference<ModuleDescriptor<S>>() {}));
+            }
+        }
+        return ret;
+    }
+
+
+    static <S, M> List<S> getImplementations(final Class<S> clazz,
+                                             final Collection<ModuleDescriptor<M>> source) {
+        final List<S> ret = new ArrayList<>();
+        for (final ModuleDescriptor<M> obj : source) {
+            final M module = obj.getModule();
             if (instanceOf(module.getClass(), clazz)) {
                 ret.add(cast(module, clazz));
             }
@@ -52,7 +82,8 @@ public abstract class HandlerWithStorage<M> extends Handler<M> {
         return modules.get(moduleName).getModule();
     }
 
-    protected <Subtype extends M> Subtype getModule(final Class<Subtype> clazz, final String moduleName) {
+    protected <Subtype extends M> Subtype getModule(final Class<Subtype> clazz,
+                                                    final String moduleName) {
         final ModuleDescriptor<M> md = modules.get(moduleName);
         if (clazz.isAssignableFrom(md.getClass())) {
             @SuppressWarnings({"unchecked", "UnnecessaryLocalVariable"})
@@ -76,13 +107,11 @@ public abstract class HandlerWithStorage<M> extends Handler<M> {
                                          @Nonnull final ConfigurableApplicationContext ctx,
                                          @Nonnull final Properties properties,
                                          @Nonnull final String name) {
-        modules.put(name, new ModuleDescriptor<>(name, module, properties));
-        onModuleAdded(module, ctx, properties, name);
+        final ModuleDescriptor<M> descriptor = new ModuleDescriptor<>(name, module, properties, ctx);
+        modules.put(name, descriptor);
+        onModuleAdded(descriptor);
     }
 
-    protected final void onModuleAdded(@Nonnull final M module,
-                                       @Nonnull final ConfigurableApplicationContext ctx,
-                                       @Nonnull final Properties properties,
-                                       @Nonnull final String name) {
+    protected void onModuleAdded(@Nonnull final ModuleDescriptor<M> descriptor) {
     }
 }

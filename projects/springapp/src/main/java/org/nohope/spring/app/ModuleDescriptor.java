@@ -1,5 +1,8 @@
 package org.nohope.spring.app;
 
+import org.springframework.context.ConfigurableApplicationContext;
+
+import javax.annotation.Nonnull;
 import java.util.Properties;
 
 /**
@@ -10,22 +13,40 @@ public final class ModuleDescriptor<ModuleType> {
     private final Properties properties;
     private final ModuleType module;
     private final String name;
+    private final ConfigurableApplicationContext ctx;
 
-    public ModuleDescriptor(final String name, final ModuleType module, final Properties properties) {
+    public ModuleDescriptor(@Nonnull final String name,
+                            @Nonnull final ModuleType module,
+                            @Nonnull final Properties properties,
+                            @Nonnull final ConfigurableApplicationContext ctx) {
         this.properties = properties;
         this.module = module;
         this.name = name;
+        this.ctx = ctx;
     }
 
+    @Nonnull
+    public ConfigurableApplicationContext getContext() {
+        return ctx;
+    }
+
+    @Nonnull
     public Properties getProperties() {
         return properties;
     }
 
+    @Nonnull
     public ModuleType getModule() {
         return module;
     }
 
+    @Nonnull
     public String getName() {
         return name;
+    }
+
+    @Override
+    public String toString() {
+        return name + "@" + module.getClass().getCanonicalName();
     }
 }

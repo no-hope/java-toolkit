@@ -86,6 +86,18 @@ public abstract class Handler<M> {
         return get(beanId, reference.getTypeClass());
     }
 
+    protected static <T> T get(@Nonnull final ApplicationContext ctx,
+                               @Nonnull final String beanId,
+                               @Nonnull final TypeReference<T> reference) {
+        return ctx.getBean(beanId, reference.getTypeClass());
+    }
+
+    protected static <T> T get(@Nonnull final ApplicationContext ctx,
+                               @Nonnull final String beanId,
+                               @Nonnull final Class<T> clazz) {
+        return ctx.getBean(beanId, clazz);
+    }
+
     @Nonnull
     protected <T> T get(@Nonnull final Class<T> clazz) {
         return getAppContext().getBean(clazz);

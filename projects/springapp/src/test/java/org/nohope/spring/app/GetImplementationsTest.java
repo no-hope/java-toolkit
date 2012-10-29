@@ -4,9 +4,11 @@ import org.hamcrest.BaseMatcher;
 import org.hamcrest.Description;
 import org.junit.Test;
 import org.junit.matchers.JUnitMatchers;
+import org.springframework.context.support.GenericApplicationContext;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Properties;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertThat;
@@ -35,20 +37,21 @@ public class GetImplementationsTest {
         final List<ModuleDescriptor<Iface>> allModules = new ArrayList<>();
 
         class M1Impl implements Marker1, Iface {
-
         }
 
         class M2Impl implements Marker2, Iface {
-
         }
+
+        final Properties properties = new Properties();
+        final GenericApplicationContext ctx = new GenericApplicationContext();
         allModules.add(new ModuleDescriptor<Iface>("M1-1", new M1Impl() {
-        }, null));
+        }, properties, ctx));
         allModules.add(new ModuleDescriptor<Iface>("M1-2", new M1Impl() {
-        }, null));
+        }, properties, ctx));
         allModules.add(new ModuleDescriptor<Iface>("M2-1", new M2Impl() {
-        }, null));
+        }, properties, ctx));
         allModules.add(new ModuleDescriptor<Iface>("M2-2", new M2Impl() {
-        }, null));
+        }, properties, ctx));
 
         final List<Marker1> lst = HandlerWithStorage.getImplementations(Marker1.class, allModules);
         assertEquals(2, lst.size());
