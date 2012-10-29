@@ -99,6 +99,13 @@ public final class IntrospectionUtils {
     }
 
     /**
+     * @return list of wrapper types
+     */
+    public static List<Class<?>> getWrappers() {
+        return new ArrayList<>(PRIMITIVES_TO_WRAPPERS.values());
+    }
+
+    /**
      * Returns referenced wrapper for primitive type.
      *
      * @param p class suppose to be a primitive
