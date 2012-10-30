@@ -50,7 +50,7 @@ public final class Ask {
     public static <T> T waitReply(@Nonnull final Class<T> clazz,
                                   @Nonnull final ActorRef ref,
                                   @Nonnull final Serializable message,
-                                  final long timeout) {
+                                  final long timeout) throws Exception {
         try {
             final Future<Object> childResponse =
                     ask(ref, message, Timeout.longToTimeout(timeout));
@@ -75,21 +75,21 @@ public final class Ask {
                     ref + " replied with unexpected null value");
         } catch (final Exception e) {
             // just to make current stack visible
-            throw new IllegalStateException(e);
+            throw new Exception(e);
         }
     }
 
     @Nonnull
     public static <T> T waitReply(@Nonnull final Class<T> clazz,
-                                                       @Nonnull final ActorRef ref,
-                                                       @Nonnull final Serializable message) {
+                                  @Nonnull final ActorRef ref,
+                                  @Nonnull final Serializable message) throws Exception {
         // TODO: is it good idea to hardcode timeout?
         return waitReply(clazz, ref, message, 5000);
     }
 
     @Nonnull
     public static Serializable waitReply(@Nonnull final ActorRef ref,
-                                         @Nonnull final Serializable message) {
+                                         @Nonnull final Serializable message) throws Exception {
         return waitReply(Serializable.class, ref, message);
     }
 }

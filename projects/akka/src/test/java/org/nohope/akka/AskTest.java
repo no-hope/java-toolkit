@@ -24,7 +24,7 @@ public class AskTest {
     }
 
     @Test
-    public void castingTest() {
+    public void castingTest() throws Exception {
         final ActorSystem system = org.nohope.test.AkkaUtils.createLocalSystem("test");
         final TestActorRef ref = TestActorRef.apply(new Props(EchoActor.class), system);
         assertEquals(123, (int) Ask.waitReply(Integer.class, ref, 123));
