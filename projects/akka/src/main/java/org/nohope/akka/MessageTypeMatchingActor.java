@@ -111,6 +111,12 @@ public class MessageTypeMatchingActor extends UntypedActor {
         this.handlers.addAll(Arrays.asList(handlers));
     }
 
+    /** @see #addHandlers(Object...) */
+    protected final void setHandlers(@Nonnull final Object... handlers) {
+        this.handlers.clear();
+        addHandlers(handlers);
+    }
+
     /**
      * Allows to process message after it was processed by one of @OnReceive
      * method. This method will not be invoked if {@link #onReceiveError(Exception, Object)}
