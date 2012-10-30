@@ -33,7 +33,6 @@ public class AskTest {
             Ask.waitReply(String.class, ref, 123);
             fail();
         } catch (Exception e) {
-            assertTrue(e instanceof IllegalStateException);
             assertTrue(e.getCause() instanceof ClassCastException);
         }
     }
