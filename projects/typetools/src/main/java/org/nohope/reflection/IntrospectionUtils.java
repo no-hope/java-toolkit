@@ -750,8 +750,8 @@ public final class IntrospectionUtils {
      * @param arguments array of object
      * @return array of classes of given objects
      */
-    public static Class[] getClasses(final Object... arguments) {
-        final Class[] signature = new Class[arguments.length];
+    public static Class<?>[] getClasses(final Object... arguments) {
+        final Class<?>[] signature = new Class[arguments.length];
         {
             int i = 0;
             for (final Object argument : arguments) {
