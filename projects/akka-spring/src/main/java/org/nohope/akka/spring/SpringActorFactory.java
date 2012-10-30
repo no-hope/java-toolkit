@@ -87,12 +87,17 @@ public final class SpringActorFactory<T extends UntypedActor> implements Untyped
         }
     }
 
-    public SpringActorFactory<T> addBeans(final Object... beans) {
-        this.beans.addAll(Arrays.asList(beans));
+    public SpringActorFactory<T> addBeans(@Nonnull final Object... beans) {
+        final List<Object> list = Arrays.asList(beans);
+        if (list.contains(null)) {
+            throw new IllegalStateException("null reference not allowed in beans list");
+        }
+
+        this.beans.addAll(list);
         return this;
     }
 
-    public SpringActorFactory<T> addBean(final String name, final Object bean) {
+    public SpringActorFactory<T> addBean(final String name, @Nonnull final Object bean) {
         this.namedBeans.put(name, bean);
         return this;
     }
