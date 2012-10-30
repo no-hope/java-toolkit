@@ -9,6 +9,7 @@ import javax.annotation.Resource;
 import javax.inject.Inject;
 import javax.inject.Named;
 import java.io.File;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Properties;
 import java.util.concurrent.atomic.AtomicReference;
@@ -150,7 +151,7 @@ public class SpringAsyncModularAppTest {
     public static class UtilsBean {
         // http://stackoverflow.com/a/1363435
         @Resource(name = "testList")
-        private List<String> list;
+        private final List<String> list = new ArrayList<>();
 
         public List<String> getList() {
             return list;
