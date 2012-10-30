@@ -7,7 +7,6 @@ import org.nohope.IMatcher;
 import org.nohope.typetools.JSON;
 
 import javax.annotation.Nonnull;
-import java.io.Serializable;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -47,7 +46,7 @@ public class MessageTypeMatchingActor extends UntypedActor {
     @SuppressWarnings("ThisEscapedInObjectConstruction")
     protected final LoggingAdapter log = Logging.getLogger(getContext().system(), this);
     protected final boolean expandObjectArrays;
-    private final List<Serializable> handlers = new ArrayList<>();
+    private final List<Object> handlers = new ArrayList<>();
 
     protected MessageTypeMatchingActor(final boolean expandObjectArrays) {
         this.expandObjectArrays = expandObjectArrays;
@@ -108,7 +107,7 @@ public class MessageTypeMatchingActor extends UntypedActor {
      *
      * @param handlers array of any non {@code null} object references
      */
-    protected final void addHandlers(@Nonnull final Serializable... handlers) {
+    protected final void addHandlers(@Nonnull final Object... handlers) {
         this.handlers.addAll(Arrays.asList(handlers));
     }
 
