@@ -6,6 +6,8 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.fail;
 import static org.junit.Assert.assertTrue;
+import java.math.BigDecimal;
+
 import static org.nohope.akka.MessageMethodInvoker.SignaturePair;
 
 /**
@@ -37,7 +39,7 @@ public class MessageMethodInvokerTest {
     public void testCache() throws Exception {
         MessageMethodInvoker.invokeOnReceive(this, 100);
         assertTrue(MessageMethodInvoker.cache.containsKey(
-                SignaturePair.of(MessageMethodInvokerTest.class, new Class<?>[]{Integer.class})));
+                SignaturePair.of(new Class<?>[]{Integer.class}, MessageMethodInvokerTest.class)));
     }
 
     @Test
@@ -59,7 +61,19 @@ public class MessageMethodInvokerTest {
     public void inheritance() throws Exception {
         assertEquals(1, MessageMethodInvoker.invokeOnReceive(new AnnotatedTestClass(), 1));
         assertEquals(2, MessageMethodInvoker.invokeOnReceive(new AnnotatedParentClass(), 2));
+
+        // should not throw an exception
+        MessageMethodInvoker.invokeOnReceive(new AnnotatedTestClass(), 1d);
     }
+
+    @Test
+    public void handlers() throws Exception {
+        final BigDecimal decimal = new BigDecimal(1);
+
+        assertEquals(decimal, MessageMethodInvoker.invokeOnReceive(new AnnotatedTestClass(), decimal, new AnnotatedHandler()));
+        assertEquals(decimal, MessageMethodInvoker.invokeOnReceive(new AnnotatedParentClass(), decimal, new AnnotatedHandler()));
+    }
+
 
     @Test
     public void multipleMatch() throws Exception {
@@ -98,12 +112,12 @@ public class MessageMethodInvokerTest {
 
     @Test
     public void signaturePairEquals() {
-        final SignaturePair pair1 = new SignaturePair(String.class,
-                new Class<?>[] {String.class, Integer.class});
-        final SignaturePair pair2 = new SignaturePair(String.class,
-                new Class<?>[] {String.class, Integer.class});
-        final SignaturePair pair3 = new SignaturePair(String.class,
-                new Class<?>[] {String.class, String.class});
+        final SignaturePair pair1 = new SignaturePair(
+                new Class<?>[] {String.class, Integer.class}, String.class);
+        final SignaturePair pair2 = new SignaturePair(
+                new Class<?>[] {String.class, Integer.class}, String.class);
+        final SignaturePair pair3 = new SignaturePair(
+                new Class<?>[] {String.class, String.class}, String.class);
 
         assertEquals(pair1, pair2);
         assertEquals(pair1.hashCode(), pair2.hashCode());
@@ -129,7 +143,6 @@ public class MessageMethodInvokerTest {
     }
 
     private static class AnnotatedParentClass {
-
         @OnReceive
         private Integer onConcreteMessage(final Integer x) {
             return x;
@@ -155,7 +168,7 @@ public class MessageMethodInvokerTest {
         }
 
         @OnReceive
-        private void erroneous(final Double x) {
+        protected void erroneous(final Double x) {
             throw new UserError();
         }
 
@@ -170,8 +183,24 @@ public class MessageMethodInvokerTest {
         private native void onConcreteMessage(final String x);
 
         @Override
+        protected void erroneous(final Double x) {
+        }
+
+        @Override
         public String toString() {
             return "TestClass";
+        }
+    }
+
+    private static class AnnotatedHandler {
+        @OnReceive
+        private BigDecimal onConcreteMessage(final BigDecimal x) {
+            return x;
+        }
+
+        @Override
+        public String toString() {
+            return "TestHandler";
         }
     }
 }

@@ -1,5 +1,6 @@
 package org.nohope.akka;
 
+import org.apache.commons.lang3.ArrayUtils;
 import org.nohope.IMatcher;
 import org.nohope.reflection.IntrospectionUtils;
 import org.nohope.typetools.StringUtils;
@@ -27,16 +28,12 @@ public final class MessageMethodInvoker {
     private MessageMethodInvoker() {
     }
 
-    /** @see #invokeOnReceive(Object, Object, boolean) */
-    public static Object invokeOnReceive(final Object target,
-                                         final Object message)
-            throws Exception {
-        return invokeOnReceive(target, message, false);
-    }
-
     /**
      * Invokes method annotated with {@link OnReceive} and argument types
      * matching given message type.
+     * <p />
+     * In case method with given signature was not found in given target class
+     * then examines list of fallback objects for matching method.
      * <p />
      * It's possible to invoke multi-args methods passing {@code true} to
      * expandObjectArray argument.
@@ -62,13 +59,16 @@ public final class MessageMethodInvoker {
      * @param target target object/class
      * @param message message to be passed to target object method
      * @param expandObjectArray {@code true} allows object array expanding
+     * @param fallbackObjects fallback
      * @return method invocation result
      * @throws NoSuchMethodException if no or more than one
-     *         &#064;OnReceive method found
+     *         &#064;OnReceive method found or no methods found in target object
+     *         and list of fallback objects
      */
     public static Object invokeOnReceive(@Nonnull final Object target,
                                          @Nonnull final Object message,
-                                         final boolean expandObjectArray)
+                                         final boolean expandObjectArray,
+                                         final Object... fallbackObjects)
             throws Exception {
         final boolean expandNeeded = expandObjectArray && message instanceof Object[];
         final Class<?>[] classes = expandNeeded
@@ -76,12 +76,27 @@ public final class MessageMethodInvoker {
                 : getClasses(message)
                 ;
 
-        final Method method = getOrCache(IntrospectionUtils.getClass(target), classes);
+        final Object[] targetObjects = ArrayUtils.add(fallbackObjects, 0, target);
+        final Class<?>[] targetClasses = ArrayUtils.add(getClasses(fallbackObjects), 0,
+                IntrospectionUtils.getClass(target));
+
+        final Method method = getOrCache(classes, targetClasses);
+        Object realTarget = null;
+        for (int i = 0; i <= fallbackObjects.length; i++) {
+            if (instanceOf(targetClasses[i], method.getDeclaringClass())) {
+                realTarget = targetObjects[i];
+            }
+        }
+
+        if (realTarget == null) {
+            throw new IllegalStateException("How did we even get here?");
+        }
+
         try {
             if (expandNeeded) {
-                return invoke(method, target, (Object[]) message);
+                return invoke(method, realTarget, (Object[]) message);
             } else {
-                return invoke(method, target, message);
+                return invoke(method, realTarget, message);
             }
         } catch (InvocationTargetException e) {
             final Throwable targetException = e.getTargetException();
@@ -101,28 +116,61 @@ public final class MessageMethodInvoker {
         }
     }
 
-    private static Method getOrCache(final Class<?> targetClass,
-                                     final Class<?>[] parameterTypes)
+    /** @see #invokeOnReceive(Object, Object, boolean, Object...) */
+    public static Object invokeOnReceive(final Object target,
+                                         final Object message,
+                                         final Object... handlers)
+            throws Exception {
+        return invokeOnReceive(target, message, false, handlers);
+    }
+
+    private static Method searchMethod(final Class<?> targetClass,
+                                       final Class<?>[] parameterTypes)
             throws NoSuchMethodException {
-        final SignaturePair pair = SignaturePair.of(targetClass, parameterTypes);
+        final Set<Method> methods = searchMethods(
+                targetClass,
+                new SignatureMatcher(parameterTypes));
+        if (methods.size() > 1) {
+            throw new NoSuchMethodException(
+                    "Only one @OnReceive method expected to match ("
+                    + StringUtils.join(getClassNames(parameterTypes))
+                    + ") parameter types but found "
+                    + methods.size()
+                    + "; happened at instance of class "
+                    + targetClass.getCanonicalName());
+        }
+
+        if (methods.isEmpty()) {
+            return null;
+        }
+
+        return methods.iterator().next();
+    }
+
+    private static Method getOrCache(final Class<?>[] parameterTypes,
+                                     final Class<?>... fallbackClasses)
+            throws NoSuchMethodException {
+        final SignaturePair pair = SignaturePair.of(parameterTypes, fallbackClasses);
         if (!cache.containsKey(pair)) {
-            final Set<Method> methods = searchMethods(
-                    targetClass,
-                    new SignatureMatcher(parameterTypes));
-            if (methods.size() != 1) {
-                throw new NoSuchMethodException(
-                        "Only one @OnReceive method expected to match ("
-                        + StringUtils.join(getClassNames(parameterTypes))
-                        + ") parameter types but found "
-                        + methods.size()
-                        + "; happened at instance of class "
-                        + targetClass.getCanonicalName());
+            Method method = null;
+            for (final Class<?> clazz : fallbackClasses) {
+                method = searchMethod(clazz, parameterTypes);
+                if (method != null) {
+                    break;
+                }
             }
 
-            final Method m = methods.iterator().next();
-            cache.put(pair, m);
+            if (method == null) {
+                throw new NoSuchMethodException(
+                        "No @OnReceive methods found to match ("
+                        + StringUtils.join(getClassNames(parameterTypes))
+                        + ") parameter types for handlers ["
+                        + StringUtils.join(getClassNames(fallbackClasses))
+                        + "]");
+            }
 
-            return m;
+            cache.put(pair, method);
+            return method;
         }
 
         return cache.get(pair);
@@ -141,11 +189,12 @@ public final class MessageMethodInvoker {
     }
 
     static class SignaturePair {
-        private final Class<?> target;
+        private final Class<?>[] handlers;
         private final Class<?>[] parameter;
 
-        SignaturePair(final Class<?> target, final Class<?>[] parameter) {
-            this.target = target;
+        SignaturePair(final Class<?>[] parameter,
+                      final Class<?>... handlers) {
+            this.handlers = handlers;
             this.parameter = parameter;
         }
 
@@ -154,22 +203,24 @@ public final class MessageMethodInvoker {
             if (this == o) {
                 return true;
             }
-            if (o == null || getClass() != o.getClass()) {
+            if (!(o instanceof SignaturePair)) {
                 return false;
             }
 
             final SignaturePair that = (SignaturePair) o;
-            return Arrays.equals(parameter, that.parameter) && target.equals(that.target);
 
+            return Arrays.equals(handlers, that.handlers)
+                && Arrays.equals(parameter, that.parameter);
         }
 
         @Override
         public int hashCode() {
-            return 31 * target.hashCode() + Arrays.hashCode(parameter);
+            return 31 * (Arrays.hashCode(handlers)) + Arrays.hashCode(parameter);
         }
 
-        public static SignaturePair of(final Class<?> target, final Class<?>[] parameter) {
-            return new SignaturePair(target, parameter);
+        public static SignaturePair of(final Class<?>[] parameter,
+                                       final Class<?>... handlers) {
+            return new SignaturePair(parameter, handlers);
         }
     }
 

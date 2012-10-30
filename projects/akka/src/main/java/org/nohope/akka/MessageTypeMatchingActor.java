@@ -1,12 +1,13 @@
 package org.nohope.akka;
 
-import akka.actor.ActorInitializationException;
 import akka.actor.UntypedActor;
 import akka.event.Logging;
 import akka.event.LoggingAdapter;
 import org.nohope.IMatcher;
 import org.nohope.typetools.JSON;
 
+import javax.annotation.Nonnull;
+import java.io.Serializable;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -45,7 +46,8 @@ import static org.nohope.typetools.StringUtils.join;
 public class MessageTypeMatchingActor extends UntypedActor {
     @SuppressWarnings("ThisEscapedInObjectConstruction")
     protected final LoggingAdapter log = Logging.getLogger(getContext().system(), this);
-    private final boolean expandObjectArrays;
+    protected final boolean expandObjectArrays;
+    private final List<Serializable> handlers = new ArrayList<>();
 
     protected MessageTypeMatchingActor(final boolean expandObjectArrays) {
         this.expandObjectArrays = expandObjectArrays;
@@ -62,7 +64,8 @@ public class MessageTypeMatchingActor extends UntypedActor {
                             throw new IllegalStateException("More than one @OnReceive "
                                     + "method found conforming signature ["
                                     + join(getClassNames(types))
-                                    + ']');
+                                    + "] in "
+                                    + getClass());
                         }
                     }
 
@@ -81,7 +84,11 @@ public class MessageTypeMatchingActor extends UntypedActor {
     @Override
     public final void onReceive(final Object message) {
         try {
-            final Object result = invokeOnReceive(this, message, expandObjectArrays);
+            final Object result = invokeOnReceive(this,
+                    message,
+                    expandObjectArrays,
+                    handlers.toArray());
+
             // if method return type is not void
             // or return result = null
             if (result != null) {
@@ -92,6 +99,17 @@ public class MessageTypeMatchingActor extends UntypedActor {
         }
 
         postReceive(message);
+    }
+
+    /**
+     * Registers fallback objects which will be used to search
+     * for {@link OnReceive &#064;OnReceive} methods in case it was
+     * not found in this actor.
+     *
+     * @param handlers array of any non {@code null} object references
+     */
+    protected final void addHandlers(@Nonnull final Serializable... handlers) {
+        this.handlers.addAll(Arrays.asList(handlers));
     }
 
     /**
