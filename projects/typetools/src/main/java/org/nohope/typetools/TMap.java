@@ -12,7 +12,7 @@ import static org.nohope.reflection.IntrospectionUtils.safeCast;
  * Time: 17:35
  */
 // FIXME: delete it?
-public class TMap {
+public final class TMap {
     private TMap() {
     }
 

@@ -15,7 +15,7 @@ import java.util.Comparator;
  * they were added to this list. Add only objects that the comparator can
  * compare.</p>
  */
-public class SortedList<T extends Serializable> extends ArrayList<T> {
+public final class SortedList<T extends Serializable> extends ArrayList<T> {
     private static final long serialVersionUID = 1L;
 
     private final SerializableComparator<T> comparator;

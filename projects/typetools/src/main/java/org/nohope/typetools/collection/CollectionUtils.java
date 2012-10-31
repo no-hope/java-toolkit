@@ -7,7 +7,7 @@ import java.util.List;
  * @author <a href="mailto:ketoth.xupack@gmail.com">ketoth xupack</a>
  * @since 9/18/12 5:32 PM
  */
-public class CollectionUtils {
+public final class CollectionUtils {
     private CollectionUtils() {
     }
 

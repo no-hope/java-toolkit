@@ -10,7 +10,7 @@ import java.util.TimeZone;
  * Date: 21.05.12
  * Time: 13:19
  */
-public class TTime {
+public final class TTime {
     private TTime() {
     }
 
