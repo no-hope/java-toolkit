@@ -66,11 +66,11 @@ public final class AkkaUtils {
                 actorName);
     }
 
-    public static class EntryBuilder {
+    public static final class EntryBuilder {
         private final ActorSystemBuilder builder;
         private final String prefix;
 
-        final EntryBuilder ebuilder;
+        private final EntryBuilder ebuilder;
 
         public EntryBuilder(final ActorSystemBuilder builder,
                             final String prefix,
@@ -101,7 +101,7 @@ public final class AkkaUtils {
         }
     }
 
-    public static class ActorSystemBuilder {
+    public static final class ActorSystemBuilder {
         private final StringBuilder config = new StringBuilder();
         private final String name;
 

@@ -16,7 +16,7 @@ public final class RandomUtils  {
     }
 
     public static String nextString() {
-        return Long.toString(Math.abs(RANDOM.nextLong()));
+        return Long.toString((long)(RANDOM.nextDouble() * Long.MAX_VALUE));
     }
 
     public static int nextInt() {
