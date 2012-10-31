@@ -69,7 +69,7 @@ public abstract class Handler<M> {
      * @return created bean
      */
     @Nonnull
-    protected <T> T getOrInstantiate(@Nonnull final Class<? extends T> clazz) {
+    protected final <T> T getOrInstantiate(@Nonnull final Class<? extends T> clazz) {
         try {
             return getAppContext().getBean(clazz);
         } catch (final BeansException e) {
@@ -78,11 +78,11 @@ public abstract class Handler<M> {
     }
 
     @Nonnull
-    protected <T> T get(@Nonnull final String beanId, @Nonnull final Class<T> clazz) {
+    protected final <T> T get(@Nonnull final String beanId, @Nonnull final Class<T> clazz) {
         return getAppContext().getBean(beanId, clazz);
     }
 
-    protected <T> T get(@Nonnull final String beanId, @Nonnull final TypeReference<T> reference) {
+    protected final <T> T get(@Nonnull final String beanId, @Nonnull final TypeReference<T> reference) {
         return get(beanId, reference.getTypeClass());
     }
 
@@ -99,7 +99,7 @@ public abstract class Handler<M> {
     }
 
     @Nonnull
-    protected <T> T get(@Nonnull final Class<T> clazz) {
+    protected final <T> T get(@Nonnull final Class<T> clazz) {
         return getAppContext().getBean(clazz);
     }
 
@@ -109,7 +109,7 @@ public abstract class Handler<M> {
     }
 
     @Nonnull
-    protected <T> T get(@Nonnull final BeanDefinition<T> definition) {
+    protected final <T> T get(@Nonnull final BeanDefinition<T> definition) {
         return get(definition.getName(), definition.getBeanClass());
     }
 
@@ -139,14 +139,12 @@ public abstract class Handler<M> {
      * @return application context
      */
     @Nonnull
-    public ConfigurableApplicationContext getAppContext() {
-        if (ctx == null) {
-            throw new IllegalStateException("application context not yet available");
-        }
+    public final ConfigurableApplicationContext getAppContext() {
+        ensureContext();
         return ctx;
     }
 
-    void setAppContext(final ConfigurableApplicationContext ctx) {
+    final void setAppContext(final ConfigurableApplicationContext ctx) {
         this.ctx = ctx;
     }
 
@@ -157,14 +155,18 @@ public abstract class Handler<M> {
      * @return application context
      */
     @Nonnull
-    public String getAppName() {
-        if (ctx == null) {
-            throw new IllegalStateException("application name not yet available");
-        }
+    public final String getAppName() {
+        ensureContext();
         return appName;
     }
 
-    void setAppName(final String appName) {
+    final void setAppName(final String appName) {
         this.appName = appName;
+    }
+
+    private void ensureContext() {
+        if (ctx == null) {
+            throw new IllegalStateException("application context not yet available");
+        }
     }
 }

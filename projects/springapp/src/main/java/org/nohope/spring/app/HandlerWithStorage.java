@@ -20,15 +20,15 @@ public abstract class HandlerWithStorage<M> extends Handler<M> {
      * @return Map of descriptors of all the available modules
      */
     @Nonnull
-    public Map<String, ModuleDescriptor<M>> getModuleDescriptors() {
+    public final Map<String, ModuleDescriptor<M>> getModuleDescriptors() {
         return new TreeMap<>(modules);
     }
 
-    protected <S> List<ModuleDescriptor<S>> getDescriptors(final Class<S> clazz) {
+    protected final <S> List<ModuleDescriptor<S>> getDescriptors(final Class<S> clazz) {
         return getDescriptors(clazz, modules.values());
     }
 
-    protected <S> Map<String, S> getModules(final Class<S> clazz) {
+    protected final <S> Map<String, S> getModules(final Class<S> clazz) {
         final Map<String, S> result = new HashMap<>();
         for (final ModuleDescriptor<S> d: getDescriptors(clazz, modules.values())) {
             result.put(d.getName(), d.getModule());
@@ -41,7 +41,7 @@ public abstract class HandlerWithStorage<M> extends Handler<M> {
      * @param <S> supertype of modules to be filtered
      * @return All the implementations of given superclass
      */
-    protected <S> List<S> getImplementations(final Class<S> clazz) {
+    protected final <S> List<S> getImplementations(final Class<S> clazz) {
         return getImplementations(clazz, modules.values());
     }
 
@@ -106,6 +106,6 @@ public abstract class HandlerWithStorage<M> extends Handler<M> {
         onModuleAdded(descriptor);
     }
 
-    protected void onModuleAdded(@Nonnull final ModuleDescriptor<M> descriptor) {
+    protected final void onModuleAdded(@Nonnull final ModuleDescriptor<M> descriptor) {
     }
 }
