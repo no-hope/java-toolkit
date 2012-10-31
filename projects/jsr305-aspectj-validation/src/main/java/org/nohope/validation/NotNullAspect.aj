@@ -162,7 +162,7 @@ public final privileged aspect NotNullAspect {
         return builder;
     }
 
-    private static class MethodCache {
+    private static final class MethodCache {
         private final String message;
         private final Annotation[][] params;
 
