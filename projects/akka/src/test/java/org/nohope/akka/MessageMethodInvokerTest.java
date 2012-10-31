@@ -38,7 +38,7 @@ public class MessageMethodInvokerTest {
     @Test
     public void testCache() throws Exception {
         MessageMethodInvoker.invokeOnReceive(this, 100);
-        assertTrue(MessageMethodInvoker.cache.containsKey(
+        assertTrue(MessageMethodInvoker.CACHE.containsKey(
                 SignaturePair.of(new Class<?>[]{Integer.class}, MessageMethodInvokerTest.class)));
     }
 

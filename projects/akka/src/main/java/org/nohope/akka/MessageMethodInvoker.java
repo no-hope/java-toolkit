@@ -23,7 +23,7 @@ import static org.nohope.reflection.IntrospectionUtils.getClassNames;
  */
 public final class MessageMethodInvoker {
     /** Cache for @OnReceive messages. */
-    static final Map<SignaturePair, Method> cache = new ConcurrentHashMap<>();
+    static final Map<SignaturePair, Method> CACHE = new ConcurrentHashMap<>();
 
     private MessageMethodInvoker() {
     }
@@ -151,7 +151,7 @@ public final class MessageMethodInvoker {
                                      final Class<?>... fallbackClasses)
             throws NoSuchMethodException {
         final SignaturePair pair = SignaturePair.of(parameterTypes, fallbackClasses);
-        if (!cache.containsKey(pair)) {
+        if (!CACHE.containsKey(pair)) {
             Method method = null;
             for (final Class<?> clazz : fallbackClasses) {
                 method = searchMethod(clazz, parameterTypes);
@@ -169,11 +169,11 @@ public final class MessageMethodInvoker {
                         + "]");
             }
 
-            cache.put(pair, method);
+            CACHE.put(pair, method);
             return method;
         }
 
-        return cache.get(pair);
+        return CACHE.get(pair);
     }
 
     private static IllegalArgumentException
@@ -188,14 +188,14 @@ public final class MessageMethodInvoker {
                 getCanonicalClassName(message)), e);
     }
 
-    static class SignaturePair {
+    static final class SignaturePair {
         private final Class<?>[] handlers;
         private final Class<?>[] parameter;
 
         SignaturePair(final Class<?>[] parameter,
                       final Class<?>... handlers) {
             this.handlers = handlers;
-            this.parameter = parameter;
+            this.parameter = parameter == null ? null : parameter.clone();
         }
 
         @Override
@@ -224,11 +224,11 @@ public final class MessageMethodInvoker {
         }
     }
 
-    private static class SignatureMatcher implements IMatcher<Method> {
+    private static final class SignatureMatcher implements IMatcher<Method> {
         private final Class[] classes;
 
         public SignatureMatcher(final Class[] classes) {
-            this.classes = classes;
+            this.classes = classes == null ? null : classes.clone();
         }
 
         @Override

@@ -24,6 +24,6 @@ public final class SupervisorRequests {
         }
     }
 
-    public static class StartupRequest {
+    public static final class StartupRequest {
     }
 }

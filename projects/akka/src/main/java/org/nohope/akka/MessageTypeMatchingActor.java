@@ -69,7 +69,6 @@ public class MessageTypeMatchingActor extends UntypedActor {
                     }
 
                     signatures.add(types);
-
                 }
                 return check;
             }

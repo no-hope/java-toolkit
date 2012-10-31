@@ -54,7 +54,7 @@ public abstract class BaseSupervisor extends MessageTypeMatchingActor {
         log.debug("Supervisor '{}' stopped", getSelf().path().name());
     }
 
-    protected ActorRef obtainWorkerRef(final NamedWorkerMetadata inputClassId) {
+    protected final ActorRef obtainWorkerRef(final NamedWorkerMetadata inputClassId) {
         ActorRef deviceRef = startingActors.get(inputClassId);
 
         if (null == deviceRef) {

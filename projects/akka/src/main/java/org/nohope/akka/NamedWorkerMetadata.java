@@ -8,7 +8,7 @@ import java.io.Serializable;
  * Time: 12:00 PM
  */
 @Immutable
-public class NamedWorkerMetadata implements Serializable {
+public final class NamedWorkerMetadata implements Serializable {
     private static final long serialVersionUID = 1L;
 
     private final String identifier;
