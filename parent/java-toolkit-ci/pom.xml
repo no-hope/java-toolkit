@@ -6,7 +6,7 @@
 
     <groupId>org.no-hope</groupId>
     <artifactId>env-ci</artifactId>
-    <version>9</version>
+    <version>10</version>
     <name>env-integration</name>
     <packaging>pom</packaging>
 
@@ -32,6 +32,7 @@
         <maven.pmd-plugin.version>2.5</maven.pmd-plugin.version>
         <maven.project-info-reports-plugin.version>2.4</maven.project-info-reports-plugin.version>
         <maven.site-plugin.version>3.0</maven.site-plugin.version>
+        <maven.sonar-plugin.version>3.2</maven.sonar-plugin.version>
         <maven.surefire-plugin.version>2.12.1</maven.surefire-plugin.version>
 
         <!-- libs -->
@@ -433,6 +434,13 @@
                         </goals>
                     </execution>
                 </executions>
+            </plugin>
+
+            <!-- sonar analysis -->
+            <plugin>
+                <groupId>org.codehaus.sonar</groupId>
+                <artifactId>sonar-maven-plugin</artifactId>
+                <version>${maven.sonar-plugin.version}</version>
             </plugin>
         </plugins>
     </build>
