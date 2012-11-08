@@ -5,6 +5,7 @@ import com.fasterxml.jackson.databind.introspect.VisibilityChecker;
 import com.fasterxml.jackson.datatype.joda.JodaModule;
 import org.nohope.logging.Logger;
 import org.nohope.logging.LoggerFactory;
+import org.nohope.typetools.json.ColorModule;
 
 import java.io.IOException;
 
@@ -27,6 +28,7 @@ public final class JSON {
 
     static {
         prettyMapper.registerModule(new JodaModule());
+        prettyMapper.registerModule(new ColorModule());
         prettyMapper.configure(INDENT_OUTPUT, true);
         prettyMapper.configure(WRITE_DATES_AS_TIMESTAMPS, false);
         prettyMapper.configure(FAIL_ON_EMPTY_BEANS, false);
@@ -35,6 +37,7 @@ public final class JSON {
         prettyMapper.setVisibilityChecker(VisibilityChecker.Std.defaultInstance().withFieldVisibility(ANY));
 
         usualMapper.registerModule(new JodaModule());
+        usualMapper.registerModule(new ColorModule());
         usualMapper.setSerializationInclusion(NON_EMPTY);
         usualMapper.enableDefaultTypingAsProperty(ObjectMapper.DefaultTyping.NON_FINAL, "@class");
         usualMapper.setVisibilityChecker(VisibilityChecker.Std.defaultInstance().withFieldVisibility(ANY));
