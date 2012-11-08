@@ -33,6 +33,7 @@ import org.jongo.marshall.Marshaller;
 import org.jongo.marshall.MarshallingException;
 import org.jongo.marshall.Unmarshaller;
 import org.nohope.logging.Logger;
+import org.nohope.typetools.json.ColorModule;
 
 import javax.annotation.Nonnull;
 import java.io.IOException;
@@ -108,6 +109,8 @@ public final class JacksonProcessor implements Unmarshaller, Marshaller {
     private static ObjectMapper createPreConfiguredMapper() {
         final ObjectMapper mapper = new ObjectMapper();
         mapper.registerModule(new JodaModule());
+        mapper.registerModule(new ColorModule());
+
         mapper.configure(FAIL_ON_UNKNOWN_PROPERTIES, false);
         mapper.configure(AUTO_DETECT_GETTERS, false);
         mapper.configure(AUTO_DETECT_SETTERS, false);
