@@ -2,7 +2,6 @@ package org.nohope.typetools.json;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.Test;
-import org.nohope.typetools.JSON;
 
 import java.awt.*;
 
