@@ -26,7 +26,7 @@ public final class TTime {
         setDefaultTimezone("Etc/UTC");
     }
 
-    private static void setDefaultTimezone(final String Id) {
-        TimeZone.setDefault(TimeZone.getTimeZone(Id));
+    private static void setDefaultTimezone(final String id) {
+        TimeZone.setDefault(TimeZone.getTimeZone(id));
     }
 }
