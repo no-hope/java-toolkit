@@ -141,6 +141,7 @@ public final class SpringActorFactory<T extends UntypedActor> implements Untyped
         return new Props(this);
     }
 
+    @SuppressWarnings("PMD.UnusedFormalParameter")
     private void writeObject(final ObjectOutputStream oos) throws IOException {
         throw new NotSerializableException();
     }
