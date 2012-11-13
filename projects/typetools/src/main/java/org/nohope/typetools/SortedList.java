@@ -37,7 +37,7 @@ public final class SortedList<T extends Serializable> extends ArrayList<T> {
      */
     @Override
     public void add(final int index, final T element) {
-        throw new RuntimeException("Can't insert into sorted list to specific index");
+        throw new UnsupportedOperationException("Can't insert into sorted list to specific index");
     }
 
     /**

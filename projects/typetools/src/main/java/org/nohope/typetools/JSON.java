@@ -23,24 +23,24 @@ public final class JSON {
     private JSON() {
     }
 
-    private static final ObjectMapper prettyMapper = new ObjectMapper();
-    private static final ObjectMapper usualMapper = new ObjectMapper();
+    private static final ObjectMapper PRETTY_MAPPER = new ObjectMapper();
+    private static final ObjectMapper USUAL_MAPPER = new ObjectMapper();
 
     static {
-        prettyMapper.registerModule(new JodaModule());
-        prettyMapper.registerModule(new ColorModule());
-        prettyMapper.configure(INDENT_OUTPUT, true);
-        prettyMapper.configure(WRITE_DATES_AS_TIMESTAMPS, false);
-        prettyMapper.configure(FAIL_ON_EMPTY_BEANS, false);
-        prettyMapper.setSerializationInclusion(NON_EMPTY);
-        prettyMapper.enableDefaultTypingAsProperty(ObjectMapper.DefaultTyping.NON_FINAL, "@class");
-        prettyMapper.setVisibilityChecker(VisibilityChecker.Std.defaultInstance().withFieldVisibility(ANY));
+        PRETTY_MAPPER.registerModule(new JodaModule());
+        PRETTY_MAPPER.registerModule(new ColorModule());
+        PRETTY_MAPPER.configure(INDENT_OUTPUT, true);
+        PRETTY_MAPPER.configure(WRITE_DATES_AS_TIMESTAMPS, false);
+        PRETTY_MAPPER.configure(FAIL_ON_EMPTY_BEANS, false);
+        PRETTY_MAPPER.setSerializationInclusion(NON_EMPTY);
+        PRETTY_MAPPER.enableDefaultTypingAsProperty(ObjectMapper.DefaultTyping.NON_FINAL, "@class");
+        PRETTY_MAPPER.setVisibilityChecker(VisibilityChecker.Std.defaultInstance().withFieldVisibility(ANY));
 
-        usualMapper.registerModule(new JodaModule());
-        usualMapper.registerModule(new ColorModule());
-        usualMapper.setSerializationInclusion(NON_EMPTY);
-        usualMapper.enableDefaultTypingAsProperty(ObjectMapper.DefaultTyping.NON_FINAL, "@class");
-        usualMapper.setVisibilityChecker(VisibilityChecker.Std.defaultInstance().withFieldVisibility(ANY));
+        USUAL_MAPPER.registerModule(new JodaModule());
+        USUAL_MAPPER.registerModule(new ColorModule());
+        USUAL_MAPPER.setSerializationInclusion(NON_EMPTY);
+        USUAL_MAPPER.enableDefaultTypingAsProperty(ObjectMapper.DefaultTyping.NON_FINAL, "@class");
+        USUAL_MAPPER.setVisibilityChecker(VisibilityChecker.Std.defaultInstance().withFieldVisibility(ANY));
     }
 
     public static String pretty(final Object obj) {
@@ -62,18 +62,18 @@ public final class JSON {
      * @throws IOException
      */
     public static <T> T copyAs(final Object source, final Class<T> clazz) throws IOException {
-        final byte [] marshalled = usualMapper.writeValueAsBytes(source);
-        return usualMapper.readValue(marshalled, clazz);
+        final byte [] marshalled = USUAL_MAPPER.writeValueAsBytes(source);
+        return USUAL_MAPPER.readValue(marshalled, clazz);
     }
 
     private static String jsonify(final Object obj,
                                  final String onErrorMessage) {
-        return jsonifyWith(usualMapper, obj, onErrorMessage);
+        return jsonifyWith(USUAL_MAPPER, obj, onErrorMessage);
     }
 
     private static String pretty(final Object obj,
                          final String onErrorMessage) {
-        return jsonifyWith(prettyMapper, obj, onErrorMessage);
+        return jsonifyWith(PRETTY_MAPPER, obj, onErrorMessage);
     }
 
     private static String jsonifyWith(final ObjectMapper mapper, final Object obj, final String onErrorMessage) {
