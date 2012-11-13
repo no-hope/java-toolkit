@@ -13,7 +13,7 @@ This POM:
   -->
   <groupId>org.no-hope</groupId>
   <artifactId>env-java</artifactId>
-  <version>4</version>
+  <version>5</version>
   <name>env-java</name>
   <packaging>pom</packaging>
 
@@ -31,7 +31,11 @@ This POM:
     <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
 
     <java.major.version>7</java.major.version>
-    <java.lang.level>1.${java.major.version}</java.lang.level>
+    <java.version>1.${java.major.version}</java.version>
+
+    <java.source.level>${java.version}</java.source.level>
+    <java.target.level>${java.version}</java.target.level>
+    <java.compiler.version>${java.version}</java.compiler.version>
 
     <!-- Maven plugins -->
     <maven.compiler-plugin.version>2.3.2</maven.compiler-plugin.version>
@@ -76,9 +80,9 @@ This POM:
         <artifactId>maven-compiler-plugin</artifactId>
         <version>${maven.compiler-plugin.version}</version>
         <configuration>
-          <source>${java.lang.level}</source>
-          <target>${java.lang.level}</target>
-          <compilerVersion>${java.lang.level}</compilerVersion>
+          <source>${java.source.level}</source>
+          <target>${java.target.level}</target>
+          <compilerVersion>${java.compiler.version}</compilerVersion>
           <showDeprecation>true</showDeprecation>
           <showWarnings>true</showWarnings>
 
