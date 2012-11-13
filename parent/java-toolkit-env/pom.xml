@@ -13,7 +13,7 @@ This POM:
   -->
   <groupId>org.no-hope</groupId>
   <artifactId>env-java</artifactId>
-  <version>5</version>
+  <version>6</version>
   <name>env-java</name>
   <packaging>pom</packaging>
 
@@ -31,11 +31,11 @@ This POM:
     <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
 
     <java.major.version>7</java.major.version>
-    <java.version>1.${java.major.version}</java.version>
+    <java.lang.level>1.${java.major.version}</java.lang.level>
 
-    <java.source.level>${java.version}</java.source.level>
-    <java.target.level>${java.version}</java.target.level>
-    <java.compiler.version>${java.version}</java.compiler.version>
+    <java.source.level>${java.lang.level}</java.source.level>
+    <java.target.level>${java.lang.level}</java.target.level>
+    <java.compiler.version>${java.lang.level}</java.compiler.version>
 
     <!-- Maven plugins -->
     <maven.compiler-plugin.version>2.3.2</maven.compiler-plugin.version>
