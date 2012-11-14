@@ -2,7 +2,6 @@ package org.nohope.typetools.json;
 
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.core.JsonParser;
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.JsonToken;
 import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.JsonNode;
@@ -37,7 +36,7 @@ public class ColorModule extends SimpleModule {
         }
 
         @Override
-        public void serialize(final Color value, final JsonGenerator jgen, final SerializerProvider provider) throws IOException, JsonProcessingException {
+        public void serialize(final Color value, final JsonGenerator jgen, final SerializerProvider provider) throws IOException {
             jgen.writeStartArray();
             for (final float v:value.getRGBComponents(null)) {
                 jgen.writeNumber(v);
@@ -52,7 +51,7 @@ public class ColorModule extends SimpleModule {
         }
 
         @Override
-        public void serializeWithType(final Color value, final JsonGenerator jgen, final SerializerProvider provider, final TypeSerializer typeSer) throws IOException, JsonProcessingException {
+        public void serializeWithType(final Color value, final JsonGenerator jgen, final SerializerProvider provider, final TypeSerializer typeSer) throws IOException {
             typeSer.writeTypePrefixForScalar(value, jgen);
             serialize(value, jgen, provider);
             typeSer.writeTypeSuffixForScalar(value, jgen);
@@ -67,7 +66,7 @@ public class ColorModule extends SimpleModule {
         }
 
         @Override
-        public Color deserialize(final JsonParser jp, final DeserializationContext ctxt) throws IOException, JsonProcessingException {
+        public Color deserialize(final JsonParser jp, final DeserializationContext ctxt) throws IOException {
             if (jp.isExpectedStartArrayToken()) {
                 jp.nextToken(); // VALUE_NUMBER_INT
                 final float r = jp.getFloatValue();
@@ -90,7 +89,7 @@ public class ColorModule extends SimpleModule {
         }
 
         @Override
-        public Object deserializeWithType(final JsonParser jp, final DeserializationContext ctxt, final TypeDeserializer typeDeserializer) throws IOException, JsonProcessingException {
+        public Object deserializeWithType(final JsonParser jp, final DeserializationContext ctxt, final TypeDeserializer typeDeserializer) throws IOException {
             return typeDeserializer.deserializeTypedFromAny(jp, ctxt);
         }
     }
