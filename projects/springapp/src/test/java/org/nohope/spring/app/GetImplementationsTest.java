@@ -1,9 +1,9 @@
 package org.nohope.spring.app;
 
 import org.hamcrest.BaseMatcher;
+import org.hamcrest.CoreMatchers;
 import org.hamcrest.Description;
 import org.junit.Test;
-import org.junit.matchers.JUnitMatchers;
 import org.springframework.context.support.GenericApplicationContext;
 
 import java.util.ArrayList;
@@ -56,7 +56,7 @@ public class GetImplementationsTest {
         final List<Marker1> lst = HandlerWithStorage.getImplementations(Marker1.class, allModules);
         assertEquals(2, lst.size());
 
-        assertThat(lst, JUnitMatchers.everyItem(new BaseMatcher<Marker1>() {
+        assertThat(lst, CoreMatchers.everyItem(new BaseMatcher<Marker1>() {
             @Override
             public boolean matches(final Object o) {
                 return o instanceof M1Impl;
