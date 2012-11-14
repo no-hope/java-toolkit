@@ -40,13 +40,13 @@ public class Bean extends UntypedActor {
         if (message instanceof Props) {
             switch ((Props) message) {
                 case PARAM1:
-                    getSender().tell(param1);
+                    getSender().tell(param1, getSelf());
                     break;
                 case PARAM2:
-                    getSender().tell(param2);
+                    getSender().tell(param2, getSelf());
                     break;
                 case PARAM3:
-                    getSender().tell(param3);
+                    getSender().tell(param3, getSelf());
                     break;
             }
         }
