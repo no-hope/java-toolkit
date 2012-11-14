@@ -5,7 +5,7 @@ import org.junit.Test;
 
 import java.awt.*;
 
-import static junit.framework.Assert.assertEquals;
+import static org.junit.Assert.assertEquals;
 
 /**
  * Date: 11/8/12
