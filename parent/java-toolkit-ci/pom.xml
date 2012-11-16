@@ -6,7 +6,7 @@
 
     <groupId>org.no-hope</groupId>
     <artifactId>env-ci</artifactId>
-    <version>13</version>
+    <version>14</version>
     <name>env-integration</name>
     <packaging>pom</packaging>
 
@@ -17,7 +17,7 @@
     <parent>
         <groupId>org.no-hope</groupId>
         <artifactId>env-java</artifactId>
-        <version>7</version>
+        <version>8</version>
         <!-- need to force importing pom from repositories  -->
         <!--relativePath>../java/pom.xml</relativePath-->
         <relativePath/>
@@ -292,7 +292,7 @@
                                          resource="net/sf/antcontrib/antlib.xml"
                                          classpathref="maven.plugin.classpath"/>
 
-                                <mkdir dir="${jacoco.exec.dir}" />
+                                <mkdir dir="${jacoco.exec.dir}"/>
 
                                 <ac:trycatch property="e">
                                     <ac:try>
@@ -337,12 +337,13 @@
                                                                 arg2="$${project.parent.relativePath}"/>
                                                     </not>
                                                     <ac:then>
-                                                        <dirname property="parent.dir" file="${project.parent.relativePath}"/>
-                                                        <mkdir dir="${parent.dir}/@{folder}" />
+                                                        <dirname property="parent.dir"
+                                                                 file="${project.parent.relativePath}"/>
+                                                        <mkdir dir="${parent.dir}/@{folder}"/>
 
                                                         <jacoco:report>
                                                             <executiondata>
-                                                                <file file="@{file}" />
+                                                                <file file="@{file}"/>
                                                             </executiondata>
                                                             <structure name="[@{postfix}] ${project.name}">
                                                                 <classfiles>
@@ -467,7 +468,7 @@
                             We don't need extensive site reporting so
                             no reporst included here.
                         -->
-                        <reports />
+                        <reports/>
                     </reportSet>
                 </reportSets>
             </plugin>
