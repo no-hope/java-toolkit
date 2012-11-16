@@ -56,12 +56,12 @@ public final class CollectionUtils {
         return target;
     }
 
-    //@SuppressWarnings("unchecked")
+    @SuppressWarnings("unchecked")
     public static <K, V> K[] mapArray(final V[] collection,
+                                      final Class<K> targetClazz,
                                       final ITranslator<V, K> translator) {
         final Collection<K> ks = toCollection(new ArrayList<K>(), collection, translator);
 
-        final K[] objects = ks.toArray((K[]) Array.newInstance(translator.getTargetClass(), ks.size()));
-        return objects;
+        return ks.toArray((K[]) Array.newInstance(targetClazz, ks.size()));
     }
 }
