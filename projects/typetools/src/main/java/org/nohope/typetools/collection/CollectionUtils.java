@@ -2,6 +2,7 @@ package org.nohope.typetools.collection;
 
 import org.nohope.ITranslator;
 
+import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
@@ -55,9 +56,12 @@ public final class CollectionUtils {
         return target;
     }
 
-    @SuppressWarnings("unchecked")
-    public static <K, V> K[] toArray(final V[] collection,
-                                     final ITranslator<V, K> translator) {
-        return (K[]) toCollection(new ArrayList<K>(), collection, translator).toArray();
+    //@SuppressWarnings("unchecked")
+    public static <K, V> K[] mapArray(final V[] collection,
+                                      final ITranslator<V, K> translator) {
+        final Collection<K> ks = toCollection(new ArrayList<K>(), collection, translator);
+
+        final K[] objects = ks.toArray((K[]) Array.newInstance(translator.getTargetClass(), ks.size()));
+        return objects;
     }
 }
