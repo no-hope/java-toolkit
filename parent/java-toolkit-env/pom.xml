@@ -13,17 +13,20 @@ This POM:
   -->
   <groupId>org.no-hope</groupId>
   <artifactId>env-java</artifactId>
-  <version>6</version>
+  <version>7</version>
   <name>env-java</name>
   <packaging>pom</packaging>
 
   <parent>
     <groupId>org.no-hope</groupId>
     <artifactId>env-deploy</artifactId>
-    <version>3</version>
+    <version>4</version>
     <relativePath/>
   </parent>
 
+  <prerequisites>
+    <maven>3.0</maven>
+  </prerequisites>
 
   <properties>
     <!-- System -->
