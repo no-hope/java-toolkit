@@ -26,24 +26,21 @@ public class CollectionUtilsTest {
 
     @Test
     public void testToArray() throws Exception {
-        final List<Integer> integerList = new ArrayList<>(100);
-        for (int i =0; i<100; ++i ){
+        final int SIZE = 100;
+        final List<Integer> integerList = new ArrayList<>(SIZE);
+        for (int i =0; i< SIZE; ++i ){
             integerList.add(i);
         }
 
         final String[] arr = CollectionUtils.mapArray(integerList.toArray(new Integer[integerList.size()])
+                , String.class
                 , new ITranslator<Integer, String>() {
             @Override
             public String translate(final Integer source) {
                 return "" + source;
             }
-
-            @Override
-            public Class<String> getTargetClass() {
-                return String.class;
-            }
         });
 
-        assertEquals(arr.length, 100);
+        assertEquals(arr.length, SIZE);
     }
 }

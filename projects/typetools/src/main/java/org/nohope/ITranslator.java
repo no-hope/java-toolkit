@@ -6,5 +6,4 @@ package org.nohope;
  */
 public interface ITranslator<S, T> {
     T translate(S source);
-    Class<T> getTargetClass();
 }
