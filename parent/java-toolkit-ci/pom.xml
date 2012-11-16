@@ -6,14 +6,18 @@
 
     <groupId>org.no-hope</groupId>
     <artifactId>env-ci</artifactId>
-    <version>12</version>
+    <version>13</version>
     <name>env-integration</name>
     <packaging>pom</packaging>
+
+    <prerequisites>
+        <maven>3.0</maven>
+    </prerequisites>
 
     <parent>
         <groupId>org.no-hope</groupId>
         <artifactId>env-java</artifactId>
-        <version>6</version>
+        <version>7</version>
         <!-- need to force importing pom from repositories  -->
         <!--relativePath>../java/pom.xml</relativePath-->
         <relativePath/>
@@ -24,16 +28,16 @@
         <maven.antrun-plugin.version>1.7</maven.antrun-plugin.version>
         <maven.cobertura-plugin.version>2.5.1</maven.cobertura-plugin.version>
         <maven.dashboard-plugin.version>1.0.0-beta-1</maven.dashboard-plugin.version>
-        <maven.failsafe-plugin.version>2.12.1</maven.failsafe-plugin.version>
+        <maven.failsafe-plugin.version>2.12.4</maven.failsafe-plugin.version>
         <maven.findbugs-plugin.version>2.3.2</maven.findbugs-plugin.version>
-        <maven.jacoco-plugin.version>0.5.8.201207111220</maven.jacoco-plugin.version>
-        <maven.javadoc-plugin.version>2.7</maven.javadoc-plugin.version>
+        <maven.jacoco-plugin.version>0.6.0.201210061924</maven.jacoco-plugin.version>
+        <maven.javadoc-plugin.version>2.9</maven.javadoc-plugin.version>
         <maven.jdepend-plugin.version>2.0-beta-2</maven.jdepend-plugin.version>
         <maven.pmd-plugin.version>2.5</maven.pmd-plugin.version>
-        <maven.project-info-reports-plugin.version>2.4</maven.project-info-reports-plugin.version>
-        <maven.site-plugin.version>3.0</maven.site-plugin.version>
-        <maven.sonar-plugin.version>3.2</maven.sonar-plugin.version>
-        <maven.surefire-plugin.version>2.12.1</maven.surefire-plugin.version>
+        <maven.project-info-reports-plugin.version>2.6</maven.project-info-reports-plugin.version>
+        <maven.site-plugin.version>3.2</maven.site-plugin.version>
+        <maven.sonar-plugin.version>3.3.1</maven.sonar-plugin.version>
+        <maven.surefire-plugin.version>2.12.4</maven.surefire-plugin.version>
 
         <!-- libs -->
         <ant.version>1.8.2</ant.version>
@@ -228,6 +232,7 @@
                 <configuration>
                     <parallel>none</parallel>
                     <threadCount>1</threadCount>
+                    <forkMode>perthread</forkMode>
                     <includes>
                         <include>**/*IT.java</include>
                     </includes>
