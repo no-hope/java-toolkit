@@ -3,7 +3,6 @@ package org.nohope.typetools.collection;
 import org.junit.Test;
 import org.nohope.ITranslator;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import static org.junit.Assert.assertEquals;
@@ -26,21 +25,26 @@ public class CollectionUtilsTest {
 
     @Test
     public void testToArray() throws Exception {
-        final int SIZE = 100;
-        final List<Integer> integerList = new ArrayList<>(SIZE);
-        for (int i =0; i< SIZE; ++i ){
-            integerList.add(i);
+
+        final int size = 100;
+        final Integer[] integerArray = new Integer[size];
+        for (int i = 0; i < size; ++i) {
+            integerArray[i] = i;
         }
 
-        final String[] arr = CollectionUtils.mapArray(integerList.toArray(new Integer[integerList.size()])
+        final String[] arr = CollectionUtils.mapArray(
+                integerArray
                 , String.class
                 , new ITranslator<Integer, String>() {
             @Override
             public String translate(final Integer source) {
-                return "" + source;
+                return source.toString();
             }
         });
 
-        assertEquals(arr.length, SIZE);
+        assertEquals(arr.length, size);
+        for (int i = 0; i < size; i++) {
+            assertEquals(integerArray[i].toString(), arr[i]);
+        }
     }
 }

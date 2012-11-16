@@ -61,7 +61,6 @@ public final class CollectionUtils {
                                       final Class<K> targetClazz,
                                       final ITranslator<V, K> translator) {
         final Collection<K> ks = toCollection(new ArrayList<K>(), collection, translator);
-
         return ks.toArray((K[]) Array.newInstance(targetClazz, ks.size()));
     }
 }
