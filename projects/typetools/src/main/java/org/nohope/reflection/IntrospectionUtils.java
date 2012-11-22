@@ -409,6 +409,21 @@ public final class IntrospectionUtils {
                && higher.getReturnType().isAssignableFrom(lower.getReturnType());
     }
 
+    @SuppressWarnings("unchecked")
+    public static<T> Set<Constructor<T>> searchConstructors(final Class<T> clazz,
+                                                            final IMatcher<Constructor<T>> matcher) {
+        final Set<Constructor<T>> mth = new HashSet<>();
+
+        for (final Constructor<?> c : clazz.getDeclaredConstructors()) {
+            final Constructor<T> constructor = (Constructor<T>) c;
+            if (!matcher.matches(constructor)) {
+                continue;
+            }
+            mth.add(constructor);
+        }
+        return mth;
+    }
+
     public static Set<Method> searchMethods(final Class<?> clazz,
                                             final IMatcher<Method> matcher) {
         final Set<Method> mth = new HashSet<>();
