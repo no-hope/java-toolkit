@@ -4,6 +4,10 @@ import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.annotation.AutowiredAnnotationBeanPostProcessor;
 import org.springframework.beans.factory.config.AutowireCapableBeanFactory;
 import org.springframework.beans.factory.config.ConfigurableListableBeanFactory;
+import org.springframework.beans.factory.support.AbstractBeanDefinition;
+import org.springframework.beans.factory.support.AutowireCandidateQualifier;
+import org.springframework.beans.factory.support.BeanDefinitionRegistry;
+import org.springframework.beans.factory.support.RootBeanDefinition;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.context.annotation.CommonAnnotationBeanPostProcessor;
@@ -12,6 +16,7 @@ import org.springframework.core.io.ClassPathResource;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
+import java.lang.annotation.Annotation;
 
 /**
  * @author <a href="mailto:ketoth.xupack@gmail.com">ketoth xupack</a>
@@ -64,8 +69,35 @@ public final class SpringUtils {
     @Nonnull
     public static <T> T registerSingleton(@Nonnull final ConfigurableApplicationContext ctx,
                                           @Nonnull final String name,
-                                          @Nonnull final T obj) {
+                                          @Nonnull final T obj,
+                                          @Nonnull final Class<? extends Annotation> annotation,
+                                          @Nonnull final Object value) {
+        final RootBeanDefinition beanDef = new RootBeanDefinition(obj.getClass());
+        beanDef.setScope(AbstractBeanDefinition.SCOPE_SINGLETON);
+        beanDef.setAutowireCandidate(true);
+        beanDef.setAutowireMode(AbstractBeanDefinition.AUTOWIRE_NO);
+        beanDef.addQualifier(new AutowireCandidateQualifier(annotation, value));
+
+
+        ((BeanDefinitionRegistry) ctx.getBeanFactory())
+                .registerBeanDefinition(name, beanDef);
         ctx.getBeanFactory().registerSingleton(name, obj);
+        return obj;
+    }
+
+    @Nonnull
+    public static <T> T registerSingleton(@Nonnull final ConfigurableApplicationContext ctx,
+                                          @Nonnull final String name,
+                                          @Nonnull final T obj) {
+        final RootBeanDefinition beanDef = new RootBeanDefinition(obj.getClass());
+        beanDef.setScope(AbstractBeanDefinition.SCOPE_SINGLETON);
+        beanDef.setAutowireCandidate(true);
+        beanDef.setAutowireMode(AbstractBeanDefinition.AUTOWIRE_NO);
+
+        ((BeanDefinitionRegistry) ctx.getBeanFactory())
+                .registerBeanDefinition(name, beanDef);
+        ctx.getBeanFactory().registerSingleton(name, obj);
+
         return obj;
     }
 
