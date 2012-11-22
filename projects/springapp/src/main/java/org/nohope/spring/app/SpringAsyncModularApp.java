@@ -1,18 +1,38 @@
 package org.nohope.spring.app;
 
+import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.apache.xbean.finder.ResourceFinder;
 import org.nohope.logging.Logger;
 import org.nohope.logging.LoggerFactory;
+import org.springframework.beans.factory.NoSuchBeanDefinitionException;
 import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.core.io.ClassPathResource;
+import org.nohope.IMatcher;
+import org.nohope.ITranslator;
 import org.nohope.app.AsyncApp;
+import org.nohope.reflection.IntrospectionUtils;
+import org.nohope.typetools.collection.CollectionUtils;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
+import javax.inject.Inject;
 import java.io.File;
+import java.lang.annotation.Annotation;
+import java.lang.reflect.Constructor;
+import java.lang.reflect.ParameterizedType;
+import java.lang.reflect.Type;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Iterator;
+import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Properties;
+import java.util.Set;
 
+import static org.nohope.reflection.IntrospectionUtils.instanceOf;
+import static org.nohope.reflection.IntrospectionUtils.searchConstructors;
 import static org.nohope.spring.SpringUtils.*;
 
 /**
@@ -39,6 +59,39 @@ import static org.nohope.spring.SpringUtils.*;
  * </pre>
  * <p/>
  * Module name retrieved from properties file name.
+ * <p/>
+ * <b>Modules cross-dependencies injecting</b>
+ * <p/>
+ * Modules may request specific sub-modules. Consider next inheritance scheme
+ * <pre>
+ *       Module -- C
+ *         /\
+ *        /  \
+ *       A    B
+ * </pre>
+ *
+ * And three classes
+ * <pre>
+ *     class Module1 implements A {}
+ *     class Module2 implements A {}
+ *     class Module3 implements B {
+ *         // &#064;Dependency could be amended in case of constructor have only one IDependencyProvider parameter
+ *         {@link Inject &#064;Inject}
+ *         Module3({@link IDependencyProvider IDependencyProvider&lt;A&gt;} prop) {
+ *             prop; // will contain Module1 & Module2
+ *         }
+ *     }
+ *     class Module4 implements C {
+ *         // &#064;Dependency should be declared for each IDependencyProvider parameter if
+ *         // there is more than one such constructor parameter
+ *         {@link Inject &#064;Inject}
+ *         Module3({@link Dependency &#064;Dependency(A.class)} {@link IDependencyProvider IDependencyProvider}&lt;A&gt; p1,
+ *                 {@link Dependency &#064;Dependency(B.class)} {@link IDependencyProvider IDependencyProvider}&lt;B&gt; p2) {
+ *             prop1; // will contain Module1 & Module2
+ *             prop2; // will contain Module3
+ *         }
+ *     }
+ * </pre>
  * <p/>
  * <b>Start procedure</b>
  * <p/>
@@ -138,6 +191,8 @@ public final class SpringAsyncModularApp<M, H extends Handler<M>> extends AsyncA
     @Override
     protected void onStart() throws Exception {
         final Map<String, Properties> properties = finder.mapAvailableProperties(moduleMetaInfNamespace);
+
+        final List<ModuleDescriptor<Class<? extends M>>> descriptors = new ArrayList<>();
         for (final Map.Entry<String, Properties> e : properties.entrySet()) {
             final String moduleFileName = e.getKey();
             final Properties moduleProperties = e.getValue();
@@ -146,15 +201,6 @@ public final class SpringAsyncModularApp<M, H extends Handler<M>> extends AsyncA
                 continue;
             }
             final String moduleName = moduleFileName.substring(0, moduleFileName.lastIndexOf('.'));
-
-            /*
-            TODO: in fact we'll never face with such problem ?
-            I think we need to throw exception here. pshirshov.
-            if (modules.containsKey(moduleName)) {
-                LOG.warn("Module '{}' was already loaded, skipping", moduleName);
-                continue;
-            }
-            */
 
             if (!moduleProperties.containsKey("class")) {
                 LOG.warn("Unable to process module '{}' - no class property found", moduleName);
@@ -165,6 +211,7 @@ public final class SpringAsyncModularApp<M, H extends Handler<M>> extends AsyncA
             final Class<?> moduleClazz;
             try {
                 moduleClazz = Class.forName(moduleClassName);
+
                 if (!targetModuleClass.isAssignableFrom(moduleClazz)) {
                     LOG.error("Unable to load module '{}' class '{}' is not subclass of '{}'",
                             moduleName, moduleClazz.getCanonicalName(), targetModuleClass.getCanonicalName());
@@ -176,26 +223,207 @@ public final class SpringAsyncModularApp<M, H extends Handler<M>> extends AsyncA
                 continue;
             }
 
+            final Class<? extends M> finalClass = moduleClazz.asSubclass(targetModuleClass);
+
             final ConfigurableApplicationContext moduleContext = overrideRule(ctx,
                     moduleMetaInfNamespace, moduleName);
 
-            final Class<? extends M> finalClass = moduleClazz.asSubclass(targetModuleClass);
-            handler.onModuleDiscovered(finalClass, moduleContext, moduleProperties, moduleName);
+            try {
+                moduleContext.getBean(IDependencyProvider.class);
+                throw new IllegalStateException("IDependencyProvider already defined");
+            } catch (NoSuchBeanDefinitionException ignored) {
+            }
 
-            final M module = instantiate(moduleContext, finalClass);
-            LOG.debug("Module {}(class={}) loaded", moduleName, moduleClassName);
-
-            handler.onModuleCreated(module, moduleContext, moduleProperties, moduleName);
+            descriptors.add(new ModuleDescriptor<Class<? extends M>>(
+                    moduleName,
+                    finalClass,
+                    moduleProperties,
+                    moduleContext
+            ));
         }
 
-        /*
-        if (!finder.getResourcesNotLoaded().isEmpty()) {
-            LOG.warn("Suspicious modules found in classpath: {}", finder.getResourcesNotLoaded());
+        final Map<Class<? extends M>, ModuleDescriptor<Class<? extends M>>> unitializedModules =
+                CollectionUtils.toMap(
+                        new LinkedHashMap<Class<? extends M>, ModuleDescriptor<Class<? extends M>>>(),
+                        descriptors,
+                        new ITranslator<ModuleDescriptor<Class<? extends M>>, Class<? extends M>>() {
+                            @Override
+                            public Class<? extends M> translate(final ModuleDescriptor<Class<? extends M>> source) {
+                                return source.getModule();
+                            }
+                        });
+
+        final List<M> initializedModules = new ArrayList<>();
+
+        for (final Class<? extends M> clazz : getResolutionOrder(unitializedModules.keySet())) {
+            final ModuleDescriptor<Class<? extends M>> descriptor = unitializedModules.get(clazz);
+            final ConfigurableApplicationContext ctx = descriptor.getContext();
+
+            handler.onModuleDiscovered(descriptor.getModule(), ctx, descriptor.getProperties(), descriptor.getName());
+
+            try {
+                final IDependencyProvider bean = ctx.getBean(IDependencyProvider.class);
+                throw new IllegalStateException("IDependencyProvider already injected! (" + bean + ')');
+            } catch (NoSuchBeanDefinitionException ignored) {
+            }
+
+            for (final Class<?> dependencyClass : getDependencies(clazz)) {
+                final AbstractDependencyProvider<M> provider = new AbstractDependencyProvider<>();
+
+                final List<M> instantiatedDependencies = new ArrayList<>();
+                for (final M dep : initializedModules) {
+                    if (IntrospectionUtils.instanceOf(dep.getClass(), dependencyClass)) {
+                        instantiatedDependencies.add(dep);
+                    }
+                }
+
+                if (!instantiatedDependencies.isEmpty()) {
+                    provider.setModules(instantiatedDependencies);
+                    registerSingleton(ctx, dependencyClass.getCanonicalName(), provider,
+                            Dependency.class, dependencyClass);
+                }
+            }
+
+            final M module = instantiate(ctx, clazz);
+            LOG.debug("Module {}(class={}) loaded", descriptor.getName(), clazz.getCanonicalName());
+
+            handler.onModuleCreated(module, ctx, descriptor.getProperties(), descriptor.getName());
+            initializedModules.add(module);
         }
-        */
+
         handler.onModuleDiscoveryFinished();
 
         LOG.info("Service started: {}", this.getClass().getCanonicalName());
+    }
+
+    static <T> Map<Class<? extends T>, Set<Class<?>>> getDependencyMatrix(final Collection<Class<? extends T>> modules) {
+        final Map<Class<? extends T>, Set<Class<?>>> dependencyMatrix =
+                new LinkedHashMap<>();
+
+        for (final Class<? extends T> module : modules) {
+            if (dependencyMatrix.containsKey(module)) {
+                throw new IllegalStateException();
+            }
+
+            dependencyMatrix.put(module, new LinkedHashSet<Class<?>>());
+            for (final Class<?> dep : getDependencies(module)) {
+                for (final Class<?> m : modules) {
+                    if (instanceOf(m, dep)) {
+                        dependencyMatrix.get(module).add(m);
+                    }
+                }
+            }
+        }
+
+        return dependencyMatrix;
+    }
+
+    static <T> List<Class<? extends T>> getResolutionOrder(final Collection<Class<? extends T>> modules) {
+        final Map<Class<? extends T>, Set<Class<?>>> dependencyMatrix = getDependencyMatrix(modules);
+        final List<Class<? extends T>> instantiationOrder = new ArrayList<>();
+
+        int size;
+        do {
+            size = dependencyMatrix.size();
+            final Iterator<Map.Entry<Class<? extends T>, Set<Class<?>>>> iter =
+                    dependencyMatrix.entrySet().iterator();
+            while (iter.hasNext()) {
+                final Map.Entry<Class<? extends T>, Set<Class<?>>> e = iter.next();
+                if (instantiationOrder.containsAll(e.getValue())) {
+                    iter.remove();
+                    instantiationOrder.add(e.getKey());
+                }
+            }
+        } while (size != dependencyMatrix.size());
+
+        if (!dependencyMatrix.isEmpty()) {
+            throw new IllegalArgumentException("Cycle references found " + dependencyMatrix);
+        }
+
+        return instantiationOrder;
+    }
+
+    static <T> Set<Class<?>> getDependencies(final Class<T> clazz) {
+        final Set<Class<?>> dependencies = new LinkedHashSet<>();
+        final Set<Constructor<T>> constructors =
+                searchConstructors(clazz, new IMatcher<Constructor<T>>() {
+                    @Override
+                    public boolean matches(final Constructor<T> obj) {
+                        return obj.isAnnotationPresent(Inject.class)
+                               && !obj.isSynthetic()
+                               ;
+                    }
+                });
+
+        if (constructors.size() > 1) {
+            throw new IllegalStateException("More than one injectable constructor found for " + clazz);
+        }
+
+        for (final Constructor<T> constructor : constructors) {
+            int paramIndex = 0;
+            final LinkedHashMap<Integer, Map.Entry<Class<?>, Class<?>>> values = new LinkedHashMap<>();
+            final Annotation[][] annotations = constructor.getParameterAnnotations();
+            for (final Type type : constructor.getGenericParameterTypes()) {
+                final Class<?> typeClass = IntrospectionUtils.getClass(type);
+                if (instanceOf(typeClass, IDependencyProvider.class)) {
+                    if (instanceOf(type, ParameterizedType.class)) {
+                        final Type hold = ((ParameterizedType) type).getActualTypeArguments()[0];
+                        final Class<?> heldClass = IntrospectionUtils.getClass(hold);
+                        if (heldClass == null) {
+                            throw new IllegalStateException("Missing type information");
+                        }
+
+                        Class<?> value = null;
+                        for (final Annotation a : annotations[paramIndex]) {
+                            if (a instanceof Dependency) {
+                                value = ((Dependency) a).value();
+                            }
+                        }
+
+                        values.put(paramIndex, new ImmutablePair<Class<?>, Class<?>>(heldClass, value));
+                        if (!dependencies.add(heldClass)) {
+                            throw new IllegalArgumentException("Duplicate "
+                                                               + heldClass
+                                                               + " providers found for "
+                                                               + clazz);
+                        }
+                    } else {
+                        throw new IllegalStateException("Unsupported type information");
+                    }
+                }
+                paramIndex++;
+            }
+
+            // ensure spring will be able to inject dependencies properly
+            final Iterator<Map.Entry<Integer, Map.Entry<Class<?>, Class<?>>>> i = values.entrySet().iterator();
+            if (values.size() == 1) {
+                final Map.Entry<Integer, Map.Entry<Class<?>, Class<?>>> e = i.next();
+                final Map.Entry<Class<?>, Class<?>> pair = e.getValue();
+                if (pair.getValue() != null && !pair.getKey().equals(pair.getValue())) {
+                    throw parameterQualifierMismatch(constructor, e.getKey(), pair.getKey());
+                }
+            } else if (values.size() > 1) {
+                while (i.hasNext()) {
+                    final Map.Entry<Integer, Map.Entry<Class<?>, Class<?>>> e = i.next();
+                    final Map.Entry<Class<?>, Class<?>> pair = e.getValue();
+                    if (!pair.getKey().equals(pair.getValue())) {
+                        throw parameterQualifierMismatch(constructor, e.getKey(), pair.getKey());
+                    }
+                }
+
+            }
+        }
+
+        return dependencies;
+    }
+
+    private static IllegalStateException parameterQualifierMismatch(final Constructor<?> c,
+                                                                    final int index,
+                                                                    final Class<?> expected) {
+        return new IllegalStateException("Parameter " + index + " of " + c
+                                         + " must be annotated with @Dependency("
+                                         + expected.getSimpleName()
+                                         + ".class)");
     }
 
     @Override

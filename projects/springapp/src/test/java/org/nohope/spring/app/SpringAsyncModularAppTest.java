@@ -188,9 +188,9 @@ public class SpringAsyncModularAppTest {
     }
 
     private static<T extends Handler<IModule>> T probe(final Class<T> clazz,
-                                                               final String appName,
-                                                               final String appMetaInfNamespace,
-                                                               final String metaInfNamespace)
+                                                       final String appName,
+                                                       final String appMetaInfNamespace,
+                                                       final String metaInfNamespace)
             throws InterruptedException {
         final SpringAsyncModularApp<IModule, T> app = new SpringAsyncModularApp<>(
                 IModule.class,
