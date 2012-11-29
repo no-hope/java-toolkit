@@ -66,7 +66,7 @@ public class CrossDependenciesTest {
         public TestClassE(@Dependency(KindA.class) final IDependencyProvider<KindA> param1,
                           @Dependency(KindB.class) final IDependencyProvider<KindB> param2) {
             this.param1 = param1;
-            this.param2= param2;
+            this.param2 = param2;
         }
 
         public IDependencyProvider<KindA> getParam1() {
