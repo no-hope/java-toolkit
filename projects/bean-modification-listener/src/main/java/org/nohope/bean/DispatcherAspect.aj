@@ -16,7 +16,7 @@ public privileged aspect DispatcherAspect {
      * annotation.
      */
     pointcut setter(IDispatchable t, Object arg):
-          execution(@org.nohope.bean.Dispatch void set*(*))
+          execution(@org.nohope.bean.Dispatch * set*(*))
           && args(arg)
           && target(t);
 

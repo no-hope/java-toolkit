@@ -21,17 +21,20 @@ public abstract class StatefulDispatcher implements IDispatcher {
             properties = new HashMap<>();
             map.put(obj, properties);
         }
+
+        boolean previousExists = true;
         if (!properties.containsKey(propertyName)) {
             properties.put(propertyName, newValue);
-            return;
+            previousExists = false;
         }
 
         final Object old = properties.put(propertyName, newValue);
-        handle(obj, propertyName, old, newValue);
+        handle(obj, propertyName, old, newValue, previousExists);
     }
 
     protected abstract void handle(@Nonnull final IDispatchable obj,
                                    @Nonnull final String propertyName,
                                    final Object oldValue,
-                                   final Object newValue);
+                                   final Object newValue,
+                                   final boolean previousExists);
 }

@@ -50,10 +50,11 @@ public class StatefulDispatcherTest {
         private final Map<Object, Boolean> heated = new HashMap<>();
 
         @Override
-        protected void handle(@Nonnull final IDispatchable obj,
-                              @Nonnull final String propertyName,
-                              final Object oldValue,
-                              final Object newValue) {
+        protected void handle(@Nonnull final IDispatchable obj
+                , @Nonnull final String propertyName
+                , final Object oldValue
+                , final Object newValue
+                , final boolean previousExists) {
             heated.put(obj, true);
         }
 

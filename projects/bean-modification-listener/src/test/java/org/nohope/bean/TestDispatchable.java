@@ -22,4 +22,9 @@ public class TestDispatchable extends AbstractDispatchable {
     @Dispatch(name = "test")
     public void set(final Integer test) {
     }
+
+    @Dispatch(name = "test2")
+    public int setXX(final Integer test) {
+        return 0;
+    }
 }

@@ -29,10 +29,12 @@ public class DispatchingTest {
         test.setSomething("test1");
         test.set("test2");
         test.set(1);
+        test.setXX(2);
 
-        assertEquals(3, map.size());
+        assertEquals(4, map.size());
         assertEquals("test1", map.get("something"));
         assertEquals("test2", map.get("set"));
         assertEquals(1, map.get("test"));
+        assertEquals(2, map.get("test2"));
     }
 }
