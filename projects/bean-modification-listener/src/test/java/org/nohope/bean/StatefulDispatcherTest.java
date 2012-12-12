@@ -55,7 +55,9 @@ public class StatefulDispatcherTest {
                 , final Object oldValue
                 , final Object newValue
                 , final boolean previousExists) {
-            heated.put(obj, true);
+            if (previousExists) {
+                heated.put(obj, true);
+            }
         }
 
         public boolean heated(final Object bean) {
