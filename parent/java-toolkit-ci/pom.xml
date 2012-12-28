@@ -6,7 +6,7 @@
 
     <groupId>org.no-hope</groupId>
     <artifactId>env-ci</artifactId>
-    <version>14</version>
+    <version>15</version>
     <name>env-integration</name>
     <packaging>pom</packaging>
 
@@ -30,7 +30,7 @@
         <maven.dashboard-plugin.version>1.0.0-beta-1</maven.dashboard-plugin.version>
         <maven.failsafe-plugin.version>2.12.4</maven.failsafe-plugin.version>
         <maven.findbugs-plugin.version>2.3.2</maven.findbugs-plugin.version>
-        <maven.jacoco-plugin.version>0.6.0.201210061924</maven.jacoco-plugin.version>
+        <maven.jacoco-plugin.version>0.6.1.201212231917</maven.jacoco-plugin.version>
         <maven.javadoc-plugin.version>2.9</maven.javadoc-plugin.version>
         <maven.jdepend-plugin.version>2.0-beta-2</maven.jdepend-plugin.version>
         <maven.pmd-plugin.version>2.5</maven.pmd-plugin.version>
@@ -44,6 +44,7 @@
         <ant-contrib.version>1.0b3</ant-contrib.version>
         <apiviz.version>1.3.2.GA</apiviz.version>
         <junit.version>4.10</junit.version>
+        <maven-ant-tasks.version>2.1.3</maven-ant-tasks.version>
 
         <!-- jacoco reporting folders -->
         <jacoco.report.floder.it>target/site/jacoco/it</jacoco.report.floder.it>
@@ -272,6 +273,12 @@
                         <artifactId>ant</artifactId>
                         <version>${ant.version}</version>
                     </dependency>
+
+                    <dependency>
+                        <groupId>org.apache.maven</groupId>
+                        <artifactId>maven-ant-tasks</artifactId>
+                        <version>${maven-ant-tasks.version}</version>
+                    </dependency>
                 </dependencies>
 
                 <executions>
@@ -318,10 +325,14 @@
                         <phase>pre-site</phase>
                         <configuration>
                             <target xmlns:jacoco="antlib:org.jacoco.ant"
+                                    xmlns:artifact="antlib:org.apache.maven.artifact.ant"
                                     xmlns:ac="antlib:net.sf.antcontrib">
 
                                 <taskdef uri="antlib:net.sf.antcontrib"
                                          resource="net/sf/antcontrib/antlib.xml"
+                                         classpathref="maven.plugin.classpath"/>
+                                <taskdef uri="antlib:org.apache.maven.artifact.ant"
+                                         resource="org/apache/maven/artifact/ant/antlib.xml"
                                          classpathref="maven.plugin.classpath"/>
 
                                 <macrodef name="report">
@@ -332,11 +343,17 @@
                                         <ac:trycatch property="e">
                                             <ac:try>
                                                 <ac:if>
-                                                    <not>
+                                                    <or>
+                                                        <not>
+                                                            <available file="@{file}" />
+                                                        </not>
                                                         <equals arg1="${project.parent.relativePath}"
                                                                 arg2="$${project.parent.relativePath}"/>
-                                                    </not>
-                                                    <ac:then>
+                                                        <equals arg1="${project.parent.relativePath}"
+                                                                arg2="" />
+                                                    </or>
+                                                    <ac:else>
+                                                        <ac:var name="parent.dir" unset="true" />
                                                         <dirname property="parent.dir"
                                                                  file="${project.parent.relativePath}"/>
                                                         <mkdir dir="${parent.dir}/@{folder}"/>
@@ -345,23 +362,38 @@
                                                             <executiondata>
                                                                 <file file="@{file}"/>
                                                             </executiondata>
-                                                            <structure name="[@{postfix}] ${project.name}">
+                                                            <structure
+                                                                    name="[@{postfix}] ${project.parent.groupId}:${project.parent.artifactId}">
                                                                 <classfiles>
                                                                     <fileset dir="${parent.dir}"
                                                                              includes="**/target/classes/**/*.class"/>
                                                                 </classfiles>
-                                                                <sourcefiles encoding="UTF-8">
-                                                                    <fileset dir="${parent.dir}"
-                                                                             includes="**/src/**/*.java"/>
+                                                                <!-- encoding="UTF-8" -->
+                                                                <sourcefiles>
+                                                                    <!-- yet another approach
+                                                                    <archives>
+                                                                        <zips>
+                                                                            <fileset dir="${parent.dir}"
+                                                                                     includes="**/target/*-sources.jar"/>
+                                                                        </zips>
+                                                                    </archives>
+                                                                    -->
+                                                                    <mappedresources>
+                                                                        <fileset dir="${parent.dir}"
+                                                                                 includes="**/src/main/java/**/*.*"/>
+                                                                        <regexpmapper
+                                                                                from="src/main/java/(.*)$$"
+                                                                                to="\1"/>
+                                                                    </mappedresources>
                                                                 </sourcefiles>
                                                             </structure>
                                                             <html destdir="${parent.dir}/@{folder}"/>
                                                         </jacoco:report>
-                                                    </ac:then>
+                                                    </ac:else>
                                                 </ac:if>
                                             </ac:try>
                                             <ac:catch>
-                                                <echo>[WARNING] Could not aggregate JaCoCo reports ${e}</echo>
+                                                <echo>[WARNING] Could not generate JaCoCo report ${e}</echo>
                                             </ac:catch>
                                         </ac:trycatch>
                                     </sequential>
