@@ -19,7 +19,13 @@ public final class Interval implements Serializable {
     private LocalTime end;
     private final Set<Integer> daysOfWeek = new HashSet<>();
 
-    Interval() {
+    /**
+     * @deprecated do not use this constructor directly.
+     *             It's used for jackson serialization only
+     */
+    @SuppressWarnings("unused")
+    @Deprecated
+    private Interval() {
     }
 
     public Interval(@Nonnull final LocalTime begin,
@@ -95,5 +101,25 @@ public final class Interval implements Serializable {
         } else {
             return begin.isBefore(time) || end.isAfter(time);
         }
+    }
+
+    @Override
+    public boolean equals(final Object o) {
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
+
+        final Interval interval = (Interval) o;
+        return begin.equals(interval.begin)
+            && daysOfWeek.equals(interval.daysOfWeek)
+            && end.equals(interval.end);
+    }
+
+    @Override
+    public int hashCode() {
+        return 31 * (31 * begin.hashCode() + end.hashCode()) + daysOfWeek.hashCode();
     }
 }

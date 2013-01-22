@@ -7,8 +7,7 @@ import org.junit.Test;
 import java.util.HashSet;
 import java.util.Set;
 
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.*;
 
 /**
  * Date: 10/4/12
@@ -89,4 +88,36 @@ public class IntervalTest {
     }
 
 
+    @Test
+    public void equality() {
+        final LocalTime now = new LocalTime(16, 0);
+        final LocalTime later = new LocalTime(16, 1);
+        final LocalTime muchLater = new LocalTime(16, 2);
+
+        final Interval interval = new Interval(now, later);
+
+        final Interval interval1 = new Interval(now, later);
+        final Interval interval2 = new Interval(now, muchLater);
+        final Interval interval3 = new Interval(muchLater, later);
+
+        assertEquals(interval, interval);
+        assertEquals(interval.hashCode(), interval.hashCode());
+
+        //noinspection ObjectEqualsNull
+        assertFalse(interval.equals(null));
+        //noinspection LiteralAsArgToStringEquals, EqualsBetweenInconvertibleTypes
+        assertFalse(interval.equals("test"));
+
+        assertEquals(interval, interval1);
+        assertEquals(interval.hashCode(), interval1.hashCode());
+
+        assertFalse(interval.equals(interval2));
+        assertFalse(interval.equals(interval3));
+    }
+
+
+    @Test
+    public void serialization() {
+        //FIXME : test-utils causes cyclic dependency here...
+    }
 }
