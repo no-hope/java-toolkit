@@ -16,9 +16,11 @@
 
 package org.nohope.jongo;
 
+import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.core.Version;
 import com.fasterxml.jackson.databind.DeserializationContext;
+import com.fasterxml.jackson.databind.JavaType;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializerProvider;
 import com.fasterxml.jackson.databind.deser.std.StdKeyDeserializer;
@@ -118,6 +120,11 @@ public final class JacksonProcessor implements Unmarshaller, Marshaller {
         mapper.setVisibilityChecker(VisibilityChecker.Std.defaultInstance().withFieldVisibility(ANY));
 
         mapper.enableDefaultTypingAsProperty(ObjectMapper.DefaultTyping.NON_FINAL, "@class");
+        mapper.setDefaultTyping(new TypeResolverBuilder(ObjectMapper.DefaultTyping.NON_FINAL)
+                .init(JsonTypeInfo.Id.CLASS, null)
+                .inclusion(JsonTypeInfo.As.PROPERTY)
+                .typeProperty("@class")
+        );
 
         final SimpleModule module = new SimpleModule("jongo", Version.unknownVersion());
         module.addKeySerializer(Object.class, ComplexKeySerializer.S_OBJECT);
@@ -150,7 +157,7 @@ public final class JacksonProcessor implements Unmarshaller, Marshaller {
                               final SerializerProvider provider)
                 throws IOException {
             //System.err.println("Saving "+value);
-            if (value.getClass().isAssignableFrom(String.class)) {
+            if (value instanceof String) {
                 final String out = escape(value.toString());
                 jgen.writeFieldName(out);
             } else if (value instanceof Integer) {
@@ -167,6 +174,7 @@ public final class JacksonProcessor implements Unmarshaller, Marshaller {
     }
 
     private static final class ComplexKeyDeserializer extends StdKeyDeserializer {
+        private static final long serialVersionUID = 1L;
         static final ComplexKeyDeserializer S_OBJECT = new ComplexKeyDeserializer(Object.class);
 
         private ComplexKeyDeserializer(final Class<?> nominalType) {
@@ -189,6 +197,19 @@ public final class JacksonProcessor implements Unmarshaller, Marshaller {
             } else {
                 return unescape(key);
             }
+        }
+    }
+
+    private static class TypeResolverBuilder extends ObjectMapper.DefaultTypeResolverBuilder  {
+        private static final long serialVersionUID = 1L;
+
+        public TypeResolverBuilder(final ObjectMapper.DefaultTyping t) {
+            super(t);
+        }
+
+        @Override
+        public boolean useForType(final JavaType t) {
+            return true; // no restrictions!
         }
     }
 }

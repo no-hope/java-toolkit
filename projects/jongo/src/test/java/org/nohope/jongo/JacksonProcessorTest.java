@@ -23,6 +23,42 @@ public class JacksonProcessorTest {
         assertEquals(map1, restored);
     }
 
+    @Test
+    public void testIntegerMapEscaping() {
+        final Map<Integer, Object> map1 = new HashMap<>();
+        map1.put(1, "value.#pizda");
+
+        final JacksonProcessor proc = new JacksonProcessor();
+        final String marshalled = proc.marshall(map1);
+        final Object restored = proc.unmarshall(marshalled, Object.class);
+
+        assertEquals(map1, restored);
+    }
+
+    @Test
+    public void testComplexMapEscaping() {
+        final Map<Key, Object> map1 = new HashMap<>();
+        map1.put(new Key("x"), "value.#pizda");
+        map1.put(new Key("y"), "value.#pizda");
+        map1.put(new Key("z"), "value.#pizda");
+
+        final JacksonProcessor proc = new JacksonProcessor();
+        final String marshalled = proc.marshall(map1);
+        final Object restored = proc.unmarshall(marshalled, Object.class);
+
+        assertEquals(map1, restored);
+    }
+
+    @Test
+    public void testEscaping() {
+        final String source = "text hash1=# hash2=\\# hash3=\\\\# dot=. at=@ underscore=_ underscore2=\\_";
+        final String escaped = JacksonProcessor.escape(source);
+        assertEquals("text hash1=\\# hash2=\\\\# hash3=\\\\\\# dot=_ at=\\@ underscore=\\_ underscore2=\\\\_", escaped);
+
+        final String restored = JacksonProcessor.unescape(escaped);
+        assertEquals(source, restored);
+    }
+
     static Map<String, Object> generateMap() {
         final Map<String, Object> map1 = new HashMap<>();
 
@@ -44,13 +80,34 @@ public class JacksonProcessorTest {
         return map1;
     }
 
-    @Test
-    public void testEscaping() {
-        final String source = "text hash1=# hash2=\\# hash3=\\\\# dot=. at=@ underscore=_ underscore2=\\_";
-        final String escaped = JacksonProcessor.escape(source);
-        assertEquals("text hash1=\\# hash2=\\\\# hash3=\\\\\\# dot=_ at=\\@ underscore=\\_ underscore2=\\\\_", escaped);
+    private static final class Key {
+        private final String val;
 
-        final String restored = JacksonProcessor.unescape(escaped);
-        assertEquals(source, restored);
+        @SuppressWarnings("unused") // for deserialization purpose
+        private Key() {
+            this.val = null;
+        }
+
+        private Key(final String val) {
+            this.val = val;
+        }
+
+        @Override
+        public boolean equals(final Object o) {
+            if (this == o) {
+                return true;
+            }
+            if (o == null || getClass() != o.getClass()) {
+                return false;
+            }
+
+            final Key key = (Key) o;
+            return !(val != null ? !val.equals(key.val) : key.val != null);
+        }
+
+        @Override
+        public int hashCode() {
+            return val != null ? val.hashCode() : 0;
+        }
     }
 }
