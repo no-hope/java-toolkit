@@ -1,11 +1,13 @@
 package org.nohope.jongo;
 
+import org.jongo.marshall.MarshallingException;
 import org.junit.Test;
 
 import java.util.HashMap;
 import java.util.Map;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.fail;
 
 /**
  * Date: 04.08.12
@@ -49,6 +51,39 @@ public class JacksonProcessorTest {
         assertEquals(map1, restored);
     }
 
+    @Test(expected = MarshallingException.class)
+    public void incorrectUnmarshalling() {
+        final JacksonProcessor proc = new JacksonProcessor();
+        proc.unmarshall("", Object.class);
+    }
+
+    @Test(expected = MarshallingException.class)
+    public void incorrectMarshalling() {
+        new JacksonProcessor().marshall(new Object() {});
+    }
+
+    @Test
+    @SuppressWarnings("ConstantConditions")
+    public void nullChecks() {
+        try {
+            new JacksonProcessor().unmarshall("x", null);
+            fail();
+        } catch (final IllegalArgumentException e) {
+        }
+
+        try {
+            new JacksonProcessor().unmarshall(null, Object.class);
+            fail();
+        } catch (final IllegalArgumentException e) {
+        }
+
+        try {
+            new JacksonProcessor(null);
+            fail();
+        } catch (final IllegalArgumentException e) {
+        }
+    }
+
     @Test
     public void testEscaping() {
         final String source = "text hash1=# hash2=\\# hash3=\\\\# dot=. at=@ underscore=_ underscore2=\\_";
@@ -80,15 +115,15 @@ public class JacksonProcessorTest {
         return map1;
     }
 
-    private static final class Key {
+    private static class Key {
         private final String val;
 
         @SuppressWarnings("unused") // for deserialization purpose
-        private Key() {
+        Key() {
             this.val = null;
         }
 
-        private Key(final String val) {
+        Key(final String val) {
             this.val = val;
         }
 

@@ -20,7 +20,6 @@ import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.core.Version;
 import com.fasterxml.jackson.databind.DeserializationContext;
-import com.fasterxml.jackson.databind.JavaType;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializerProvider;
 import com.fasterxml.jackson.databind.deser.std.StdKeyDeserializer;
@@ -48,9 +47,15 @@ import static com.fasterxml.jackson.databind.DeserializationFeature.FAIL_ON_UNKN
 import static com.fasterxml.jackson.databind.MapperFeature.AUTO_DETECT_GETTERS;
 import static com.fasterxml.jackson.databind.MapperFeature.AUTO_DETECT_SETTERS;
 
+/**
+ * Complex Key (De)Serialization Notes:
+ * <ul>
+ *     <li>Key must have default constructor</li>
+ *     <li>Key must be non-final</li>
+ * </ul>
+ */
 public final class JacksonProcessor implements Unmarshaller, Marshaller {
     private static final Logger LOG = org.nohope.logging.LoggerFactory.getLogger(JacksonProcessor.class);
-
     private static final ObjectMapper KEY_MAPPER = createPreConfiguredMapper();
 
     private static final CharSequenceTranslator ESCAPE_AT =
@@ -72,7 +77,7 @@ public final class JacksonProcessor implements Unmarshaller, Marshaller {
 
     private final ObjectMapper mapper;
 
-    private JacksonProcessor(@Nonnull final ObjectMapper mapper) {
+    JacksonProcessor(@Nonnull final ObjectMapper mapper) {
         this.mapper = mapper;
     }
 
@@ -86,9 +91,9 @@ public final class JacksonProcessor implements Unmarshaller, Marshaller {
     }
 
     @Override
-    public <T> T unmarshall(final String json, final Class<T> clazz) {
+    public <T> T unmarshall(@Nonnull final String json, @Nonnull final Class<T> clazz) {
         try {
-            return mapper.readValue(json, clazz);
+            return getMapper().readValue(json, clazz);
         } catch (Exception e) {
             final String message = String.format("Unable to unmarshall from json: %s to %s", json, clazz);
             throw new MarshallingException(message, e);
@@ -99,7 +104,7 @@ public final class JacksonProcessor implements Unmarshaller, Marshaller {
     public <T> String marshall(final T obj) {
         try {
             final Writer writer = new StringWriter();
-            mapper.writeValue(writer, obj);
+            getMapper().writeValue(writer, obj);
             return writer.toString();
         } catch (Exception e) {
             final String message = String.format("Unable to marshall json from: %s", obj);
@@ -119,12 +124,8 @@ public final class JacksonProcessor implements Unmarshaller, Marshaller {
         mapper.setSerializationInclusion(NON_NULL);
         mapper.setVisibilityChecker(VisibilityChecker.Std.defaultInstance().withFieldVisibility(ANY));
 
-        mapper.enableDefaultTypingAsProperty(ObjectMapper.DefaultTyping.NON_FINAL, "@class");
-        mapper.setDefaultTyping(new TypeResolverBuilder(ObjectMapper.DefaultTyping.NON_FINAL)
-                .init(JsonTypeInfo.Id.CLASS, null)
-                .inclusion(JsonTypeInfo.As.PROPERTY)
-                .typeProperty("@class")
-        );
+        mapper.enableDefaultTypingAsProperty(ObjectMapper.DefaultTyping.NON_FINAL,
+                JsonTypeInfo.Id.CLASS.getDefaultPropertyName());
 
         final SimpleModule module = new SimpleModule("jongo", Version.unknownVersion());
         module.addKeySerializer(Object.class, ComplexKeySerializer.S_OBJECT);
@@ -145,7 +146,7 @@ public final class JacksonProcessor implements Unmarshaller, Marshaller {
         return UNESCAPE_AT.translate(name);
     }
 
-    static final class ComplexKeySerializer extends StdKeySerializer {
+    private static final class ComplexKeySerializer extends StdKeySerializer {
         static final ComplexKeySerializer S_OBJECT = new ComplexKeySerializer();
 
         private ComplexKeySerializer() {
@@ -169,7 +170,6 @@ public final class JacksonProcessor implements Unmarshaller, Marshaller {
                         , StringUtils.join(Thread.currentThread().getStackTrace(), "\n ... "));
                 jgen.writeFieldName("@" + escape(KEY_MAPPER.writeValueAsString(value)));
             }
-
         }
     }
 
@@ -197,19 +197,6 @@ public final class JacksonProcessor implements Unmarshaller, Marshaller {
             } else {
                 return unescape(key);
             }
-        }
-    }
-
-    private static class TypeResolverBuilder extends ObjectMapper.DefaultTypeResolverBuilder  {
-        private static final long serialVersionUID = 1L;
-
-        public TypeResolverBuilder(final ObjectMapper.DefaultTyping t) {
-            super(t);
-        }
-
-        @Override
-        public boolean useForType(final JavaType t) {
-            return true; // no restrictions!
         }
     }
 }
