@@ -1,6 +1,7 @@
 package org.nohope.typetools;
 
 import org.joda.time.DateTime;
+import org.joda.time.DateTimeZone;
 import org.junit.Test;
 
 import static org.junit.Assert.assertEquals;
@@ -12,7 +13,7 @@ import static org.junit.Assert.assertEquals;
 public class TTimeTest {
     @Test
     public void testDelta() {
-        final DateTime now = DateTime.now();
+        final DateTime now = DateTime.now(DateTimeZone.UTC);
 
         final DateTime future = now.plusSeconds(500);
 

@@ -2,12 +2,7 @@ package org.nohope.node;
 
 import com.mongodb.BasicDBObject;
 import com.mongodb.DBObject;
-import org.nohope.typetools.node.AndNode;
-import org.nohope.typetools.node.EmptyNode;
-import org.nohope.typetools.node.Interceptor;
-import org.nohope.typetools.node.Node;
-import org.nohope.typetools.node.NotNode;
-import org.nohope.typetools.node.OrNode;
+import org.nohope.typetools.node.*;
 
 import javax.annotation.Nonnull;
 
