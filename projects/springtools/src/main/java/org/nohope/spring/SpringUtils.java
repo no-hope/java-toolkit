@@ -3,6 +3,7 @@ package org.nohope.spring;
 import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.annotation.AutowiredAnnotationBeanPostProcessor;
 import org.springframework.beans.factory.config.AutowireCapableBeanFactory;
+import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.beans.factory.config.ConfigurableListableBeanFactory;
 import org.springframework.beans.factory.support.AbstractBeanDefinition;
 import org.springframework.beans.factory.support.AutowireCandidateQualifier;
@@ -73,7 +74,7 @@ public final class SpringUtils {
                                           @Nonnull final Class<? extends Annotation> annotation,
                                           @Nonnull final Object value) {
         final RootBeanDefinition beanDef = new RootBeanDefinition(obj.getClass());
-        beanDef.setScope(AbstractBeanDefinition.SCOPE_SINGLETON);
+        beanDef.setScope(BeanDefinition.SCOPE_SINGLETON);
         beanDef.setAutowireCandidate(true);
         beanDef.setAutowireMode(AbstractBeanDefinition.AUTOWIRE_NO);
         beanDef.addQualifier(new AutowireCandidateQualifier(annotation, value));
@@ -90,7 +91,7 @@ public final class SpringUtils {
                                           @Nonnull final String name,
                                           @Nonnull final T obj) {
         final RootBeanDefinition beanDef = new RootBeanDefinition(obj.getClass());
-        beanDef.setScope(AbstractBeanDefinition.SCOPE_SINGLETON);
+        beanDef.setScope(BeanDefinition.SCOPE_SINGLETON);
         beanDef.setAutowireCandidate(true);
         beanDef.setAutowireMode(AbstractBeanDefinition.AUTOWIRE_NO);
 
