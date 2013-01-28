@@ -389,7 +389,7 @@ public final class IntrospectionUtils {
         }
 
         // this _should_ be an Constructor<T> huh?
-        return (Constructor<T>) found;
+        return found;
     }
 
     /**

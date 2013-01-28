@@ -513,7 +513,7 @@ public final class IntrospectionTest extends UtilitiesTestSupport {
 
     @Test(expected = NoSuchMethodException.class)
     public void constructorCollision3() throws Exception {
-        newInstance(VarargConstructable.class, (Object) new long[]{1L, 2L});
+        newInstance(VarargConstructable.class, new long[]{1L, 2L});
     }
 
     @Test(expected = NoSuchMethodException.class)
