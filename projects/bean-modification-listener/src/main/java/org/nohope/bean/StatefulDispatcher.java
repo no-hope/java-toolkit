@@ -10,7 +10,7 @@ import java.util.concurrent.ConcurrentHashMap;
  * @since 12/10/12 3:08 PM
  */
 public abstract class StatefulDispatcher implements IDispatcher {
-    final Map<Object, Map<String, Object>> map = new ConcurrentHashMap<>();
+    private final Map<Object, Map<String, Object>> map = new ConcurrentHashMap<>();
 
     @Override
     public final synchronized void handle(@Nonnull final IDispatchable obj,
