@@ -9,6 +9,7 @@ import java.lang.reflect.Method;
  * @author <a href="mailto:ketoth.xupack@gmail.com">ketoth xupack</a>
  * @since 12/7/12 7:30 PM
  */
+@SuppressWarnings("unchecked")
 public privileged aspect DispatcherAspect {
 
     /**

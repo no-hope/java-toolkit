@@ -36,8 +36,8 @@ public class StatefulDispatcherTest {
         assertTrue(dispatcher.heated(b));
     }
 
-    private static class SimpleBean extends AbstractDispatchable {
-        protected SimpleBean(@Nonnull final IDispatcher dispatcher) {
+    private static class SimpleBean extends AbstractDispatchable<SimpleBean> {
+        protected SimpleBean(@Nonnull final IDispatcher<SimpleBean> dispatcher) {
             super(dispatcher);
         }
 

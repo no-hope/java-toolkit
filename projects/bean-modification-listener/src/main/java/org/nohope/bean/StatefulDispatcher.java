@@ -9,11 +9,11 @@ import java.util.concurrent.ConcurrentHashMap;
  * @author <a href="mailto:ketoth.xupack@gmail.com">ketoth xupack</a>
  * @since 12/10/12 3:08 PM
  */
-public abstract class StatefulDispatcher implements IDispatcher {
+public abstract class StatefulDispatcher<D extends IDispatchable> implements IDispatcher<D> {
     private final Map<Object, Map<String, Object>> map = new ConcurrentHashMap<>();
 
     @Override
-    public final synchronized void handle(@Nonnull final IDispatchable obj,
+    public final synchronized void handle(@Nonnull final D obj,
                                           @Nonnull final String propertyName,
                                           final Object newValue) {
         Map<String, Object> properties = map.get(obj);
@@ -32,7 +32,7 @@ public abstract class StatefulDispatcher implements IDispatcher {
         handle(obj, propertyName, old, newValue, previousExists);
     }
 
-    protected abstract void handle(@Nonnull final IDispatchable obj,
+    protected abstract void handle(@Nonnull final D obj,
                                    @Nonnull final String propertyName,
                                    final Object oldValue,
                                    final Object newValue,
