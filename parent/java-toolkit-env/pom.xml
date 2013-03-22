@@ -13,14 +13,14 @@
     -->
     <groupId>org.no-hope</groupId>
     <artifactId>env-java</artifactId>
-    <version>8</version>
+    <version>9</version>
     <name>env-java</name>
     <packaging>pom</packaging>
 
     <parent>
         <groupId>org.no-hope</groupId>
         <artifactId>env-deploy</artifactId>
-        <version>5</version>
+        <version>6</version>
         <relativePath/>
     </parent>
 
