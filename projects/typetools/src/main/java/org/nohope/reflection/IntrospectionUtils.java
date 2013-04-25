@@ -2,7 +2,7 @@ package org.nohope.reflection;
 
 import org.apache.commons.lang3.ArrayUtils;
 import org.nohope.IMatcher;
-import org.nohope.typetools.StringUtils;
+import org.nohope.typetools.TStr;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -1097,7 +1097,7 @@ public final class IntrospectionUtils {
                                                final IModifierMatcher matcher) {
         return new NoSuchMethodException(String.format(message,
                 type.getCanonicalName(), methodName,
-                StringUtils.join(getClassNames(signature)), matcher));
+                TStr.join(getClassNames(signature)), matcher));
     }
 
     /**
@@ -1186,8 +1186,8 @@ public final class IntrospectionUtils {
                 "Unable to invoke method %s#%s(%s) with parameters [%s]"
                 , type.getCanonicalName()
                 , methodName
-                , StringUtils.join(getClassNames(signature))
-                , StringUtils.join(args)));
+                , TStr.join(getClassNames(signature))
+                , TStr.join(args)));
 
         return (NoSuchMethodException) e.initCause(cause);
     }

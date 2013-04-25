@@ -3,32 +3,29 @@ package org.nohope.typetools;
 import org.junit.Test;
 import org.nohope.reflection.UtilitiesTestSupport;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.List;
+import java.util.*;
 
 import static org.easymock.EasyMock.*;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
-import static org.nohope.typetools.StringUtils.join;
+import static org.nohope.typetools.TStr.join;
 
 /**
  * @author <a href="mailto:ketoth.xupack@gmail.com">ketoth xupack</a>
  * @since 10/31/11 7:12 PM
  */
-public final class StringUtilsTest extends UtilitiesTestSupport {
+public final class TStrTest extends UtilitiesTestSupport {
 
     @Override
     public Class<?> getUtilityClass() {
-        return StringUtils.class;
+        return TStr.class;
     }
 
     @Test
     public void nullCollection() {
-        assertNull(StringUtils.join((Collection<?>) null));
-        assertNull(StringUtils.join((Object[]) null));
-        assertNull(StringUtils.join((Object) null));
+        assertNull(TStr.join((Collection<?>) null));
+        assertNull(TStr.join((Object[]) null));
+        assertNull(TStr.join((Object) null));
     }
 
     @Test
@@ -38,14 +35,23 @@ public final class StringUtilsTest extends UtilitiesTestSupport {
         expect(collection.iterator()).andReturn(null).once();
         replay(collection);
 
-        assertNull(StringUtils.join(collection));
+        assertNull(TStr.join(collection));
         verify(collection);
     }
 
     @Test
     public void nullSeparator() {
         assertEquals("123null",
-                StringUtils.join(Arrays.asList(1, 2, 3, null), null, null));
+                TStr.join(Arrays.asList(1, 2, 3, null), null, null));
+    }
+
+    @Test
+    public void emptyNull() {
+        assertEquals("1,2,,3,",
+                TStr.join(Arrays.asList(1, 2, null, 3, null), ",", ""));
+
+        assertEquals("1,2,,,3,,",
+                TStr.join(Arrays.asList(1, 2, null, null, 3, null, null), ",", ""));
     }
 
     @Test
@@ -91,5 +97,30 @@ public final class StringUtilsTest extends UtilitiesTestSupport {
         assertEquals("1;2;3", join(list, ";", "d"));
         assertEquals("1;2;3", join(list, ";"));
         assertEquals("1, 2, 3", join(list));
+    }
+
+    @Test
+    public void substitutionTest() {
+        final Map<String, Object> values = new HashMap<String, Object>();
+        values.put("value", 1);
+        values.put("column", 1);
+        final String result = TStr.format("There's an incorrect value '${value}' in column # ${column}", values);
+        assertEquals("There's an incorrect value '1' in column # 1", result);
+    }
+
+    @Test
+    public void formatPositionalTest() {
+        assertEquals("a=123, b=456", TStr.formatPositional("a={}, b={}", 123, "456"));
+    }
+
+    @Test
+    public void formatIndexedTest() {
+        assertEquals("a=123, b=456", TStr.formatIndexed("a={0}, b={1}", 123, "456"));
+    }
+
+    @Test
+    public void formatTest() {
+        assertEquals("a=123, b=456", TStr.format("a={}, b={}", 123, "456"));
+        assertEquals("a=123, b=456", TStr.format("a={0}, b={1}", 123, "456"));
     }
 }
