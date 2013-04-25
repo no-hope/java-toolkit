@@ -3,7 +3,7 @@ package org.nohope.akka;
 import org.apache.commons.lang3.ArrayUtils;
 import org.nohope.IMatcher;
 import org.nohope.reflection.IntrospectionUtils;
-import org.nohope.typetools.StringUtils;
+import org.nohope.typetools.TStr;
 
 import javax.annotation.Nonnull;
 import java.lang.reflect.InvocationTargetException;
@@ -133,7 +133,7 @@ public final class MessageMethodInvoker {
         if (methods.size() > 1) {
             throw new NoSuchMethodException(
                     "Only one @OnReceive method expected to match ("
-                    + StringUtils.join(getClassNames(parameterTypes))
+                    + TStr.join(getClassNames(parameterTypes))
                     + ") parameter types but found "
                     + methods.size()
                     + "; happened at instance of class "
@@ -163,9 +163,9 @@ public final class MessageMethodInvoker {
             if (method == null) {
                 throw new NoSuchMethodException(
                         "No @OnReceive methods found to match ("
-                        + StringUtils.join(getClassNames(parameterTypes))
+                        + TStr.join(getClassNames(parameterTypes))
                         + ") parameter types for handlers ["
-                        + StringUtils.join(getClassNames(fallbackClasses))
+                        + TStr.join(getClassNames(fallbackClasses))
                         + "]");
             }
 

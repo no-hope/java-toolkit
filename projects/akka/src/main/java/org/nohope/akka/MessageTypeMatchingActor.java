@@ -15,7 +15,7 @@ import java.util.List;
 import static org.nohope.akka.MessageMethodInvoker.invokeOnReceive;
 import static org.nohope.reflection.IntrospectionUtils.getClassNames;
 import static org.nohope.reflection.IntrospectionUtils.searchMethods;
-import static org.nohope.typetools.StringUtils.join;
+import static org.nohope.typetools.TStr.join;
 
 /**
  * This actor allows to simplify working with typed messages using java reflection.
