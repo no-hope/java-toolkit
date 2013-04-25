@@ -1,11 +1,16 @@
 package org.nohope.typetools;
 
+import org.apache.commons.lang3.text.StrSubstitutor;
+import org.slf4j.helpers.MessageFormatter;
+
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.io.UnsupportedEncodingException;
+import java.text.MessageFormat;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Iterator;
+import java.util.Map;
 
 import static org.nohope.reflection.IntrospectionUtils.toObjArray;
 
@@ -13,7 +18,7 @@ import static org.nohope.reflection.IntrospectionUtils.toObjArray;
  * @author <a href="mailto:ketoth.xupack@gmail.com">ketoth xupack</a>
  * @since 10/29/11 5:16 PM
  */
-public final class StringUtils {
+public final class TStr {
     /** Default representation for {@code null} reference. */
     private static final String NULL_STRING = "null";
     /** Default element separator. */
@@ -25,7 +30,7 @@ public final class StringUtils {
     private static final char END_ARRAY = ']';
 
     /** Utility constructor. */
-    private StringUtils() {
+    private TStr() {
     }
 
     /**
@@ -36,14 +41,14 @@ public final class StringUtils {
      * Handles nested collections.</p>
      * <p/>
      * <pre>
-     * StringUtils.join(null, *)                      = null
-     * StringUtils.join([], *)                        = ""
-     * StringUtils.join([null], *)                    = "null"
-     * StringUtils.join([null, "a"], ",", "x")        = "x,a"
-     * StringUtils.join(["a", "b", "c"], ";")         = "a;b;c"
-     * StringUtils.join(["a", "b", "c"], null)        = "abc"
-     * StringUtils.join([null, "", "a"], ";")         = "null;;a"
-     * StringUtils.join(["a", ["b", "c", ["d"]], ";") = "a[b;c;[d]]"
+     * TStr.join(null, *)                      = null
+     * TStr.join([], *)                        = ""
+     * TStr.join([null], *)                    = "null"
+     * TStr.join([null, "a"], ",", "x")        = "x,a"
+     * TStr.join(["a", "b", "c"], ";")         = "a;b;c"
+     * TStr.join(["a", "b", "c"], null)        = "abc"
+     * TStr.join([null, "", "a"], ";")         = "null;;a"
+     * TStr.join(["a", ["b", "c", ["d"]], ";") = "a[b;c;[d]]"
      * </pre>
      *
      * @param <T>        the specific type of values to join together
@@ -76,6 +81,7 @@ public final class StringUtils {
 
         while (iterator.hasNext()) {
             final Object obj = iterator.next();
+
             if (obj != null) {
                 final Class clazz = obj.getClass();
                 if (clazz.isArray()) {
@@ -98,6 +104,7 @@ public final class StringUtils {
             } else {
                 buf.append(nullString);
             }
+
             if (iterator.hasNext()) {
                 buf.append(delimiter);
             }
@@ -258,4 +265,55 @@ public final class StringUtils {
             throw new IllegalStateException(e);
         }
     }
+
+    /**
+     * It's a "&quot;too intellectual&quot; (but very useful) method,
+     * which invokes slf4j's {@code MessageFormatter} when {@code format}
+     * contains {@code {}} token, or call {@code java.text.MessageFormat}
+     * otherwise
+     * @param format
+     * @param args
+     * @return
+     */
+    public static String format(final String format, final Object... args) {
+        if (format.contains("{}")) {
+            return formatPositional(format, args);
+        } else {
+            return formatIndexed(format, args);
+        }
+    }
+
+    /**
+     * Just an alias for {@code org.apache.commons.lang3.text.StrSubstitutor.replace(String, Map<String, V>)}
+     *
+     * @param format
+     * @param valueMap
+     * @param <V>
+     * @return
+     */
+    public static <V> String format(final String format, final Map<String, V> valueMap) {
+        return StrSubstitutor.replace(format, valueMap);
+    }
+
+    /**
+     * Just an alias for {@code java.text.MessageFormat.format(String, Object[])}
+     * @param format
+     * @param args
+     * @return
+     */
+    public static String formatIndexed(final String format, final Object... args) {
+        final MessageFormat temp = new MessageFormat(format);
+        return temp.format(args);
+    }
+
+    /**
+     * Just an alias for {@code org.slf4j.helpers.MessageFormatter.format(String, Object[])}
+     * @param format
+     * @param args
+     * @return
+     */
+    public static String formatPositional(final String format, final Object... args) {
+        return MessageFormatter.arrayFormat(format, args).getMessage();
+    }
 }
+

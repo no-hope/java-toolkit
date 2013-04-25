@@ -1,6 +1,6 @@
 package org.nohope.reflection;
 
-import org.nohope.typetools.StringUtils;
+import org.nohope.typetools.TStr;
 
 import javax.annotation.Nonnull;
 import java.lang.reflect.Modifier;
@@ -75,7 +75,7 @@ public enum ModifierMatcher implements IModifierMatcher {
 
             @Override
             public String toString() {
-                return "(" + StringUtils.join(matchers, " && ") + ")";
+                return "(" + TStr.join(matchers, " && ") + ")";
             }
         };
     }
@@ -95,7 +95,7 @@ public enum ModifierMatcher implements IModifierMatcher {
 
             @Override
             public String toString() {
-                return "(" + StringUtils.join(matchers, " || ") + ")";
+                return "(" + TStr.join(matchers, " || ") + ")";
             }
         };
     }
