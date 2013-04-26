@@ -110,12 +110,12 @@ public final class TStrTest extends UtilitiesTestSupport {
 
     @Test
     public void formatPositionalTest() {
-        assertEquals("a=123, b=456", TStr.formatPositional("a={}, b={}", 123, "456"));
+        assertEquals("a=123, b=456", TStr.pformat("a={}, b={}", 123, "456"));
     }
 
     @Test
     public void formatIndexedTest() {
-        assertEquals("a=123, b=456", TStr.formatIndexed("a={0}, b={1}", 123, "456"));
+        assertEquals("a=123, b=456", TStr.iformat("a={0}, b={1}", 123, "456"));
     }
 
     @Test
