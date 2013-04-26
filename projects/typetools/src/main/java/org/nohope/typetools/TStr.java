@@ -277,9 +277,9 @@ public final class TStr {
      */
     public static String format(final String format, final Object... args) {
         if (format.contains("{}")) {
-            return formatPositional(format, args);
+            return pformat(format, args);
         } else {
-            return formatIndexed(format, args);
+            return iformat(format, args);
         }
     }
 
@@ -301,7 +301,7 @@ public final class TStr {
      * @param args
      * @return
      */
-    public static String formatIndexed(final String format, final Object... args) {
+    public static String iformat(final String format, final Object... args) {
         final MessageFormat temp = new MessageFormat(format);
         return temp.format(args);
     }
@@ -312,7 +312,7 @@ public final class TStr {
      * @param args
      * @return
      */
-    public static String formatPositional(final String format, final Object... args) {
+    public static String pformat(final String format, final Object... args) {
         return MessageFormatter.arrayFormat(format, args).getMessage();
     }
 }
