@@ -51,7 +51,9 @@ import static org.nohope.spring.SpringUtils.registerSingleton;
  * @author <a href="mailto:ketoth.xupack@gmail.com">ketoth xupack</a>
  * @since 9/16/12 11:09 PM
  */
-public final class SpringActorFactory<T extends UntypedActor> extends PartiallyDefinedArgumentsFactory<T> implements UntypedActorFactory {
+public final class SpringActorFactory<T extends UntypedActor>
+        extends PartiallyDefinedArgumentsFactory<T>
+        implements UntypedActorFactory {
     private static final long serialVersionUID = 0L;
 
     public static<T extends UntypedActor> SpringActorFactory<T> createActorFactory(
