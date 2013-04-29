@@ -67,6 +67,7 @@ public final class TStr {
         }
 
         final Iterator<T> iterator = collection.iterator();
+        //noinspection ConstantConditions
         if (iterator == null) {
             return null;
         }
@@ -267,13 +268,10 @@ public final class TStr {
     }
 
     /**
-     * It's a "&quot;too intellectual&quot; (but very useful) method,
+     * It's a "too intellectual" (but very useful) method,
      * which invokes slf4j's {@code MessageFormatter} when {@code format}
      * contains {@code {}} token, or call {@code java.text.MessageFormat}
      * otherwise
-     * @param format
-     * @param args
-     * @return
      */
     public static String format(final String format, final Object... args) {
         if (format.contains("{}")) {
@@ -284,12 +282,8 @@ public final class TStr {
     }
 
     /**
-     * Just an alias for {@code org.apache.commons.lang3.text.StrSubstitutor.replace(String, Map<String, V>)}
-     *
-     * @param format
-     * @param valueMap
-     * @param <V>
-     * @return
+     * Just an alias for
+     * {@link org.apache.commons.lang3.text.StrSubstitutor#replace(Object, java.util.Map)}
      */
     public static <V> String format(final String format, final Map<String, V> valueMap) {
         return StrSubstitutor.replace(format, valueMap);
@@ -297,9 +291,6 @@ public final class TStr {
 
     /**
      * Just an alias for {@code java.text.MessageFormat.format(String, Object[])}
-     * @param format
-     * @param args
-     * @return
      */
     public static String iformat(final String format, final Object... args) {
         final MessageFormat temp = new MessageFormat(format);
@@ -308,9 +299,6 @@ public final class TStr {
 
     /**
      * Just an alias for {@code org.slf4j.helpers.MessageFormatter.format(String, Object[])}
-     * @param format
-     * @param args
-     * @return
      */
     public static String pformat(final String format, final Object... args) {
         return MessageFormatter.arrayFormat(format, args).getMessage();
