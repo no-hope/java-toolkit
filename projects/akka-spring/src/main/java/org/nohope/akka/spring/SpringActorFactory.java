@@ -54,6 +54,12 @@ import static org.nohope.spring.SpringUtils.registerSingleton;
 public final class SpringActorFactory<T extends UntypedActor> extends PartiallyDefinedArgumentsFactory<T> implements UntypedActorFactory {
     private static final long serialVersionUID = 0L;
 
+    public static<T extends UntypedActor> SpringActorFactory<T> createActorFactory(
+            @Nonnull final ApplicationContext ctx,
+            @Nonnull final Class<T> clazz) {
+        return new SpringActorFactory<>(ctx, clazz);
+    }
+
     public SpringActorFactory(@Nonnull final ApplicationContext ctx, @Nonnull final Class<T> clazz) {
         super(ctx, clazz);
     }
