@@ -58,13 +58,27 @@ public final class SpringActorFactory<T extends UntypedActor> extends PartiallyD
         super(ctx, clazz);
     }
 
-    public SpringActorFactory(@Nonnull final ApplicationContext ctx, @Nonnull final Class<T> clazz, @Nullable final List<Object> objects, @Nullable final Map<String, Object> namedObjects) {
+    public SpringActorFactory(@Nonnull final ApplicationContext ctx,
+                              @Nonnull final Class<T> clazz,
+                              @Nullable final List<Object> objects,
+                              @Nullable final Map<String, Object> namedObjects) {
         super(ctx, clazz, objects, namedObjects);
     }
 
-
     public Props getProps() {
         return new Props(this);
+    }
+
+    @Override
+    public SpringActorFactory<T> addBeans(@Nonnull final Object... beans) {
+        super.addBeans(beans);
+        return this;
+    }
+
+    @Override
+    public SpringActorFactory<T> addBean(final String name, @Nonnull final Object bean) {
+        super.addBean(name, bean);
+        return this;
     }
 
     @SuppressWarnings("PMD.UnusedFormalParameter")
