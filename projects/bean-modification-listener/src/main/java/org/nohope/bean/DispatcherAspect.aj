@@ -13,11 +13,11 @@ import java.lang.reflect.Method;
 public privileged aspect DispatcherAspect {
 
     /**
-     * Process all IDispatchable setter calls annotated with @Dispatch
+     * Process all IDispatchable calls of one-arg method annotated with @Dispatch
      * annotation.
      */
     pointcut setter(IDispatchable t, Object arg):
-          execution(@org.nohope.bean.Dispatch * set*(*))
+          execution(@org.nohope.bean.Dispatch * *(*))
           && args(arg)
           && target(t);
 
