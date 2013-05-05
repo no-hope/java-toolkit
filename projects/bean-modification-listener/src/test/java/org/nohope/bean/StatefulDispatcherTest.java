@@ -46,11 +46,11 @@ public class StatefulDispatcherTest {
         }
     }
 
-    private static class Dispatcher extends StatefulDispatcher {
+    private static class Dispatcher extends StatefulDispatcher<SimpleBean> {
         private final Map<Object, Boolean> heated = new HashMap<>();
 
         @Override
-        protected void handle(@Nonnull final IDispatchable obj
+        protected void handle(@Nonnull final SimpleBean obj
                 , @Nonnull final String propertyName
                 , final Object oldValue
                 , final Object newValue
