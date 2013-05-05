@@ -695,7 +695,7 @@ public final class IntrospectionUtils {
     /**
      * Creates object array from given object. If object is of array type
      * then shrinking it to {@link Object} type, else wraps it with new
-     * {@link Object[]} instance.
+     * {@link Object Object[]} instance.
      *
      * @param source object
      * @return array of objects
