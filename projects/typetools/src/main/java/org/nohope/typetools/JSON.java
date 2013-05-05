@@ -55,10 +55,6 @@ public final class JSON {
      * Serializes given object with Jackson, then deserializes into class required.
      * Not so fast, so shouldn't be used for deep copying.
      *
-     * @param source
-     * @param clazz
-     * @param <T>
-     * @return
      * @throws IOException
      */
     public static <T> T copyAs(final Object source, final Class<T> clazz) throws IOException {
