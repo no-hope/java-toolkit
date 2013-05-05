@@ -23,12 +23,14 @@ public abstract class StatefulDispatcher<D extends IDispatchable> implements IDi
         }
 
         boolean previousExists = true;
+        final Object old;
         if (!properties.containsKey(propertyName)) {
+            old = null;
             properties.put(propertyName, newValue);
             previousExists = false;
+        } else {
+            old = properties.put(propertyName, newValue);
         }
-
-        final Object old = properties.put(propertyName, newValue);
         handle(obj, propertyName, old, newValue, previousExists);
     }
 
