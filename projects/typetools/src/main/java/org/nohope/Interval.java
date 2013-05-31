@@ -1,10 +1,12 @@
 package org.nohope;
 
+import org.apache.commons.lang3.ArrayUtils;
 import org.joda.time.DateTime;
 import org.joda.time.LocalTime;
 
 import javax.annotation.Nonnull;
 import java.io.Serializable;
+import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -44,11 +46,11 @@ public final class Interval implements Serializable {
 
     public Interval(@Nonnull final LocalTime begin,
                     @Nonnull final LocalTime end,
-                    final int day) {
+                    final int... days) {
         this.begin = begin;
         this.end = end;
         final Set<Integer> dayOfWeek = new HashSet<>();
-        dayOfWeek.add(day);
+        dayOfWeek.addAll(Arrays.asList(ArrayUtils.toObject(days)));
         setDaysOfWeek(dayOfWeek);
     }
 
@@ -62,6 +64,12 @@ public final class Interval implements Serializable {
      *
      */
     public Interval setDaysOfWeek(@Nonnull final Set<Integer> daysOfWeek) {
+        for (final Integer i : daysOfWeek) {
+            if (i == null || i < 1 || i > 7) {
+                throw new IllegalArgumentException("Illegal day of week passed " + i);
+            }
+        }
+
         this.daysOfWeek.clear();
         this.daysOfWeek.addAll(daysOfWeek);
         return this;

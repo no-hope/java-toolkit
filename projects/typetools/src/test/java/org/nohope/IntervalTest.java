@@ -16,6 +16,39 @@ import static org.junit.Assert.*;
  */
 public class IntervalTest {
     @Test
+    public void regression1() throws Exception {
+        final Interval usualIvl = new Interval(new LocalTime(0, 0, 0), new LocalTime(23, 59, 59));
+        final DateTime time =  DateTime.parse("2013-05-31T07:13:47.588Z");
+        assertTrue(usualIvl.contains(time));
+    }
+
+    @Test
+    public void illegalDayOfWeek() {
+        try {
+            new Interval(new LocalTime(0, 0, 0), new LocalTime(23, 59, 59), 0);
+            assertTrue(false);
+        } catch (final IllegalArgumentException e) {
+        }
+
+        try {
+            new Interval(new LocalTime(0, 0, 0), new LocalTime(23, 59, 59), 8);
+            assertTrue(false);
+        } catch (final IllegalArgumentException e) {
+        }
+
+        final Interval i = new Interval(new LocalTime(0, 0, 0), new LocalTime(23, 59, 59), 1);
+        final Set<Integer> set = new HashSet<>();
+        set.add(null);
+        try {
+            i.setDaysOfWeek(set);
+            assertTrue(false);
+        } catch (final IllegalArgumentException e) {
+        }
+
+        new Interval(new LocalTime(0, 0, 0), new LocalTime(23, 59, 59), 1, 2, 3, 4, 5, 6, 7);
+    }
+
+    @Test
     public void testInterval() throws Exception {
         final Interval usualIvl = new Interval(new LocalTime(12, 0), new LocalTime(16, 0));
         assertTrue(usualIvl.contains(new DateTime(2005, 12, 3, 14, 35, 18, DateTimeZone.UTC)));
