@@ -30,7 +30,7 @@ public class ColorModule extends SimpleModule {
         addSerializer(Color.class, new ColorSerializer());
     }
 
-    private class ColorSerializer extends StdSerializer<Color> {
+    private static class ColorSerializer extends StdSerializer<Color> {
         protected ColorSerializer() {
             super(Color.class);
         }
@@ -58,7 +58,7 @@ public class ColorModule extends SimpleModule {
         }
     }
 
-    private class ColorDeserializer extends StdScalarDeserializer<Color> {
+    private static class ColorDeserializer extends StdScalarDeserializer<Color> {
         private static final long serialVersionUID = 1L;
 
         protected ColorDeserializer() {
