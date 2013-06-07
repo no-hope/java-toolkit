@@ -7,7 +7,7 @@ import java.lang.NumberFormatException;
  * @author <a href="mailto:ketoth.xupack@gmail.com">ketoth xupack</a>
  * @since 5/5/13 9:16 PM
  */
-public class TNumb {
+public final class TNumb {
     private TNumb() {
     }
 
