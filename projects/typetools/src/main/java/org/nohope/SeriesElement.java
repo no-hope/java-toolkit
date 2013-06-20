@@ -34,6 +34,6 @@ public final class SeriesElement<T extends Serializable> implements Serializable
 
     @Override
     public String toString() {
-        return JSON.jsonify(this);
+        return JSON.jsonify(this).toString();
     }
 }
