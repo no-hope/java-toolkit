@@ -43,11 +43,11 @@ public final class JSON {
         USUAL_MAPPER.setVisibilityChecker(VisibilityChecker.Std.defaultInstance().withFieldVisibility(ANY));
     }
 
-    public static String pretty(final Object obj) {
+    public static Object pretty(final Object obj) {
         return pretty(obj, defaultErrorMessage(obj));
     }
 
-    public static String jsonify(final Object obj) {
+    public static Object jsonify(final Object obj) {
         return jsonify(obj, defaultErrorMessage(obj));
     }
 
@@ -62,24 +62,29 @@ public final class JSON {
         return USUAL_MAPPER.readValue(marshalled, clazz);
     }
 
-    private static String jsonify(final Object obj,
+    private static Object jsonify(final Object obj,
                                  final String onErrorMessage) {
         return jsonifyWith(USUAL_MAPPER, obj, onErrorMessage);
     }
 
-    private static String pretty(final Object obj,
+    private static Object pretty(final Object obj,
                          final String onErrorMessage) {
         return jsonifyWith(PRETTY_MAPPER, obj, onErrorMessage);
     }
 
     @SuppressWarnings("PMD.AvoidCatchingThrowable")
-    private static String jsonifyWith(final ObjectMapper mapper, final Object obj, final String onErrorMessage) {
-        try {
-            return mapper.writeValueAsString(obj);
-        } catch (final Throwable e) {
-            LOG.error(e, "Unable to jsonify object of class {}", obj == null ? null : obj.getClass());
-            return onErrorMessage;
-        }
+    private static Object jsonifyWith(final ObjectMapper mapper, final Object obj, final String onErrorMessage) {
+        return new Object() {
+            @Override
+            public String toString() {
+                try {
+                    return mapper.writeValueAsString(obj);
+                } catch (final Throwable e) {
+                    LOG.error(e, "Unable to jsonify object of class {}", obj == null ? null : obj.getClass());
+                    return onErrorMessage;
+                }
+            }
+        };
     }
 
     private static String defaultErrorMessage(final Object obj) {
