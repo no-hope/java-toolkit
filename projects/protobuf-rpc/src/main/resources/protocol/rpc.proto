@@ -1,0 +1,36 @@
+option java_package = "org.nohope.protocol";
+option java_outer_classname = "RPC";
+
+message RpcRequest {
+    required int32 id = 1;
+    required string service_name = 2;
+    required string method_name = 3;
+    required bytes payload = 4;
+}
+
+message RpcResponse {
+    // Request Sequence ID number that this response is
+    // "responding" to. This is *required* since we don't
+    // send back responses unless a sequence ID was provided
+    // (that would be extra traffic not necessary)
+    required int32 id = 1;
+
+    // This is optional, since we could be sending back an
+    // error response in which case we would not have a
+    // response message
+    optional bytes payload = 2;
+    optional ErrorCode error_code = 3;
+    optional string error_message = 4;
+}
+
+enum ErrorCode {
+    // Server-side errors
+    BAD_REQUEST_DATA = 0; // Server received bad request data
+    INVALID_REQUEST_PROTO = 1; // Server received invalid request protobuf message
+    SERVICE_NOT_FOUND = 2; // Service not found on server
+    METHOD_NOT_FOUND = 3; // Method not found on server
+    RPC_ERROR = 4; // Rpc threw an expected exception on server
+    RPC_FAILED = 5; // Rpc threw an unexpected on server
+
+    // TODO: Client-side errors?
+}
