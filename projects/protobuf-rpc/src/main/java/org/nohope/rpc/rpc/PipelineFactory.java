@@ -1,6 +1,6 @@
-package org.nohope.service.rpc;
+package org.nohope.rpc.rpc;
 
-import org.nohope.protocol.RPC;
+import org.nohope.rpc.protocol.RPC;
 import org.jboss.netty.channel.ChannelPipeline;
 import org.jboss.netty.channel.ChannelPipelineFactory;
 import org.jboss.netty.channel.ChannelUpstreamHandler;

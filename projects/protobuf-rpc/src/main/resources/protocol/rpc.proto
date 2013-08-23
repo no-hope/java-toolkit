@@ -1,4 +1,6 @@
-option java_package = "org.nohope.protocol";
+package protocol;
+
+option java_package = "org.nohope.rpc.protocol";
 option java_outer_classname = "RPC";
 
 message RpcRequest {
@@ -6,6 +8,13 @@ message RpcRequest {
     required string service_name = 2;
     required string method_name = 3;
     required bytes payload = 4;
+}
+
+message Error {
+    extensions 3 to max; // TODO: do we need so
+
+    required ErrorCode error_code = 1;
+    required string error_message = 2;
 }
 
 message RpcResponse {
@@ -19,8 +28,7 @@ message RpcResponse {
     // error response in which case we would not have a
     // response message
     optional bytes payload = 2;
-    optional ErrorCode error_code = 3;
-    optional string error_message = 4;
+    optional Error error = 3;
 }
 
 enum ErrorCode {

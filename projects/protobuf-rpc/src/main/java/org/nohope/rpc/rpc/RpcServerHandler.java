@@ -1,17 +1,18 @@
-package org.nohope.service.rpc;
+package org.nohope.rpc.rpc;
 
 /**
  * @author <a href="mailto:ketoth.xupack@gmail.com">ketoth xupack</a>
  * @since 8/21/13 3:42 PM
  */
 
-import org.nohope.protocol.RPC;
-import org.nohope.service.rpc.exeption.InvalidRpcRequestException;
-import org.nohope.service.rpc.exeption.NoSuchServiceException;
-import org.nohope.service.rpc.exeption.NoSuchServiceMethodException;
-import org.nohope.service.rpc.exeption.RpcException;
-import org.nohope.service.rpc.exeption.RpcServiceException;
-import org.nohope.service.rpc.exeption.ServerSideException;
+import org.nohope.rpc.protocol.RPC;
+import org.nohope.rpc.rpc.exception.ExpectedServiceException;
+import org.nohope.rpc.rpc.exception.InvalidRpcRequestException;
+import org.nohope.rpc.rpc.exception.NoSuchServiceException;
+import org.nohope.rpc.rpc.exception.NoSuchServiceMethodException;
+import org.nohope.rpc.rpc.exception.RpcException;
+import org.nohope.rpc.rpc.exception.RpcServiceException;
+import org.nohope.rpc.rpc.exception.ServerSideException;
 import com.google.protobuf.BlockingService;
 import com.google.protobuf.ByteString;
 import com.google.protobuf.Descriptors.MethodDescriptor;
@@ -71,6 +72,8 @@ public class RpcServerHandler extends SimpleChannelUpstreamHandler implements IS
         final Message methodResponse;
         try {
             methodResponse = blockingService.callBlockingMethod(methodDescriptor, controller, methodRequest);
+        }catch (ExpectedServiceException ex) {
+            throw RpcServiceException.wrapExpectedException(ex, request);
         } catch (ServiceException ex) {
             throw new RpcServiceException(ex, request, "BlockingService RPC call threw ServiceException");
         } catch (Exception ex) {
@@ -96,12 +99,15 @@ public class RpcServerHandler extends SimpleChannelUpstreamHandler implements IS
             public void operationComplete(final ChannelFuture future) throws Exception {
                 if (future.isSuccess()) {
                     LOG.debug("Message '{}' successfully sent", response);
-                } else if (future.getCause() != null) {
-                    LOG.warn("Unable to send message '{}' ({})", response, future.getCause());
                 } else {
-                    LOG.debug("ChannelFuture for writing message '{}' complete "
-                              + "unsuccessfully with unknown throwable (cancelled={})",
-                            response, future.isCancelled());
+                    final Throwable cause = future.getCause();
+                    if (cause != null) {
+                        LOG.warn("Unable to send message '{}' ({})", response, cause);
+                    } else {
+                        LOG.debug("ChannelFuture for writing message '{}' complete "
+                                  + "unsuccessfully with unknown throwable (cancelled={})",
+                                  response, future.isCancelled());
+                    }
                 }
             }
         });
@@ -113,6 +119,7 @@ public class RpcServerHandler extends SimpleChannelUpstreamHandler implements IS
         LOG.warn("exceptionCaught", cause);
 
         final RPC.RpcResponse.Builder responseBuilder = RPC.RpcResponse.newBuilder();
+
         if (!(cause instanceof ServerSideException)) {
             /* Cannot respond to this exception, because it is not tied
              * to a request */
@@ -120,16 +127,10 @@ public class RpcServerHandler extends SimpleChannelUpstreamHandler implements IS
             return;
         }
 
-        responseBuilder.setErrorCode(RPC.ErrorCode.SERVICE_NOT_FOUND);
-        final String message = cause.getMessage();
-        if (message != null) {
-            responseBuilder.setErrorMessage(message);
-        }
-
         final ServerSideException ex = (ServerSideException) cause;
         if (ex.getRequest() != null && ex.getRequest().hasId()) {
             responseBuilder.setId(ex.getRequest().getId());
-            responseBuilder.setErrorMessage(ex.getMessage());
+            responseBuilder.setError(ex.getError());
             writeResponse(e.getChannel(), responseBuilder.build());
         } else {
             LOG.info("Cannot respond to handler exception", ex);

@@ -1,9 +1,9 @@
-package org.nohope.service.rpc.exeption;
+package org.nohope.rpc.rpc.exception;
 
-import org.nohope.protocol.RPC;
+import org.nohope.rpc.protocol.RPC;
 import com.google.protobuf.InvalidProtocolBufferException;
 
-import static org.nohope.protocol.RPC.ErrorCode.INVALID_REQUEST_PROTO;
+import static org.nohope.rpc.protocol.RPC.ErrorCode.INVALID_REQUEST_PROTO;
 
 /**
  * @author <a href="mailto:ketoth.xupack@gmail.com">ketoth xupack</a>
