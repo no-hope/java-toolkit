@@ -1,4 +1,4 @@
-package org.nohope.rpc.rpc;
+package org.nohope.rpc;
 
 import com.google.protobuf.BlockingService;
 import org.jboss.netty.bootstrap.ServerBootstrap;

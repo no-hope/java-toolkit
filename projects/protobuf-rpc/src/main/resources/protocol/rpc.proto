@@ -11,7 +11,7 @@ message RpcRequest {
 }
 
 message Error {
-    extensions 3 to max; // TODO: do we need so
+    extensions 3 to max; // TODO: do we need so many extensions?
 
     required ErrorCode error_code = 1;
     required string error_message = 2;
@@ -21,7 +21,7 @@ message RpcResponse {
     // Request Sequence ID number that this response is
     // "responding" to. This is *required* since we don't
     // send back responses unless a sequence ID was provided
-    // (that would be extra traffic not necessary)
+    // (that would be extra traffic that is not necessary)
     required int32 id = 1;
 
     // This is optional, since we could be sending back an
@@ -39,6 +39,4 @@ enum ErrorCode {
     METHOD_NOT_FOUND = 3; // Method not found on server
     RPC_ERROR = 4; // Rpc threw an expected exception on server
     RPC_FAILED = 5; // Rpc threw an unexpected on server
-
-    // TODO: Client-side errors?
 }

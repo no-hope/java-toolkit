@@ -1,4 +1,4 @@
-package org.nohope.rpc.rpc.exception;
+package org.nohope.rpc.exception;
 
 import org.nohope.rpc.protocol.RPC;
 import com.google.protobuf.InvalidProtocolBufferException;

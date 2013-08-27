@@ -1,4 +1,4 @@
-package org.nohope.rpc.rpc;
+package org.nohope.rpc;
 
 import org.nohope.rpc.protocol.RPC;
 import org.jboss.netty.channel.ChannelPipeline;

@@ -1,4 +1,4 @@
-package org.nohope.rpc.rpc;
+package org.nohope.rpc;
 
 /**
  * @author <a href="mailto:ketoth.xupack@gmail.com">ketoth xupack</a>
@@ -6,13 +6,13 @@ package org.nohope.rpc.rpc;
  */
 
 import org.nohope.rpc.protocol.RPC;
-import org.nohope.rpc.rpc.exception.ExpectedServiceException;
-import org.nohope.rpc.rpc.exception.InvalidRpcRequestException;
-import org.nohope.rpc.rpc.exception.NoSuchServiceException;
-import org.nohope.rpc.rpc.exception.NoSuchServiceMethodException;
-import org.nohope.rpc.rpc.exception.RpcException;
-import org.nohope.rpc.rpc.exception.RpcServiceException;
-import org.nohope.rpc.rpc.exception.ServerSideException;
+import org.nohope.rpc.exception.ExpectedServiceException;
+import org.nohope.rpc.exception.InvalidRpcRequestException;
+import org.nohope.rpc.exception.NoSuchServiceException;
+import org.nohope.rpc.exception.NoSuchServiceMethodException;
+import org.nohope.rpc.exception.RpcException;
+import org.nohope.rpc.exception.RpcServiceException;
+import org.nohope.rpc.exception.ServerSideException;
 import com.google.protobuf.BlockingService;
 import com.google.protobuf.ByteString;
 import com.google.protobuf.Descriptors.MethodDescriptor;
