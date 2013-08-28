@@ -11,7 +11,7 @@ message RpcRequest {
 }
 
 message Error {
-    extensions 3 to max; // TODO: do we need so many extensions?
+    extensions 3 to max; // For detailed error messages (TODO: do we need so many extensions
 
     required ErrorCode error_code = 1;
     required string error_message = 2;
