@@ -5,7 +5,6 @@ package org.nohope.rpc;
  * @since 8/21/13 3:42 PM
  */
 
-import org.nohope.rpc.protocol.RPC;
 import org.nohope.rpc.exception.ExpectedServiceException;
 import org.nohope.rpc.exception.InvalidRpcRequestException;
 import org.nohope.rpc.exception.NoSuchServiceException;
@@ -13,6 +12,7 @@ import org.nohope.rpc.exception.NoSuchServiceMethodException;
 import org.nohope.rpc.exception.RpcException;
 import org.nohope.rpc.exception.RpcServiceException;
 import org.nohope.rpc.exception.ServerSideException;
+import org.nohope.rpc.protocol.RPC;
 import com.google.protobuf.BlockingService;
 import com.google.protobuf.ByteString;
 import com.google.protobuf.Descriptors.MethodDescriptor;
@@ -20,6 +20,7 @@ import com.google.protobuf.InvalidProtocolBufferException;
 import com.google.protobuf.Message;
 import com.google.protobuf.RpcController;
 import com.google.protobuf.ServiceException;
+import com.google.protobuf.UninitializedMessageException;
 import org.jboss.netty.channel.Channel;
 import org.jboss.netty.channel.ChannelFuture;
 import org.jboss.netty.channel.ChannelFutureListener;
@@ -64,8 +65,9 @@ public class RpcServerHandler extends SimpleChannelUpstreamHandler implements IS
             methodRequest = buildMessageFromPrototype(
                     blockingService.getRequestPrototype(methodDescriptor),
                     request.getPayload());
-        } catch (InvalidProtocolBufferException ex) {
-            throw new InvalidRpcRequestException(ex, request, "Could not build method request message");
+        } catch (InvalidProtocolBufferException | UninitializedMessageException ex) {
+            throw new InvalidRpcRequestException(ex, request,
+                    String.format("Could not build method request message for %s.%s", serviceName, methodName));
         }
         final RpcController controller = new Controller();
 
@@ -75,14 +77,18 @@ public class RpcServerHandler extends SimpleChannelUpstreamHandler implements IS
         }catch (ExpectedServiceException ex) {
             throw RpcServiceException.wrapExpectedException(ex, request);
         } catch (ServiceException ex) {
-            throw new RpcServiceException(ex, request, "BlockingService RPC call threw ServiceException");
+            throw new RpcServiceException(ex, request,
+                    String.format("%s.%s RPC call threw ServiceException", serviceName, methodName));
         } catch (Exception ex) {
-            throw new RpcException(ex, request, "BlockingService threw unexpected exception");
+            throw new RpcException(ex, request,
+                    String.format("%s.%s RPC call threw unexpected exception", serviceName, methodName));
         }
         if (controller.failed()) {
-            throw new RpcException(request, "BlockingService RPC failed: " + controller.errorText());
+            throw new RpcException(request,
+                    String.format("%s.%s RPC failed: %s", serviceName, methodName, controller.errorText()));
         } else if (methodResponse == null) {
-            throw new RpcException(request, "BlockingService RPC returned null response");
+            throw new RpcException(request,
+                    String.format("%s.%s RPC returned null response", serviceName, methodName));
         }
         final RPC.RpcResponse response =
                 RPC.RpcResponse.newBuilder()
@@ -117,6 +123,7 @@ public class RpcServerHandler extends SimpleChannelUpstreamHandler implements IS
     public void exceptionCaught(final ChannelHandlerContext ctx, final ExceptionEvent e) {
         final Throwable cause = e.getCause();
         LOG.warn("exceptionCaught", cause);
+        LOG.warn("exceptionAttachment", ctx.getAttachment());
 
         final RPC.RpcResponse.Builder responseBuilder = RPC.RpcResponse.newBuilder();
 

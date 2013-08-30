@@ -1,7 +1,6 @@
 package org.nohope.rpc.exception;
 
 import org.nohope.rpc.protocol.RPC;
-import com.google.protobuf.InvalidProtocolBufferException;
 
 import static org.nohope.rpc.protocol.RPC.ErrorCode.INVALID_REQUEST_PROTO;
 
@@ -12,9 +11,7 @@ import static org.nohope.rpc.protocol.RPC.ErrorCode.INVALID_REQUEST_PROTO;
 public class InvalidRpcRequestException extends ServerSideException {
     private static final long serialVersionUID = 1L;
 
-    public InvalidRpcRequestException(final InvalidProtocolBufferException e,
-                                  final RPC.RpcRequest request,
-                                  final String message) {
+    public InvalidRpcRequestException(final Throwable e, final RPC.RpcRequest request, final String message) {
         super(e, INVALID_REQUEST_PROTO, request, message);
     }
 }
