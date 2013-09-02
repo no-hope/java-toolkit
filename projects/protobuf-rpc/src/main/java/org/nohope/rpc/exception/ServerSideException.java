@@ -2,8 +2,8 @@ package org.nohope.rpc.exception;
 
 import org.nohope.rpc.protocol.RPC;
 
-import static org.nohope.rpc.protocol.RPC.RpcRequest;
 import static org.nohope.rpc.protocol.RPC.Error;
+import static org.nohope.rpc.protocol.RPC.RpcRequest;
 
 /**
  * @author <a href="mailto:ketoth.xupack@gmail.com">ketoth xupack</a>

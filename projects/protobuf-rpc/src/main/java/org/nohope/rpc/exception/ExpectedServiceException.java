@@ -12,6 +12,8 @@ import static com.google.protobuf.GeneratedMessage.GeneratedExtension;
 import static java.util.Map.Entry;
 
 /**
+ * This exception should be thrown by service implementation in case of expected exception.
+ *
  * @author <a href="mailto:ketoth.xupack@gmail.com">ketoth xupack</a>
  * @since 8/22/13 1:40 PM
  */
@@ -26,6 +28,12 @@ public class ExpectedServiceException extends ServiceException {
 
     public Error.Builder getErrorBuilder() {
         return builder;
+    }
+
+    public static <T> ExpectedServiceException wrap(final Throwable e,
+                                                    final GeneratedExtension<Error, T> extension,
+                                                    final T value) {
+        return new ExpectedServiceException.Builder(e).addExtension(extension, value).build();
     }
 
     public static final class Builder {

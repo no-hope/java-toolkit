@@ -3,8 +3,8 @@ package org.nohope.rpc.exception;
 import org.nohope.rpc.protocol.RPC;
 import com.google.protobuf.ServiceException;
 
-import static org.nohope.rpc.protocol.RPC.ErrorCode.RPC_ERROR;
 import static org.nohope.rpc.protocol.RPC.Error.Builder;
+import static org.nohope.rpc.protocol.RPC.ErrorCode.RPC_ERROR;
 
 /**
  * @author <a href="mailto:ketoth.xupack@gmail.com">ketoth xupack</a>

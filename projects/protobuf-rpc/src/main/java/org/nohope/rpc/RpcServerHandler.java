@@ -1,10 +1,5 @@
 package org.nohope.rpc;
 
-/**
- * @author <a href="mailto:ketoth.xupack@gmail.com">ketoth xupack</a>
- * @since 8/21/13 3:42 PM
- */
-
 import org.nohope.rpc.exception.ExpectedServiceException;
 import org.nohope.rpc.exception.InvalidRpcRequestException;
 import org.nohope.rpc.exception.NoSuchServiceException;
@@ -35,9 +30,12 @@ import org.slf4j.LoggerFactory;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
+/**
+ * @author <a href="mailto:ketoth.xupack@gmail.com">ketoth xupack</a>
+ * @since 8/21/13 3:42 PM
+ */
 @ChannelHandler.Sharable
-public class RpcServerHandler extends SimpleChannelUpstreamHandler implements IServiceRegistry {
-
+public class RpcServerHandler extends SimpleChannelUpstreamHandler implements IBlockingServiceRegistry {
     private static final Logger LOG = LoggerFactory.getLogger(RpcServerHandler.class);
     private final Map<String, BlockingService> blockingServiceMap = new ConcurrentHashMap<>();
 
@@ -48,7 +46,7 @@ public class RpcServerHandler extends SimpleChannelUpstreamHandler implements IS
         final String serviceName = request.getServiceName();
         final String methodName = request.getMethodName();
 
-        LOG.info("Received request for serviceName: {}, method: {}", serviceName, methodName);
+        LOG.debug("Received request for serviceName: {}, method: {}", serviceName, methodName);
 
         final BlockingService blockingService = blockingServiceMap.get(serviceName);
         if (blockingService == null) {
@@ -74,7 +72,7 @@ public class RpcServerHandler extends SimpleChannelUpstreamHandler implements IS
         final Message methodResponse;
         try {
             methodResponse = blockingService.callBlockingMethod(methodDescriptor, controller, methodRequest);
-        }catch (ExpectedServiceException ex) {
+        } catch (ExpectedServiceException ex) {
             throw RpcServiceException.wrapExpectedException(ex, request);
         } catch (ServiceException ex) {
             throw new RpcServiceException(ex, request,
@@ -100,37 +98,17 @@ public class RpcServerHandler extends SimpleChannelUpstreamHandler implements IS
     }
 
     private static void writeResponse(final Channel c, final RPC.RpcResponse response) {
-        c.write(response).addListener(new ChannelFutureListener() {
-            @Override
-            public void operationComplete(final ChannelFuture future) throws Exception {
-                if (future.isSuccess()) {
-                    LOG.debug("Message '{}' successfully sent", response);
-                } else {
-                    final Throwable cause = future.getCause();
-                    if (cause != null) {
-                        LOG.warn("Unable to send message '{}' ({})", response, cause);
-                    } else {
-                        LOG.debug("ChannelFuture for writing message '{}' complete "
-                                  + "unsuccessfully with unknown throwable (cancelled={})",
-                                  response, future.isCancelled());
-                    }
-                }
-            }
-        });
+        c.write(response).addListener(new WriteListener(response));
     }
 
     @Override
     public void exceptionCaught(final ChannelHandlerContext ctx, final ExceptionEvent e) {
         final Throwable cause = e.getCause();
-        LOG.warn("exceptionCaught", cause);
-        LOG.warn("exceptionAttachment", ctx.getAttachment());
-
         final RPC.RpcResponse.Builder responseBuilder = RPC.RpcResponse.newBuilder();
 
+        /* Cannot respond to this exception, because it is not tied to a request */
         if (!(cause instanceof ServerSideException)) {
-            /* Cannot respond to this exception, because it is not tied
-             * to a request */
-            LOG.info("Cannot respond to handler exception", cause);
+            LOG.error("Cannot respond to handler exception", cause);
             return;
         }
 
@@ -140,21 +118,19 @@ public class RpcServerHandler extends SimpleChannelUpstreamHandler implements IS
             responseBuilder.setError(ex.getError());
             writeResponse(e.getChannel(), responseBuilder.build());
         } else {
-            LOG.info("Cannot respond to handler exception", ex);
+            LOG.warn("Cannot respond to handler exception", ex);
         }
     }
 
     private static Message buildMessageFromPrototype(final Message prototype,
                                                      final ByteString messageToBuild)
             throws InvalidProtocolBufferException {
-        return prototype.newBuilderForType()
-                        .mergeFrom(messageToBuild)
-                        .build();
+        return prototype.newBuilderForType().mergeFrom(messageToBuild).build();
     }
 
     @Override
     public void registerService(final BlockingService service) {
-        if(blockingServiceMap.containsKey(service.getDescriptorForType().getFullName())) {
+        if (blockingServiceMap.containsKey(service.getDescriptorForType().getFullName())) {
             throw new IllegalArgumentException("BlockingService already registered");
         }
         blockingServiceMap.put(service.getDescriptorForType().getFullName(), service);
@@ -162,9 +138,33 @@ public class RpcServerHandler extends SimpleChannelUpstreamHandler implements IS
 
     @Override
     public void unregisterService(final BlockingService service) {
-        if(!blockingServiceMap.containsKey(service.getDescriptorForType().getFullName())) {
+        if (!blockingServiceMap.containsKey(service.getDescriptorForType().getFullName())) {
             throw new IllegalArgumentException("BlockingService not already registered");
         }
         blockingServiceMap.remove(service.getDescriptorForType().getFullName());
+    }
+
+    private static class WriteListener implements ChannelFutureListener {
+        private final RPC.RpcResponse response;
+
+        private WriteListener(final RPC.RpcResponse response) {
+            this.response = response;
+        }
+
+        @Override
+        public void operationComplete(final ChannelFuture future) throws Exception {
+            if (future.isSuccess()) {
+                LOG.debug("Message '{}' successfully sent", response);
+            } else {
+                final Throwable cause = future.getCause();
+                if (cause != null) {
+                    LOG.warn("Unable to send message '{}' ({})", response, cause);
+                } else {
+                    LOG.error("ChannelFuture for writing message '{}' complete "
+                              + "unsuccessfully with unknown throwable (cancelled={})",
+                            response, future.isCancelled());
+                }
+            }
+        }
     }
 }
