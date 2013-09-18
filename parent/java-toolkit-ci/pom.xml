@@ -1,10 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0"
-         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
     <artifactId>env-ci</artifactId>
-    <version>16-SNAPSHOT</version>
+    <version>16</version>
 
     <packaging>pom</packaging>
     <name>env-ci</name>
@@ -263,25 +261,18 @@
                         <id>jacoco-exec-aggregate</id>
                         <phase>post-integration-test</phase>
                         <configuration>
-                            <target xmlns:jacoco="antlib:org.jacoco.ant"
-                                    xmlns:ac="antlib:net.sf.antcontrib">
-                                <property name="plugin.classpath"
-                                          refid="maven.plugin.classpath"/>
+                            <target xmlns:jacoco="antlib:org.jacoco.ant" xmlns:ac="antlib:net.sf.antcontrib">
+                                <property name="plugin.classpath" refid="maven.plugin.classpath" />
 
-                                <taskdef uri="antlib:org.jacoco.ant"
-                                         resource="org/jacoco/ant/antlib.xml"
-                                         classpathref="maven.plugin.classpath"/>
-                                <taskdef uri="antlib:net.sf.antcontrib"
-                                         resource="net/sf/antcontrib/antlib.xml"
-                                         classpathref="maven.plugin.classpath"/>
+                                <taskdef uri="antlib:org.jacoco.ant" resource="org/jacoco/ant/antlib.xml" classpathref="maven.plugin.classpath" />
+                                <taskdef uri="antlib:net.sf.antcontrib" resource="net/sf/antcontrib/antlib.xml" classpathref="maven.plugin.classpath" />
 
-                                <mkdir dir="${jacoco.exec.dir}"/>
+                                <mkdir dir="${jacoco.exec.dir}" />
 
                                 <ac:trycatch property="e">
                                     <ac:try>
                                         <jacoco:merge destfile="${jacoco.exec.all}">
-                                            <fileset dir="${jacoco.exec.dir}"
-                                                     includes="*.exec"/>
+                                            <fileset dir="${jacoco.exec.dir}" includes="*.exec" />
                                         </jacoco:merge>
                                     </ac:try>
                                     <ac:catch>
@@ -300,21 +291,15 @@
                         <id>jacoco-reports-aggregating</id>
                         <phase>pre-site</phase>
                         <configuration>
-                            <target xmlns:jacoco="antlib:org.jacoco.ant"
-                                    xmlns:artifact="antlib:org.apache.maven.artifact.ant"
-                                    xmlns:ac="antlib:net.sf.antcontrib">
+                            <target xmlns:jacoco="antlib:org.jacoco.ant" xmlns:artifact="antlib:org.apache.maven.artifact.ant" xmlns:ac="antlib:net.sf.antcontrib">
 
-                                <taskdef uri="antlib:net.sf.antcontrib"
-                                         resource="net/sf/antcontrib/antlib.xml"
-                                         classpathref="maven.plugin.classpath"/>
-                                <taskdef uri="antlib:org.apache.maven.artifact.ant"
-                                         resource="org/apache/maven/artifact/ant/antlib.xml"
-                                         classpathref="maven.plugin.classpath"/>
+                                <taskdef uri="antlib:net.sf.antcontrib" resource="net/sf/antcontrib/antlib.xml" classpathref="maven.plugin.classpath" />
+                                <taskdef uri="antlib:org.apache.maven.artifact.ant" resource="org/apache/maven/artifact/ant/antlib.xml" classpathref="maven.plugin.classpath" />
 
                                 <macrodef name="report">
-                                    <attribute name="postfix"/>
-                                    <attribute name="file"/>
-                                    <attribute name="folder"/>
+                                    <attribute name="postfix" />
+                                    <attribute name="file" />
+                                    <attribute name="folder" />
                                     <sequential>
                                         <ac:trycatch property="e">
                                             <ac:try>
@@ -323,47 +308,38 @@
                                                         <not>
                                                             <available file="@{file}" />
                                                         </not>
-                                                        <equals arg1="${project.parent.relativePath}"
-                                                                arg2="$${project.parent.relativePath}"/>
-                                                        <equals arg1="${project.parent.relativePath}"
-                                                                arg2="" />
+                                                        <equals arg1="${project.parent.relativePath}" arg2="$${project.parent.relativePath}" />
+                                                        <equals arg1="${project.parent.relativePath}" arg2="" />
                                                     </or>
                                                     <ac:else>
                                                         <ac:var name="parent.dir" unset="true" />
-                                                        <dirname property="parent.dir"
-                                                                 file="${project.parent.relativePath}"/>
-                                                        <mkdir dir="${parent.dir}/@{folder}"/>
+                                                        <dirname property="parent.dir" file="${project.parent.relativePath}" />
+                                                        <mkdir dir="${parent.dir}/@{folder}" />
 
                                                         <jacoco:report>
                                                             <executiondata>
-                                                                <file file="@{file}"/>
+                                                                <file file="@{file}" />
                                                             </executiondata>
-                                                            <structure
-                                                                    name="[@{postfix}] ${project.parent.groupId}:${project.parent.artifactId}">
+                                                            <structure name="[@{postfix}] ${project.parent.groupId}:${project.parent.artifactId}">
                                                                 <classfiles>
-                                                                    <fileset dir="${parent.dir}"
-                                                                             includes="**/target/classes/**/*.class"/>
+                                                                    <fileset dir="${parent.dir}" includes="**/target/classes/**/*.class" />
                                                                 </classfiles>
                                                                 <!-- encoding="UTF-8" -->
                                                                 <sourcefiles>
                                                                     <!-- yet another approach
                                                                     <archives>
                                                                         <zips>
-                                                                            <fileset dir="${parent.dir}"
-                                                                                     includes="**/target/*-sources.jar"/>
+                                                                            <fileset dir="${parent.dir}" includes="**/target/*-sources.jar" />
                                                                         </zips>
                                                                     </archives>
                                                                     -->
                                                                     <mappedresources>
-                                                                        <fileset dir="${parent.dir}"
-                                                                                 includes="**/src/main/java/**/*.*"/>
-                                                                        <regexpmapper
-                                                                                from="src/main/java/(.*)$$"
-                                                                                to="\1"/>
+                                                                        <fileset dir="${parent.dir}" includes="**/src/main/java/**/*.*" />
+                                                                        <regexpmapper from="src/main/java/(.*)$$" to="\1" />
                                                                     </mappedresources>
                                                                 </sourcefiles>
                                                             </structure>
-                                                            <html destdir="${parent.dir}/@{folder}"/>
+                                                            <html destdir="${parent.dir}/@{folder}" />
                                                         </jacoco:report>
                                                     </ac:else>
                                                 </ac:if>
@@ -375,15 +351,9 @@
                                     </sequential>
                                 </macrodef>
 
-                                <report postfix="all"
-                                        file="${jacoco.exec.all}"
-                                        folder="${jacoco.report.floder.all}"/>
-                                <report postfix="it"
-                                        file="${jacoco.exec.it}"
-                                        folder="${jacoco.report.floder.it}"/>
-                                <report postfix="unit"
-                                        file="${jacoco.exec.unit}"
-                                        folder="${jacoco.report.floder.unit}"/>
+                                <report postfix="all" file="${jacoco.exec.all}" folder="${jacoco.report.floder.all}" />
+                                <report postfix="it" file="${jacoco.exec.it}" folder="${jacoco.report.floder.it}" />
+                                <report postfix="unit" file="${jacoco.exec.unit}" folder="${jacoco.report.floder.unit}" />
                             </target>
                         </configuration>
                         <goals>
@@ -471,7 +441,7 @@
                             We don't need extensive site reporting so
                             no reporst included here.
                         -->
-                        <reports/>
+                        <reports />
                     </reportSet>
                 </reportSets>
             </plugin>
