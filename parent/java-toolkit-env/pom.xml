@@ -4,22 +4,58 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
-    <!--
-  This POM:
-  - Defines java version for source, target and compiler
-  - Enables useful warnings and messages from compiler
-  - Adds 3rdparty implementation of jsr305 (@nullable annotations)
-  - Turns on source jar generation
-    -->
     <groupId>org.no-hope</groupId>
     <artifactId>env-java</artifactId>
     <version>9</version>
-    <name>env-java</name>
+
     <packaging>pom</packaging>
+    <name>env-java</name>
+
+    <description>
+        Slightly improved version of default maven superpom:
+        - Defines java version for source, target and compiler
+        - Enables useful warnings and messages from compiler
+        - Adds 3rdparty implementation of jsr305 (@nullable annotations)
+        - Turns on source jar generation
+    </description>
+
+    <url>https://github.com/no-hope/java-superpoms</url>
+
+    <licenses>
+        <license>
+            <name>The Apache Software License, Version 2.0</name>
+            <url>http://www.apache.org/licenses/LICENSE-2.0.txt</url>
+            <distribution>repo</distribution>
+        </license>
+    </licenses>
+
+    <scm>
+        <url>git@github.com:no-hope/java-superpoms.git</url>
+        <connection>scm:git:git@github.com:no-hope/java-superpoms.git</connection>
+        <developerConnection>scm:git:git@github.com:no-hope/java-superpoms.git</developerConnection>
+    </scm>
+
+    <developers>
+        <developer>
+            <id>ketoth.xupack</id>
+            <name>Ketoth Xupack</name>
+            <email>ketoth.xupack@gmail.com</email>
+        </developer>
+        <developer>
+            <name>Fei Wong Reed</name>
+            <email>feiwreed@gmail.com</email>
+        </developer>
+    </developers>
 
     <prerequisites>
         <maven>3.0</maven>
     </prerequisites>
+
+    <parent>
+        <groupId>org.sonatype.oss</groupId>
+        <artifactId>oss-parent</artifactId>
+        <version>7</version>
+    </parent>
 
     <properties>
         <!-- System -->
@@ -110,6 +146,7 @@
                     </execution>
                 </executions>
             </plugin>
+
         </plugins>
     </build>
 
