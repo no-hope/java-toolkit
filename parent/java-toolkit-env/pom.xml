@@ -6,7 +6,7 @@
 
     <groupId>org.no-hope</groupId>
     <artifactId>env-java</artifactId>
-    <version>9</version>
+    <version>9-SNAPSHOT</version>
 
     <packaging>pom</packaging>
     <name>env-java</name>
