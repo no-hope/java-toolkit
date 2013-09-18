@@ -17,13 +17,6 @@
     <name>env-java</name>
     <packaging>pom</packaging>
 
-    <parent>
-        <groupId>org.no-hope</groupId>
-        <artifactId>env-deploy</artifactId>
-        <version>6</version>
-        <relativePath/>
-    </parent>
-
     <prerequisites>
         <maven>3.0</maven>
     </prerequisites>
@@ -117,7 +110,6 @@
                     </execution>
                 </executions>
             </plugin>
-
         </plugins>
     </build>
 
