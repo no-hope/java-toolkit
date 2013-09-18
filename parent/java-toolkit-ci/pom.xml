@@ -4,10 +4,9 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
-    <groupId>org.no-hope</groupId>
     <artifactId>env-ci</artifactId>
     <version>16</version>
-    <name>env-integration</name>
+    <name>env-ci</name>
     <packaging>pom</packaging>
 
     <prerequisites>
@@ -18,9 +17,6 @@
         <groupId>org.no-hope</groupId>
         <artifactId>env-java</artifactId>
         <version>9</version>
-        <!-- need to force importing pom from repositories  -->
-        <!--relativePath>../java/pom.xml</relativePath-->
-        <relativePath/>
     </parent>
 
     <properties>
@@ -28,19 +24,19 @@
         <maven.antrun-plugin.version>1.7</maven.antrun-plugin.version>
         <maven.cobertura-plugin.version>2.5.1</maven.cobertura-plugin.version>
         <maven.dashboard-plugin.version>1.0.0-beta-1</maven.dashboard-plugin.version>
-        <maven.failsafe-plugin.version>2.12.4</maven.failsafe-plugin.version>
+        <maven.failsafe-plugin.version>2.16</maven.failsafe-plugin.version>
         <maven.findbugs-plugin.version>2.3.2</maven.findbugs-plugin.version>
-        <maven.jacoco-plugin.version>0.6.1.201212231917</maven.jacoco-plugin.version>
-        <maven.javadoc-plugin.version>2.9</maven.javadoc-plugin.version>
+        <maven.jacoco-plugin.version>0.6.3.201306030806</maven.jacoco-plugin.version>
+        <maven.javadoc-plugin.version>2.9.1</maven.javadoc-plugin.version>
         <maven.jdepend-plugin.version>2.0-beta-2</maven.jdepend-plugin.version>
         <maven.pmd-plugin.version>2.5</maven.pmd-plugin.version>
-        <maven.project-info-reports-plugin.version>2.6</maven.project-info-reports-plugin.version>
+        <maven.project-info-reports-plugin.version>2.7</maven.project-info-reports-plugin.version>
         <maven.site-plugin.version>3.2</maven.site-plugin.version>
-        <maven.sonar-plugin.version>3.3.1</maven.sonar-plugin.version>
-        <maven.surefire-plugin.version>2.12.4</maven.surefire-plugin.version>
+        <maven.sonar-plugin.version>3.6.3</maven.sonar-plugin.version>
+        <maven.surefire-plugin.version>2.16</maven.surefire-plugin.version>
 
         <!-- libs -->
-        <ant.version>1.8.2</ant.version>
+        <ant.version>1.9.2</ant.version>
         <ant-contrib.version>1.0b3</ant-contrib.version>
         <apiviz.version>1.3.2.GA</apiviz.version>
         <junit.version>4.10</junit.version>
@@ -77,44 +73,8 @@
                 <enabled>false</enabled>
             </snapshots>
         </repository>
-
-        <!--repository>
-            <id>no-hope</id>
-            <name>no-hope repository</name>
-            <url>http://maven.no-hope.org/maven</url>
-            <layout>default</layout>
-            <snapshots>
-                <enabled>true</enabled>
-                <updatePolicy>always</updatePolicy>
-            </snapshots>
-            <releases>
-                <enabled>true</enabled>
-                <updatePolicy>always</updatePolicy>
-            </releases>
-        </repository-->
     </repositories>
 
-    <!--pluginRepositories>
-        <pluginRepository>
-            <id>no-hope</id>
-            <name>no-hope repository</name>
-            <url>http://maven.no-hope.org/maven</url>
-            <layout>default</layout>
-            <releases>
-                <updatePolicy>always</updatePolicy>
-            </releases>
-        </pluginRepository>
-    </pluginRepositories-->
-
-    <!--distributionManagement>
-        <repository>
-            <uniqueVersion>false</uniqueVersion>
-            <id>no-hope</id>
-            <name>no-hope repository</name>
-            <url>scpexe://maven@maven.no-hope/home/maven/httpdocs/maven</url>
-            <layout>default</layout>
-        </repository>
-    </distributionManagement-->
 
     <build>
         <finalName>${project.artifactId}</finalName>
@@ -415,11 +375,6 @@
                         </goals>
                     </execution>
                 </executions>
-            </plugin>
-
-            <plugin>
-                <artifactId>maven-deploy-plugin</artifactId>
-                <version>${maven.deploy-plugin.version}</version>
             </plugin>
 
             <!-- javadoc -->
