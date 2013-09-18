@@ -3,11 +3,43 @@
          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
-
     <artifactId>env-ci</artifactId>
     <version>16</version>
-    <name>env-ci</name>
+
     <packaging>pom</packaging>
+    <name>env-ci</name>
+
+    <description>
+        CI configuration aimed to simplify common QA routines
+    </description>
+
+    <url>https://github.com/no-hope/java-superpoms</url>
+
+    <licenses>
+        <license>
+            <name>The Apache Software License, Version 2.0</name>
+            <url>http://www.apache.org/licenses/LICENSE-2.0.txt</url>
+            <distribution>repo</distribution>
+        </license>
+    </licenses>
+
+    <scm>
+        <url>git@github.com:no-hope/java-superpoms.git</url>
+        <connection>scm:git:git@github.com:no-hope/java-superpoms.git</connection>
+        <developerConnection>scm:git:git@github.com:no-hope/java-superpoms.git</developerConnection>
+    </scm>
+
+    <developers>
+        <developer>
+            <id>ketoth.xupack</id>
+            <name>Ketoth Xupack</name>
+            <email>ketoth.xupack@gmail.com</email>
+        </developer>
+        <developer>
+            <name>Fei Wong Reed</name>
+            <email>feiwreed@gmail.com</email>
+        </developer>
+    </developers>
 
     <prerequisites>
         <maven>3.0</maven>
@@ -59,22 +91,6 @@
         <sonar.jacoco.itReportPath>${jacoco.exec.it}</sonar.jacoco.itReportPath>
         <sonar.dynamicAnalysis>reuseReports</sonar.dynamicAnalysis>
     </properties>
-
-    <repositories>
-        <!-- JBoss.org repository -->
-        <repository>
-            <id>jboss-releases</id>
-            <name>JBoss releases</name>
-            <url>https://repository.jboss.org/nexus/content/repositories/releases/</url>
-            <releases>
-                <enabled>true</enabled>
-            </releases>
-            <snapshots>
-                <enabled>false</enabled>
-            </snapshots>
-        </repository>
-    </repositories>
-
 
     <build>
         <finalName>${project.artifactId}</finalName>
