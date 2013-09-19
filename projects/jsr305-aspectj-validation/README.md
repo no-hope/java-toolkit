@@ -1,9 +1,9 @@
 [![Travis status](https://api.travis-ci.org/no-hope/jsr305-aspectj-validation.png)](https://travis-ci.org/no-hope/jsr305-aspectj-validation)
-# jsr305-aspectj-validation
+## jsr305-aspectj-validation
 
 AspectJ-powered way to bring jsr305 validations on run-time.
 
-## How to use
+### How to use
 
 ```java
 import javax.annotation.Nonnull;
@@ -27,7 +27,7 @@ public class Example {
 }
 ```
 
-### Maven
+#### Maven
 
 To enable @Nonnull checks you need to modify your pom.xml
 
@@ -57,15 +57,16 @@ To enable @Nonnull checks you need to modify your pom.xml
     <version>${validation.version}</version>
 </dependency>
 ```
-## What is supported?
+### What is supported?
 
  * @Nonnull annotation:
   * Constructor parameters
   * Method parameters/return value
 
-## TODO
+### TODO/Limitations
 
  * @Nonnul support for fields
- * @ParametersAreNonnullByDefault package-level annotation
- * Other great rules
- 
+ * Support for other annotations
+ * If @Nonnull annotation have value other than ALWAYS (default one) will cause validator to skip any non-null checking
+ * No @ParametersAreNonnullByDefault/@ParametersAreNullableByDefault supported yet (waiting for AspectJ support)
+ * All method parameters/return value considered nullable unless parameter/method have @Nonnull annotation
