@@ -14,16 +14,16 @@ public class Example {
     private Object o;
 
     public Example(@Nonnull final Object obj) {
-        private Object o;    
+        this.o = obj;
     }
 
     public void setObject(@Nonnull final Object obj) {
-        this.o = obj
+        this.o = obj;
     }
 
     @Nonnull
     public void setObject(@Nonnull final Object obj) {
-        this.o = obj
+        this.o = obj;
     }
 }
 ```
