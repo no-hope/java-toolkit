@@ -11,7 +11,7 @@
 
     <description>
         Slightly improved version of default maven superpom:
-        - Defines java version for source, target and compiler
+        - Defines java version for source, target and compiler (or, alternatively aspectj compiler)
         - Enables useful warnings and messages from compiler
         - Adds 3rdparty implementation of jsr305 (@nullable annotations)
         - Turns on source jar generation
@@ -57,6 +57,8 @@
 
     <properties>
         <!-- System -->
+        <aspectj.showWeaveInfo>false</aspectj.showWeaveInfo>
+
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
 
@@ -68,12 +70,17 @@
         <java.compiler.version>${java.lang.level}</java.compiler.version>
 
         <!-- Maven plugins -->
-        <maven.compiler-plugin.version>2.5.1</maven.compiler-plugin.version>
+        <maven.aspectj-plugin.version>1.5</maven.aspectj-plugin.version>
+        <maven.compiler-plugin.version>3.1</maven.compiler-plugin.version>
+        <maven.jar-plugin.version>2.4</maven.jar-plugin.version>
         <maven-resources-plugin.version>2.6</maven-resources-plugin.version>
-        <maven.source-plugin.version>2.2</maven.source-plugin.version>
+        <maven.source-plugin.version>2.2.1</maven.source-plugin.version>
 
         <!-- libs -->
+        <aspectjrt.version>1.7.3</aspectjrt.version>
+        <findbugs-annotations.version>2.0.1</findbugs-annotations.version>
         <jsr305.version>2.0.1</jsr305.version>
+        <junit.version>4.11</junit.version>
     </properties>
 
     <profiles>
@@ -101,9 +108,54 @@
         </profile>
     </profiles>
 
-
     <build>
         <finalName>PRJ: ${project.artifactId}</finalName>
+
+        <pluginManagement>
+            <!-- aspectj plugin -->
+            <plugins>
+                <plugin>
+                    <groupId>org.codehaus.mojo</groupId>
+                    <artifactId>aspectj-maven-plugin</artifactId>
+                    <version>${maven.aspectj-plugin.version}</version>
+
+                    <configuration>
+                        <source>${java.lang.level}</source>
+                        <target>${java.lang.level}</target>
+                        <complianceLevel>${java.lang.level}</complianceLevel>
+                        <showWeaveInfo>${aspectj.showWeaveInfo}</showWeaveInfo>
+                    </configuration>
+
+                    <dependencies>
+                        <dependency>
+                            <groupId>org.aspectj</groupId>
+                            <artifactId>aspectjrt</artifactId>
+                            <version>${aspectjrt.version}</version>
+                        </dependency>
+                        <dependency>
+                            <groupId>org.aspectj</groupId>
+                            <artifactId>aspectjtools</artifactId>
+                            <version>${aspectjrt.version}</version>
+                        </dependency>
+                    </dependencies>
+
+                    <executions>
+                        <execution>
+                            <goals>
+                                <goal>compile</goal>
+                                <goal>test-compile</goal>
+                            </goals>
+                        </execution>
+                    </executions>
+                </plugin>
+
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-jar-plugin</artifactId>
+                    <version>${maven.jar-plugin.version}</version>
+                </plugin>
+            </plugins>
+        </pluginManagement>
 
         <plugins>
             <plugin>
@@ -154,6 +206,25 @@
                 <groupId>com.google.code.findbugs</groupId>
                 <artifactId>jsr305</artifactId>
                 <version>${jsr305.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>org.aspectj</groupId>
+                <artifactId>aspectjrt</artifactId>
+                <version>${aspectjrt.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>com.google.code.findbugs</groupId>
+                <artifactId>annotations</artifactId>
+                <version>${findbugs-annotations.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>junit</groupId>
+                <artifactId>junit</artifactId>
+                <version>${junit.version}</version>
+                <scope>test</scope>
             </dependency>
         </dependencies>
     </dependencyManagement>
