@@ -1,7 +1,7 @@
 [![Travis status](https://api.travis-ci.org/no-hope/jsr305-aspectj-validation.png)](https://travis-ci.org/no-hope/jsr305-aspectj-validation)
 ## jsr305-aspectj-validation
 
-AspectJ-powered way to bring jsr305 validations on run-time.
+AspectJ-powered way to bring JSR-305 validations on run-time.
 
 ### How to use
 
@@ -42,13 +42,12 @@ To enable @Nonnull checks you need to modify your pom.xml
             <aspectLibrary>
                 <groupId>org.no-hope</groupId>
                 <artifactId>jsr305-aspectj-validation</artifactId>
-                <version>${validation.version}</version>
             </aspectLibrary>
         </aspectLibraries>
     </configuration>
 </plugin>
 ```
-2) Add validation dependency (you can skip it adding only `com.google.code.findbugs:jsr305` and `org.aspectj:aspectjrt`):
+2) Add validation dependency:
 
 ```xml
 <dependency>
