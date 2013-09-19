@@ -52,6 +52,7 @@
     <properties>
         <!-- System -->
         <maven.version.lower>3.0.4</maven.version.lower>
+        <javadoc.level>public</javadoc.level>
 
         <!-- Maven plugins -->
         <maven.antrun-plugin.version>1.7</maven.antrun-plugin.version>
@@ -400,7 +401,7 @@
                     <docencoding>UTF-8</docencoding>
 
                     <!-- expose private methods/fields -->
-                    <show>private</show>
+                    <show>${javadoc.level}</show>
 
                     <!-- javadoc to be included -->
                     <links>
@@ -416,6 +417,12 @@
                         <phase>site</phase>
                         <goals>
                             <goal>javadoc</goal>
+                        </goals>
+                    </execution>
+                    <execution>
+                        <id>attach-javadocs</id>
+                        <goals>
+                            <goal>jar</goal>
                         </goals>
                     </execution>
                 </executions>
