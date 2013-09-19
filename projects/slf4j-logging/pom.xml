@@ -3,7 +3,7 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>org.nohope</groupId>
     <artifactId>slf4j-logging</artifactId>
-    <version>0.1.0-SNAPSHOT</version>
+    <version>0.1.0</version>
 
     <description>Slf4j wrapper extending formatting abilities</description>
 
