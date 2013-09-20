@@ -9,19 +9,6 @@
         CI configuration aimed to simplify common QA routines
     </description>
 
-    <developers>
-        <developer>
-            <id>ketoth.xupack</id>
-            <name>Ketoth Xupack</name>
-            <email>ketoth.xupack@gmail.com</email>
-        </developer>
-        <developer>
-            <id>wolfram</id>
-            <name>Fei Wong Reed</name>
-            <email>feiwreed@gmail.com</email>
-        </developer>
-    </developers>
-
     <prerequisites>
         <maven>3.0</maven>
     </prerequisites>
