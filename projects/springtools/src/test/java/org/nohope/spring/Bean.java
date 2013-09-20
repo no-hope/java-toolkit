@@ -1,7 +1,5 @@
 package org.nohope.spring;
 
-import akka.actor.UntypedActor;
-
 import javax.inject.Inject;
 import javax.inject.Named;
 import java.io.Serializable;
