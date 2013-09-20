@@ -17,10 +17,6 @@
         <relativePath>../../pom.xml</relativePath>
     </parent>
 
-    <properties>
-        <xbean-finder.version>3.14</xbean-finder.version>
-    </properties>
-
     <!-- enforce @Nonnull checks -->
     <build>
         <plugins>

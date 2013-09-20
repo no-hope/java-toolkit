@@ -60,6 +60,7 @@
         <commons-lang3.version>3.1</commons-lang3.version>
         <mongo.version>2.11.2</mongo.version>
         <javax-inject.version>1</javax-inject.version>
+        <xbean-finder.version>3.14</xbean-finder.version>
     </properties>
 
 
@@ -69,5 +70,6 @@
         <module>projects/typetools</module>
         <module>projects/springtools</module>
         <module>projects/apptools</module>
+        <module>projects/springapp</module>
     </modules>
 </project>
