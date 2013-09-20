@@ -6,6 +6,7 @@
 *.odb
 *.hprof.txt
 *.hprof
+*.ipr
 *.iws
 *.iml
 dependency-reduced-pom.xml
@@ -27,6 +28,3 @@ out
 *.xml.tag
 *.xml.next
 release.properties
-
-*.ipr
-*.iws
