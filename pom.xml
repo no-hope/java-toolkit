@@ -63,6 +63,16 @@
         <xbean-finder.version>3.14</xbean-finder.version>
     </properties>
 
+    <build>
+        <plugins>
+            <plugin>
+                <artifactId>maven-release-plugin</artifactId>
+                <configuration combine.self="append">
+                    <connectionUrl>scm:git:git@github.com:no-hope/java-toolkit.git</connectionUrl>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
 
     <modules>
         <module>parent/java-toolkit-ci</module>
