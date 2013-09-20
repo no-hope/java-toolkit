@@ -45,7 +45,7 @@
     <parent>
         <groupId>org.no-hope</groupId>
         <artifactId>java-toolkit-ci</artifactId>
-        <version>0.1.2-SNAPSHOT</version>
+        <version>0.1.2</version>
         <relativePath>parent/java-toolkit-ci/pom.xml</relativePath>
     </parent>
 
