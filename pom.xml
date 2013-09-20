@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <artifactId>java-toolkit</artifactId>
+    <name>[java-toolkit]</name>
+
+    <packaging>pom</packaging>
+
+    <description>Aggregate model for java-toolkit projects</description>
+
+    <url>https://github.com/no-hope/java-toolkit</url>
+
+    <licenses>
+        <license>
+            <name>The Apache Software License, Version 2.0</name>
+            <url>http://www.apache.org/licenses/LICENSE-2.0.txt</url>
+            <distribution>repo</distribution>
+        </license>
+    </licenses>
+
+    <scm>
+        <url>git@github.com:no-hope/java-toolkit.git</url>
+        <connection>scm:git:git@github.com:no-hope/java-toolkit.git</connection>
+        <developerConnection>scm:git:git@github.com:no-hope/java-toolkit.git</developerConnection>
+    </scm>
+
+    <developers>
+        <developer>
+            <id>ketoth.xupack</id>
+            <name>Ketoth Xupack</name>
+            <email>ketoth.xupack@gmail.com</email>
+        </developer>
+        <developer>
+            <id>wolfram</id>
+            <name>Fei Wong Reed</name>
+            <email>feiwreed@gmail.com</email>
+        </developer>
+    </developers>
+
+    <prerequisites>
+        <maven>3.0</maven>
+    </prerequisites>
+
+    <parent>
+        <groupId>org.no-hope</groupId>
+        <artifactId>java-toolkit-ci</artifactId>
+        <version>0.1.2-SNAPSHOT</version>
+        <relativePath>parent/java-toolkit-ci/pom.xml</relativePath>
+    </parent>
+
+    <properties>
+        <logback.version>1.0.13</logback.version>
+        <easymock.version>3.2</easymock.version>
+        <slf4j.version>1.7.5</slf4j.version>
+        <spring.version>3.2.4.RELEASE</spring.version>
+        <jackson.version>2.2.3</jackson.version>
+        <easymock.version>3.2</easymock.version>
+        <joda-time.version>2.3</joda-time.version>
+        <commons-lang3.version>3.1</commons-lang3.version>
+        <mongo.version>2.11.2</mongo.version>
+        <javax-inject.version>1</javax-inject.version>
+    </properties>
+
+
+    <modules>
+        <module>projects/jsr305-aspectj-validation</module>
+        <module>projects/slf4j-logging</module>
+        <module>projects/typetools</module>
+        <module>projects/springtools</module>
+        <module>projects/apptools</module>
+    </modules>
+</project>

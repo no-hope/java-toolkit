@@ -1,35 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
-    <groupId>org.no-hope</groupId>
     <artifactId>slf4j-logging</artifactId>
     <version>0.1.2-SNAPSHOT</version>
 
     <description>Slf4j wrapper extending formatting abilities</description>
-
-    <url>https://github.com/no-hope/slf4j-logging</url>
-
-    <licenses>
-        <license>
-            <name>The Apache Software License, Version 2.0</name>
-            <url>http://www.apache.org/licenses/LICENSE-2.0.txt</url>
-            <distribution>repo</distribution>
-        </license>
-    </licenses>
-
-    <scm>
-        <url>git@github.com:no-hope/slf4j-logging.git</url>
-        <connection>scm:git:git@github.com:no-hope/slf4j-logging.git</connection>
-        <developerConnection>scm:git:git@github.com:no-hope/slf4j-logging.git</developerConnection>
-    </scm>
-
-    <developers>
-        <developer>
-            <id>ketoth.xupack</id>
-            <name>Ketoth Xupack</name>
-            <email>ketoth.xupack@gmail.com</email>
-        </developer>
-    </developers>
 
     <prerequisites>
         <maven>3.0</maven>
@@ -37,15 +12,10 @@
 
     <parent>
         <groupId>org.no-hope</groupId>
-        <artifactId>env-ci</artifactId>
-        <version>18</version>
+        <artifactId>java-toolkit</artifactId>
+        <version>0.1.2-SNAPSHOT</version>
+        <relativePath>../../pom.xml</relativePath>
     </parent>
-
-    <properties>
-        <easymock.version>3.2</easymock.version>
-        <slf4j.version>1.7.5</slf4j.version>
-        <logback.version>1.0.13</logback.version>
-    </properties>
 
     <build>
         <plugins>
