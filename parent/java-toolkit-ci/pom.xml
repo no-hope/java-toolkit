@@ -8,22 +8,6 @@
         CI configuration aimed to simplify common QA routines
     </description>
 
-    <url>https://github.com/no-hope/java-superpoms</url>
-
-    <licenses>
-        <license>
-            <name>The Apache Software License, Version 2.0</name>
-            <url>http://www.apache.org/licenses/LICENSE-2.0.txt</url>
-            <distribution>repo</distribution>
-        </license>
-    </licenses>
-
-    <scm>
-        <url>git@github.com:no-hope/java-superpoms.git</url>
-        <connection>scm:git:git@github.com:no-hope/java-superpoms.git</connection>
-        <developerConnection>scm:git:git@github.com:no-hope/java-superpoms.git</developerConnection>
-    </scm>
-
     <developers>
         <developer>
             <id>ketoth.xupack</id>
@@ -31,7 +15,7 @@
             <email>ketoth.xupack@gmail.com</email>
         </developer>
         <developer>
-            <id>wolfy</id>
+            <id>wolfram</id>
             <name>Fei Wong Reed</name>
             <email>feiwreed@gmail.com</email>
         </developer>
@@ -73,7 +57,6 @@
         <ant.version>1.9.2</ant.version>
         <ant-contrib.version>1.0b3</ant-contrib.version>
         <apiviz.version>1.3.2.GA</apiviz.version>
-        <junit.version>4.10</junit.version>
         <maven-ant-tasks.version>2.1.3</maven-ant-tasks.version>
 
         <!-- jacoco reporting folders -->
