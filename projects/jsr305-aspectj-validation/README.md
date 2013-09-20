@@ -1,4 +1,3 @@
-[![Travis status](https://api.travis-ci.org/no-hope/jsr305-aspectj-validation.png)](https://travis-ci.org/no-hope/jsr305-aspectj-validation)
 ## jsr305-aspectj-validation
 
 AspectJ-powered way to bring JSR-305 validations on run-time.
