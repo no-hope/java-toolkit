@@ -1,11 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
-    <artifactId>env-ci</artifactId>
-    <version>19-SNAPSHOT</version>
-
+    <artifactId>java-toolkit-ci</artifactId>
     <packaging>pom</packaging>
-    <name>env-ci</name>
 
     <description>
         CI configuration aimed to simplify common QA routines
@@ -34,6 +31,7 @@
             <email>ketoth.xupack@gmail.com</email>
         </developer>
         <developer>
+            <id>wolfy</id>
             <name>Fei Wong Reed</name>
             <email>feiwreed@gmail.com</email>
         </developer>
@@ -45,8 +43,9 @@
 
     <parent>
         <groupId>org.no-hope</groupId>
-        <artifactId>env-java</artifactId>
-        <version>11</version>
+        <artifactId>java-toolkit-env</artifactId>
+        <version>0.1.2-SNAPSHOT</version>
+        <relativePath>../java-toolkit-env/pom.xml</relativePath>
     </parent>
 
     <properties>
