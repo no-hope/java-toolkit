@@ -65,6 +65,9 @@
 
 
     <modules>
+        <module>parent/java-toolkit-ci</module>
+        <module>parent/java-toolkit-env</module>
+
         <module>projects/jsr305-aspectj-validation</module>
         <module>projects/slf4j-logging</module>
         <module>projects/typetools</module>
