@@ -1,0 +1,495 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+    <artifactId>java-toolkit-ci</artifactId>
+    <packaging>pom</packaging>
+
+    <description>
+        CI configuration aimed to simplify common QA routines
+    </description>
+
+    <url>https://github.com/no-hope/java-superpoms</url>
+
+    <licenses>
+        <license>
+            <name>The Apache Software License, Version 2.0</name>
+            <url>http://www.apache.org/licenses/LICENSE-2.0.txt</url>
+            <distribution>repo</distribution>
+        </license>
+    </licenses>
+
+    <scm>
+        <url>git@github.com:no-hope/java-superpoms.git</url>
+        <connection>scm:git:git@github.com:no-hope/java-superpoms.git</connection>
+        <developerConnection>scm:git:git@github.com:no-hope/java-superpoms.git</developerConnection>
+    </scm>
+
+    <developers>
+        <developer>
+            <id>ketoth.xupack</id>
+            <name>Ketoth Xupack</name>
+            <email>ketoth.xupack@gmail.com</email>
+        </developer>
+        <developer>
+            <id>wolfy</id>
+            <name>Fei Wong Reed</name>
+            <email>feiwreed@gmail.com</email>
+        </developer>
+    </developers>
+
+    <prerequisites>
+        <maven>3.0</maven>
+    </prerequisites>
+
+    <parent>
+        <groupId>org.no-hope</groupId>
+        <artifactId>java-toolkit-env</artifactId>
+        <version>0.1.2-SNAPSHOT</version>
+        <relativePath>../java-toolkit-env/pom.xml</relativePath>
+    </parent>
+
+    <properties>
+        <!-- System -->
+        <maven.version.lower>3.0.4</maven.version.lower>
+        <javadoc.level>public</javadoc.level>
+
+        <!-- Maven plugins -->
+        <maven.antrun-plugin.version>1.7</maven.antrun-plugin.version>
+        <maven.cobertura-plugin.version>2.5.1</maven.cobertura-plugin.version>
+        <maven.dashboard-plugin.version>1.0.0-beta-1</maven.dashboard-plugin.version>
+        <maven.enforcer-plugin.version>1.3.1</maven.enforcer-plugin.version>
+        <maven.failsafe-plugin.version>2.16</maven.failsafe-plugin.version>
+        <maven.findbugs-plugin.version>2.3.2</maven.findbugs-plugin.version>
+        <maven.jacoco-plugin.version>0.6.3.201306030806</maven.jacoco-plugin.version>
+        <maven.javadoc-plugin.version>2.9.1</maven.javadoc-plugin.version>
+        <maven.jdepend-plugin.version>2.0-beta-2</maven.jdepend-plugin.version>
+        <maven.pmd-plugin.version>2.5</maven.pmd-plugin.version>
+        <maven.project-info-reports-plugin.version>2.7</maven.project-info-reports-plugin.version>
+        <maven.site-plugin.version>3.2</maven.site-plugin.version>
+        <maven.sonar-plugin.version>3.6.3</maven.sonar-plugin.version>
+        <maven.surefire-plugin.version>2.16</maven.surefire-plugin.version>
+
+        <!-- libs -->
+        <ant.version>1.9.2</ant.version>
+        <ant-contrib.version>1.0b3</ant-contrib.version>
+        <apiviz.version>1.3.2.GA</apiviz.version>
+        <junit.version>4.10</junit.version>
+        <maven-ant-tasks.version>2.1.3</maven-ant-tasks.version>
+
+        <!-- jacoco reporting folders -->
+        <jacoco.report.floder.it>target/site/jacoco/it</jacoco.report.floder.it>
+        <jacoco.report.floder.unit>target/site/jacoco/unit</jacoco.report.floder.unit>
+        <jacoco.report.floder.all>target/site/jacoco/all</jacoco.report.floder.all>
+
+        <!-- jacoco coverage reports paths -->
+        <jacoco.exec.dir>${basedir}/target/coverage-reports</jacoco.exec.dir>
+        <jacoco.exec.it>${jacoco.exec.dir}/jacoco-it.exec</jacoco.exec.it>
+        <jacoco.exec.unit>${jacoco.exec.dir}/jacoco-unit.exec</jacoco.exec.unit>
+        <jacoco.exec.all>${jacoco.exec.dir}/jacoco-all.exec</jacoco.exec.all>
+
+        <!-- sonar settings for jacoco -->
+        <sonar.core.codeCoveragePlugin>jacoco</sonar.core.codeCoveragePlugin>
+        <sonar.jacoco.reportPath>${jacoco.exec.unit}</sonar.jacoco.reportPath>
+        <sonar.jacoco.itReportPath>${jacoco.exec.it}</sonar.jacoco.itReportPath>
+        <sonar.dynamicAnalysis>reuseReports</sonar.dynamicAnalysis>
+    </properties>
+
+
+
+    <build>
+        <finalName>${project.artifactId}</finalName>
+
+        <plugins>
+            <!-- code coverage -->
+            <plugin>
+                <groupId>org.jacoco</groupId>
+                <artifactId>jacoco-maven-plugin</artifactId>
+                <version>${maven.jacoco-plugin.version}</version>
+
+                <executions>
+                    <!-- merged it/unit coverage -->
+                    <execution>
+                        <id>jacoco-report-all</id>
+                        <phase>site</phase>
+                        <goals>
+                            <goal>report</goal>
+                        </goals>
+                        <configuration>
+                            <dataFile>${jacoco.exec.all}</dataFile>
+                            <outputDirectory>
+                                ${project.basedir}/${jacoco.report.floder.all}
+                            </outputDirectory>
+                        </configuration>
+                    </execution>
+
+                    <!-- integration test coverage -->
+                    <execution>
+                        <id>jacoco-report-it</id>
+                        <phase>site</phase>
+                        <goals>
+                            <goal>report</goal>
+                        </goals>
+                        <configuration>
+                            <dataFile>${jacoco.exec.it}</dataFile>
+                            <outputDirectory>
+                                ${project.basedir}/${jacoco.report.floder.it}
+                            </outputDirectory>
+                        </configuration>
+                    </execution>
+                    <execution>
+                        <id>jacoco-prepare-it</id>
+                        <phase>pre-integration-test</phase>
+                        <goals>
+                            <goal>prepare-agent</goal>
+                        </goals>
+                        <configuration>
+                            <propertyName>jacoco.argline.it</propertyName>
+                            <destFile>${jacoco.exec.it}</destFile>
+                        </configuration>
+                    </execution>
+
+                    <!-- unit test coverage -->
+                    <execution>
+                        <id>jacoco-report-unit</id>
+                        <phase>site</phase>
+                        <goals>
+                            <goal>report</goal>
+                        </goals>
+                        <configuration>
+                            <dataFile>${jacoco.exec.unit}</dataFile>
+                            <outputDirectory>
+                                ${project.basedir}/${jacoco.report.floder.unit}
+                            </outputDirectory>
+                        </configuration>
+                    </execution>
+                    <execution>
+                        <id>jacoco-prepare-unit</id>
+                        <phase>process-test-classes</phase>
+                        <goals>
+                            <goal>prepare-agent</goal>
+                        </goals>
+                        <configuration>
+                            <propertyName>jacoco.argline.unit</propertyName>
+                            <destFile>${jacoco.exec.unit}</destFile>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+
+            <!-- unit testing -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-surefire-plugin</artifactId>
+                <version>${maven.surefire-plugin.version}</version>
+
+                <configuration>
+                    <parallel>methods</parallel>
+                    <threadCount>10</threadCount>
+                    <argLine>${jacoco.argline.unit}</argLine>
+                    <includes>
+                        <include>**/*Test.java</include>
+                    </includes>
+                    <excludes>
+                        <exclude>**/*IT.java</exclude>
+                    </excludes>
+                </configuration>
+            </plugin>
+
+            <!-- integration testing -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-failsafe-plugin</artifactId>
+                <version>${maven.failsafe-plugin.version}</version>
+
+                <executions>
+                    <execution>
+                        <id>integration-test</id>
+                        <goals>
+                            <goal>integration-test</goal>
+                        </goals>
+                    </execution>
+                </executions>
+
+                <configuration>
+                    <parallel>none</parallel>
+                    <threadCount>1</threadCount>
+                    <forkMode>perthread</forkMode>
+                    <includes>
+                        <include>**/*IT.java</include>
+                    </includes>
+                    <excludes>
+                        <exclude>**/*Test.java</exclude>
+                    </excludes>
+                    <argLine>${jacoco.argline.it}</argLine>
+                </configuration>
+            </plugin>
+
+            <!-- tricky way to aggregate jacoco reports -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-antrun-plugin</artifactId>
+                <version>${maven.antrun-plugin.version}</version>
+
+                <dependencies>
+                    <dependency>
+                        <groupId>org.jacoco</groupId>
+                        <artifactId>org.jacoco.ant</artifactId>
+                        <version>${maven.jacoco-plugin.version}</version>
+                    </dependency>
+
+                    <dependency>
+                        <groupId>ant-contrib</groupId>
+                        <artifactId>ant-contrib</artifactId>
+                        <version>${ant-contrib.version}</version>
+                        <exclusions>
+                            <exclusion>
+                                <groupId>ant</groupId>
+                                <artifactId>ant</artifactId>
+                            </exclusion>
+                        </exclusions>
+                    </dependency>
+                    <dependency>
+                        <groupId>org.apache.ant</groupId>
+                        <artifactId>ant</artifactId>
+                        <version>${ant.version}</version>
+                    </dependency>
+
+                    <dependency>
+                        <groupId>org.apache.maven</groupId>
+                        <artifactId>maven-ant-tasks</artifactId>
+                        <version>${maven-ant-tasks.version}</version>
+                    </dependency>
+                </dependencies>
+
+                <executions>
+                    <!-- merging it and unit exec data -->
+                    <execution>
+                        <id>jacoco-exec-aggregate</id>
+                        <phase>post-integration-test</phase>
+                        <configuration>
+                            <target xmlns:jacoco="antlib:org.jacoco.ant" xmlns:ac="antlib:net.sf.antcontrib">
+                                <property name="plugin.classpath" refid="maven.plugin.classpath" />
+
+                                <taskdef uri="antlib:org.jacoco.ant" resource="org/jacoco/ant/antlib.xml" classpathref="maven.plugin.classpath" />
+                                <taskdef uri="antlib:net.sf.antcontrib" resource="net/sf/antcontrib/antlib.xml" classpathref="maven.plugin.classpath" />
+
+                                <mkdir dir="${jacoco.exec.dir}" />
+
+                                <ac:trycatch property="e">
+                                    <ac:try>
+                                        <jacoco:merge destfile="${jacoco.exec.all}">
+                                            <fileset dir="${jacoco.exec.dir}" includes="*.exec" />
+                                        </jacoco:merge>
+                                    </ac:try>
+                                    <ac:catch>
+                                        <echo>[WARNING] Could not aggregate JaCoCo exec files ${e}</echo>
+                                    </ac:catch>
+                                </ac:trycatch>
+                            </target>
+                        </configuration>
+                        <goals>
+                            <goal>run</goal>
+                        </goals>
+                    </execution>
+
+                    <!-- reports aggregation -->
+                    <execution>
+                        <id>jacoco-reports-aggregating</id>
+                        <phase>pre-site</phase>
+                        <configuration>
+                            <target xmlns:jacoco="antlib:org.jacoco.ant" xmlns:artifact="antlib:org.apache.maven.artifact.ant" xmlns:ac="antlib:net.sf.antcontrib">
+
+                                <taskdef uri="antlib:net.sf.antcontrib" resource="net/sf/antcontrib/antlib.xml" classpathref="maven.plugin.classpath" />
+                                <taskdef uri="antlib:org.apache.maven.artifact.ant" resource="org/apache/maven/artifact/ant/antlib.xml" classpathref="maven.plugin.classpath" />
+
+                                <macrodef name="report">
+                                    <attribute name="postfix" />
+                                    <attribute name="file" />
+                                    <attribute name="folder" />
+                                    <sequential>
+                                        <ac:trycatch property="e">
+                                            <ac:try>
+                                                <ac:if>
+                                                    <or>
+                                                        <not>
+                                                            <available file="@{file}" />
+                                                        </not>
+                                                        <equals arg1="${project.parent.relativePath}" arg2="$${project.parent.relativePath}" />
+                                                        <equals arg1="${project.parent.relativePath}" arg2="" />
+                                                    </or>
+                                                    <ac:else>
+                                                        <ac:var name="parent.dir" unset="true" />
+                                                        <dirname property="parent.dir" file="${project.parent.relativePath}" />
+                                                        <mkdir dir="${parent.dir}/@{folder}" />
+
+                                                        <jacoco:report>
+                                                            <executiondata>
+                                                                <file file="@{file}" />
+                                                            </executiondata>
+                                                            <structure name="[@{postfix}] ${project.parent.groupId}:${project.parent.artifactId}">
+                                                                <classfiles>
+                                                                    <fileset dir="${parent.dir}" includes="**/target/classes/**/*.class" />
+                                                                </classfiles>
+                                                                <!-- encoding="UTF-8" -->
+                                                                <sourcefiles>
+                                                                    <!-- yet another approach
+                                                                    <archives>
+                                                                        <zips>
+                                                                            <fileset dir="${parent.dir}" includes="**/target/*-sources.jar" />
+                                                                        </zips>
+                                                                    </archives>
+                                                                    -->
+                                                                    <mappedresources>
+                                                                        <fileset dir="${parent.dir}" includes="**/src/main/java/**/*.*" />
+                                                                        <regexpmapper from="src/main/java/(.*)$$" to="\1" />
+                                                                    </mappedresources>
+                                                                </sourcefiles>
+                                                            </structure>
+                                                            <html destdir="${parent.dir}/@{folder}" />
+                                                        </jacoco:report>
+                                                    </ac:else>
+                                                </ac:if>
+                                            </ac:try>
+                                            <ac:catch>
+                                                <echo>[WARNING] Could not generate JaCoCo report ${e}</echo>
+                                            </ac:catch>
+                                        </ac:trycatch>
+                                    </sequential>
+                                </macrodef>
+
+                                <report postfix="all" file="${jacoco.exec.all}" folder="${jacoco.report.floder.all}" />
+                                <report postfix="it" file="${jacoco.exec.it}" folder="${jacoco.report.floder.it}" />
+                                <report postfix="unit" file="${jacoco.exec.unit}" folder="${jacoco.report.floder.unit}" />
+                            </target>
+                        </configuration>
+                        <goals>
+                            <goal>run</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+
+            <!-- javadoc -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-javadoc-plugin</artifactId>
+                <version>${maven.javadoc-plugin.version}</version>
+                <configuration>
+                    <!-- apiviz required graphviz to be installed -->
+                    <doclet>org.jboss.apiviz.APIviz</doclet>
+                    <docletArtifact>
+                        <groupId>org.jboss.apiviz</groupId>
+                        <artifactId>apiviz</artifactId>
+                        <version>${apiviz.version}</version>
+                    </docletArtifact>
+                    <useStandardDocletOptions>true</useStandardDocletOptions>
+                    <additionalparam>-nopackagediagram</additionalparam>
+
+                    <!-- standard settings -->
+                    <doctitle>${project.name} API Reference</doctitle>
+                    <windowtitle>${project.name} API Reference</windowtitle>
+                    <author>true</author>
+                    <keywords>true</keywords>
+                    <breakiterator>true</breakiterator>
+                    <docfilessubdirs>true</docfilessubdirs>
+
+                    <!-- locale -->
+                    <locale>en_US</locale>
+                    <charset>UTF-8</charset>
+                    <encoding>UTF-8</encoding>
+                    <docencoding>UTF-8</docencoding>
+
+                    <!-- expose private methods/fields -->
+                    <show>${javadoc.level}</show>
+
+                    <!-- javadoc to be included -->
+                    <links>
+                        <link>http://docs.oracle.com/javase/${java.major.version}/docs/api/</link>
+                        <link>http://jsr-305.googlecode.com/svn/trunk/javadoc</link>
+                    </links>
+
+                    <failOnError>true</failOnError>
+                </configuration>
+                <executions>
+                    <execution>
+                        <id>javadoc-generation</id>
+                        <phase>site</phase>
+                        <goals>
+                            <goal>javadoc</goal>
+                        </goals>
+                    </execution>
+                    <execution>
+                        <id>attach-javadocs</id>
+                        <goals>
+                            <goal>jar</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+
+            <!-- sonar analysis -->
+            <plugin>
+                <groupId>org.codehaus.sonar</groupId>
+                <artifactId>sonar-maven-plugin</artifactId>
+                <version>${maven.sonar-plugin.version}</version>
+            </plugin>
+
+            <!-- dependency sanity checks -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-enforcer-plugin</artifactId>
+                <version>${maven.enforcer-plugin.version}</version>
+                <configuration>
+                    <detail>false</detail>
+                    <rules>
+                        <requireMavenVersion>
+                            <version>[${maven.version.lower},)</version>
+                        </requireMavenVersion>
+                        <requireJavaVersion>
+                            <version>${java.lang.level}</version>
+                        </requireJavaVersion>
+                    </rules>
+                </configuration>
+                <executions>
+                    <execution>
+                        <id>enforce</id>
+                        <configuration>
+                            <rules>
+                                <DependencyConvergence />
+                                <requireUpperBoundDeps />
+                            </rules>
+                        </configuration>
+                        <phase>compile</phase>
+                        <goals>
+                            <goal>enforce</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+        </plugins>
+    </build>
+
+    <dependencyManagement>
+        <dependencies>
+        </dependencies>
+    </dependencyManagement>
+
+    <reporting>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-project-info-reports-plugin</artifactId>
+                <version>${maven.project-info-reports-plugin.version}</version>
+                <reportSets>
+                    <reportSet>
+                        <!--
+                            We don't need extensive site reporting so
+                            no reports included here.
+                        -->
+                        <reports />
+                    </reportSet>
+                </reportSets>
+            </plugin>
+        </plugins>
+    </reporting>
+</project>
