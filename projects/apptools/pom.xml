@@ -1,0 +1,101 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <groupId>org.no-hope</groupId>
+    <artifactId>apptools</artifactId>
+    <packaging>jar</packaging>
+
+    <version>0.1.1-SNAPSHOT</version>
+
+    <description />
+
+    <url>https://github.com/no-hope/apptools</url>
+
+    <licenses>
+        <license>
+            <name>The Apache Software License, Version 2.0</name>
+            <url>http://www.apache.org/licenses/LICENSE-2.0.txt</url>
+            <distribution>repo</distribution>
+        </license>
+    </licenses>
+
+    <scm>
+        <url>git@github.com:no-hope/apptools.git</url>
+        <connection>scm:git:git@github.com:no-hope/apptools.git</connection>
+        <developerConnection>scm:git:git@github.com:no-hope/apptools.git</developerConnection>
+    </scm>
+
+    <developers>
+        <developer>
+            <id>ketoth.xupack</id>
+            <name>Ketoth Xupack</name>
+            <email>ketoth.xupack@gmail.com</email>
+        </developer>
+        <developer>
+            <id>wolfy</id>
+            <name>Fei Wong Reed</name>
+            <email>feiwreed@gmail.com</email>
+        </developer>
+    </developers>
+
+    <prerequisites>
+        <maven>3.0</maven>
+    </prerequisites>
+
+    <parent>
+        <groupId>org.no-hope</groupId>
+        <artifactId>env-ci</artifactId>
+        <version>18</version>
+    </parent>
+
+    <properties>
+        <jsr305-validation.version>0.1.0</jsr305-validation.version>
+        <slf4j-logging.vesion>0.1.1</slf4j-logging.vesion>
+        <logback.version>1.0.13</logback.version>
+    </properties>
+
+    <!-- enforce @Nonnull checks -->
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>aspectj-maven-plugin</artifactId>
+                <configuration>
+                    <aspectLibraries>
+                        <aspectLibrary>
+                            <groupId>org.no-hope</groupId>
+                            <artifactId>jsr305-aspectj-validation</artifactId>
+                        </aspectLibrary>
+                    </aspectLibraries>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
+
+    <dependencies>
+        <dependency>
+            <groupId>org.no-hope</groupId>
+            <artifactId>jsr305-aspectj-validation</artifactId>
+            <version>${jsr305-validation.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>org.no-hope</groupId>
+            <artifactId>slf4j-logging</artifactId>
+            <version>${slf4j-logging.vesion}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>ch.qos.logback</groupId>
+            <artifactId>logback-classic</artifactId>
+            <version>${logback.version}</version>
+            <scope>test</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>junit</groupId>
+            <artifactId>junit</artifactId>
+            <scope>test</scope>
+        </dependency>
+    </dependencies>
+</project>
