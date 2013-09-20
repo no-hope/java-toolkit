@@ -76,7 +76,6 @@
             <version>${javax-inject.version}</version>
         </dependency>
 
-
         <!-- testing -->
         <dependency>
             <groupId>ch.qos.logback</groupId>

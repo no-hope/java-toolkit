@@ -2,8 +2,9 @@
 
 ### Projects
 
- * [jsr305-aspectj-validation](projects/jsr305-aspectj-validation/README.md)
- * slf4j-logging
- * apptools
- * springtools
- * typetools
+ * [jsr305-aspectj-validation](projects/jsr305-aspectj-validation)
+ * [slf4j-logging](projects/slf4j-logging)
+ * [apptools](projects/apptools)
+ * [springtools](projects/springtools)
+ * [typetools](projects/typetools)
+ * [springapp](projects/springapp)
