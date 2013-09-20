@@ -8,7 +8,6 @@
     <version>0.1.2-SNAPSHOT</version>
 
     <packaging>pom</packaging>
-    <name>env-java</name>
 
     <description>
         Slightly improved version of default maven superpom:
