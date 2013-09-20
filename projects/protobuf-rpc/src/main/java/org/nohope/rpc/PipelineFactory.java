@@ -11,7 +11,7 @@ import org.jboss.netty.handler.codec.protobuf.ProtobufDecoder;
 import org.jboss.netty.handler.codec.protobuf.ProtobufEncoder;
 
 /**
- * Set of decoders/encoders to convert packet format from/to {@link RPC.RpcRequest RpcRequest}.
+ * Set of decoders/encoders to convert packet format from/to {@link org.nohope.rpc.protocol.RPC.RpcRequest RpcRequest}.
  * <p/>
  * <b>Packet format</b>:
  * <pre>
