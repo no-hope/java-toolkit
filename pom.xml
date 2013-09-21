@@ -84,5 +84,6 @@
         <module>projects/springtools</module>
         <module>projects/apptools</module>
         <module>projects/springapp</module>
+        <module>projects/bean-modification-listener</module>
     </modules>
 </project>

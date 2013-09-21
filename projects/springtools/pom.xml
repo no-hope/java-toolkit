@@ -16,10 +16,6 @@
         <relativePath>../../pom.xml</relativePath>
     </parent>
 
-    <properties>
-
-    </properties>
-
     <!-- enforce @Nonnull checks -->
     <build>
         <plugins>

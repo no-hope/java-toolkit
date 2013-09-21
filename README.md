@@ -8,3 +8,4 @@
  * [springtools](projects/springtools)
  * [typetools](projects/typetools)
  * [springapp](projects/springapp)
+ * [bean-modification-listener](projects/bean-modification-listener)
