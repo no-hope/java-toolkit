@@ -7,15 +7,9 @@
     <parent>
         <groupId>org.no-hope</groupId>
         <artifactId>java-toolkit</artifactId>
-        <version>0.1.2</version>
+        <version>0.1.3-SNAPSHOT</version>
+        <relativePath>../../pom.xml</relativePath>
     </parent>
-
-    <properties>
-        <ver.commons-lang3>3.1</ver.commons-lang3>
-        <ver.jackson>2.2.3</ver.jackson>
-        <ver.jackson-joda>2.2.3</ver.jackson-joda>
-        <ver.jongo>0.2</ver.jongo>
-    </properties>
 
     <!-- enforce @Nonnull checks -->
     <build>
@@ -45,13 +39,13 @@
         <dependency>
             <groupId>org.apache.commons</groupId>
             <artifactId>commons-lang3</artifactId>
-            <version>${ver.commons-lang3}</version>
+            <version>${commons-lang3.version}</version>
         </dependency>
 
         <dependency>
             <groupId>org.jongo</groupId>
             <artifactId>jongo</artifactId>
-            <version>${ver.jongo}</version>
+            <version>${jongo.version}</version>
 
             <!-- transitive from domain <- typetools -->
             <exclusions>
@@ -73,7 +67,7 @@
         <dependency>
             <groupId>com.fasterxml.jackson.datatype</groupId>
             <artifactId>jackson-datatype-joda</artifactId>
-            <version>${ver.jackson-joda}</version>
+            <version>${jackson.version}</version>
 
             <!-- excluded due to joda confilct with typetools -->
             <exclusions>
