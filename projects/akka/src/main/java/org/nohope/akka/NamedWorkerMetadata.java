@@ -1,16 +1,33 @@
 package org.nohope.akka;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonTypeInfo;
+
 import java.io.Serializable;
 
 /**
+ *
+ * data field must not contain "Object" field, otherwise
+ * NamedWorkerMetadata will not be able to be restored from
+ * mongoDb
+ *
  * Date: 9/4/12
  * Time: 12:00 PM
  */
 public class NamedWorkerMetadata implements Serializable {
     private static final long serialVersionUID = 1L;
 
-    private final String identifier;
+    private String identifier;
     private Serializable data;
+
+    /**
+     * @deprecated do not use this constructor directly.
+     *             It's used for jackson serialization only
+     */
+    @SuppressWarnings("unused")
+    @Deprecated
+    private NamedWorkerMetadata() {
+    }
 
     public NamedWorkerMetadata(final String identifier, final Serializable data) {
         this.identifier = identifier;
@@ -25,7 +42,10 @@ public class NamedWorkerMetadata implements Serializable {
         this.data = data;
     }
 
-    public Object getData() {
+    // without it jackson fails to deserialize
+    @JsonProperty
+    @JsonTypeInfo(use = JsonTypeInfo.Id.CLASS)
+    public Serializable getData() {
         return data;
     }
 
@@ -37,6 +57,5 @@ public class NamedWorkerMetadata implements Serializable {
     @Override
     public boolean equals(final Object obj) {
         return obj instanceof NamedWorkerMetadata && ((NamedWorkerMetadata) obj).identifier.equals(identifier);
-
     }
 }
