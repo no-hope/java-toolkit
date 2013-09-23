@@ -4,9 +4,7 @@ import akka.actor.Props;
 import akka.actor.UntypedActor;
 import akka.actor.UntypedActorFactory;
 import org.springframework.context.ApplicationContext;
-import org.springframework.context.ConfigurableApplicationContext;
-import org.springframework.context.support.GenericApplicationContext;
-import org.nohope.spring.SpringUtils;
+import org.nohope.spring.PartiallyDefinedArgumentsFactory;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -53,89 +51,17 @@ import static org.nohope.spring.SpringUtils.registerSingleton;
  * @author <a href="mailto:ketoth.xupack@gmail.com">ketoth xupack</a>
  * @since 9/16/12 11:09 PM
  */
-public final class SpringActorFactory<T extends UntypedActor> implements UntypedActorFactory {
+public final class SpringActorFactory<T extends UntypedActor> extends PartiallyDefinedArgumentsFactory<T> implements UntypedActorFactory {
     private static final long serialVersionUID = 0L;
 
-    private final Class<T> clazz;
-    private final transient List<Object> beans = new ArrayList<>();
-    private final transient Map<String, Object> namedBeans = new HashMap<>();
-    private final transient ApplicationContext ctx;
-
-    public SpringActorFactory(@Nonnull final ApplicationContext ctx,
-                              @Nonnull final Class<T> clazz) {
-        this(ctx, clazz, null, null);
+    public SpringActorFactory(@Nonnull final ApplicationContext ctx, @Nonnull final Class<T> clazz) {
+        super(ctx, clazz);
     }
 
-    public static<T extends UntypedActor> SpringActorFactory<T> create(
-            @Nonnull final ApplicationContext ctx,
-            @Nonnull final Class<T> clazz) {
-        return new SpringActorFactory<>(ctx, clazz);
+    public SpringActorFactory(@Nonnull final ApplicationContext ctx, @Nonnull final Class<T> clazz, @Nullable final List<Object> objects, @Nullable final Map<String, Object> namedObjects) {
+        super(ctx, clazz, objects, namedObjects);
     }
 
-    public SpringActorFactory(@Nonnull final ApplicationContext ctx,
-                              @Nonnull final Class<T> clazz,
-                              @Nullable final List<Object> objects,
-                              @Nullable final Map<String, Object> namedObjects) {
-        this.clazz = clazz;
-        this.ctx = ctx;
-
-        if (objects != null) {
-            beans.addAll(objects);
-        }
-        if (namedObjects != null) {
-            namedBeans.putAll(namedObjects);
-        }
-    }
-
-    public SpringActorFactory<T> addBeans(@Nonnull final Object... beans) {
-        final List<Object> list = Arrays.asList(beans);
-        if (list.contains(null)) {
-            throw new IllegalStateException("null reference not allowed in beans list");
-        }
-
-        this.beans.addAll(list);
-        return this;
-    }
-
-    public SpringActorFactory<T> addBean(final String name, @Nonnull final Object bean) {
-        this.namedBeans.put(name, bean);
-        return this;
-    }
-
-    @Override
-    public UntypedActor create() {
-        final ConfigurableApplicationContext child =
-                SpringUtils.propagateAnnotationProcessing(
-                        new GenericApplicationContext(ctx));
-        for (final Object obj : beans) {
-            registerSingleton(child, obj);
-        }
-        for (final Map.Entry<String, Object> e : namedBeans.entrySet()) {
-            registerSingleton(child, e.getKey(), e.getValue());
-        }
-
-        return instantiate(child, clazz);
-    }
-
-    @Nonnull
-    public Class<T> getTargetClass() {
-        return clazz;
-    }
-
-    @Nonnull
-    public List<Object> getBeans() {
-        return beans;
-    }
-
-    @Nonnull
-    public Map<String, Object> getNamedBeans() {
-        return namedBeans;
-    }
-
-    @Nonnull
-    public ApplicationContext getContext() {
-        return ctx;
-    }
 
     public Props getProps() {
         return new Props(this);
@@ -144,5 +70,10 @@ public final class SpringActorFactory<T extends UntypedActor> implements Untyped
     @SuppressWarnings("PMD.UnusedFormalParameter")
     private void writeObject(final ObjectOutputStream oos) throws IOException {
         throw new NotSerializableException();
+    }
+
+    @Override
+    public UntypedActor create() throws Exception {
+        return super.instantiate();
     }
 }
