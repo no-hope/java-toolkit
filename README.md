@@ -10,3 +10,4 @@
  * [springapp](projects/springapp)
  * [bean-modification-listener](projects/bean-modification-listener)
  * [jongo](projects/jongo)
+ * [test-utils](projects/test-utils)

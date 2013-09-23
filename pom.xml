@@ -62,6 +62,10 @@
         <mongo.version>2.11.2</mongo.version>
         <javax-inject.version>1</javax-inject.version>
         <xbean-finder.version>3.14</xbean-finder.version>
+        <akka.version>2.2.1</akka.version>
+        <akka.version.suffix>_2.10</akka.version.suffix>
+        <netty.version>3.7.0.Final</netty.version>
+        <commons-io.version>2.4</commons-io.version>
     </properties>
 
     <build>
@@ -86,6 +90,7 @@
         <module>projects/apptools</module>
         <module>projects/springapp</module>
         <module>projects/bean-modification-listener</module>
+        <module>projects/test-utils</module>
         <module>projects/jongo</module>
     </modules>
 </project>
