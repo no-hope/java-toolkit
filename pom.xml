@@ -92,5 +92,6 @@
         <module>projects/test-utils</module>
         <module>projects/jongo</module>
         <module>projects/akka</module>
+        <module>projects/akka-spring</module>
     </modules>
 </project>

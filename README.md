@@ -12,3 +12,4 @@
  * [jongo](projects/jongo)
  * [test-utils](projects/test-utils)
  * [akka](projects/akka)
+ * [akka-spring](projects/akka-spring)
