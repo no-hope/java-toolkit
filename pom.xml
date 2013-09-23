@@ -91,5 +91,6 @@
         <module>projects/bean-modification-listener</module>
         <module>projects/test-utils</module>
         <module>projects/jongo</module>
+        <module>projects/akka</module>
     </modules>
 </project>
