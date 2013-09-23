@@ -27,10 +27,10 @@ import java.util.Map;
                         + "reflectively to not to check types all the time")
 public abstract class BaseSupervisor extends UntypedActor {
     private final LoggingAdapter log = Logging.getLogger(getContext().system(), this);
-    private final Map<NamedActorIdentifier, ActorRef> startingActors = new HashMap<>();
+    private final Map<NamedWorkerMetadata, ActorRef> startingActors = new HashMap<>();
     protected final ActorSystem system;
 
-    protected abstract Props newInputProps(final NamedActorIdentifier inputClassId);
+    protected abstract Props newInputProps(final NamedWorkerMetadata inputClassId);
 
     protected BaseSupervisor(final BaseSupervisorParameters parameters) {
         this.system = parameters.getSystem();
@@ -52,7 +52,7 @@ public abstract class BaseSupervisor extends UntypedActor {
 
 
     @SuppressWarnings("unused")
-    public void onConcreteMessage(final NamedActorIdentifier inputClassId) {
+    public void onConcreteMessage(final NamedWorkerMetadata inputClassId) {
         ActorRef deviceRef = startingActors.get(inputClassId);
 
         if (null == deviceRef) {
@@ -79,13 +79,13 @@ public abstract class BaseSupervisor extends UntypedActor {
     @SuppressWarnings("unused")
     public void onConcreteMessage(final SupervisorRequests.StartupReply reply) {
         log.debug("Successful startup notification in {}: {}", getSelf().path().name(), JSON.jsonifyPretty(reply));
-        if (!startingActors.containsKey(reply.actorIdentifier)) {
-            throw new IllegalStateException("Request to remove non-existing actor: " + reply.actorIdentifier);
+        if (!startingActors.containsKey(reply.workerMetadata)) {
+            throw new IllegalStateException("Request to remove non-existing actor: " + reply.workerMetadata);
         }
-        startingActors.remove(reply.actorIdentifier);
+        startingActors.remove(reply.workerMetadata);
     }
 
-    private String getInputActorUrl(final NamedActorIdentifier inputClassId) {
+    private String getInputActorUrl(final NamedWorkerMetadata inputClassId) {
         return MessageFormat.format("{0}/{1}"
                 , getSelf().path()
                 , inputClassId.getIdentifier());

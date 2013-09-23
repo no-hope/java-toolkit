@@ -24,21 +24,21 @@ public final class SupervisorRequests {
     }
 
     private static class BaseSupervisorRequest {
-        protected final NamedActorIdentifier actorIdentifier;
+        protected final NamedWorkerMetadata workerMetadata;
 
-        public BaseSupervisorRequest(final NamedActorIdentifier actorIdentifier) {
-            this.actorIdentifier = actorIdentifier;
+        public BaseSupervisorRequest(final NamedWorkerMetadata workerMetadata) {
+            this.workerMetadata = workerMetadata;
         }
 
-        public NamedActorIdentifier getActorIdentifier() {
-            return actorIdentifier;
+        public NamedWorkerMetadata getWorkerMetadata() {
+            return workerMetadata;
         }
     }
 
     public static class StartupReply extends BaseSupervisorRequest {
 
-        public StartupReply(final NamedActorIdentifier actorIdentifier) {
-            super(actorIdentifier);
+        public StartupReply(final NamedWorkerMetadata workerMetadata) {
+            super(workerMetadata);
         }
 
     }
