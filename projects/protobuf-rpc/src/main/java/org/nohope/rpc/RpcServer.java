@@ -6,8 +6,8 @@ import org.jboss.netty.channel.Channel;
 import org.jboss.netty.channel.ChannelFuture;
 import org.jboss.netty.channel.ChannelFutureListener;
 import org.jboss.netty.channel.socket.nio.NioServerSocketChannelFactory;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.nohope.logging.Logger;
+import org.nohope.logging.LoggerFactory;
 
 import java.net.InetSocketAddress;
 import java.util.concurrent.Executors;
