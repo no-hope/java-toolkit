@@ -12,7 +12,7 @@ public class NotNode extends Node {
         this.child = child;
     }
 
-    public<R> R gValue(final Interceptor<? extends Node, R> interceptor) {
+    public<R> R getValue(final Interceptor<? extends Node, R> interceptor) {
         return child.evaluate(interceptor);
     }
 }

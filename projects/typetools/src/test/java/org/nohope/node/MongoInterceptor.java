@@ -21,7 +21,7 @@ public class MongoInterceptor implements Interceptor<Node, DBObject> {
         } else if (node instanceof AndNode) {
             obj.put("$and", ((AndNode) node).getChildValues(this));
         } else if (node instanceof NotNode) {
-            obj.put("$not", ((NotNode) node).gValue(this));
+            obj.put("$not", ((NotNode) node).getValue(this));
         } else if (node instanceof EmptyNode) {
             return obj;
         } else {
