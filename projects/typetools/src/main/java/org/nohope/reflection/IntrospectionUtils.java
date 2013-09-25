@@ -22,10 +22,12 @@ import static org.nohope.reflection.ModifierMatcher.*;
  * This class extensively uses "types compatibility" term which means:
  * <p/>
  * Types are compatible if:
- * 1. source type can be auto(un)boxed to target type
- * 2. source type is child of target type
- * 3. source and target are array types then one of these rules should be
- * applied to their component types.
+ * <ol>
+ *     <li>source type can be auto(un)boxed to target type</li>
+ *     <li>source type is child of target type</li>
+ *     <li>source and target are array types then one of these rules should be
+ *     applied to their component types.</li>
+ * </ol>
  *
  * @author <a href="mailto:ketoth.xupack@gmail.com">ketoth xupack</a>
  * @since 8/12/11 5:42 PM
