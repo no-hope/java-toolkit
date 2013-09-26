@@ -93,5 +93,6 @@
         <module>projects/jongo</module>
         <module>projects/akka</module>
         <module>projects/akka-spring</module>
+        <module>projects/validation</module>
     </modules>
 </project>
