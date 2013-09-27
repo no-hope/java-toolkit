@@ -182,9 +182,12 @@
                 </executions>
 
                 <configuration>
-                    <parallel>none</parallel>
+                    <parallel>classes</parallel>
+                    <perCoreThreadCount>false</perCoreThreadCount>
                     <threadCount>1</threadCount>
-                    <forkMode>perthread</forkMode>
+                    <forkCount>1</forkCount>
+                    <reuseForks>true</reuseForks>
+
                     <includes>
                         <include>**/*IT.java</include>
                     </includes>
