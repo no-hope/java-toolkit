@@ -27,7 +27,7 @@ import org.junit.runners.model.InitializationError;
  * @since 9/27/13 10:53 AM
  */
 public class InstanceTestClassRunner extends BlockJUnit4ClassRunner {
-    private InstanceTestSetupListener InstanceSetupListener;
+    private InstanceTestSetupListener instanceSetupListener;
     private Object test;
 
     public InstanceTestClassRunner(final Class<?> klass) throws InitializationError {
@@ -43,9 +43,9 @@ public class InstanceTestClassRunner extends BlockJUnit4ClassRunner {
         if (test == null) {
             test = super.createTest();
         }
-        if (test instanceof InstanceTestSetupListener && InstanceSetupListener == null) {
-            InstanceSetupListener = (InstanceTestSetupListener) test;
-            InstanceSetupListener.beforeClassSetup();
+        if (test instanceof InstanceTestSetupListener && instanceSetupListener == null) {
+            instanceSetupListener = (InstanceTestSetupListener) test;
+            instanceSetupListener.beforeClassSetup();
         }
         return test;
     }
@@ -53,8 +53,8 @@ public class InstanceTestClassRunner extends BlockJUnit4ClassRunner {
     @Override
     public void run(final RunNotifier notifier) {
         super.run(notifier);
-        if (InstanceSetupListener != null) {
-            InstanceSetupListener.afterClassSetup();
+        if (instanceSetupListener != null) {
+            instanceSetupListener.afterClassSetup();
         }
     }
 }
