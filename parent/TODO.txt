@@ -1,2 +1,0 @@
-- Implement some good approaches to releases
-- External repo
