@@ -207,4 +207,3 @@ public class MetadataPlugin extends AbstractParameterizablePlugin {
         return fieldName;
     }
 }
-
