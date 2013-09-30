@@ -63,9 +63,11 @@
         <sonar.jacoco.reportPath>${jacoco.exec.unit}</sonar.jacoco.reportPath>
         <sonar.jacoco.itReportPath>${jacoco.exec.it}</sonar.jacoco.itReportPath>
         <sonar.dynamicAnalysis>reuseReports</sonar.dynamicAnalysis>
+
+        <!-- these options might be used to speed up build -->
+        <skip.jacoco>false</skip.jacoco>
+        <skip.javadoc>false</skip.javadoc>
     </properties>
-
-
 
     <build>
         <finalName>${project.artifactId}</finalName>
@@ -76,6 +78,9 @@
                 <groupId>org.jacoco</groupId>
                 <artifactId>jacoco-maven-plugin</artifactId>
                 <version>${maven.jacoco-plugin.version}</version>
+                <configuration>
+                    <skip>${skip.jacoco}</skip>
+                </configuration>
 
                 <executions>
                     <!-- merged it/unit coverage -->
@@ -260,6 +265,7 @@
                                     </ac:catch>
                                 </ac:trycatch>
                             </target>
+                            <skip>${skip.jacoco}</skip>
                         </configuration>
                         <goals>
                             <goal>run</goal>
@@ -335,6 +341,7 @@
                                 <report postfix="it" file="${jacoco.exec.it}" folder="${jacoco.report.floder.it}" />
                                 <report postfix="unit" file="${jacoco.exec.unit}" folder="${jacoco.report.floder.unit}" />
                             </target>
+                            <skip>${skip.jacoco}</skip>
                         </configuration>
                         <goals>
                             <goal>run</goal>
@@ -383,6 +390,7 @@
                     </links>
 
                     <failOnError>true</failOnError>
+                    <skip>${skip.javadoc}</skip>
                 </configuration>
                 <executions>
                     <execution>
