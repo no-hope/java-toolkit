@@ -1,10 +1,11 @@
 package org.nohope;
 
 import org.joda.time.DateTime;
-import org.nohope.typetools.JSON;
 
 import javax.annotation.Nonnull;
 import java.io.Serializable;
+
+import static org.nohope.typetools.JSON.JSON;
 
 /**
 * Date: 9/20/12

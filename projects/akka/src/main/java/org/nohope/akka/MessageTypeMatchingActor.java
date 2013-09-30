@@ -4,7 +4,7 @@ import akka.actor.UntypedActor;
 import akka.event.Logging;
 import akka.event.LoggingAdapter;
 import org.nohope.IMatcher;
-import org.nohope.typetools.JSON;
+
 
 import javax.annotation.Nonnull;
 import java.lang.reflect.Method;
@@ -16,6 +16,7 @@ import static org.nohope.akka.MessageMethodInvoker.invokeOnReceive;
 import static org.nohope.reflection.IntrospectionUtils.getClassNames;
 import static org.nohope.reflection.IntrospectionUtils.searchMethods;
 import static org.nohope.typetools.TStr.join;
+import static org.nohope.typetools.JSON.JSON;
 
 /**
  * This actor allows to simplify working with typed messages using java reflection.

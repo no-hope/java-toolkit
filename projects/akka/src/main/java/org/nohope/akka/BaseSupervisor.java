@@ -3,14 +3,13 @@ package org.nohope.akka;
 import akka.actor.ActorRef;
 import akka.actor.Props;
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
-import org.nohope.typetools.JSON;
 
 import java.text.MessageFormat;
 import java.util.HashMap;
 import java.util.Map;
 
 import static org.nohope.akka.SupervisorRequests.StartupReply;
-
+import static org.nohope.typetools.JSON.JSON;
 
 /**
  *
