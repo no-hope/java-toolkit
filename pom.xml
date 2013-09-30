@@ -52,11 +52,14 @@
     <properties>
         <akka.version>2.2.1</akka.version>
         <akka.version.suffix>_2.10</akka.version.suffix>
+        <commons-beanutils.version>1.8.3</commons-beanutils.version>
         <commons-io.version>2.4</commons-io.version>
         <commons-lang3.version>3.1</commons-lang3.version>
         <easymock.version>3.2</easymock.version>
         <jackson.version>2.2.3</jackson.version>
         <javax-inject.version>1</javax-inject.version>
+        <jaxb-xjc.version>2.2.7</jaxb-xjc.version>
+        <jaxb2-basics.version>0.6.4</jaxb2-basics.version>
         <joda-time.version>2.3</joda-time.version>
         <jongo.version>0.2</jongo.version>
         <logback.version>1.0.13</logback.version>
@@ -94,5 +97,6 @@
         <module>projects/akka</module>
         <module>projects/akka-spring</module>
         <module>projects/validation</module>
+        <module>projects/jaxb2-plugins</module>
     </modules>
 </project>
