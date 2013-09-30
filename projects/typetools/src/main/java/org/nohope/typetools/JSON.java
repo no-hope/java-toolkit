@@ -18,19 +18,21 @@ import static com.fasterxml.jackson.databind.SerializationFeature.*;
  * Time: 13:43
  */
 public final class JSON {
-    public static final JSON JSON = new JSON(new ObjectMapper());
+    public static final JSON JSON = new JSON(new ObjectMapper(), true);
 
     private static final Logger LOG = LoggerFactory.getLogger(JSON.class);
     private final ObjectMapper usualMapper;
     private final ObjectMapper prettyMapper;
 
-    private JSON(final ObjectMapper mapper) {
+    private JSON(final ObjectMapper mapper, final boolean builtin) {
         usualMapper = mapper.copy();
-        usualMapper.registerModule(new JodaModule());
-        usualMapper.registerModule(new ColorModule());
-        usualMapper.setSerializationInclusion(NON_EMPTY);
-        usualMapper.enableDefaultTypingAsProperty(ObjectMapper.DefaultTyping.NON_FINAL, "@class");
-        usualMapper.setVisibilityChecker(VisibilityChecker.Std.defaultInstance().withFieldVisibility(ANY));
+        if (builtin) {
+            usualMapper.registerModule(new JodaModule());
+            usualMapper.registerModule(new ColorModule());
+            usualMapper.setSerializationInclusion(NON_EMPTY);
+            usualMapper.enableDefaultTypingAsProperty(ObjectMapper.DefaultTyping.NON_FINAL, "@class");
+            usualMapper.setVisibilityChecker(VisibilityChecker.Std.defaultInstance().withFieldVisibility(ANY));
+        }
 
         prettyMapper = usualMapper.copy();
         prettyMapper.configure(INDENT_OUTPUT, true);
@@ -39,8 +41,12 @@ public final class JSON {
     }
 
 
-    public JSON customize(final ObjectMapper mapper) {
-        return new JSON(mapper);
+    public static JSON customize(final ObjectMapper mapper) {
+        return customize(mapper, true);
+    }
+
+    public static JSON customize(final ObjectMapper mapper, final boolean builtin) {
+        return new JSON(mapper, builtin);
     }
 
     public Object pretty(final Object obj) {
