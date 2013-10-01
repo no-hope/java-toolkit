@@ -1,4 +1,4 @@
-package org.nohope.protobuf.rpc.server;
+package org.nohope.protobuf.core;
 
 import org.nohope.rpc.protocol.RPC;
 import com.google.protobuf.RpcCallback;
@@ -11,7 +11,7 @@ import java.util.concurrent.atomic.AtomicReference;
  * @author <a href="mailto:ketoth.xupack@gmail.com">ketoth xupack</a>
  * @since 8/21/13 4:43 PM
  */
-public class Controller implements RpcController {
+public final class Controller implements RpcController {
     private final AtomicReference<String> reason = new AtomicReference<>();
     private final AtomicBoolean failed = new AtomicBoolean();
     private final AtomicBoolean canceled = new AtomicBoolean();

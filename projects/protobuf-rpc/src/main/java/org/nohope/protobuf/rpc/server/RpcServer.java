@@ -1,8 +1,8 @@
-package org.nohope.protobuf.rpc.core;
+package org.nohope.protobuf.rpc.server;
 
+import org.nohope.protobuf.core.IBlockingServiceRegistry;
+import org.nohope.protobuf.core.net.PipelineFactory;
 import org.nohope.rpc.protocol.RPC;
-import org.nohope.protobuf.rpc.server.IBlockingServiceRegistry;
-import org.nohope.protobuf.rpc.server.RpcServerHandler;
 import com.google.protobuf.BlockingService;
 import org.jboss.netty.bootstrap.ServerBootstrap;
 import org.jboss.netty.channel.Channel;

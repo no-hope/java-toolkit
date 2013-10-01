@@ -1,4 +1,4 @@
-package org.nohope.protobuf.rpc.core;
+package org.nohope.protobuf.core.net;
 
 import com.google.protobuf.MessageLite;
 import org.jboss.netty.channel.ChannelPipeline;
@@ -26,7 +26,7 @@ import org.jboss.netty.handler.codec.protobuf.ProtobufEncoder;
  * @author <a href="mailto:ketoth.xupack@gmail.com">ketoth xupack</a>
  * @since 8/19/13 6:16 PM
  */
-public class PipelineFactory implements ChannelPipelineFactory {
+public final class PipelineFactory implements ChannelPipelineFactory {
     private static final int MAX_FRAME_BYTES_LENGTH = Integer.MAX_VALUE;
     private static final int HEADER_BYTES = 4;
 

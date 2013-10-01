@@ -1,12 +1,14 @@
 package org.nohope.protobuf.rpc.server;
 
-import org.nohope.protobuf.rpc.exception.ExpectedServiceException;
-import org.nohope.protobuf.rpc.exception.InvalidRpcRequestException;
-import org.nohope.protobuf.rpc.exception.NoSuchServiceException;
-import org.nohope.protobuf.rpc.exception.NoSuchServiceMethodException;
-import org.nohope.protobuf.rpc.exception.RpcException;
-import org.nohope.protobuf.rpc.exception.RpcServiceException;
-import org.nohope.protobuf.rpc.exception.ServerSideException;
+import org.nohope.protobuf.core.Controller;
+import org.nohope.protobuf.core.IBlockingServiceRegistry;
+import org.nohope.protobuf.core.exception.ExpectedServiceException;
+import org.nohope.protobuf.core.exception.InvalidRpcRequestException;
+import org.nohope.protobuf.core.exception.NoSuchServiceException;
+import org.nohope.protobuf.core.exception.NoSuchServiceMethodException;
+import org.nohope.protobuf.core.exception.RpcException;
+import org.nohope.protobuf.core.exception.RpcServiceException;
+import org.nohope.protobuf.core.exception.ServerSideException;
 import org.nohope.rpc.protocol.RPC;
 import com.google.protobuf.BlockingService;
 import com.google.protobuf.ByteString;
@@ -35,7 +37,7 @@ import java.util.concurrent.ConcurrentHashMap;
  * @since 8/21/13 3:42 PM
  */
 @ChannelHandler.Sharable
-public class RpcServerHandler extends SimpleChannelUpstreamHandler implements IBlockingServiceRegistry {
+class RpcServerHandler extends SimpleChannelUpstreamHandler implements IBlockingServiceRegistry {
     private static final Logger LOG = LoggerFactory.getLogger(RpcServerHandler.class);
     private final Map<String, BlockingService> blockingServiceMap = new ConcurrentHashMap<>();
 

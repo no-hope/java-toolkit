@@ -1,4 +1,4 @@
-package org.nohope.protobuf.rpc.client;
+package org.nohope.protobuf.core.exception;
 
 import org.nohope.rpc.protocol.RPC;
 import com.google.protobuf.GeneratedMessage;

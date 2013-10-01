@@ -1,4 +1,4 @@
-package org.nohope.protobuf.rpc.server;
+package org.nohope.protobuf.core;
 
 import com.google.protobuf.BlockingService;
 

@@ -13,7 +13,7 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import static org.nohope.protobuf.rpc.client.RpcChannel.ResponsePrototypeRpcCallback;
+import static org.nohope.protobuf.rpc.client.RpcChannelImpl.ResponsePrototypeRpcCallback;
 import static org.jboss.netty.channel.ChannelHandler.Sharable;
 
 /**
@@ -21,7 +21,7 @@ import static org.jboss.netty.channel.ChannelHandler.Sharable;
  * @since 2013-10-01 15:25
  */
 @Sharable
-public class RpcClientHandler extends SimpleChannelUpstreamHandler {
+class RpcClientHandler extends SimpleChannelUpstreamHandler {
     private static final Logger LOG = LoggerFactory.getLogger(RpcClientHandler.class);
     private final AtomicInteger seqNum = new AtomicInteger(0);
     private final Map<Integer, ResponsePrototypeRpcCallback> callbackMap = new ConcurrentHashMap<>();

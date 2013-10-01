@@ -1,4 +1,4 @@
-package org.nohope.protobuf.rpc.exception;
+package org.nohope.protobuf.core.exception;
 
 import org.nohope.rpc.protocol.RPC;
 import com.google.protobuf.ServiceException;
