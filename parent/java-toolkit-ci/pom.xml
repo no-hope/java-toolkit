@@ -67,6 +67,7 @@
         <!-- these options might be used to speed up build -->
         <skip.jacoco>false</skip.jacoco>
         <skip.javadoc>false</skip.javadoc>
+        <skip.enforcer>false</skip.enforcer>
     </properties>
 
     <build>
@@ -423,6 +424,7 @@
                 <version>${maven.enforcer-plugin.version}</version>
                 <configuration>
                     <detail>false</detail>
+                    <skip>${skip.enforcer}</skip>
                     <rules>
                         <requireMavenVersion>
                             <version>[${maven.version.lower},)</version>
