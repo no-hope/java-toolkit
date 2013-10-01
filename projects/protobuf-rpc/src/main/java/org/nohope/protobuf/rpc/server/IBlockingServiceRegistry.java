@@ -1,4 +1,4 @@
-package org.nohope.rpc;
+package org.nohope.protobuf.rpc.server;
 
 import com.google.protobuf.BlockingService;
 
@@ -8,6 +8,5 @@ import com.google.protobuf.BlockingService;
  */
 public interface IBlockingServiceRegistry {
     void registerService(final BlockingService service);
-
     void unregisterService(final BlockingService service);
 }

@@ -1,5 +1,8 @@
-package org.nohope.rpc;
+package org.nohope.protobuf.rpc.core;
 
+import org.nohope.rpc.protocol.RPC;
+import org.nohope.protobuf.rpc.server.IBlockingServiceRegistry;
+import org.nohope.protobuf.rpc.server.RpcServerHandler;
 import com.google.protobuf.BlockingService;
 import org.jboss.netty.bootstrap.ServerBootstrap;
 import org.jboss.netty.channel.Channel;
@@ -26,7 +29,7 @@ public class RpcServer implements IBlockingServiceRegistry {
                 Executors.newCachedThreadPool(),
                 Executors.newCachedThreadPool()));
 
-        bootstrap.setPipelineFactory(new PipelineFactory(handler));
+        bootstrap.setPipelineFactory(new PipelineFactory(handler, RPC.RpcRequest.getDefaultInstance()));
     }
 
     public void bind(final InetSocketAddress address) {

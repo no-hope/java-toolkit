@@ -1,0 +1,27 @@
+/* Simple Counters API. */
+package protocol;
+import "rpc.proto";
+
+option java_package = "org.nohope.protocol";
+option java_outer_classname = "TestService";
+option java_generic_services = true;
+option py_generic_services = true;
+
+message Ping {
+    required string data = 1;
+}
+message Pong {
+    required string data = 1;
+}
+
+enum TestServiceErrorCode {
+    TEST_ERROR = 0;
+}
+
+extend protocol.Error {
+    required TestServiceErrorCode detailed_resason = 10;
+}
+
+service Service {
+    rpc ping (Ping) returns (Pong);
+}

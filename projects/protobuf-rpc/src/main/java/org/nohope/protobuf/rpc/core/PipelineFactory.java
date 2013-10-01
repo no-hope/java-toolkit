@@ -1,6 +1,6 @@
-package org.nohope.rpc;
+package org.nohope.protobuf.rpc.core;
 
-import org.nohope.rpc.protocol.RPC;
+import com.google.protobuf.MessageLite;
 import org.jboss.netty.channel.ChannelPipeline;
 import org.jboss.netty.channel.ChannelPipelineFactory;
 import org.jboss.netty.channel.ChannelUpstreamHandler;
@@ -11,14 +11,16 @@ import org.jboss.netty.handler.codec.protobuf.ProtobufDecoder;
 import org.jboss.netty.handler.codec.protobuf.ProtobufEncoder;
 
 /**
- * Set of decoders/encoders to convert packet format from/to {@link org.nohope.rpc.protocol.RPC.RpcRequest RpcRequest}.
+ * Set of decoders/encoders to convert packet format from/to
+ * {@link org.nohope.rpc.protocol.RPC.RpcRequest RpcRequest} or
+ * {@link org.nohope.rpc.protocol.RPC.RpcResponse RpcResponse}.
  * <p/>
  * <b>Packet format</b>:
  * <pre>
- * +-----------------------+-------------+
- * | Serialized RpcRequest | Serialized  |
- * |    Length (4 bytes)   | RpcRequest  |
- * +-----------------------+-------------+
+ * +----------------------+----------------+
+ * | Serialized RpcObject |   Serialized   |
+ * |   Length (4 bytes)   | RpcObject body |
+ * +----------------------+----------------+
  * </pre>
  *
  * @author <a href="mailto:ketoth.xupack@gmail.com">ketoth xupack</a>
@@ -29,16 +31,18 @@ public class PipelineFactory implements ChannelPipelineFactory {
     private static final int HEADER_BYTES = 4;
 
     private final ChannelUpstreamHandler handler;
+    private final MessageLite prototype;
 
-    public PipelineFactory(final ChannelUpstreamHandler handler) {
+    public PipelineFactory(final ChannelUpstreamHandler handler, final MessageLite prototype) {
         this.handler = handler;
+        this.prototype = prototype;
     }
 
     @Override
     public ChannelPipeline getPipeline() throws Exception {
         final ChannelPipeline p = Channels.pipeline();
         p.addLast("frameDecoder", new LengthFieldBasedFrameDecoder(MAX_FRAME_BYTES_LENGTH, 0, HEADER_BYTES, 0, HEADER_BYTES));
-        p.addLast("protobufDecoder", new ProtobufDecoder(RPC.RpcRequest.getDefaultInstance()));
+        p.addLast("protobufDecoder", new ProtobufDecoder(prototype));
 
         p.addLast("frameEncoder", new LengthFieldPrepender(HEADER_BYTES));
         p.addLast("protobufEncoder", new ProtobufEncoder());

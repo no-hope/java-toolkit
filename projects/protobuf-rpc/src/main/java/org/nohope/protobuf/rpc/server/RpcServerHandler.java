@@ -1,12 +1,12 @@
-package org.nohope.rpc;
+package org.nohope.protobuf.rpc.server;
 
-import org.nohope.rpc.exception.ExpectedServiceException;
-import org.nohope.rpc.exception.InvalidRpcRequestException;
-import org.nohope.rpc.exception.NoSuchServiceException;
-import org.nohope.rpc.exception.NoSuchServiceMethodException;
-import org.nohope.rpc.exception.RpcException;
-import org.nohope.rpc.exception.RpcServiceException;
-import org.nohope.rpc.exception.ServerSideException;
+import org.nohope.protobuf.rpc.exception.ExpectedServiceException;
+import org.nohope.protobuf.rpc.exception.InvalidRpcRequestException;
+import org.nohope.protobuf.rpc.exception.NoSuchServiceException;
+import org.nohope.protobuf.rpc.exception.NoSuchServiceMethodException;
+import org.nohope.protobuf.rpc.exception.RpcException;
+import org.nohope.protobuf.rpc.exception.RpcServiceException;
+import org.nohope.protobuf.rpc.exception.ServerSideException;
 import org.nohope.rpc.protocol.RPC;
 import com.google.protobuf.BlockingService;
 import com.google.protobuf.ByteString;
