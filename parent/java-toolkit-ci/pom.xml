@@ -23,7 +23,10 @@
     <properties>
         <!-- System -->
         <maven.version.lower>3.0.4</maven.version.lower>
+        <maven.version.upper />
         <javadoc.level>public</javadoc.level>
+        <maven.version.restriction>[${maven.version.lower},${maven.version.upper})</maven.version.restriction>
+
 
         <!-- Maven plugins -->
         <maven.antrun-plugin.version>1.7</maven.antrun-plugin.version>
@@ -427,7 +430,7 @@
                     <skip>${skip.enforcer}</skip>
                     <rules>
                         <requireMavenVersion>
-                            <version>[${maven.version.lower},)</version>
+                            <version>${maven.version.restriction}</version>
                         </requireMavenVersion>
                         <requireJavaVersion>
                             <version>${java.lang.level}</version>
