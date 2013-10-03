@@ -5,6 +5,7 @@ import org.nohope.protobuf.core.exception.DetailedExpectedException;
 import org.nohope.protobuf.core.exception.ExpectedServiceException;
 import org.nohope.protobuf.core.exception.RpcTimeoutException;
 import org.nohope.protobuf.rpc.client.RpcClient;
+import org.nohope.protobuf.rpc.client.RpcClientOptions;
 import org.nohope.protobuf.rpc.server.RpcServer;
 import org.nohope.protocol.TestService;
 import com.google.protobuf.BlockingRpcChannel;
@@ -56,9 +57,9 @@ public class RpcIT {
         server.registerService(TestService.Service.newReflectiveBlockingService(new ServiceImpl()));
         server.bind(address);
 
-        final RpcClient client = new RpcClient(2, TimeUnit.SECONDS);
+        final RpcClient client = new RpcClient(new RpcClientOptions(address, 2, TimeUnit.SECONDS));
 
-        final BlockingRpcChannel channel = client.connect(address);
+        final BlockingRpcChannel channel = client.connect();
         final BlockingInterface stub = TestService.Service.newBlockingStub(channel);
         final RpcController controller = new Controller();
 
