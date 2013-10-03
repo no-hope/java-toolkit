@@ -30,8 +30,8 @@ public class InstanceTestClassRunner extends BlockJUnit4ClassRunner {
     private InstanceTestSetupListener instanceSetupListener;
     private Object test;
 
-    public InstanceTestClassRunner(final Class<?> klass) throws InitializationError {
-        super(klass);
+    public InstanceTestClassRunner(final Class<?> clazz) throws InitializationError {
+        super(clazz);
     }
 
     @Override
