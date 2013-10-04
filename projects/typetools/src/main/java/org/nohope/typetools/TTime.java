@@ -16,6 +16,8 @@ import java.util.TimeZone;
  * Time: 13:19
  */
 public final class TTime {
+    private static final String UTC_ID = "UTC";
+
     private TTime() {
     }
 
@@ -25,18 +27,24 @@ public final class TTime {
         return Math.abs(deltaSec);
     }
 
+    /**
+     * Sets both system and joda time default timezones to {@code UTC}
+     */
     public static void setUtcTimezone() {
-        final DateTimeZone defaultZone = DateTimeZone.forID("UTC");
-        DateTimeZone.setDefault(defaultZone);
-        setDefaultTimezone("Etc/UTC");
+        setDefaultTimezone(UTC_ID);
     }
 
+    /**
+     * Sets both system and joda time default timezones to given timezone
+     */
     private static void setDefaultTimezone(final String id) {
+        final DateTimeZone defaultZone = DateTimeZone.forID(id);
+        DateTimeZone.setDefault(defaultZone);
         TimeZone.setDefault(TimeZone.getTimeZone(id));
     }
 
     /**
-     * @return {@link XMLGregorianCalendar XMLGregorianCalendar} representing current date in UTC timezone
+     * @return {@link XMLGregorianCalendar XMLGregorianCalendar} representing current date in {@code UTC} timezone
      * @see #toXmlUtcCalendar(java.util.Date)
      */
     public static XMLGregorianCalendar xmlCalendarUtcNow() {
@@ -48,7 +56,7 @@ public final class TTime {
      * @see #toXmlCalendar(java.util.Date, String)
      */
     public static XMLGregorianCalendar toXmlUtcCalendar(final Date date) {
-        return toXmlCalendar(date, "UTC");
+        return toXmlCalendar(date, UTC_ID);
     }
 
     /**
