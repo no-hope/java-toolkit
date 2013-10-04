@@ -36,20 +36,27 @@ public final class TTime {
     }
 
     /**
-     * Creates {@link XMLGregorianCalendar XMLGregorianCalendar} for given date in {@code UTC} timezone.
-     * @see #xmlDate(java.util.Date, String)
+     * @return {@link XMLGregorianCalendar XMLGregorianCalendar} representing current date in UTC timezone
+     * @see #toXmlUtcCalendar(java.util.Date)
      */
-    public static XMLGregorianCalendar xmlUtcDate(final Date date) {
-        return xmlDate(date, "UTC");
+    public static XMLGregorianCalendar xmlCalendarUtcNow() {
+        return toXmlUtcCalendar(new Date());
     }
 
     /**
-     *  Creates {@link XMLGregorianCalendar XMLGregorianCalendar} for given date in given timezone.
-     * @see #xmlDate(java.util.Date, String)
+     * Creates {@link XMLGregorianCalendar XMLGregorianCalendar} for given date in {@code UTC} timezone.
+     * @see #toXmlCalendar(java.util.Date, String)
      */
-    public static XMLGregorianCalendar xmlDate(final Date date, final String timezoneId) {
+    public static XMLGregorianCalendar toXmlUtcCalendar(final Date date) {
+        return toXmlCalendar(date, "UTC");
+    }
+
+    /**
+     * Creates {@link XMLGregorianCalendar XMLGregorianCalendar} for given date in given timezone.
+     */
+    public static XMLGregorianCalendar toXmlCalendar(final Date date, final String timezoneId) {
         final GregorianCalendar calendar = new GregorianCalendar();
-        calendar.setTimeZone(TimeZone.getTimeZone("UTC"));
+        calendar.setTimeZone(TimeZone.getTimeZone(timezoneId));
         calendar.setTime(date);
 
         try {
