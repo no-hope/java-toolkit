@@ -4,6 +4,11 @@ import org.joda.time.DateTime;
 import org.joda.time.DateTimeZone;
 import org.joda.time.Period;
 
+import javax.xml.datatype.DatatypeConfigurationException;
+import javax.xml.datatype.DatatypeFactory;
+import javax.xml.datatype.XMLGregorianCalendar;
+import java.util.Date;
+import java.util.GregorianCalendar;
 import java.util.TimeZone;
 
 /**
@@ -28,5 +33,29 @@ public final class TTime {
 
     private static void setDefaultTimezone(final String id) {
         TimeZone.setDefault(TimeZone.getTimeZone(id));
+    }
+
+    /**
+     * Creates {@link XMLGregorianCalendar XMLGregorianCalendar} for given date in {@code UTC} timezone.
+     * @see #xmlDate(java.util.Date, String)
+     */
+    public static XMLGregorianCalendar xmlUtcDate(final Date date) {
+        return xmlDate(date, "UTC");
+    }
+
+    /**
+     *  Creates {@link XMLGregorianCalendar XMLGregorianCalendar} for given date in given timezone.
+     * @see #xmlDate(java.util.Date, String)
+     */
+    public static XMLGregorianCalendar xmlDate(final Date date, final String timezoneId) {
+        final GregorianCalendar calendar = new GregorianCalendar();
+        calendar.setTimeZone(TimeZone.getTimeZone("UTC"));
+        calendar.setTime(date);
+
+        try {
+            return DatatypeFactory.newInstance().newXMLGregorianCalendar(calendar);
+        } catch (DatatypeConfigurationException e) {
+            throw new IllegalStateException(e);
+        }
     }
 }
