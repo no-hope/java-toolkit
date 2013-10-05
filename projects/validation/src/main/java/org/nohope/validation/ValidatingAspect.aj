@@ -52,6 +52,7 @@ public privileged aspect ValidatingAspect {
     private ValidatingAspect() {
     }
 
+    @SuppressWarnings("unchecked")
     private static void validate(final Class<? extends IValidator<?>> clazz,
                                  final Object target) throws ValidatingTypeMismatch,
                                                              ValidatorInitializationException,
@@ -65,7 +66,6 @@ public privileged aspect ValidatingAspect {
                 }
 
                 // now we are sure that types are compatible
-                //noinspection unchecked
                 ((IValidator<Object>) validator).validate(target);
             } catch (NoSuchMethodException
                     | InvocationTargetException
