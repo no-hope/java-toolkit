@@ -78,8 +78,8 @@ public class MetadataPlugin extends AbstractParameterizablePlugin {
         final JDefinedClass instanceLevelDescriptorInterface;
         final JDefinedClass instanceLevelDescriptor;
 
-        final JClass abstractDescriptor = codeModel.ref(AbstractDescriptor.class);
-        final JClass abstractValueDescriptor = codeModel.ref(AbstractValueDescriptor.class);
+        final JClass abstractDescriptor = codeModel.ref(Descriptor.class);
+        final JClass abstractValueDescriptor = codeModel.ref(ValueDescriptor.class);
         final JClass descriptorInterface = codeModel.ref(IDescriptor.class);
         final JClass valueDescriptor = codeModel.ref(IValueDescriptor.class);
 

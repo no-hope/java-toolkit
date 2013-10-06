@@ -11,15 +11,15 @@ import java.util.List;
  * @author <a href="mailto:ketoth.xupack@gmail.com">Ketoth Xupack</a>
  * @since 2013-10-30 16:17
  */
-public class AbstractDescriptor<T> implements IDescriptor<T> {
+public class Descriptor<T> implements IDescriptor<T> {
     private final List<IDescriptor<?>> callChain = new ArrayList<>();
     private final IDescriptor<?> parent;
     private final TypeReference<T> type;
     private final String name;
 
-    public AbstractDescriptor(@Nullable final AbstractDescriptor<?> parent,
-                              @Nullable final String name,
-                              final TypeReference<T> type) {
+    public Descriptor(@Nullable final Descriptor<?> parent,
+                      @Nullable final String name,
+                      final TypeReference<T> type) {
         this.parent = parent;
         this.type = type;
         this.name = name;
