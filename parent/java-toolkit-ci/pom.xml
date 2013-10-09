@@ -281,7 +281,7 @@
                         <id>jacoco-reports-aggregating</id>
                         <phase>pre-site</phase>
                         <configuration>
-                            <target xmlns:jacoco="antlib:org.jacoco.ant" xmlns:artifact="antlib:org.apache.maven.artifact.ant" xmlns:ac="antlib:net.sf.antcontrib">
+                            <target xmlns:jacoco="antlib:org.jacoco.ant" xmlns:ac="antlib:net.sf.antcontrib">
 
                                 <taskdef uri="antlib:net.sf.antcontrib" resource="net/sf/antcontrib/antlib.xml" classpathref="maven.plugin.classpath" />
                                 <taskdef uri="antlib:org.apache.maven.artifact.ant" resource="org/apache/maven/artifact/ant/antlib.xml" classpathref="maven.plugin.classpath" />
