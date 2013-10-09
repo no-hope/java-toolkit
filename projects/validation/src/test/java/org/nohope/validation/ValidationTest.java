@@ -10,7 +10,6 @@ import static org.junit.Assert.fail;
  * @since 9/26/13 1:43 PM
  */
 public class ValidationTest {
-
     class SimpleObject {
         public SimpleObject() {
         }
@@ -24,23 +23,31 @@ public class ValidationTest {
         public void illegalValidator(@Validate(TestValidator.class) final Object obj) {
         }
 
+        public void illegalValidatorConstructor(@Validate(InvalidValidator.class) final TestObject obj) {
+        }
+
         @Validate(TestValidator.class)
         public TestObject getter(final int param) {
             return new TestObject(param);
         }
+
+        @Validate(InvalidValidator.class)
+        public TestObject illegalGetter(final int param) {
+            return new TestObject(param);
+        }
+
+        @Validate(TestValidator.class)
+        public Object illegalGetter2(final Object param) {
+            return param;
+        }
     }
 
     @Test
-    public void returnValueTest() {
-        try {
-            new SimpleObject(new TestObject(-1));
-            fail();
-        } catch (final IllegalArgumentException e) {
-            assertTrue(e.getCause() instanceof ValidationException);
-        }
+    public void parameters() {
+        new SimpleObject(new TestObject(1));
 
         try {
-            new SimpleObject().getter(-1);
+            new SimpleObject(new TestObject(-1));
             fail();
         } catch (final IllegalArgumentException e) {
             assertTrue(e.getCause() instanceof ValidationException);
@@ -58,6 +65,39 @@ public class ValidationTest {
             fail();
         } catch (final IllegalArgumentException e) {
             assertTrue(e.getCause() instanceof ValidatingTypeMismatch);
+        }
+
+        try {
+            new SimpleObject().illegalValidatorConstructor(new TestObject(1));
+            fail();
+        } catch (final IllegalStateException e) {
+            assertTrue(e.getCause() instanceof ValidatorInitializationException);
+        }
+    }
+
+    @Test
+    public void returnValue() {
+        new SimpleObject().getter(1);
+
+        try {
+            new SimpleObject().illegalGetter2(1);
+            fail();
+        } catch (final IllegalArgumentException e) {
+            assertTrue(e.getCause() instanceof ValidatingTypeMismatch);
+        }
+
+        try {
+            new SimpleObject().illegalGetter(1);
+            fail();
+        } catch (final IllegalStateException e) {
+            assertTrue(e.getCause() instanceof ValidatorInitializationException);
+        }
+
+        try {
+            new SimpleObject().getter(-1);
+            fail();
+        } catch (final IllegalArgumentException e) {
+            assertTrue(e.getCause() instanceof ValidationException);
         }
     }
 }

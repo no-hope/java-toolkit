@@ -45,7 +45,7 @@ public privileged aspect ValidatingAspect {
      * annotated with @Nonnull
      */
     static pointcut returnValue():
-            execution(@org.nohope.validation.Validate (Object+) *.*(..))
+            execution(@org.nohope.validation.Validate (*) *.*(..))
             && !cflow(thisAdvice())
             ;
 
@@ -56,23 +56,22 @@ public privileged aspect ValidatingAspect {
     private static void validate(final Class<? extends IValidator<?>> clazz,
                                  final Object target) throws ValidatingTypeMismatch,
                                                              ValidatorInitializationException,
-                                                             ValidationException {
-        if (clazz != null) {
-            try {
-                final IValidator<?> validator = newInstance(clazz);
-                final Class<?> type = validator.getType();
-                if (target != null && !instanceOf(target, type)) {
-                    throw new ValidatingTypeMismatch();
-                }
+                                                             ValidationException{
+        try {
+            final IValidator<?> validator = newInstance(clazz);
+            final Class<?> type = validator.getType();
 
-                // now we are sure that types are compatible
-                ((IValidator<Object>) validator).validate(target);
-            } catch (NoSuchMethodException
-                    | InvocationTargetException
-                    | IllegalAccessException
-                    | InstantiationException e) {
-                throw new ValidatorInitializationException(e);
+            if (target != null && !instanceOf(target, type)) {
+                throw new ValidatingTypeMismatch();
             }
+
+            // now we are sure that types are compatible
+            ((IValidator<Object>) validator).validate(target);
+        } catch (NoSuchMethodException
+                | InvocationTargetException
+                | IllegalAccessException
+                | InstantiationException e) {
+            throw new ValidatorInitializationException(e);
         }
     }
 
@@ -93,7 +92,7 @@ public privileged aspect ValidatingAspect {
                     + ") "
                     + cache
                     + " cannot be applied to "
-                    + ret.getClass().getCanonicalName());
+                    + ret.getClass().getCanonicalName(), e);
         } catch (ValidationException e) {
             throw new IllegalArgumentException(
                     "Validation failed for return value of method @Validate("
