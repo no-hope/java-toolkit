@@ -50,6 +50,9 @@
     </parent>
 
     <properties>
+        <maven.cobertura-plugin.version>2.6</maven.cobertura-plugin.version>
+        <skip.cobertura>true</skip.cobertura>
+
         <akka.version>2.2.1</akka.version>
         <akka.version.suffix>_2.10</akka.version.suffix>
         <commons-beanutils.version>1.8.3</commons-beanutils.version>
@@ -76,6 +79,27 @@
                 <artifactId>maven-release-plugin</artifactId>
                 <configuration combine.self="append">
                     <connectionUrl>scm:git:git@github.com:no-hope/java-toolkit.git</connectionUrl>
+                </configuration>
+            </plugin>
+
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>cobertura-maven-plugin</artifactId>
+                <version>${maven.cobertura-plugin.version}</version>
+                <configuration>
+                    <skip>${skip.cobertura}</skip>
+                    <check/>
+                    <format>xml</format>
+                    <maxmem>256m</maxmem>
+                    <aggregate>true</aggregate>
+                    <instrumentation>
+                        <ignores>
+                            <ignore>org.aspectj.runtime.*</ignore>
+                        </ignores>
+                        <excludes>
+                            <exclude>**/*Aspect*</exclude>
+                        </excludes>
+                    </instrumentation>
                 </configuration>
             </plugin>
         </plugins>

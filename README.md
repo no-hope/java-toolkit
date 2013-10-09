@@ -1,4 +1,5 @@
 [![Travis status](https://api.travis-ci.org/no-hope/java-toolkit.png)](https://travis-ci.org/no-hope/java-toolkit)
+[![Coverage Status](https://coveralls.io/repos/no-hope/java-toolkit/badge.png?branch=master)](https://coveralls.io/r/no-hope/java-toolkit?branch=master)
 
 ### Projects
 
