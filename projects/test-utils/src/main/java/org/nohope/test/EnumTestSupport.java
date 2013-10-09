@@ -9,7 +9,7 @@ import java.lang.reflect.Modifier;
 import java.util.Collection;
 import java.util.EnumSet;
 
-import static junit.framework.Assert.assertTrue;
+import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertSame;

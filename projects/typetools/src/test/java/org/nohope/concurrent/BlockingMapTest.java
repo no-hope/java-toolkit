@@ -6,7 +6,7 @@ import org.junit.Test;
 import java.util.HashMap;
 import java.util.concurrent.TimeoutException;
 
-import static junit.framework.Assert.assertEquals;
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
@@ -18,8 +18,7 @@ public class BlockingMapTest {
 
     @Test(timeout = 10000)
     public void emptiness() throws InterruptedException {
-        final BlockingMap<Integer, Integer> m =
-                new BlockingMap<>();
+        final BlockingMap<Integer, Integer> m = new BlockingMap<>();
         assertTrue(m.isEmpty());
         m.put(1, 2);
         assertFalse(m.isEmpty());
