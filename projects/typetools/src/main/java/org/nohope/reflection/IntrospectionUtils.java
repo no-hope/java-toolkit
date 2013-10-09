@@ -887,23 +887,24 @@ public final class IntrospectionUtils {
     }
 
     /**
-     * Returns give object class if it's possible.
+     * Returns object class if it's possible.
      *
      * @param obj some object
      * @return {@link Class class} of given object or itself if
      *         it is already a class instance, {@code null} if {@code null} passed.
      */
     @Nullable
-    public static Class<?> getClass(@Nullable final Object obj) {
+    @SuppressWarnings("unchecked")
+    public static <T> Class<T> getClass(@Nullable final T obj) {
         if (obj == null) {
             return null;
         }
 
         if (obj instanceof Class) {
-            return (Class) obj;
+            return (Class<T>) obj;
         }
 
-        return obj.getClass();
+        return (Class<T>) obj.getClass();
     }
 
     /**
