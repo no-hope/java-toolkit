@@ -7,7 +7,7 @@ import org.junit.runners.model.Statement;
 
 /**
  * Simple {@link org.junit.runner.Runner JUnit runner} which allows to skip
- * test no particular exceptions thrown by test method.
+ * test if particular exception type(s) was thrown by test method.
  *
  * Usage:
  * <pre>
