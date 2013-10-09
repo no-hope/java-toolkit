@@ -7,4 +7,4 @@ jdk:
 env:
   - secure: "NZJ+d+nZK7S+LJrF2BljLJC/EXYINEP3qAuNpZ5khgSxammFN16FUlCnL/CgWPH5UyN0HdcF1COhwiP/veKaMBig9MGSvKa1ywuCVwMeQ39nPzVBdXt1QpnaBWNfOb3Teh6s3jx80vd2Asj6JCI+TFc0Bjg1wkibueRGXGpwATA="
 
-script: mvn -Dskip.jacoco=true -e -DrepoToken=$COVERALLS_KEY clean cobertura:cobertura org.eluder.coveralls:coveralls-maven-plugin:2.0.1:cobertura
+script: mvn -Dskip.cobertura=false -Dskip.jacoco=true -e -DrepoToken=$COVERALLS_KEY clean cobertura:cobertura org.eluder.coveralls:coveralls-maven-plugin:2.0.1:cobertura
