@@ -26,6 +26,16 @@
                     </aspectLibraries>
                 </configuration>
             </plugin>
+
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-javadoc-plugin</artifactId>
+                <configuration>
+                    <links>
+                        <link>http://junit.sourceforge.net/javadoc/</link>
+                    </links>
+                </configuration>
+            </plugin>
         </plugins>
     </build>
 
