@@ -3,22 +3,16 @@ package org.nohope.akka.spring;
 import akka.actor.Props;
 import akka.actor.UntypedActor;
 import akka.actor.UntypedActorFactory;
-import org.springframework.context.ApplicationContext;
 import org.nohope.spring.PartiallyDefinedArgumentsFactory;
+import org.springframework.context.ApplicationContext;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.io.IOException;
 import java.io.NotSerializableException;
 import java.io.ObjectOutputStream;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-
-import static org.nohope.spring.SpringUtils.instantiate;
-import static org.nohope.spring.SpringUtils.registerSingleton;
 
 /**
  * This class is used for spring-driven actor creation. Allows to inject
@@ -56,12 +50,6 @@ public final class SpringActorFactory<T extends UntypedActor>
         implements UntypedActorFactory {
     private static final long serialVersionUID = 0L;
 
-    public static<T extends UntypedActor> SpringActorFactory<T> createActorFactory(
-            @Nonnull final ApplicationContext ctx,
-            @Nonnull final Class<T> clazz) {
-        return new SpringActorFactory<>(ctx, clazz);
-    }
-
     public SpringActorFactory(@Nonnull final ApplicationContext ctx, @Nonnull final Class<T> clazz) {
         super(ctx, clazz);
     }
@@ -71,6 +59,12 @@ public final class SpringActorFactory<T extends UntypedActor>
                               @Nullable final List<Object> objects,
                               @Nullable final Map<String, Object> namedObjects) {
         super(ctx, clazz, objects, namedObjects);
+    }
+
+    public static <T extends UntypedActor> SpringActorFactory<T> createActorFactory(
+            @Nonnull final ApplicationContext ctx,
+            @Nonnull final Class<T> clazz) {
+        return new SpringActorFactory<>(ctx, clazz);
     }
 
     public Props getProps() {
