@@ -36,7 +36,7 @@ public final class IntrospectionUtils {
     /**
      * Default stake trace depth for method invocation.
      */
-    private static final int DEFAULT_INVOKE_DEPTH = 3;
+    private static final int DEFAULT_INVOKE_DEPTH = 4;
     /**
      * Method name for constructor (value: "new"). *
      */
@@ -728,6 +728,14 @@ public final class IntrospectionUtils {
         return getMethodName(1);
     }
 
+    public static Class<?> reflectCallerClass() {
+        try {
+            return Class.forName(getCurrentStack(0).getClassName());
+        } catch (ClassNotFoundException e) {
+            throw new IllegalStateException(e);
+        }
+    }
+
     /**
      * Transforms list of objects to list of their canonical names.
      *
@@ -1077,11 +1085,19 @@ public final class IntrospectionUtils {
      * @return method name
      */
     private static String getMethodName(final int stackDepthShift) {
+        return getCurrentStack(stackDepthShift).getMethodName();
+    }
+
+    /**
+     * Return stack trace element.
+     *
+     * @param stackDepthShift position in stack to get deeper stack element
+     * @return stack trace element
+     */
+    private static StackTraceElement getCurrentStack(final int stackDepthShift) {
         final StackTraceElement[] currStack =
                 Thread.currentThread().getStackTrace();
-        // Find caller function name
-        return currStack[DEFAULT_INVOKE_DEPTH + stackDepthShift]
-                .getMethodName();
+        return currStack[DEFAULT_INVOKE_DEPTH + stackDepthShift];
     }
 
     /**
