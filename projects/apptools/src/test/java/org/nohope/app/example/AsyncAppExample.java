@@ -5,7 +5,7 @@ import org.nohope.logging.LoggerFactory;
 import org.nohope.app.AsyncApp;
 
 /**
- * @author <a href="mailto:ketoth.xupack@gmail.com">ketoth xupack</a>
+ * @author <a href="mailto:ketoth.xupack@gmail.com">stopketoth xupack</a>
  * @since 7/15/12 4:06 PM
  */
 public class AsyncAppExample extends AsyncApp {

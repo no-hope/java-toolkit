@@ -52,7 +52,6 @@ public abstract class AsyncApp extends App {
         } else {
             LOG.warn("Application was terminated due start() routine. Is it really async?");
         }
-
     }
 
     @Override
