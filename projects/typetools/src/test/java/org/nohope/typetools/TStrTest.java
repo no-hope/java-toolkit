@@ -1,9 +1,14 @@
 package org.nohope.typetools;
 
 import org.junit.Test;
-import org.nohope.reflection.UtilitiesTestSupport;
+import org.nohope.test.UtilitiesTestSupport;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 import static org.easymock.EasyMock.*;
 import static org.junit.Assert.assertEquals;
@@ -22,8 +27,9 @@ public final class TStrTest extends UtilitiesTestSupport {
     }
 
     @Test
+    @SuppressWarnings("RedundantCast")
     public void nullCollection() {
-        assertNull(TStr.join((Collection<?>) null));
+        assertNull(TStr.join((Collection<?>) null)); // this cast is not redundant
         assertNull(TStr.join((Object[]) null));
         assertNull(TStr.join((Object) null));
     }
@@ -101,7 +107,7 @@ public final class TStrTest extends UtilitiesTestSupport {
 
     @Test
     public void substitutionTest() {
-        final Map<String, Object> values = new HashMap<String, Object>();
+        final Map<String, Object> values = new HashMap<>();
         values.put("value", 1);
         values.put("column", 1);
         final String result = TStr.format("There's an incorrect value '${value}' in column # ${column}", values);

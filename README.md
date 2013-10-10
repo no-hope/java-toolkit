@@ -8,6 +8,7 @@
  * [apptools](projects/apptools)
  * [springtools](projects/springtools)
  * [typetools](projects/typetools)
+ * [typetools-json](projects/typetools-json)
  * [springapp](projects/springapp)
  * [bean-modification-listener](projects/bean-modification-listener)
  * [jongo](projects/jongo)

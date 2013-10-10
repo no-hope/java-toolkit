@@ -1,6 +1,7 @@
 package org.nohope.typetools;
 
 import org.junit.Test;
+import org.nohope.test.UtilitiesTestSupport;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
@@ -9,7 +10,13 @@ import static org.junit.Assert.assertNull;
  * Date: 07.08.12
  * Time: 17:02
  */
-public class TDoubleTest {
+public class TDoubleTest extends UtilitiesTestSupport {
+
+    @Override
+    protected Class<?> getUtilityClass() {
+        return TDouble.class;
+    }
+
     @Test
     public void testBoolTool() {
         assertEquals(true, TDouble.isDoubleCorrect(1.0));

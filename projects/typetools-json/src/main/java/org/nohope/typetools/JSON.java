@@ -19,8 +19,8 @@ import static com.fasterxml.jackson.databind.SerializationFeature.*;
  */
 public final class JSON {
     public static final JSON JSON = new JSON(new ObjectMapper(), true);
-
     private static final Logger LOG = LoggerFactory.getLogger(JSON.class);
+
     private final ObjectMapper usualMapper;
     private final ObjectMapper prettyMapper;
 
@@ -32,14 +32,13 @@ public final class JSON {
             usualMapper.setSerializationInclusion(NON_EMPTY);
             usualMapper.enableDefaultTypingAsProperty(ObjectMapper.DefaultTyping.NON_FINAL, "@class");
             usualMapper.setVisibilityChecker(VisibilityChecker.Std.defaultInstance().withFieldVisibility(ANY));
+            usualMapper.configure(FAIL_ON_EMPTY_BEANS, false);
         }
 
         prettyMapper = usualMapper.copy();
         prettyMapper.configure(INDENT_OUTPUT, true);
         prettyMapper.configure(WRITE_DATES_AS_TIMESTAMPS, false);
-        prettyMapper.configure(FAIL_ON_EMPTY_BEANS, false);
     }
-
 
     public static JSON customize(final ObjectMapper mapper) {
         return customize(mapper, true);
@@ -47,35 +46,6 @@ public final class JSON {
 
     public static JSON customize(final ObjectMapper mapper, final boolean builtin) {
         return new JSON(mapper, builtin);
-    }
-
-    public Object pretty(final Object obj) {
-        return pretty(obj, defaultErrorMessage(obj));
-    }
-
-    public Object jsonify(final Object obj) {
-        return jsonify(obj, defaultErrorMessage(obj));
-    }
-
-    /**
-     * Serializes given object with Jackson, then deserializes into class required.
-     * Not so fast, so shouldn't be used for deep copying.
-     *
-     * @throws IOException
-     */
-    public <T> T copyAs(final Object source, final Class<T> clazz) throws IOException {
-        final byte [] marshalled = usualMapper.writeValueAsBytes(source);
-        return usualMapper.readValue(marshalled, clazz);
-    }
-
-    private Object jsonify(final Object obj,
-                           final String onErrorMessage) {
-        return jsonifyWith(usualMapper, obj, onErrorMessage);
-    }
-
-    private Object pretty(final Object obj,
-                         final String onErrorMessage) {
-        return jsonifyWith(prettyMapper, obj, onErrorMessage);
     }
 
     @SuppressWarnings("PMD.AvoidCatchingThrowable")
@@ -95,8 +65,37 @@ public final class JSON {
 
     private static String defaultErrorMessage(final Object obj) {
         if (null != obj) {
-            return "<? " + obj.getClass().getCanonicalName() + "/>";
+            return "<? " + obj.getClass().getCanonicalName() + " />";
         }
-        return "<?null />";
+        return "<? null />";
+    }
+
+    public Object pretty(final Object obj) {
+        return pretty(obj, defaultErrorMessage(obj));
+    }
+
+    public Object jsonify(final Object obj) {
+        return jsonify(obj, defaultErrorMessage(obj));
+    }
+
+    /**
+     * Serializes given object with Jackson, then deserializes into class required.
+     * Not so fast, so shouldn't be used for deep copying.
+     *
+     * @throws IOException
+     */
+    public <T> T copyAs(final Object source, final Class<T> clazz) throws IOException {
+        final byte[] marshalled = usualMapper.writeValueAsBytes(source);
+        return usualMapper.readValue(marshalled, clazz);
+    }
+
+    private Object jsonify(final Object obj,
+                           final String onErrorMessage) {
+        return jsonifyWith(usualMapper, obj, onErrorMessage);
+    }
+
+    private Object pretty(final Object obj,
+                          final String onErrorMessage) {
+        return jsonifyWith(prettyMapper, obj, onErrorMessage);
     }
 }

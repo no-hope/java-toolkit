@@ -1,6 +1,7 @@
 package org.nohope.typetools;
 
 import org.junit.Test;
+import org.nohope.test.UtilitiesTestSupport;
 
 import static org.junit.Assert.assertEquals;
 
@@ -8,7 +9,12 @@ import static org.junit.Assert.assertEquals;
  * Date: 07.08.12
  * Time: 17:02
  */
-public class TBoolTest {
+public class TBoolTest extends UtilitiesTestSupport {
+    @Override
+    protected Class<?> getUtilityClass() {
+        return TBool.class;
+    }
+
     @Test
     public void testBoolTool() {
         assertEquals(true, TBool.asBoolean(true));

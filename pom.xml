@@ -112,6 +112,7 @@
         <module>projects/jsr305-aspectj-validation</module>
         <module>projects/slf4j-logging</module>
         <module>projects/typetools</module>
+        <module>projects/typetools-json</module>
         <module>projects/springtools</module>
         <module>projects/apptools</module>
         <module>projects/springapp</module>

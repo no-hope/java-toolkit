@@ -29,8 +29,7 @@ public class BlockingMapTest {
     @Ignore("depends on cpu")
     @Test(timeout = 10000)
     public void clean() throws InterruptedException {
-        final BlockingMap<Integer, Integer> m =
-                new BlockingMap<>();
+        final BlockingMap<Integer, Integer> m = new BlockingMap<>();
         assertTrue(m.isEmpty());
         m.put(1, 2);
         assertFalse(m.isEmpty());
@@ -61,8 +60,7 @@ public class BlockingMapTest {
 
     @Test(timeout = 10000)
     public void availability() throws InterruptedException {
-        final BlockingMap<Integer, Integer> m =
-                new BlockingMap<>();
+        final BlockingMap<Integer, Integer> m = new BlockingMap<>();
         assertFalse(m.isAvailable(1));
         m.put(1, 2);
         assertTrue(m.isAvailable(1));
@@ -87,8 +85,7 @@ public class BlockingMapTest {
 
     @Test(timeout = 10000)
     public void simplePoll() throws InterruptedException, TimeoutException {
-        final BlockingMap<Integer, Integer> m =
-                new BlockingMap<>();
+        final BlockingMap<Integer, Integer> m = new BlockingMap<>();
 
         new Thread(new Runnable() {
             @Override
@@ -103,8 +100,7 @@ public class BlockingMapTest {
     @Test(expected = TimeoutException.class)
     public void simplePollTimeout()
             throws InterruptedException, TimeoutException {
-        final BlockingMap<Integer, Integer> m =
-                new BlockingMap<>();
+        final BlockingMap<Integer, Integer> m = new BlockingMap<>();
         assertEquals((Object) 2, m.poll(1, new Timeout(1)));
     }
 

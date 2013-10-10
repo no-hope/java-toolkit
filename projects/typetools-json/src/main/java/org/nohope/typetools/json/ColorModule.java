@@ -36,22 +36,23 @@ public class ColorModule extends SimpleModule {
         }
 
         @Override
-        public void serialize(final Color value, final JsonGenerator jgen, final SerializerProvider provider) throws IOException {
+        public void serialize(final Color value, final JsonGenerator jgen, final SerializerProvider provider)
+                throws IOException {
             jgen.writeStartArray();
-            for (final float v:value.getRGBComponents(null)) {
+            for (final float v : value.getRGBComponents(null)) {
                 jgen.writeNumber(v);
             }
             jgen.writeEndArray();
         }
 
         @Override
-        public JsonNode getSchema(final SerializerProvider provider, final java.lang.reflect.Type typeHint)
-        {
+        public JsonNode getSchema(final SerializerProvider provider, final java.lang.reflect.Type typeHint) {
             return createSchemaNode("array", true);
         }
 
         @Override
-        public void serializeWithType(final Color value, final JsonGenerator jgen, final SerializerProvider provider, final TypeSerializer typeSer) throws IOException {
+        public void serializeWithType(final Color value, final JsonGenerator jgen, final SerializerProvider provider, final TypeSerializer typeSer)
+                throws IOException {
             typeSer.writeTypePrefixForScalar(value, jgen);
             serialize(value, jgen, provider);
             typeSer.writeTypeSuffixForScalar(value, jgen);
@@ -89,7 +90,8 @@ public class ColorModule extends SimpleModule {
         }
 
         @Override
-        public Object deserializeWithType(final JsonParser jp, final DeserializationContext ctxt, final TypeDeserializer typeDeserializer) throws IOException {
+        public Object deserializeWithType(final JsonParser jp, final DeserializationContext ctxt, final TypeDeserializer typeDeserializer)
+                throws IOException {
             return typeDeserializer.deserializeTypedFromAny(jp, ctxt);
         }
     }

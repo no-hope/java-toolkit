@@ -9,6 +9,7 @@ import static org.nohope.reflection.IntrospectionUtils.*;
  * Date: 31.07.12
  * Time: 15:18
  */
+@SuppressWarnings("ConstantConditions")
 public class CastTest {
 
     @Test

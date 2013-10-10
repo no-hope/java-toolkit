@@ -3,6 +3,7 @@ package org.nohope.reflection;
 import org.junit.AfterClass;
 import org.junit.Assert;
 import org.junit.Test;
+import org.nohope.test.UtilitiesTestSupport;
 
 import java.lang.reflect.Array;
 import java.lang.reflect.GenericArrayType;
