@@ -65,14 +65,15 @@ public final class Ask {
             if (reply != null) {
                 if (!instanceOf(reply, Serializable.class)) {
                     throw new InvalidMessageException(
-                            "Message " + reply + " must implement java.io.Serializable");
-
+                            "Message "
+                            + reply
+                            + " must implement java.io.Serializable");
                 }
                 return reply;
             }
 
-            throw new InvalidMessageException(
-                    ref + " replied with unexpected null value");
+            // unreachable de facto, but left here for history
+            throw new InvalidMessageException(ref + " replied with unexpected null value");
         } catch (final Exception e) {
             // just to make current stack visible
             throw new Exception(e);

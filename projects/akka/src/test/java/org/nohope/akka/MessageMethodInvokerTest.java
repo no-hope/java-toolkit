@@ -1,13 +1,11 @@
 package org.nohope.akka;
 
 import org.junit.Test;
+import org.nohope.test.UtilitiesTestSupport;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.fail;
-import static org.junit.Assert.assertTrue;
 import java.math.BigDecimal;
 
+import static org.junit.Assert.*;
 import static org.nohope.akka.MessageMethodInvoker.SignaturePair;
 
 /**
@@ -15,7 +13,12 @@ import static org.nohope.akka.MessageMethodInvoker.SignaturePair;
  * Time: 11:29
  */
 @SuppressWarnings("MethodMayBeStatic")
-public class MessageMethodInvokerTest {
+public class MessageMethodInvokerTest extends UtilitiesTestSupport {
+
+    @Override
+    protected Class<?> getUtilityClass() {
+        return MessageMethodInvoker.class;
+    }
 
     @OnReceive
     private Integer processInteger(final Integer a) {

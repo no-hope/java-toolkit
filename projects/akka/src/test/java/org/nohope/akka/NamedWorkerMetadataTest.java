@@ -1,5 +1,6 @@
 package org.nohope.akka;
 
+import org.joda.time.DateTime;
 import org.junit.Test;
 
 import static org.junit.Assert.assertEquals;
@@ -13,6 +14,16 @@ import static org.nohope.test.SerializationUtils.cloneMongo;
  * @since 9/22/12 1:56 AM
  */
 public class NamedWorkerMetadataTest {
+    @Test
+    public void equals() {
+        final String identifier = nextString();
+        final DateTime data = nextUtcDateTime();
+
+        assertEquals(new NamedWorkerMetadata(identifier, data), new NamedWorkerMetadata(identifier, data));
+        assertEquals(new NamedWorkerMetadata(identifier, data).hashCode(),
+                     new NamedWorkerMetadata(identifier, data).hashCode());
+    }
+
     @Test
     public void basicJavaSerialization() {
         final NamedWorkerMetadata origin = new NamedWorkerMetadata(nextString(),
