@@ -4,7 +4,10 @@ import com.typesafe.config.Config;
 import com.typesafe.config.ConfigFactory;
 import org.junit.Test;
 
+import java.io.IOException;
+
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
 
 /**
  * @author <a href="mailto:ketoth.xupack@gmail.com">ketoth xupack</a>
@@ -14,6 +17,11 @@ public class AkkaUtilsTest {
     @Test
     public void actorSystemCreation() {
         AkkaUtils.createLocalSystem("test");
+    }
+
+    @Test
+    public void resourceAvailability() throws IOException {
+        assertNotNull(ResourceUtils.getResourceAsString("/test/akka.conf"));
     }
 
     @Test

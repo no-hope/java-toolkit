@@ -102,7 +102,6 @@ public final class RandomUtils  {
     }
 
     public static boolean nextBoolean() {
-
         return RANDOM.nextBoolean();
     }
 

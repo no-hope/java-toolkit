@@ -128,7 +128,7 @@ public final class AkkaUtils {
         String joinWithDefaultConfig() {
             final String conf;
             try {
-                conf = ResourceUtils.getResourceAsString("test/akka.conf");
+                conf = ResourceUtils.getResourceAsString("/test/akka.conf");
             } catch (final IOException e) {
                 throw new IllegalStateException(e);
             }

@@ -16,13 +16,14 @@ public final class ResourceUtils {
 
     @Nullable
     public static String getResourceAsString(final String resourceName) throws IOException {
-        final URL resource = ClassLoader.getSystemResource(resourceName);
+        URL resource = ClassLoader.getSystemResource(resourceName);
+        //        Thread.currentThread()
+        //              .getContextClassLoader()
+        //              .getResource(resourceName);
 
-        /*
-                Thread.currentThread()
-                      .getContextClassLoader()
-                      .getResource(resourceName);
-        */
+        if (resource == null) {
+            resource = ResourceUtils.class.getResource(resourceName);
+        }
 
         if (resource == null) {
             return null;
