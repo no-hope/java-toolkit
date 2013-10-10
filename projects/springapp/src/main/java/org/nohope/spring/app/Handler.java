@@ -104,7 +104,7 @@ public abstract class Handler<M> {
     }
 
     @Nonnull
-    protected <T> T get(@Nonnull final TypeReference<T> reference) {
+    protected final <T> T get(@Nonnull final TypeReference<T> reference) {
         return get(reference.getTypeClass());
     }
 

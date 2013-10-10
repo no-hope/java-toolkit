@@ -1,18 +1,24 @@
 package org.nohope.spring.app;
 
 import org.junit.Test;
+import org.nohope.reflection.TypeReference;
+import org.nohope.spring.BeanDefinition;
+import org.springframework.context.ConfigurableApplicationContext;
 
+import javax.annotation.Nonnull;
 import javax.inject.Inject;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Properties;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicReference;
 
 import static java.util.Arrays.asList;
-import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.*;
 import static org.nohope.spring.app.SpringAsyncModularApp.*;
 
 /**
@@ -91,6 +97,111 @@ public class CrossDependenciesTest {
         }
     }
 
+    public static class InvalidProviderType implements Module {
+        @Inject
+        public InvalidProviderType(final IDependencyProvider<?> param) {
+        }
+    }
+
+    public static class InvalidProviderType2 implements Module {
+        @Inject
+        public InvalidProviderType2(final IDependencyProvider param) {
+        }
+    }
+
+    public static class MultiplyConstructors implements Module {
+        @Inject
+        public MultiplyConstructors(final IDependencyProvider<KindA> param,
+                                    final IDependencyProvider<KindB> param2) {
+        }
+
+        @Inject
+        public MultiplyConstructors(final IDependencyProvider<KindB> param) {
+        }
+    }
+
+    public static class InvalidDependencyAnnotation implements KindC {
+        @Inject
+        public InvalidDependencyAnnotation(@Dependency(KindB.class) final IDependencyProvider<KindA> param) {
+        }
+    }
+
+    public static class InvalidDependencyAnnotation2 implements KindC {
+        @Inject
+        public InvalidDependencyAnnotation2(@Dependency(KindB.class) final IDependencyProvider<KindA> param1,
+                                            @Dependency(KindA.class) final IDependencyProvider<KindB> param2) {
+        }
+    }
+
+    @Test
+    public void illegalDependencyProviderTypeParameter() {
+        try {
+            getResolutionOrder(Arrays.<Class<? extends Module>> asList(InvalidProviderType.class));
+            fail();
+        } catch (IllegalStateException e) {
+            assertEquals("Missing type information for dependency provider of "
+                         + "org.nohope.spring.app.CrossDependenciesTest.InvalidProviderType "
+                         + "module", e.getMessage());
+        }
+    }
+
+    @Test
+    public void illegalDependencyProviderTypeParameter2() {
+        try {
+            getResolutionOrder(Arrays.<Class<? extends Module>> asList(InvalidProviderType2.class));
+            fail();
+        } catch (IllegalStateException e) {
+            assertEquals("Unsupported type information found for dependency provider of "
+                         + "org.nohope.spring.app.CrossDependenciesTest.InvalidProviderType2 "
+                         + "module (no type specified?)", e.getMessage());
+        }
+    }
+
+    @Test
+    public void dependencyWithMultiplyInjectableConstructors() {
+        try {
+            getResolutionOrder(Arrays.asList(
+                    TestClassA.class,
+                    TestClassC.class,
+                    MultiplyConstructors.class));
+            fail();
+        } catch (IllegalStateException e) {
+            assertEquals("More than one injectable constructor found for class "
+                         + "org.nohope.spring.app.CrossDependenciesTest$MultiplyConstructors", e.getMessage());
+        }
+    }
+
+    @Test
+    public void invalidDependencyAnnotationValue() {
+        try {
+            getResolutionOrder(Arrays.asList(
+                    TestClassA.class,
+                    TestClassC.class,
+                    InvalidDependencyAnnotation.class));
+            fail();
+        } catch (IllegalStateException e) {
+            assertEquals("Parameter 0 of public org.nohope.spring.app.CrossDependenciesTest$"
+                         + "InvalidDependencyAnnotation(org.nohope.spring.app.IDependencyProvider) "
+                         + "must be annotated with @Dependency(KindA.class)", e.getMessage());
+        }
+    }
+
+    @Test
+    public void invalidDependencyAnnotationValue2() {
+        try {
+            getResolutionOrder(Arrays.asList(
+                    TestClassA.class,
+                    TestClassC.class,
+                    InvalidDependencyAnnotation2.class));
+            fail();
+        } catch (IllegalStateException e) {
+            assertEquals("Parameter 0 of public org.nohope.spring.app.CrossDependenciesTest$"
+                         + "InvalidDependencyAnnotation2(org.nohope.spring.app.IDependencyProvider,"
+                         + "org.nohope.spring.app.IDependencyProvider) "
+                         + "must be annotated with @Dependency(KindA.class)", e.getMessage());
+        }
+    }
+
     @Test(expected = IllegalArgumentException.class)
     public void cycleDependency() {
         getResolutionOrder(
@@ -143,7 +254,60 @@ public class CrossDependenciesTest {
         getDependencies(DuplicateDependency.class);
     }
 
+    private static class TestSingleton {
+    }
+
+    private static class TestSingleton2 {
+    }
+
     private static class CrossdepsHandler extends HandlerWithStorage<Module> {
+
+        @Override
+        protected void onModuleDiscoveryFinished() throws Exception {
+            assertNotNull(getAppContext());
+            assertNotNull(getOrInstantiate(getAppContext(), TestSingleton.class));
+            assertNotNull(getAppName());
+
+            final TestSingleton singleton = new TestSingleton();
+            assertSame(singleton, registerSingleton("test", singleton));
+            assertSame(singleton, getOrInstantiate(TestSingleton.class));
+            assertSame(singleton, get(TestSingleton.class));
+            assertSame(singleton, get(new TypeReference<TestSingleton>() {}));
+            assertSame(singleton, get(BeanDefinition.of("test", TestSingleton.class)));
+            assertSame(singleton, get("test", TestSingleton.class));
+            assertSame(singleton, get("test", new TypeReference<TestSingleton>() {}));
+            assertSame(singleton, get(getAppContext(), "test", TestSingleton.class));
+            assertSame(singleton, get(getAppContext(), "test", new TypeReference<TestSingleton>() {}));
+
+            final TestSingleton2 singleton2 = getOrInstantiate(TestSingleton2.class);
+            assertNotNull(singleton2);
+
+            assertSame(singleton2, registerSingleton("test2", singleton2));
+            assertSame(singleton2, getOrInstantiate(TestSingleton2.class));
+            assertSame(singleton2, get(TestSingleton2.class));
+            assertSame(singleton2, get(new TypeReference<TestSingleton2>() {}));
+
+            assertEquals(5, getModuleDescriptors().size());
+            assertNotNull(getDescriptors(KindA.class));
+            assertNotNull(getModules(KindA.class));
+            assertNotNull(getModule(TestClassA.class, "a"));
+            assertNotNull(getModule(KindA.class, "a"));
+            assertNotNull(getImplementations(KindA.class));
+
+            try {
+                getModule(KindB.class, "a");
+                fail();
+            } catch (final IllegalArgumentException ignored) {
+            }
+        }
+
+        @Override
+        protected void onModuleDiscovered(
+                @Nonnull final Class<? extends Module> clazz,
+                @Nonnull final ConfigurableApplicationContext ctx,
+                @Nonnull final Properties properties, @Nonnull final String name) {
+            super.onModuleDiscovered(clazz, ctx, properties, name);    //To change body of overridden methods use File | Settings | File Templates.
+        }
     }
 
     @Test
@@ -179,6 +343,11 @@ public class CrossDependenciesTest {
         }
 
         final CrossdepsHandler handler = app.getHandler();
+        try {
+            handler.onModuleDiscoveryFinished();
+        } catch (final Exception e) {
+            fail();
+        }
         for (final ModuleDescriptor<Module> d : handler.getModuleDescriptors().values()) {
             final Module module = d.getModule();
             if (module instanceof TestClassE) {

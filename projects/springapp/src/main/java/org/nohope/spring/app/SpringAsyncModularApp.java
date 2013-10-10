@@ -370,13 +370,16 @@ public final class SpringAsyncModularApp<M, H extends Handler<M>> extends AsyncA
                         final Type hold = ((ParameterizedType) type).getActualTypeArguments()[0];
                         final Class<?> heldClass = IntrospectionUtils.getClass(hold);
                         if (heldClass == null) {
-                            throw new IllegalStateException("Missing type information");
+                            throw new IllegalStateException("Missing type information for dependency provider of "
+                                                            + constructor.getDeclaringClass().getCanonicalName()
+                                                            + " module");
                         }
 
                         Class<?> value = null;
                         for (final Annotation a : annotations[paramIndex]) {
                             if (a instanceof Dependency) {
                                 value = ((Dependency) a).value();
+                                break;
                             }
                         }
 
@@ -388,7 +391,9 @@ public final class SpringAsyncModularApp<M, H extends Handler<M>> extends AsyncA
                                                                + clazz);
                         }
                     } else {
-                        throw new IllegalStateException("Unsupported type information");
+                        throw new IllegalStateException("Unsupported type information found for dependency provider of "
+                                                        + constructor.getDeclaringClass().getCanonicalName()
+                                                        + " module (no type specified?)");
                     }
                 }
                 paramIndex++;
@@ -410,7 +415,6 @@ public final class SpringAsyncModularApp<M, H extends Handler<M>> extends AsyncA
                         throw parameterQualifierMismatch(constructor, e.getKey(), pair.getKey());
                     }
                 }
-
             }
         }
 

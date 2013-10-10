@@ -43,7 +43,7 @@ public abstract class HandlerWithStorage<M> extends Handler<M> {
     }
 
     /**
-     * @param clazz
+     * @param clazz module class
      * @param <S> supertype of modules to be filtered
      * @return All the implementations of given superclass
      */
@@ -85,7 +85,7 @@ public abstract class HandlerWithStorage<M> extends Handler<M> {
     protected <Subtype extends M> Subtype getModule(final Class<Subtype> clazz,
                                                     final String moduleName) {
         final ModuleDescriptor<M> md = modules.get(moduleName);
-        if (clazz.isAssignableFrom(md.getClass())) {
+        if (clazz.isAssignableFrom(md.getModule().getClass())) {
             @SuppressWarnings({"unchecked", "UnnecessaryLocalVariable"})
             final Subtype module = (Subtype) md.getModule();
             return module;
