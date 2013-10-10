@@ -5,10 +5,18 @@ import akka.actor.ActorRef;
 import akka.actor.ActorSystem;
 import akka.actor.Props;
 import akka.actor.UntypedActorFactory;
+import akka.pattern.AskTimeoutException;
 import akka.testkit.TestActorRef;
 import org.junit.Test;
+import org.nohope.test.AkkaUtils;
+import org.nohope.test.RandomUtils;
 
 import java.io.Serializable;
+import java.util.Arrays;
+import java.util.List;
+
+import static org.junit.Assert.*;
+import static org.nohope.akka.SupervisorRequests.StartupReply;
 
 /**
  * @author <a href="mailto:ketoth.xupack@gmail.com">Ketoth Xupack</a>
@@ -39,6 +47,13 @@ public class BaseSupervisorTest {
     }
 
     private static class Supervisor extends BaseSupervisor {
+        protected Supervisor(final boolean expandObjectArrays) {
+            super(expandObjectArrays);
+        }
+
+        protected Supervisor() {
+            super();
+        }
 
         @OnReceive
         private ActorRef getExistingWorker(final Bean meta) {
@@ -58,12 +73,41 @@ public class BaseSupervisorTest {
 
     @Test
     public void supervisor() throws Exception {
-        final ActorSystem system = org.nohope.test.AkkaUtils.createLocalSystem("test");
-        final TestActorRef ref = TestActorRef.apply(new Props(Supervisor.class), system);
+        final List<Props> props = Arrays.asList(
+                new Props(Supervisor.class),
+                new Props(new UntypedActorFactory() {
+                    @Override
+                    public Actor create() throws Exception {
+                        return new Supervisor(false);
+                    }
+                }));
 
-        final ActorRef actorRef = Ask.waitReply(ActorRef.class, ref, new Bean("a", 1));
-        final NamedWorkerMetadata metadata = Ask.waitReply(NamedWorkerMetadata.class, actorRef, 0);
+        for (final Props prop : props) {
+            final ActorSystem system =
+                    AkkaUtils.buildSystem("test")
+                             .put("actor.creation-timeout", "500ms")
+                             .put("test.single-expect-default", "500ms")
+                             .build();
+            final TestActorRef ref = TestActorRef.apply(prop, system);
 
-        System.err.println(metadata);
+            final ActorRef actorRef = Ask.waitReply(ActorRef.class, ref, new Bean("a", 1));
+            final NamedWorkerMetadata metadata = Ask.waitReply(NamedWorkerMetadata.class, actorRef, 0);
+            assertNotNull(metadata);
+
+            final ActorRef actorRef2 = Ask.waitReply(ActorRef.class, ref, new Bean("a", 1));
+            assertEquals(actorRef, actorRef2);
+
+            final String id = RandomUtils.nextString();
+            final String data = RandomUtils.nextString();
+            final NamedWorkerMetadata meta = new NamedWorkerMetadata(id, data);
+            try {
+                Ask.waitReply(ActorRef.class, ref, new StartupReply(meta), 500);
+                fail();
+            } catch (final Exception e) {
+                assertTrue(e.getCause() instanceof AskTimeoutException);
+            }
+
+            ref.stop();
+        }
     }
 }

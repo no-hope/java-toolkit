@@ -6,6 +6,7 @@ import akka.actor.Props;
 import akka.pattern.AskTimeoutException;
 import akka.testkit.TestActorRef;
 import org.junit.Test;
+import org.nohope.test.AkkaUtils;
 import org.nohope.test.UtilitiesTestSupport;
 
 import static org.junit.Assert.*;
@@ -44,7 +45,11 @@ public class AskTest extends UtilitiesTestSupport {
 
     @Test
     public void castingTest() throws Exception {
-        final ActorSystem system = org.nohope.test.AkkaUtils.createLocalSystem("test");
+        final ActorSystem system =
+                AkkaUtils.buildSystem("test")
+                         .put("actor.creation-timeout", "500ms")
+                         .put("test.single-expect-default", "500ms")
+                         .build();
         final TestActorRef ref = TestActorRef.apply(new Props(EchoActor.class), system);
         assertEquals(123, (int) Ask.waitReply(Integer.class, ref, 123));
         assertEquals(125, Ask.waitReply(ref, 125));
