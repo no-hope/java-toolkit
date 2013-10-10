@@ -16,9 +16,9 @@ public final class CollectionUtils {
     private CollectionUtils() {
     }
 
-    public static<T> List<T> fillList(final int count, final T placeholder) {
+    public static <T> List<T> fillList(final int count, final T placeholder) {
         final List<T> placeholders = new ArrayList<>();
-        for (int i = 1; i <= count; ++i ) {
+        for (int i = 1; i <= count; ++i) {
             placeholders.add(placeholder);
         }
         return placeholders;
@@ -35,9 +35,9 @@ public final class CollectionUtils {
     }
 
     public static <K, V, C extends Collection<K>> C
-        toCollection(final C target,
-                     final Collection<V> collection,
-                     final ITranslator<V, K> translator) {
+            toCollection(final C target,
+                         final Collection<V> collection,
+                         final ITranslator<V, K> translator) {
         for (final V value : collection) {
             target.add(translator.translate(value));
         }
@@ -46,9 +46,9 @@ public final class CollectionUtils {
     }
 
     public static <K, V, C extends Collection<K>> C
-        toCollection(final C target,
-                     final V[] collection,
-                     final ITranslator<V, K> translator) {
+            toCollection(final C target,
+                         final V[] collection,
+                         final ITranslator<V, K> translator) {
         for (final V value : collection) {
             target.add(translator.translate(value));
         }

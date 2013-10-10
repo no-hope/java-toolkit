@@ -14,7 +14,7 @@ import java.util.concurrent.locks.ReentrantLock;
 /**
  * <h2>A Blocking Map</h2> This class implements a blocking map, that acts as a
  * synchronizer between the producers of a objects and the consumers.
- * <p>
+ * <p/>
  * Object are set with {@code put()} only ONCE. Further attempts to set an
  * object are just ignored. Consumers request the object with
  * {@code get(key)} or with {@code take(take)}. If the object is not
@@ -42,7 +42,7 @@ abstract class AbstractBlockingMap<K, V> implements IBlockingMap<K, V> {
      * on keys in a cleared map.
      */
     private final Map<Thread, IObjectSynchronizer<V>> blockedThreadsMap =
-        new ConcurrentHashMap<>();
+            new ConcurrentHashMap<>();
 
     /**
      * Sets the object with the given key if it is not already set.
@@ -144,7 +144,7 @@ abstract class AbstractBlockingMap<K, V> implements IBlockingMap<K, V> {
 
     @Override
     public final V poll(final K key, final Timeout t)
-        throws InterruptedException, java.util.concurrent.TimeoutException {
+            throws InterruptedException, java.util.concurrent.TimeoutException {
         final V value = poll(key, t.time(), t.timeUnit());
         if (value == null) {
             throw new TimeoutException("Timeout getting '"
@@ -155,7 +155,7 @@ abstract class AbstractBlockingMap<K, V> implements IBlockingMap<K, V> {
 
     /**
      * Removes all mappings from this map.
-     *
+     * <p/>
      * Interrupts any threads waiting on any key in map before clearing.
      * This is done to prevent threads being blocked forever.
      */

@@ -23,7 +23,6 @@ public final class TStr {
     private static final String NULL_STRING = "null";
     /** Default element separator. */
     private static final String DEFAULT_SEPARATOR = ", ";
-
     /** Array start symbol. */
     private static final char START_ARRAY = '[';
     /** Array end symbol. */
@@ -51,11 +50,11 @@ public final class TStr {
      * TStr.join(["a", ["b", "c", ["d"]], ";") = "a[b;c;[d]]"
      * </pre>
      *
-     * @param <T>        the specific type of values to join together
+     * @param <T> the specific type of values to join together
      * @param collection collection of elements
-     * @param separator  delimiter for elements in joined string
+     * @param separator delimiter for elements in joined string
      * @param nullString {@code null} objects within the array are
-     *                   represented by this string
+     * represented by this string
      * @return the joined string, {@code null} if null collection input
      */
     @Nullable
@@ -86,19 +85,17 @@ public final class TStr {
             if (obj != null) {
                 final Class clazz = obj.getClass();
                 if (clazz.isArray()) {
-                    buf.append(START_ARRAY);
-                    buf.append(join(clazz.getComponentType().isPrimitive()
+                    buf.append(START_ARRAY)
+                       .append(join(clazz.getComponentType().isPrimitive()
                             ? obj
                             : (Object[]) obj,
                             delimiter,
                             nullString));
                     buf.append(END_ARRAY);
                 } else if (obj instanceof Collection) {
-                    buf.append(START_ARRAY);
-                    buf.append(join((Collection<?>) obj,
-                            delimiter,
-                            nullString));
-                    buf.append(END_ARRAY);
+                    buf.append(START_ARRAY)
+                       .append(join((Collection<?>) obj, delimiter, nullString))
+                       .append(END_ARRAY);
                 } else {
                     buf.append(obj);
                 }
@@ -120,9 +117,10 @@ public final class TStr {
      * <p>Uses default null object representation.</p>
      *
      * @param collection collection of elements
-     * @param separator  delimiter for elements in joined string
-     * @param <T>        the specific type of values to join together
+     * @param separator delimiter for elements in joined string
+     * @param <T> the specific type of values to join together
      * @return the joined string, {@code null} if null collection input
+     *
      * @see #NULL_STRING
      * @see #join(java.util.Collection, String, String)
      */
@@ -139,8 +137,9 @@ public final class TStr {
      * <p>Uses default delimiter and null object representation.</p>
      *
      * @param collection collection of elements
-     * @param <T>        the specific type of values to join together
+     * @param <T> the specific type of values to join together
      * @return the joined string, {@code null} if null collection input
+     *
      * @see #DEFAULT_SEPARATOR
      * @see #NULL_STRING
      * @see #join(java.util.Collection, String, String)
@@ -154,10 +153,10 @@ public final class TStr {
      * Joins the elements of the provided array into a single String
      * containing the provided list of elements.
      *
-     * @param objects    array of elements
-     * @param separator  delimiter for elements in joined string
+     * @param objects array of elements
+     * @param separator delimiter for elements in joined string
      * @param nullString {@code null} objects or empty strings within the
-     *                   array are represented by this string
+     * array are represented by this string
      * @return the joined string, {@code null} if null collection input
      */
     @Nullable
@@ -175,9 +174,10 @@ public final class TStr {
      * <p/>
      * <p>Uses default null object representation.</p>
      *
-     * @param objects   array of elements
+     * @param objects array of elements
      * @param separator delimiter for elements in joined string
      * @return the joined string, {@code null} if null collection input
+     *
      * @see #NULL_STRING
      * @see #join(java.util.Collection, String, String)
      */
@@ -195,6 +195,7 @@ public final class TStr {
      *
      * @param objects array of elements
      * @return the joined string, {@code null} if null collection input
+     *
      * @see #DEFAULT_SEPARATOR
      * @see #NULL_STRING
      * @see #join(java.util.Collection, String, String)
@@ -208,10 +209,10 @@ public final class TStr {
      * Joins the elements of the provided object into a single String
      * containing the provided list of elements.
      *
-     * @param objects    array of elements
-     * @param separator  delimiter for elements in joined string
+     * @param objects array of elements
+     * @param separator delimiter for elements in joined string
      * @param nullString {@code null} objects or empty strings within the
-     *                   array are represented by this string
+     * array are represented by this string
      * @return the joined string, {@code null} if null collection input
      */
     @Nullable
@@ -229,9 +230,10 @@ public final class TStr {
      * <p/>
      * <p>Uses default null object representation.</p>
      *
-     * @param objects   array of elements
+     * @param objects array of elements
      * @param separator delimiter for elements in joined string
      * @return the joined string, {@code null} if null collection input
+     *
      * @see #NULL_STRING
      * @see #join(java.util.Collection, String, String)
      */
@@ -249,6 +251,7 @@ public final class TStr {
      *
      * @param objects array of elements
      * @return the joined string, {@code null} if null collection input
+     *
      * @see #DEFAULT_SEPARATOR
      * @see #NULL_STRING
      * @see #join(java.util.Collection, String, String)
@@ -289,17 +292,13 @@ public final class TStr {
         return StrSubstitutor.replace(format, valueMap);
     }
 
-    /**
-     * Just an alias for {@code java.text.MessageFormat.format(String, Object[])}
-     */
+    /** Just an alias for {@code java.text.MessageFormat.format(String, Object[])} */
     public static String iformat(final String format, final Object... args) {
         final MessageFormat temp = new MessageFormat(format);
         return temp.format(args);
     }
 
-    /**
-     * Just an alias for {@code org.slf4j.helpers.MessageFormatter.format(String, Object[])}
-     */
+    /** Just an alias for {@code org.slf4j.helpers.MessageFormatter.format(String, Object[])} */
     public static String pformat(final String format, final Object... args) {
         return MessageFormatter.arrayFormat(format, args).getMessage();
     }

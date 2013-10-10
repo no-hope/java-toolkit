@@ -16,7 +16,7 @@ import java.util.TimeZone;
  * Time: 13:19
  */
 public final class TTime {
-    private static final String UTC_ID = "UTC";
+    public static final String UTC_ID = "UTC";
 
     private TTime() {
     }
@@ -27,16 +27,12 @@ public final class TTime {
         return Math.abs(deltaSec);
     }
 
-    /**
-     * Sets both system and joda time default timezones to {@code UTC}
-     */
+    /** Sets both system and joda time default timezones to {@code UTC} */
     public static void setUtcTimezone() {
         setDefaultTimezone(UTC_ID);
     }
 
-    /**
-     * Sets both system and joda time default timezones to given timezone
-     */
+    /** Sets both system and joda time default timezones to given timezone */
     private static void setDefaultTimezone(final String id) {
         final DateTimeZone defaultZone = DateTimeZone.forID(id);
         DateTimeZone.setDefault(defaultZone);
@@ -45,6 +41,7 @@ public final class TTime {
 
     /**
      * @return {@link XMLGregorianCalendar XMLGregorianCalendar} representing current date in {@code UTC} timezone
+     *
      * @see #toXmlUtcCalendar(java.util.Date)
      */
     public static XMLGregorianCalendar xmlCalendarUtcNow() {
@@ -53,15 +50,14 @@ public final class TTime {
 
     /**
      * Creates {@link XMLGregorianCalendar XMLGregorianCalendar} for given date in {@code UTC} timezone.
+     *
      * @see #toXmlCalendar(java.util.Date, String)
      */
     public static XMLGregorianCalendar toXmlUtcCalendar(final Date date) {
         return toXmlCalendar(date, UTC_ID);
     }
 
-    /**
-     * Creates {@link XMLGregorianCalendar XMLGregorianCalendar} for given date in given timezone.
-     */
+    /** Creates {@link XMLGregorianCalendar XMLGregorianCalendar} for given date in given timezone. */
     public static XMLGregorianCalendar toXmlCalendar(final Date date, final String timezoneId) {
         final GregorianCalendar calendar = new GregorianCalendar();
         calendar.setTimeZone(TimeZone.getTimeZone(timezoneId));

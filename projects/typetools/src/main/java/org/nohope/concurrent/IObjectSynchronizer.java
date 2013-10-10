@@ -34,24 +34,26 @@ interface IObjectSynchronizer<R> {
 
     /**
      * Get the object if it is already available (has already been set).
-     * <p>
+     * <p/>
      * If it is not available, wait until it is or until an interrupt
      * (InterruptedException) terminates the wait.
      *
      * @return the object if it is already available (has already been set)
+     *
      * @throws InterruptedException on getting interrupt
      */
     R get() throws InterruptedException;
 
     /**
      * Get the object if it is already available (has already been set).
-     * <p>
+     * <p/>
      * If it is not available, wait until it is or until an interrupt
      * (InterruptedException) terminates the wait.
      *
      * @param timeout timeout in time units
      * @param unit time unit
      * @return the object if it is already available (has already been set)
+     *
      * @throws InterruptedException on getting interrupt
      */
     R get(long timeout, TimeUnit unit) throws InterruptedException;

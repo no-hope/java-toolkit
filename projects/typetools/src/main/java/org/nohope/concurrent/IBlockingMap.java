@@ -27,7 +27,7 @@ public interface IBlockingMap<K, V> extends Map<K, V> {
     /**
      * Get the object with the given key if it is already available (has already
      * been set).
-     * <p>
+     * <p/>
      * If it is not available, wait until it is or until an interrupt
      * (InterruptedException) terminates the wait.
      *
@@ -35,6 +35,7 @@ public interface IBlockingMap<K, V> extends Map<K, V> {
      * @param timeout long
      * @param unit TimeUnit
      * @return V the object if it is already available
+     *
      * @throws InterruptedException if map is cleared while waiting on this get
      * @throws TimeoutException if timeout exceeded
      */
@@ -44,12 +45,13 @@ public interface IBlockingMap<K, V> extends Map<K, V> {
     /**
      * Answer and remove the object with the given key if it is already
      * available (has already been set).
-     * <p>
+     * <p/>
      * If it is not available, wait until it is or until an interrupt
      * (InterruptedException) terminates the wait.
      *
      * @param key object key
      * @return the object if it is already available (has already been set)
+     *
      * @throws InterruptedException if map is cleared while waiting on this
      * take
      */

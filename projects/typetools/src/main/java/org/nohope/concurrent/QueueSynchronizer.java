@@ -11,7 +11,7 @@ import java.util.concurrent.locks.ReentrantLock;
  * <H1>A Blocking Object Latch</H1> This class implements a blocking object
  * latch, that acts as a synchronizer between a producer of an object and it's
  * consumer(s).
- * <p>
+ * <p/>
  * An object is set with {@code set()} only ONCE. Further attempts to set
  * the object are just ignored.<br>
  * Consumers request the object with {@code get()}. If the object is not
@@ -33,30 +33,29 @@ final class QueueSynchronizer<R> implements IObjectSynchronizer<R> {
      * should be volatile,to get rid of caching issues
      */
     private final BlockingQueue<R> object = new LinkedBlockingQueue<>();
-
     /** lock for set invariant. */
     private final Lock setLock = new ReentrantLock();
 
     @Override
-    public boolean isAvailable(){
+    public boolean isAvailable() {
         /* ==> this forms an invariant with set(..)
          * should be locked
          */
         setLock.lock();
-        try{
+        try {
             return !this.object.isEmpty();
-        }finally{
+        } finally {
             setLock.unlock();
         }
     }
 
     @Override
-    public void set(final R o){
+    public void set(final R o) {
         //==> forms an invariant with isAvailable(..)
         setLock.lock();
-        try{
+        try {
             this.object.add(o);
-        }finally{
+        } finally {
             setLock.unlock();
         }
     }

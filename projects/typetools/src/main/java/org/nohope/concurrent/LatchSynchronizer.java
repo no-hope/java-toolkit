@@ -28,17 +28,15 @@ import java.util.concurrent.locks.ReentrantLock;
 @ThreadSafe
 final class LatchSynchronizer<R> implements IObjectSynchronizer<R> {
 
+    /** The latch counter created and set to 1. */
+    private final CountDownLatch latch = new CountDownLatch(1);
+    /** lock for set invariant. */
+    private final Lock setLock = new ReentrantLock();
     /** The object. */
     /* ==> object is set and got on different threads
      * should be volatile,to get rid of caching issues
      */
     private volatile R object = null;
-
-    /** The latch counter created and set to 1. */
-    private final CountDownLatch latch = new CountDownLatch(1);
-
-    /** lock for set invariant. */
-    private final Lock setLock = new ReentrantLock();
 
     @Override
     public boolean isAvailable() {

@@ -17,9 +17,9 @@ import java.util.Set;
 public final class Interval implements Serializable {
     private static final long serialVersionUID = 1L;
 
+    private final Set<Integer> daysOfWeek = new HashSet<>();
     private LocalTime begin;
     private LocalTime end;
-    private final Set<Integer> daysOfWeek = new HashSet<>();
 
     /**
      * @deprecated do not use this constructor directly.
@@ -59,10 +59,7 @@ public final class Interval implements Serializable {
         return daysOfWeek;
     }
 
-    /**
-     * The values for the day of week are defined in {@link org.joda.time.DateTimeConstants}.
-     *
-     */
+    /** The values for the day of week are defined in {@link org.joda.time.DateTimeConstants}. */
     public Interval setDaysOfWeek(@Nonnull final Set<Integer> daysOfWeek) {
         for (final Integer i : daysOfWeek) {
             if (i == null || i < 1 || i > 7) {
@@ -112,6 +109,11 @@ public final class Interval implements Serializable {
     }
 
     @Override
+    public int hashCode() {
+        return 31 * (31 * begin.hashCode() + end.hashCode()) + daysOfWeek.hashCode();
+    }
+
+    @Override
     public boolean equals(final Object o) {
         if (this == o) {
             return true;
@@ -122,12 +124,7 @@ public final class Interval implements Serializable {
 
         final Interval interval = (Interval) o;
         return begin.equals(interval.begin)
-            && daysOfWeek.equals(interval.daysOfWeek)
-            && end.equals(interval.end);
-    }
-
-    @Override
-    public int hashCode() {
-        return 31 * (31 * begin.hashCode() + end.hashCode()) + daysOfWeek.hashCode();
+               && daysOfWeek.equals(interval.daysOfWeek)
+               && end.equals(interval.end);
     }
 }

@@ -7,7 +7,7 @@ import java.util.Comparator;
 /**
  * Base:
  * http://nite.cvs.sourceforge.net/viewvc/nite/nxt/src/net/sourceforge/nite/util/
- *
+ * <p/>
  * <p>This class implements a sorted list. It is constructed with a comparator
  * that can compare two objects and sort objects accordingly. When you add an
  * object to the list, it is inserted in the correct place. Object that are
@@ -58,11 +58,12 @@ public final class SortedList<T extends Serializable> extends ArrayList<T> {
                 i++;
             }
         }
-        super.add(i,o);
+        super.add(i, o);
         return true;
     }
 
     public interface SerializableComparator<T extends Serializable>
-            extends Comparator<T>, Serializable {}
+            extends Comparator<T>, Serializable {
+    }
 }
 
