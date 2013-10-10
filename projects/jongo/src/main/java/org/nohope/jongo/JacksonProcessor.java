@@ -46,6 +46,7 @@ import static com.fasterxml.jackson.annotation.JsonInclude.Include.NON_NULL;
 import static com.fasterxml.jackson.databind.DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES;
 import static com.fasterxml.jackson.databind.MapperFeature.AUTO_DETECT_GETTERS;
 import static com.fasterxml.jackson.databind.MapperFeature.AUTO_DETECT_SETTERS;
+import static com.fasterxml.jackson.databind.SerializationFeature.FAIL_ON_EMPTY_BEANS;
 
 /**
  * Complex Key (De)Serialization Notes:
@@ -121,6 +122,7 @@ public final class JacksonProcessor implements Unmarshaller, Marshaller {
         mapper.configure(FAIL_ON_UNKNOWN_PROPERTIES, false);
         mapper.configure(AUTO_DETECT_GETTERS, false);
         mapper.configure(AUTO_DETECT_SETTERS, false);
+        mapper.configure(FAIL_ON_EMPTY_BEANS, false);
         mapper.setSerializationInclusion(NON_NULL);
         mapper.setVisibilityChecker(VisibilityChecker.Std.defaultInstance().withFieldVisibility(ANY));
 
