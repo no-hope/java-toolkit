@@ -59,7 +59,7 @@ public class JacksonProcessorTest {
 
     @Test(expected = MarshallingException.class)
     public void incorrectMarshalling() {
-        new JacksonProcessor().marshall(new Object() {});
+        new JacksonProcessor().marshall(new Bean());
     }
 
     @Test
@@ -143,6 +143,13 @@ public class JacksonProcessorTest {
         @Override
         public int hashCode() {
             return val != null ? val.hashCode() : 0;
+        }
+    }
+
+    static class Bean {
+        Bean bean;
+        Bean() {
+            bean = this;
         }
     }
 }
