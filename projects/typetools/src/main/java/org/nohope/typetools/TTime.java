@@ -33,7 +33,7 @@ public final class TTime {
     }
 
     /** Sets both system and joda time default timezones to given timezone */
-    private static void setDefaultTimezone(final String id) {
+    static void setDefaultTimezone(final String id) {
         final DateTimeZone defaultZone = DateTimeZone.forID(id);
         DateTimeZone.setDefault(defaultZone);
         TimeZone.setDefault(TimeZone.getTimeZone(id));

@@ -1,5 +1,6 @@
 package org.nohope;
 
+import net.jcip.annotations.Immutable;
 import org.apache.commons.lang3.ArrayUtils;
 import org.joda.time.DateTime;
 import org.joda.time.LocalTime;
@@ -14,12 +15,12 @@ import java.util.Set;
  * Date: 10/4/12
  * Time: 5:53 PM
  */
+@Immutable
 public final class Interval implements Serializable {
     private static final long serialVersionUID = 1L;
-
     private final Set<Integer> daysOfWeek = new HashSet<>();
-    private LocalTime begin;
-    private LocalTime end;
+    private final LocalTime begin;
+    private final LocalTime end;
 
     /**
      * @deprecated do not use this constructor directly.
@@ -28,6 +29,8 @@ public final class Interval implements Serializable {
     @SuppressWarnings("unused")
     @Deprecated
     private Interval() {
+        begin = null;
+        end = null;
     }
 
     public Interval(@Nonnull final LocalTime begin,
@@ -77,9 +80,8 @@ public final class Interval implements Serializable {
         return begin;
     }
 
-    public Interval setBegin(@Nonnull final LocalTime begin) {
-        this.begin = begin;
-        return this;
+    public Interval withBegin(@Nonnull final LocalTime begin) {
+        return new Interval(begin, end);
     }
 
     @Nonnull
@@ -87,9 +89,8 @@ public final class Interval implements Serializable {
         return end;
     }
 
-    public Interval setEnd(@Nonnull final LocalTime end) {
-        this.end = end;
-        return this;
+    public Interval withEnd(@Nonnull final LocalTime end) {
+        return new Interval(begin, end);
     }
 
     public boolean contains(@Nonnull final DateTime timestamp) {
@@ -123,8 +124,8 @@ public final class Interval implements Serializable {
         }
 
         final Interval interval = (Interval) o;
-        return begin.equals(interval.begin)
+        return begin.isEqual(interval.begin)
                && daysOfWeek.equals(interval.daysOfWeek)
-               && end.equals(interval.end);
+               && end.isEqual(interval.end);
     }
 }

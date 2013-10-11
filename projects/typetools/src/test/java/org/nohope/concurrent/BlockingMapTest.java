@@ -1,14 +1,11 @@
 package org.nohope.concurrent;
 
-import org.junit.Ignore;
 import org.junit.Test;
 
 import java.util.HashMap;
 import java.util.concurrent.TimeoutException;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.*;
 
 /**
  * @author <a href="mailto:ketoth.xupack@gmail.com">Ketoth Xupack</a>
@@ -26,7 +23,6 @@ public class BlockingMapTest {
         assertTrue(m.isEmpty());
     }
 
-    @Ignore("depends on cpu")
     @Test(timeout = 10000)
     public void clean() throws InterruptedException {
         final BlockingMap<Integer, Integer> m = new BlockingMap<>();

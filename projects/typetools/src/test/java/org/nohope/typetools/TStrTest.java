@@ -12,6 +12,7 @@ import java.util.Map;
 
 import static org.easymock.EasyMock.*;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.nohope.typetools.TStr.join;
 
@@ -128,5 +129,10 @@ public final class TStrTest extends UtilitiesTestSupport {
     public void formatTest() {
         assertEquals("a=123, b=456", TStr.format("a={}, b={}", 123, "456"));
         assertEquals("a=123, b=456", TStr.format("a={0}, b={1}", 123, "456"));
+    }
+
+    @Test
+    public void toLatin1() {
+        assertNotNull(TStr.toLatin1("test"));
     }
 }

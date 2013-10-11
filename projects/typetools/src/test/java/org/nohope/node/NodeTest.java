@@ -14,6 +14,7 @@ import java.util.Map;
 import java.util.regex.Pattern;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
 import static org.nohope.typetools.node.Node.*;
 
 /**
@@ -29,6 +30,8 @@ public class NodeTest {
 
     @Test
     public void booleanOp() throws IOException {
+        assertNotNull(Node.empty());
+
         final BasicBSONObject obj0 = new BasicBSONObject();
         obj0.put("a", 1);
         obj0.put("b", 2);

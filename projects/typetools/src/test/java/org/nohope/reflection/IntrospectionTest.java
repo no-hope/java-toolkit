@@ -655,6 +655,11 @@ public final class IntrospectionTest extends UtilitiesTestSupport {
     }
 
     private static class Child extends Parent {
+        public static void staticMethod() {
+        }
+
+        public final void finalMethod() {
+        }
     }
 
     private static class ChildOverride extends Parent {
@@ -678,6 +683,9 @@ public final class IntrospectionTest extends UtilitiesTestSupport {
             searchMethod(Child.class, PROTECTED, "protectedMethod");
             searchMethod(Child.class, PRIVATE, "privateMethod");
             searchMethod(Child.class, PACKAGE_DEFAULT, "packageDefaultMethod");
+            searchMethod(Child.class, and(STATIC, PUBLIC), "staticMethod");
+            searchMethod(Child.class, and(FINAL, PUBLIC), "finalMethod");
+            searchMethod(Child.class, or(FINAL, PUBLIC), "finalMethod");
 
             searchMethod(Child.class, ALL, "publicMethod");
             searchMethod(Child.class, ALL, "protectedMethod");

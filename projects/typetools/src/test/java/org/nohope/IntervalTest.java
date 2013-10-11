@@ -4,6 +4,7 @@ import org.joda.time.DateTime;
 import org.joda.time.DateTimeZone;
 import org.joda.time.LocalTime;
 import org.junit.Test;
+import org.nohope.test.SerializationUtils;
 
 import java.util.HashSet;
 import java.util.Set;
@@ -149,9 +150,24 @@ public class IntervalTest {
         assertFalse(interval.equals(interval3));
     }
 
-
     @Test
     public void serialization() {
-        //FIXME : test-utils causes cyclic dependency here...
+        final LocalTime now = new LocalTime(16, 0);
+        final LocalTime later = new LocalTime(16, 1);
+        final Interval interval = new Interval(now, later);
+
+        final Interval mongo = SerializationUtils.assertJavaClonedEquals(interval);
+        final Interval java = SerializationUtils.assertMongoClonedEquals(interval);
+
+        assertEquals(mongo.getBegin(), java.getBegin());
+        assertEquals(mongo.getEnd(), java.getEnd());
+        assertEquals(mongo.getDaysOfWeek(), java.getDaysOfWeek());
+
+        final Interval same1 = interval.withBegin(interval.getBegin());
+        final Interval same2 = interval.withEnd(interval.getEnd());
+        assertNotSame(interval, same1);
+        assertNotSame(interval, same2);
+        assertEquals(interval, same1);
+        assertEquals(interval, same2);
     }
 }

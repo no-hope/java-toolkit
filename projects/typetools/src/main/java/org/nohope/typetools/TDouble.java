@@ -1,5 +1,6 @@
 package org.nohope.typetools;
 
+import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
 /**
@@ -14,7 +15,7 @@ public final class TDouble {
         return null != val && !(val.isNaN() || val.isInfinite());
     }
 
-    public static double asDouble(final Double val, final Double defValue) {
+    public static double asDouble(final Double val, @Nonnull final Double defValue) {
         return isDoubleCorrect(val) ? val : defValue;
     }
 

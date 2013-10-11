@@ -23,5 +23,6 @@ public class TNumbTest extends UtilitiesTestSupport {
          assertNull(TNumb.parseInt(RandomUtils.nextString(10, "!aA")));
          assertEquals((Object) 123, TNumb.parseInt(RandomUtils.nextString(10, "!aA"), 123));
          assertEquals((Object) 123, TNumb.parseInt("0123"));
+         assertNull(TNumb.parseInt(null, null));
     }
 }
