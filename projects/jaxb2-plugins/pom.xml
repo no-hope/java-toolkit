@@ -11,6 +11,10 @@
         <relativePath>../../pom.xml</relativePath>
     </parent>
 
+    <properties>
+        <skip.enforcer>true</skip.enforcer>
+    </properties>
+
     <!-- enforce @Nonnull checks -->
     <build>
         <plugins>
@@ -38,6 +42,12 @@
 
         <dependency>
             <groupId>org.jvnet.jaxb2_commons</groupId>
+            <artifactId>jaxb2-basics-runtime</artifactId>
+            <version>${jaxb2-basics.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>org.jvnet.jaxb2_commons</groupId>
             <artifactId>jaxb2-basics-tools</artifactId>
             <version>${jaxb2-basics.version}</version>
             <exclusions>
@@ -59,6 +69,13 @@
             <artifactId>jaxb-xjc</artifactId>
             <version>${jaxb-xjc.version}</version>
             <scope>provided</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>org.jvnet.jaxb2.maven2</groupId>
+            <artifactId>maven-jaxb2-plugin-testing</artifactId>
+            <version>${jaxb2-testing.version}</version>
+            <scope>test</scope>
         </dependency>
 
         <dependency>

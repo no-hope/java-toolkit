@@ -1,0 +1,45 @@
+<?xml version="1.0"?>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema"
+           xmlns:jaxb="http://java.sun.com/xml/ns/jaxb"
+           xmlns:tns="http://no-hope.org/"
+           targetNamespace="http://no-hope.org/"
+           jaxb:version="1.0">
+
+    <xs:annotation>
+        <xs:appinfo>
+            <jaxb:globalBindings choiceContentProperty="true" generateIsSetMethod="true" />
+            <jaxb:schemaBindings>
+                <jaxb:package name="org.nohope.metadata"/>
+            </jaxb:schemaBindings>
+        </xs:appinfo>
+    </xs:annotation>
+
+    <xs:element name="complexObject" type="tns:complexObjectType"/>
+    <xs:complexType name="complexObjectType">
+        <xs:sequence>
+            <xs:element name="object_field" type="tns:complexObjectType2"/>
+
+            <xs:element name="datetime_field" type="xs:dateTime"/>
+            <xs:element name="time_field" type="xs:time"/>
+            <xs:element name="date_field" type="xs:date"/>
+            <xs:element name="float_field" type="xs:float"/>
+            <xs:element name="string_field" type="xs:string"/>
+            <xs:element name="boolean_field" type="xs:boolean"/>
+        </xs:sequence>
+    </xs:complexType>
+
+    <xs:element name="complexObject2" type="tns:complexObjectType2"/>
+    <xs:complexType name="complexObjectType2">
+        <xs:sequence>
+            <xs:element name="datetime_field" type="xs:dateTime"/>
+            <xs:element name="time_field" type="xs:time"/>
+            <xs:element name="date_field" type="xs:date"/>
+            <xs:element name="float_field" type="xs:float"/>
+            <xs:element name="string_field" type="xs:string"/>
+            <xs:element name="boolean_field" type="xs:boolean"/>
+
+            <!-- this field should not have name attribute in @XmlElement -->
+            <xs:element name="simple" type="xs:string"/>
+        </xs:sequence>
+    </xs:complexType>
+</xs:schema>
