@@ -433,7 +433,8 @@ public final class IntrospectionUtils {
         Class<?> parent = clazz;
         while (parent != null) {
             for (final Method m : parent.getDeclaredMethods()) {
-                if (!matcher.matches(m)) {
+                // FIXME: what to do with bridge methods?
+                if (!matcher.matches(m) || m.isBridge()) {
                     continue;
                 }
 
