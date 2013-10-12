@@ -17,9 +17,9 @@ public class SeriesElementTest {
     @Test
     @SuppressWarnings({"ObjectEqualsNull", "EqualsBetweenInconvertibleTypes"})
     public void serialization() {
-        final DateTime date = DateTime.parse("2000-01-01T01:01:01.001");
+        final DateTime date = DateTime.parse("2000-01-01T01:01:01.001Z");
         final SeriesElement<Integer> e = new SeriesElement<>(date, 1);
-        assertEquals("{\"timestamp\":946666861001,\"value\":1}", e.toString());
+        assertEquals("{\"timestamp\":946688461001,\"value\":1}", e.toString());
         final SeriesElement<Integer> mongoCloned = SerializationUtils.assertMongoClonedEquals(e);
         final SeriesElement<Integer> javaCloned = SerializationUtils.assertJavaClonedEquals(e);
 
