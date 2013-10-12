@@ -13,6 +13,7 @@
 
     <properties>
         <skip.enforcer>true</skip.enforcer>
+        <jaxb-impl.version>2.2.7</jaxb-impl.version>
     </properties>
 
     <!-- enforce @Nonnull checks -->
@@ -34,6 +35,12 @@
     </build>
 
     <dependencies>
+        <dependency>
+            <groupId>com.sun.xml.bind</groupId>
+            <artifactId>jaxb-impl</artifactId>
+            <version>${jaxb-impl.version}</version>
+        </dependency>
+
         <dependency>
             <groupId>org.no-hope</groupId>
             <artifactId>typetools</artifactId>
@@ -79,8 +86,16 @@
         </dependency>
 
         <dependency>
-            <groupId>junit</groupId>
-            <artifactId>junit</artifactId>
+            <groupId>org.no-hope</groupId>
+            <artifactId>springtools</artifactId>
+            <version>${project.version}</version>
+            <scope>test</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>org.no-hope</groupId>
+            <artifactId>test-utils</artifactId>
+            <version>${project.version}</version>
             <scope>test</scope>
         </dependency>
     </dependencies>
