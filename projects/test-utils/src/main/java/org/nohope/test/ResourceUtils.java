@@ -15,7 +15,7 @@ public final class ResourceUtils {
     }
 
     @Nullable
-    public static String getResourceAsString(final String resourceName) throws IOException {
+    public static URL getResource(final String resourceName) {
         URL resource = ClassLoader.getSystemResource(resourceName);
         //        Thread.currentThread()
         //              .getContextClassLoader()
@@ -25,6 +25,12 @@ public final class ResourceUtils {
             resource = ResourceUtils.class.getResource(resourceName);
         }
 
+        return resource;
+    }
+
+    @Nullable
+    public static String getResourceAsString(final String resourceName) throws IOException {
+        final URL resource = getResource(resourceName);
         if (resource == null) {
             return null;
         }
