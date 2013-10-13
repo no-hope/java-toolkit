@@ -5,6 +5,9 @@ import org.junit.Test;
 import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.net.ServerSocket;
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.net.URL;
 
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
@@ -15,7 +18,7 @@ import static org.junit.Assert.assertTrue;
  */
 public class SocketUtilsTest {
     @Test
-    public void testLocalAddress() throws IOException {
+    public void testLocalAddress() throws IOException, URISyntaxException {
         assertNotNull(SocketUtils.getLocalHostAddress());
         assertNotNull(SocketUtils.getAvailableLocalAddress());
         assertNotNull(SocketUtils.getLocalHostName());
@@ -33,6 +36,10 @@ public class SocketUtilsTest {
                             SocketUtils.getLocalHostAddress(),
                             availablePort
                     )));
+            final String str = String.format("http://%s:%d",
+                    SocketUtils.getLocalHostAddress(), availablePort);
+            assertTrue(SocketUtils.isRemoteAddressAvailable(new URL(str)));
+            assertTrue(SocketUtils.isRemoteAddressAvailable(new URI(str)));
         }
     }
 }
