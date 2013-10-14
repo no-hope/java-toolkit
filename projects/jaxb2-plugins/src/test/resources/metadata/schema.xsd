@@ -25,6 +25,7 @@
             <xs:element name="float_field" type="xs:float"/>
             <xs:element name="string_field" type="xs:string"/>
             <xs:element name="boolean_field" type="xs:boolean"/>
+            <xs:element name="simple" type="xs:boolean"/>
         </xs:sequence>
     </xs:complexType>
 

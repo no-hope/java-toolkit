@@ -157,6 +157,14 @@ public class RunMetadataPluginTest {
         final Class<?> cobj1 = forName("org.nohope.metadata.ComplexObjectType");
         final Object descriptor = invoke(cobj1, ALL, "descriptor");
 
+        final CallChain boolFieldChain =
+                (CallChain) invoke(invoke(descriptor,
+                        not(ABSTRACT), "isSimple"),
+                        not(ABSTRACT), "getCallChain");
+
+        assertFalse(boolFieldChain.getChain().isEmpty());
+        assertEquals("simple", boolFieldChain.getChain().get(0).getProperty());
+
         final CallChain callChain =
                 (CallChain) invoke(invoke(invoke(descriptor,
                         not(ABSTRACT), "getObjectField"),
