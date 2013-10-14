@@ -1,19 +1,22 @@
 package org.nohope.test;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import org.jongo.marshall.MarshallingException;
+import org.nohope.jongo.TypeSafeJacksonMapperBuilder;
 import org.nohope.logging.Logger;
 import org.nohope.logging.LoggerFactory;
-import org.nohope.jongo.JacksonProcessor;
 
+import javax.annotation.Nonnull;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.Serializable;
+import java.io.StringWriter;
+import java.io.Writer;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotSame;
-import static org.junit.Assert.fail;
+import static org.junit.Assert.*;
 
 /**
  * @author <a href="mailto:ketoth.xupack@gmail.com">ketoth xupack</a>
@@ -21,6 +24,28 @@ import static org.junit.Assert.fail;
  */
 public final class SerializationUtils {
     private static final Logger LOG = LoggerFactory.getLogger(SerializationUtils.class);
+    private static final ObjectMapper MAPPER = TypeSafeJacksonMapperBuilder.createPreConfiguredMapper();
+
+    private static <T> T unmarshall(@Nonnull final String json, @Nonnull final Class<T> clazz) {
+        try {
+
+            return MAPPER.readValue(json, clazz);
+        } catch (Exception e) {
+            final String message = String.format("Unable to unmarshall from json: %s to %s", json, clazz);
+            throw new MarshallingException(message, e);
+        }
+    }
+
+    private static <T> String marshall(final T obj) {
+        try {
+            final Writer writer = new StringWriter();
+            MAPPER.writeValue(writer, obj);
+            return writer.toString();
+        } catch (Exception e) {
+            final String message = String.format("Unable to marshall json from: %s", obj);
+            throw new MarshallingException(message, e);
+        }
+    }
 
     private SerializationUtils() {
     }
@@ -52,14 +77,9 @@ public final class SerializationUtils {
 
     @SuppressWarnings("unchecked")
     public static <T> T cloneMongo(final T object) {
-        final JacksonProcessor marshaller = new JacksonProcessor();
-        final String marshalled = marshaller.marshall(object);
+        final String marshalled = marshall(object);
         LOG.debug("marshaled value {}", marshalled);
-
-        // creating new processor just to be sure no state was shared
-        // between jackson serializrs/deserializers
-        final JacksonProcessor unmarshaller = new JacksonProcessor();
-        return (T) unmarshaller.unmarshall(marshalled, object.getClass());
+        return (T) unmarshall(marshalled, object.getClass());
     }
 
     public static<T> T assertMongoClonedEquals(final T origin) {

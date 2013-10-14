@@ -1,19 +1,3 @@
-/*
- * Copyright (C) 2011 Benoit GUEROUT <bguerout at gmail dot com> and Yves AMSELLEM <amsellem dot yves at gmail dot com>
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *     http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
-
 package org.nohope.jongo;
 
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
@@ -30,16 +14,14 @@ import com.fasterxml.jackson.datatype.joda.JodaModule;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.text.translate.CharSequenceTranslator;
 import org.apache.commons.lang3.text.translate.LookupTranslator;
-import org.jongo.marshall.Marshaller;
-import org.jongo.marshall.MarshallingException;
-import org.jongo.marshall.Unmarshaller;
+import org.jongo.Mapper;
+import org.jongo.marshall.jackson.JacksonMapper;
 import org.nohope.logging.Logger;
+import org.nohope.logging.LoggerFactory;
 import org.nohope.typetools.json.ColorModule;
 
 import javax.annotation.Nonnull;
 import java.io.IOException;
-import java.io.StringWriter;
-import java.io.Writer;
 
 import static com.fasterxml.jackson.annotation.JsonAutoDetect.Visibility.ANY;
 import static com.fasterxml.jackson.annotation.JsonInclude.Include.NON_NULL;
@@ -49,14 +31,11 @@ import static com.fasterxml.jackson.databind.MapperFeature.AUTO_DETECT_SETTERS;
 import static com.fasterxml.jackson.databind.SerializationFeature.FAIL_ON_EMPTY_BEANS;
 
 /**
- * Complex Key (De)Serialization Notes:
- * <ul>
- *     <li>Key must have default constructor</li>
- *     <li>Key must be non-final</li>
- * </ul>
+ * @author <a href="mailto:ketoth.xupack@gmail.com">Ketoth Xupack</a>
+ * @since 2013-10-14 18:59
  */
-public final class JacksonProcessor implements Unmarshaller, Marshaller {
-    private static final Logger LOG = org.nohope.logging.LoggerFactory.getLogger(JacksonProcessor.class);
+public class TypeSafeJacksonMapperBuilder extends JacksonMapper.Builder {
+    private static final Logger LOG = LoggerFactory.getLogger(TypeSafeJacksonMapperBuilder.class);
     private static final ObjectMapper KEY_MAPPER = createPreConfiguredMapper();
 
     private static final CharSequenceTranslator ESCAPE_AT =
@@ -76,45 +55,22 @@ public final class JacksonProcessor implements Unmarshaller, Marshaller {
                             {"\\_", "_"},
                     });
 
-    private final ObjectMapper mapper;
-
-    JacksonProcessor(@Nonnull final ObjectMapper mapper) {
-        this.mapper = mapper;
-    }
-
-    public JacksonProcessor() {
-        this(createPreConfiguredMapper());
+    private TypeSafeJacksonMapperBuilder(@Nonnull final ObjectMapper mapper) {
+        super(mapper);
     }
 
     @Nonnull
-    public ObjectMapper getMapper() {
-        return mapper;
-    }
-
-    @Override
-    public <T> T unmarshall(@Nonnull final String json, @Nonnull final Class<T> clazz) {
-        try {
-            return getMapper().readValue(json, clazz);
-        } catch (Exception e) {
-            final String message = String.format("Unable to unmarshall from json: %s to %s", json, clazz);
-            throw new MarshallingException(message, e);
-        }
-    }
-
-    @Override
-    public <T> String marshall(final T obj) {
-        try {
-            final Writer writer = new StringWriter();
-            getMapper().writeValue(writer, obj);
-            return writer.toString();
-        } catch (Exception e) {
-            final String message = String.format("Unable to marshall json from: %s", obj);
-            throw new MarshallingException(message, e);
-        }
+    public static Mapper buildMapper() {
+        return new TypeSafeJacksonMapperBuilder(createPreConfiguredMapper()).build();
     }
 
     @Nonnull
-    private static ObjectMapper createPreConfiguredMapper() {
+    public static Mapper buildMapper(@Nonnull final ObjectMapper mapper) {
+        return new TypeSafeJacksonMapperBuilder(mapper).build();
+    }
+
+    @Nonnull
+    public static ObjectMapper createPreConfiguredMapper() {
         final ObjectMapper mapper = new ObjectMapper();
         mapper.registerModule(new JodaModule());
         mapper.registerModule(new ColorModule());
@@ -134,8 +90,6 @@ public final class JacksonProcessor implements Unmarshaller, Marshaller {
         module.addKeyDeserializer(String.class, ComplexKeyDeserializer.S_OBJECT);
         module.addKeyDeserializer(Object.class, ComplexKeyDeserializer.S_OBJECT);
 
-        //addBSONTypeSerializers(module);
-
         mapper.registerModule(module);
         return mapper;
     }
@@ -144,7 +98,7 @@ public final class JacksonProcessor implements Unmarshaller, Marshaller {
         return ESCAPE_AT.translate(name);
     }
 
-    static String unescape(final String name) {
+    public static String unescape(final String name) {
         return UNESCAPE_AT.translate(name);
     }
 

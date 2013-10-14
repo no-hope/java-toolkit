@@ -55,6 +55,12 @@
         </dependency>
 
         <dependency>
+            <groupId>org.mongodb</groupId>
+            <artifactId>mongo-java-driver</artifactId>
+            <version>${mongo.version}</version>
+        </dependency>
+
+        <dependency>
             <groupId>org.jongo</groupId>
             <artifactId>jongo</artifactId>
             <version>${jongo.version}</version>

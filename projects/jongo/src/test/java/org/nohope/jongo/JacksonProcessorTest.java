@@ -1,12 +1,17 @@
 package org.nohope.jongo;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.jongo.marshall.MarshallingException;
 import org.junit.Test;
 
+import javax.annotation.Nonnull;
+import java.io.StringWriter;
+import java.io.Writer;
 import java.util.HashMap;
 import java.util.Map;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.fail;
 
 /**
@@ -14,13 +19,35 @@ import static org.junit.Assert.fail;
  * Time: 16:59
  */
 public class JacksonProcessorTest {
+    private static final ObjectMapper MAPPER = TypeSafeJacksonMapperBuilder.createPreConfiguredMapper();
+
+    private static <T> T unmarshall(@Nonnull final String json, @Nonnull final Class<T> clazz) {
+        try {
+
+            return MAPPER.readValue(json, clazz);
+        } catch (Exception e) {
+            final String message = String.format("Unable to unmarshall from json: %s to %s", json, clazz);
+            throw new MarshallingException(message, e);
+        }
+    }
+
+    private static <T> String marshall(final T obj) {
+        try {
+            final Writer writer = new StringWriter();
+            MAPPER.writeValue(writer, obj);
+            return writer.toString();
+        } catch (Exception e) {
+            final String message = String.format("Unable to marshall json from: %s", obj);
+            throw new MarshallingException(message, e);
+        }
+    }
+
     @Test
     public void testMapKeyEscaping() {
         final Map<String, Object> map1 = generateMap();
 
-        final JacksonProcessor proc = new JacksonProcessor();
-        final String marshalled = proc.marshall(map1);
-        final Object restored = proc.unmarshall(marshalled, Object.class);
+        final String marshalled = marshall(map1);
+        final Object restored = unmarshall(marshalled, Object.class);
 
         assertEquals(map1, restored);
     }
@@ -30,9 +57,8 @@ public class JacksonProcessorTest {
         final Map<Integer, Object> map1 = new HashMap<>();
         map1.put(1, "value.#pizda");
 
-        final JacksonProcessor proc = new JacksonProcessor();
-        final String marshalled = proc.marshall(map1);
-        final Object restored = proc.unmarshall(marshalled, Object.class);
+        final String marshalled = marshall(map1);
+        final Object restored = unmarshall(marshalled, Object.class);
 
         assertEquals(map1, restored);
     }
@@ -44,53 +70,53 @@ public class JacksonProcessorTest {
         map1.put(new Key("y"), "value.#pizda");
         map1.put(new Key("z"), "value.#pizda");
 
-        final JacksonProcessor proc = new JacksonProcessor();
-        final String marshalled = proc.marshall(map1);
-        final Object restored = proc.unmarshall(marshalled, Object.class);
+        final String marshalled = marshall(map1);
+        final Object restored = unmarshall(marshalled, Object.class);
 
         assertEquals(map1, restored);
     }
 
     @Test(expected = MarshallingException.class)
     public void incorrectUnmarshalling() {
-        final JacksonProcessor proc = new JacksonProcessor();
-        proc.unmarshall("", Object.class);
+        unmarshall("", Object.class);
     }
 
     @Test(expected = MarshallingException.class)
     public void incorrectMarshalling() {
-        new JacksonProcessor().marshall(new Bean());
+        marshall(new Bean());
     }
 
     @Test
     @SuppressWarnings("ConstantConditions")
     public void nullChecks() {
         try {
-            new JacksonProcessor().unmarshall("x", null);
+            unmarshall("x", null);
             fail();
         } catch (final IllegalArgumentException e) {
         }
 
         try {
-            new JacksonProcessor().unmarshall(null, Object.class);
+            unmarshall(null, Object.class);
             fail();
         } catch (final IllegalArgumentException e) {
         }
 
         try {
-            new JacksonProcessor(null);
+            TypeSafeJacksonMapperBuilder.buildMapper(null);
             fail();
-        } catch (final IllegalArgumentException e) {
+        } catch (final IllegalArgumentException ignored) {
         }
+
+        assertNotNull(TypeSafeJacksonMapperBuilder.buildMapper());
     }
 
     @Test
     public void testEscaping() {
         final String source = "text hash1=# hash2=\\# hash3=\\\\# dot=. at=@ underscore=_ underscore2=\\_";
-        final String escaped = JacksonProcessor.escape(source);
+        final String escaped = TypeSafeJacksonMapperBuilder.escape(source);
         assertEquals("text hash1=\\# hash2=\\\\# hash3=\\\\\\# dot=_ at=\\@ underscore=\\_ underscore2=\\\\_", escaped);
 
-        final String restored = JacksonProcessor.unescape(escaped);
+        final String restored = TypeSafeJacksonMapperBuilder.unescape(escaped);
         assertEquals(source, restored);
     }
 

@@ -65,7 +65,7 @@
         <jaxb2-basics.version>0.6.4</jaxb2-basics.version>
         <jaxb2-testing.version>0.8.3</jaxb2-testing.version>
         <joda-time.version>2.3</joda-time.version>
-        <jongo.version>0.2</jongo.version>
+        <jongo.version>0.4</jongo.version>
         <logback.version>1.0.13</logback.version>
         <mongo.version>2.11.2</mongo.version>
         <netty.version>3.7.0.Final</netty.version>
