@@ -10,6 +10,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import static com.mongodb.util.MyAsserts.assertFalse;
+import static com.mongodb.util.MyAsserts.assertTrue;
 import static org.easymock.EasyMock.*;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
@@ -134,5 +136,12 @@ public final class TStrTest extends UtilitiesTestSupport {
     @Test
     public void toLatin1() {
         assertNotNull(TStr.toLatin1("test"));
+    }
+
+    @Test
+    public void isEmpty() {
+        assertTrue(TStr.isEmpty(""));
+        assertTrue(TStr.isEmpty(null));
+        assertFalse(TStr.isEmpty("123"));
     }
 }

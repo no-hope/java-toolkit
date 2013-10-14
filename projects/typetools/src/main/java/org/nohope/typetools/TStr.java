@@ -302,5 +302,10 @@ public final class TStr {
     public static String pformat(final String format, final Object... args) {
         return MessageFormatter.arrayFormat(format, args).getMessage();
     }
+
+    /** @return {@code true} if string is {@code null} or equals to empty string */
+    public static boolean isEmpty(final String string) {
+        return string == null || "".equals(string);
+    }
 }
 
