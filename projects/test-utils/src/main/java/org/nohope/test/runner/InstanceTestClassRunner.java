@@ -35,7 +35,7 @@ public class InstanceTestClassRunner extends BlockJUnit4ClassRunner {
     }
 
     @Override
-    protected Object createTest() throws Exception {
+    protected synchronized Object createTest() throws Exception {
         // Note that JUnit4 will call this createTest() multiple times for each
         // test method, so we need to ensure to create test class only once as well
         // as to call "beforeClassSetup".
