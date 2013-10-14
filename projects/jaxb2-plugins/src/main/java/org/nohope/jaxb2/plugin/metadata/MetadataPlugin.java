@@ -77,13 +77,11 @@ public class MetadataPlugin extends AbstractParameterizablePlugin {
                             ._extends(codeModel.ref(IDescriptor.class).narrow(theClass))
                             ;
 
-
             descriptor =
                     theClass._class(JMod.PUBLIC | JMod.STATIC, "Descriptor")
                             ._extends(codeModel.ref(SimpleDescriptor.class).narrow(theClass))
                             ._implements(descriptorInterface)
                             ;
-
         } catch (JClassAlreadyExistsException e) {
             throw new IllegalStateException(e);
         }
@@ -119,7 +117,8 @@ public class MetadataPlugin extends AbstractParameterizablePlugin {
             final JClass abstractType;
             final JInvocation expression;
 
-            if (methodType.isReference() && codeModel.ref(IMetadataHolder.class).isAssignableFrom((JClass) methodType)) {
+            if (methodType.isReference() && codeModel.ref(IMetadataHolder.class)
+                                                     .isAssignableFrom((JClass) methodType)) {
                 final JClass castedType = (JClass) methodType;
                 concreteType = codeModel.directClass(castedType.name() + ".Descriptor");
                 abstractType = codeModel.directClass(castedType.name() + ".IDescriptor");
@@ -162,11 +161,12 @@ public class MetadataPlugin extends AbstractParameterizablePlugin {
         final JCodeModel codeModel = theClass.owner();
         final String name = method.name();
 
-        if (!name.startsWith("get")) {
+        final boolean isGetMethod = name.startsWith("get");
+        if (!isGetMethod && !name.startsWith("is")) {
             return null;
         }
 
-        final String string = name.substring(3, name.length());
+        final String string = name.substring(isGetMethod ? 3 : 2, name.length());
         final String fieldName =
                 Character.toLowerCase(string.charAt(0))
                 + (string.length() > 1 ? string.substring(1) : "");
@@ -178,7 +178,7 @@ public class MetadataPlugin extends AbstractParameterizablePlugin {
 
         for (final JAnnotationUse annotation : field.annotations()) {
             if (annotation.getAnnotationClass().isAssignableFrom(codeModel.ref(XmlElement.class))) {
-                final Map<String,JAnnotationValue> members = annotation.getAnnotationMembers();
+                final Map<String, JAnnotationValue> members = annotation.getAnnotationMembers();
                 if (!members.containsKey("name")) {
                     continue;
                 }
