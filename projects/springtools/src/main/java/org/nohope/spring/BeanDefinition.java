@@ -14,22 +14,22 @@ import javax.annotation.Nonnull;
  */
 public final class BeanDefinition<T> {
     private final String name;
-    private final Class<T> clazz;
+    private final TypeReference<T> ref;
 
     private BeanDefinition(@Nonnull final String name,
-                           @Nonnull final Class<T> clazz) {
+                           @Nonnull final TypeReference<T> clazz) {
         this.name = name;
-        this.clazz = clazz;
+        this.ref = clazz;
     }
 
     public static<T> BeanDefinition<T> of(@Nonnull final String name,
                                           @Nonnull final Class<T> clazz) {
-        return new BeanDefinition<>(name, clazz);
+        return of(name, TypeReference.erasure(clazz));
     }
 
     public static<T> BeanDefinition<T> of(@Nonnull final String name,
                                           @Nonnull final TypeReference<T> ref) {
-        return of(name, ref.getTypeClass());
+        return new BeanDefinition<>(name, ref);
     }
 
     @Nonnull
@@ -39,6 +39,28 @@ public final class BeanDefinition<T> {
 
     @Nonnull
     public Class<T> getBeanClass() {
-        return clazz;
+        return ref.getTypeClass();
+    }
+
+    @Nonnull
+    public TypeReference<T> getTypeReference() {
+        return ref;
+    }
+
+    @Override
+    public boolean equals(final Object o) {
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
+        final BeanDefinition that = (BeanDefinition) o;
+        return getBeanClass().equals(that.getBeanClass()) && name.equals(that.name);
+    }
+
+    @Override
+    public int hashCode() {
+        return 31 * name.hashCode() + getBeanClass().hashCode();
     }
 }

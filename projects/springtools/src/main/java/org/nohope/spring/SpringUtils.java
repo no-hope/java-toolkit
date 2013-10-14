@@ -79,7 +79,6 @@ public final class SpringUtils {
         beanDef.setAutowireMode(AbstractBeanDefinition.AUTOWIRE_NO);
         beanDef.addQualifier(new AutowireCandidateQualifier(annotation, value));
 
-
         ((BeanDefinitionRegistry) ctx.getBeanFactory())
                 .registerBeanDefinition(name, beanDef);
         ctx.getBeanFactory().registerSingleton(name, obj);
