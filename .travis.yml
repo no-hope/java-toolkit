@@ -13,9 +13,11 @@ env:
     - secure: "NZJ+d+nZK7S+LJrF2BljLJC/EXYINEP3qAuNpZ5khgSxammFN16FUlCnL/CgWPH5UyN0HdcF1COhwiP/veKaMBig9MGSvKa1ywuCVwMeQ39nPzVBdXt1QpnaBWNfOb3Teh6s3jx80vd2Asj6JCI+TFc0Bjg1wkibueRGXGpwATA="
     - secure: "KW4mr3PQT7i+IL/JpOThNvzzj4MXoLjvBGyZalfYk0OjVGiONHZ/qj4S/aS2bHzPlUEgXpLNsQrn12cLPCLcgh2flfUu9k62PNnPeasmI3Cm23f7WeDgs8sM82Il2sSCAgS1nafkxLLqneKEPBgCCBLxOwjThFgmbSZhUzdn9Nc="
 
+before_install:
+  - apt-get install graphviz
+
 before_script:
   - echo "<settings><servers><server><id>sonatype-nexus-snapshots</id><username>ketoth.xupack</username><password>${SONATYPE_PASSWORD}</password></server></servers></settings>" > ~/.m2/settings.xml
-  - apt-get install graphviz
 
 script: mvn -e -DrepoToken=$COVERALLS_KEY clean install site
 after_success: if [[ "${TRAVIS_PULL_REQUEST}" != "false" ]]; then mvn -q -Dskip.jacoco -DskipTests=true deploy; fi
