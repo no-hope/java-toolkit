@@ -6,5 +6,8 @@ jdk:
 
 env:
   - secure: "NZJ+d+nZK7S+LJrF2BljLJC/EXYINEP3qAuNpZ5khgSxammFN16FUlCnL/CgWPH5UyN0HdcF1COhwiP/veKaMBig9MGSvKa1ywuCVwMeQ39nPzVBdXt1QpnaBWNfOb3Teh6s3jx80vd2Asj6JCI+TFc0Bjg1wkibueRGXGpwATA="
+  - secure: "U8ycIFUkt45HCTxtyDAHFW5OU8RHCPSNvt9u8WTZjMkwYtLcQdy6kBwHssDk0IjxCCxPObnmRx5EPTnyRu/40P2hsRfL/TixpTyzIOvnbuJHF7FkGLbSU9tJ8pnQ/0hTLeMFWl71ri6OnmlY+t5Zxge84y0zuw1iaHtiiqQEJvo="
 
+before_script: echo "<settings><servers><server><server><id>sonatype-nexus-snapshots</id><username>ketoth.xupack</username><password>${SONATYPE_PASSWORD}</password></server></servers></settings>" > ~/.m2/settings.xml
 script: mvn -e -DrepoToken=$COVERALLS_KEY clean install site
+after_success: mvn deploy
