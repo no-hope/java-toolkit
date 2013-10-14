@@ -4,6 +4,10 @@ jdk:
   - openjdk7
   - oraclejdk7
 
+branches:
+  only:
+    - master
+
 env:
   global:
     - secure: "NZJ+d+nZK7S+LJrF2BljLJC/EXYINEP3qAuNpZ5khgSxammFN16FUlCnL/CgWPH5UyN0HdcF1COhwiP/veKaMBig9MGSvKa1ywuCVwMeQ39nPzVBdXt1QpnaBWNfOb3Teh6s3jx80vd2Asj6JCI+TFc0Bjg1wkibueRGXGpwATA="
@@ -11,4 +15,4 @@ env:
 
 before_script: echo "<settings><servers><server><id>sonatype-nexus-snapshots</id><username>ketoth.xupack</username><password>${SONATYPE_PASSWORD}</password></server></servers></settings>" > ~/.m2/settings.xml
 script: mvn -e -DrepoToken=$COVERALLS_KEY clean install site
-after_success: mvn deploy
+after_success: if [[ "${TRAVIS_PULL_REQUEST}" != "false" ]]; then mvn deploy; fi
