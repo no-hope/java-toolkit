@@ -66,23 +66,23 @@ public class TypeSafeJacksonMapperBuilder extends JacksonMapper.Builder {
 
     @Nonnull
     public static Mapper buildMapper(@Nonnull final ObjectMapper mapper) {
-        return new TypeSafeJacksonMapperBuilder(mapper).build();
+        return new TypeSafeJacksonMapperBuilder(configureMapper(mapper)).build();
     }
 
     @Nonnull
-    public static ObjectMapper createPreConfiguredMapper() {
-        final ObjectMapper mapper = new ObjectMapper();
-        mapper.registerModule(new JodaModule());
-        mapper.registerModule(new ColorModule());
+    public static ObjectMapper configureMapper(final ObjectMapper mapper) {
+        final ObjectMapper copy = mapper.copy();
+        copy.registerModule(new JodaModule());
+        copy.registerModule(new ColorModule());
 
-        mapper.configure(FAIL_ON_UNKNOWN_PROPERTIES, false);
-        mapper.configure(AUTO_DETECT_GETTERS, false);
-        mapper.configure(AUTO_DETECT_SETTERS, false);
-        mapper.configure(FAIL_ON_EMPTY_BEANS, false);
-        mapper.setSerializationInclusion(NON_NULL);
-        mapper.setVisibilityChecker(VisibilityChecker.Std.defaultInstance().withFieldVisibility(ANY));
+        copy.configure(FAIL_ON_UNKNOWN_PROPERTIES, false);
+        copy.configure(AUTO_DETECT_GETTERS, false);
+        copy.configure(AUTO_DETECT_SETTERS, false);
+        copy.configure(FAIL_ON_EMPTY_BEANS, false);
+        copy.setSerializationInclusion(NON_NULL);
+        copy.setVisibilityChecker(VisibilityChecker.Std.defaultInstance().withFieldVisibility(ANY));
 
-        mapper.enableDefaultTypingAsProperty(ObjectMapper.DefaultTyping.NON_FINAL,
+        copy.enableDefaultTypingAsProperty(ObjectMapper.DefaultTyping.NON_FINAL,
                 JsonTypeInfo.Id.CLASS.getDefaultPropertyName());
 
         final SimpleModule module = new SimpleModule("jongo", Version.unknownVersion());
@@ -90,8 +90,13 @@ public class TypeSafeJacksonMapperBuilder extends JacksonMapper.Builder {
         module.addKeyDeserializer(String.class, ComplexKeyDeserializer.S_OBJECT);
         module.addKeyDeserializer(Object.class, ComplexKeyDeserializer.S_OBJECT);
 
-        mapper.registerModule(module);
-        return mapper;
+        copy.registerModule(module);
+        return copy;
+    }
+
+    @Nonnull
+    public static ObjectMapper createPreConfiguredMapper() {
+        return configureMapper(new ObjectMapper());
     }
 
     public static String escape(final String name) {
