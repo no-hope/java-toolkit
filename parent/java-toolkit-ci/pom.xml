@@ -27,7 +27,6 @@
         <javadoc.level>public</javadoc.level>
         <maven.version.restriction>[${maven.version.lower},${maven.version.upper})</maven.version.restriction>
 
-
         <!-- Maven plugins -->
         <maven.antrun-plugin.version>1.7</maven.antrun-plugin.version>
         <maven.cobertura-plugin.version>2.5.1</maven.cobertura-plugin.version>
