@@ -1,6 +1,7 @@
 package org.nohope.jongo;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import org.jongo.Mapper;
 import org.jongo.marshall.MarshallingException;
 import org.junit.Test;
 
@@ -39,6 +40,13 @@ public class JacksonProcessorTest {
             final String message = String.format("Unable to marshall json from: %s", obj);
             throw new MarshallingException(message, e);
         }
+    }
+
+    @Test
+    public void basicMarshalling() {
+        final TypeSafeJacksonMapperBuilder builder = new TypeSafeJacksonMapperBuilder();
+        final Mapper build = builder.build();
+        build.getUnmarshaller().unmarshall(build.getMarshaller().marshall(new Bean()), Bean.class);
     }
 
     @Test
@@ -82,7 +90,7 @@ public class JacksonProcessorTest {
 
     @Test(expected = MarshallingException.class)
     public void incorrectMarshalling() {
-        marshall(new Bean());
+        marshall(new CyclicBean());
     }
 
     @Test
@@ -163,10 +171,13 @@ public class JacksonProcessorTest {
         }
     }
 
-    static class Bean {
-        Bean bean;
-        Bean() {
+    static class CyclicBean {
+        CyclicBean bean;
+        CyclicBean() {
             bean = this;
         }
+    }
+
+    static class Bean {
     }
 }

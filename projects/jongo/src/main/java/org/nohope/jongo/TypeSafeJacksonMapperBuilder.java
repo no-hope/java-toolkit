@@ -86,7 +86,7 @@ public class TypeSafeJacksonMapperBuilder extends JacksonMapper.Builder {
         copy.enableDefaultTypingAsProperty(ObjectMapper.DefaultTyping.NON_FINAL,
                 JsonTypeInfo.Id.CLASS.getDefaultPropertyName());
 
-        final SimpleModule module = new SimpleModule("jongo", Version.unknownVersion());
+        final SimpleModule module = new SimpleModule("typesafe-jongo-module", Version.unknownVersion());
         module.addKeySerializer(Object.class, ComplexKeySerializer.S_OBJECT);
         module.addKeyDeserializer(String.class, ComplexKeyDeserializer.S_OBJECT);
         module.addKeyDeserializer(Object.class, ComplexKeyDeserializer.S_OBJECT);
