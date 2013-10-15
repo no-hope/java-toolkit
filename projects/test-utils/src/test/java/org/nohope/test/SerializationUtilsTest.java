@@ -33,11 +33,23 @@ public class SerializationUtilsTest extends UtilitiesTestSupport {
         final Bean1 origin = new Bean1(1);
         final Bean1 result = assertMongoClonedEquals(origin);
         assertEquals(origin.state, result.state);
+        assertEquals(origin.state, fromMongo(toMongo(result), Bean1.class).state);
+        assertEquals(origin.state, cloneMongo(result).state);
     }
 
     @Test(expected = MarshallingException.class)
-    public void basicJson2() {
+    public void unmarshallingException() {
         assertMongoClonedEquals(new Bean2(1));
+    }
+
+    @Test(expected = MarshallingException.class)
+    public void unmarshallingException2() {
+        fromMongo("{xxx}", Bean1.class);
+    }
+
+    @Test(expected = MarshallingException.class)
+    public void marshallingException() {
+        toMongo(new CyclicBean());
     }
 
     private static final class Bean2 implements Serializable {
@@ -64,6 +76,15 @@ public class SerializationUtilsTest extends UtilitiesTestSupport {
         @Override
         public int hashCode() {
             return state;
+        }
+    }
+
+    private static final class CyclicBean implements Serializable {
+        private static final long serialVersionUID = 1L;
+        private CyclicBean bean;
+
+        public CyclicBean() {
+            bean = this;
         }
     }
 
