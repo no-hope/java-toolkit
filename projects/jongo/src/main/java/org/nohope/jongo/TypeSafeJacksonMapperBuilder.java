@@ -14,8 +14,8 @@ import com.fasterxml.jackson.datatype.joda.JodaModule;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.text.translate.CharSequenceTranslator;
 import org.apache.commons.lang3.text.translate.LookupTranslator;
-import org.jongo.Mapper;
 import org.jongo.marshall.jackson.JacksonMapper;
+import org.jongo.marshall.jackson.configuration.MapperModifier;
 import org.nohope.logging.Logger;
 import org.nohope.logging.LoggerFactory;
 import org.nohope.typetools.json.ColorModule;
@@ -55,23 +55,24 @@ public class TypeSafeJacksonMapperBuilder extends JacksonMapper.Builder {
                             {"\\_", "_"},
                     });
 
-    private TypeSafeJacksonMapperBuilder(@Nonnull final ObjectMapper mapper) {
-        super(mapper);
+    public TypeSafeJacksonMapperBuilder() {
+        super();
+        addModifier(new MapperModifier() {
+            @Override
+            public void modify(final ObjectMapper mapper) {
+                configureMapper(mapper, true);
+            }
+        });
     }
 
+    /**
+     * @param mapper object mapper to configure
+     * @param override {@code false} if no modification should be made with given mapper
+     * @return reconfigured object mapper
+     */
     @Nonnull
-    public static Mapper buildMapper() {
-        return new TypeSafeJacksonMapperBuilder(createPreConfiguredMapper()).build();
-    }
-
-    @Nonnull
-    public static Mapper buildMapper(@Nonnull final ObjectMapper mapper) {
-        return new TypeSafeJacksonMapperBuilder(configureMapper(mapper)).build();
-    }
-
-    @Nonnull
-    public static ObjectMapper configureMapper(final ObjectMapper mapper) {
-        final ObjectMapper copy = mapper.copy();
+    public static ObjectMapper configureMapper(final ObjectMapper mapper, final boolean override) {
+        final ObjectMapper copy = override ? mapper : mapper.copy();
         copy.registerModule(new JodaModule());
         copy.registerModule(new ColorModule());
 
@@ -96,7 +97,7 @@ public class TypeSafeJacksonMapperBuilder extends JacksonMapper.Builder {
 
     @Nonnull
     public static ObjectMapper createPreConfiguredMapper() {
-        return configureMapper(new ObjectMapper());
+        return configureMapper(new ObjectMapper(), true);
     }
 
     public static String escape(final String name) {

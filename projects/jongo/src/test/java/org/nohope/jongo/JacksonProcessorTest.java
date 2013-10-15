@@ -11,7 +11,6 @@ import java.util.HashMap;
 import java.util.Map;
 
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.fail;
 
 /**
@@ -100,14 +99,6 @@ public class JacksonProcessorTest {
             fail();
         } catch (final IllegalArgumentException e) {
         }
-
-        try {
-            TypeSafeJacksonMapperBuilder.buildMapper(null);
-            fail();
-        } catch (final IllegalArgumentException ignored) {
-        }
-
-        assertNotNull(TypeSafeJacksonMapperBuilder.buildMapper());
     }
 
     @Test
