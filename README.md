@@ -16,3 +16,4 @@
  * [akka](projects/akka)
  * [akka-spring](projects/akka-spring)
  * [jaxb2-plugins](projects/jaxb2-plugins)
+ * [protobuf-rpc](projects/protobuf-rpc)

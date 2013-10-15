@@ -69,12 +69,43 @@
         <logback.version>1.0.13</logback.version>
         <mongo.version>2.11.2</mongo.version>
         <netty.version>3.7.0.Final</netty.version>
+        <protobuf.version>2.4.1</protobuf.version>
         <slf4j.version>1.7.5</slf4j.version>
         <spring.version>3.2.4.RELEASE</spring.version>
         <xbean-finder.version>3.14</xbean-finder.version>
     </properties>
 
     <build>
+        <pluginManagement>
+            <plugins>
+                <plugin>
+                    <groupId>org.no-hope</groupId>
+                    <artifactId>protoc-maven-plugin</artifactId>
+                    <version>${project.version}</version>
+                    <executions>
+                        <execution>
+                            <id>compile</id>
+                            <configuration>
+                                <outputDirectory>${project.build.directory}/generated-sources</outputDirectory>
+                            </configuration>
+                            <goals>
+                                <goal>compile</goal>
+                            </goals>
+                        </execution>
+                        <execution>
+                            <id>test-compile</id>
+                            <configuration>
+                                <outputDirectory>${project.build.directory}/generated-test-sources</outputDirectory>
+                            </configuration>
+                            <goals>
+                                <goal>testCompile</goal>
+                            </goals>
+                        </execution>
+                    </executions>
+                </plugin>
+            </plugins>
+        </pluginManagement>
+
         <plugins>
             <plugin>
                 <artifactId>maven-release-plugin</artifactId>
@@ -135,5 +166,6 @@
         <module>projects/akka-spring</module>
         <module>projects/validation</module>
         <module>projects/jaxb2-plugins</module>
+        <module>projects/protobuf-rpc</module>
     </modules>
 </project>
