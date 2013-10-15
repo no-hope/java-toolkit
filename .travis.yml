@@ -15,7 +15,7 @@ env:
 
 before_install:
   - sudo apt-get install graphviz
-  - sudo apt-get install protoc
+  - sudo apt-get install protobuf-compiler
 
 install:
   - mvn -e -q -B -Dskip.javadoc=true -DskipTests=true install
