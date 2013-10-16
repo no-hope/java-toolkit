@@ -1,0 +1,21 @@
+<?xml version="1.0"?>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema"
+           xmlns:jaxb="http://java.sun.com/xml/ns/jaxb"
+           xmlns:tns="http://no-hope.org/"
+           xmlns:validation="http://no-hope.org/jaxb2/validation"
+           targetNamespace="http://no-hope.org/"
+           jaxb:extensionBindingPrefixes="validation"
+           jaxb:version="1.0">
+
+    <xs:annotation>
+        <xs:appinfo>
+            <validation:bindings>
+                <validation:bind type="complexObjectTypeX1">
+                    <validation:bind type="xxx" />
+                </validation:bind>
+            </validation:bindings>
+        </xs:appinfo>
+    </xs:annotation>
+
+    <xs:complexType name="complexObjectTypeX1"/>
+</xs:schema>

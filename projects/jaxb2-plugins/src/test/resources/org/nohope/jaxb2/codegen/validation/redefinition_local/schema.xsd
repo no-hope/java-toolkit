@@ -1,0 +1,58 @@
+<?xml version="1.0"?>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema"
+           xmlns:jaxb="http://java.sun.com/xml/ns/jaxb"
+           xmlns:tns="http://no-hope.org/"
+           xmlns:validation="http://no-hope.org/jaxb2/validation"
+           targetNamespace="http://no-hope.org/"
+           jaxb:extensionBindingPrefixes="validation"
+           jaxb:version="1.0">
+
+    <xs:annotation>
+        <xs:appinfo>
+            <jaxb:globalBindings choiceContentProperty="true" />
+            <validation:bindings>
+                <validation:bind type="complexObjectTypeX1">
+                    <validation:validator class="org.nohope.jaxb2.plugin.validation.IsEmptyValidator" />
+                </validation:bind>
+            </validation:bindings>
+        </xs:appinfo>
+    </xs:annotation>
+
+    <xs:element name="complexObject01" type="tns:complexObjectTypeX1"/>
+    <xs:complexType name="complexObjectTypeX1">
+        <xs:annotation>
+            <xs:appinfo>
+                <validation:bind>
+                    <validation:validator class="org.nohope.jaxb2.plugin.validation.IsEmptyValidator" />
+                </validation:bind>
+            </xs:appinfo>
+        </xs:annotation>
+
+        <xs:sequence>
+            <xs:element name="object_field" type="tns:complexObjectTypeX2"/>
+
+            <xs:element name="datetime_field" type="xs:dateTime"/>
+            <xs:element name="time_field" type="xs:time"/>
+            <xs:element name="date_field" type="xs:date"/>
+            <xs:element name="float_field" type="xs:float"/>
+            <xs:element name="string_field" type="xs:string"/>
+            <xs:element name="boolean_field" type="xs:boolean"/>
+            <xs:element name="simple" type="xs:boolean"/>
+        </xs:sequence>
+    </xs:complexType>
+
+    <xs:element name="complexObject02" type="tns:complexObjectTypeX2"/>
+    <xs:complexType name="complexObjectTypeX2">
+        <xs:sequence>
+            <xs:element name="datetime_field" type="xs:dateTime"/>
+            <xs:element name="time_field" type="xs:time"/>
+            <xs:element name="date_field" type="xs:date"/>
+            <xs:element name="float_field" type="xs:float"/>
+            <xs:element name="string_field" type="xs:string"/>
+            <xs:element name="boolean_field" type="xs:boolean"/>
+
+            <!-- this field should not have name attribute in @XmlElement -->
+            <xs:element name="simple" type="xs:string"/>
+        </xs:sequence>
+    </xs:complexType>
+</xs:schema>

@@ -1,1 +1,2 @@
 org.nohope.jaxb2.plugin.metadata.MetadataPlugin
+org.nohope.jaxb2.plugin.validation.ValidationPlugin
