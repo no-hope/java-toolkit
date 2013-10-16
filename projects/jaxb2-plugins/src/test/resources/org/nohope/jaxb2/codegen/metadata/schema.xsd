@@ -9,7 +9,7 @@
         <xs:appinfo>
             <jaxb:globalBindings choiceContentProperty="true" generateIsSetMethod="true" />
             <jaxb:schemaBindings>
-                <jaxb:package name="org.nohope.metadata"/>
+                <jaxb:package name="org.nohope.jaxb_codegen.metadata"/>
             </jaxb:schemaBindings>
         </xs:appinfo>
     </xs:annotation>
