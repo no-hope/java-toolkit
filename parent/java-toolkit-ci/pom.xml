@@ -245,6 +245,10 @@
                     </dependency>
                 </dependencies>
 
+                <configuration>
+                    <skip>${skip.jacoco}</skip>
+                </configuration>
+
                 <executions>
                     <!-- merging it and unit exec data -->
                     <execution>
