@@ -142,17 +142,7 @@ public final class IntrospectionUtils {
 
         try {
             final Object[] params = adaptTo(args, signature);
-
-            // request privileges
-            AccessController.doPrivileged(new PrivilegedAction<Void>() {
-                @Override
-                public Void run() {
-                    constructor.setAccessible(true);
-                    return null;
-                }
-            });
-
-            return constructor.newInstance(params);
+            return setAccessible(constructor).newInstance(params);
         } catch (final ClassCastException e) {
             throw cantInvoke(type, CONSTRUCTOR, signature, args, e);
         }
@@ -229,13 +219,7 @@ public final class IntrospectionUtils {
             if (!PUBLIC.matches(flags)
                 || !PUBLIC.matches(classFlags)
                 || clazz != method.getDeclaringClass()) {
-                AccessController.doPrivileged(new PrivilegedAction<Void>() {
-                    @Override
-                    public Void run() {
-                        method.setAccessible(true);
-                        return null;
-                    }
-                });
+                setAccessible(method);
             }
 
             return method.invoke(instance, params);
@@ -271,6 +255,35 @@ public final class IntrospectionUtils {
                     source.getComponentType());
         }
         return tryFromPrimitive(target).isAssignableFrom(tryFromPrimitive(source));
+    }
+
+    /**
+     * Returns value of object field with given name and name.
+     *
+     * @param clazz expected field type
+     *
+     * @return field value
+     * @throws NoSuchFieldException if field not found
+     * @throws IllegalAccessException
+     * @throws ClassCastException
+     */
+    public static <T> T getFieldValue(@Nonnull final Object obj,
+                                      @Nonnull final String fieldName,
+                                      @Nonnull final Class<T> clazz)
+            throws NoSuchFieldException, IllegalAccessException {
+        final Class<?> objClass = obj.getClass();
+        final Field declaredField = objClass.getDeclaredField(fieldName);
+        return cast(setAccessible(declaredField).get(obj), clazz);
+    }
+
+    private static <T extends AccessibleObject> T setAccessible(final T obj) {
+        return AccessController.doPrivileged(new PrivilegedAction<T>() {
+            @Override
+            public T run() {
+                obj.setAccessible(true);
+                return obj;
+            }
+        });
     }
 
     /**
