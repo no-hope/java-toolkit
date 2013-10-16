@@ -25,6 +25,7 @@
         <maven.version.lower>3.0.4</maven.version.lower>
         <maven.version.upper />
         <javadoc.level>public</javadoc.level>
+        <javadoc.quiet>true</javadoc.quiet>
         <maven.version.restriction>[${maven.version.lower},${maven.version.upper})</maven.version.restriction>
 
         <!-- Maven plugins -->
@@ -391,6 +392,8 @@
 
                     <!-- expose private methods/fields -->
                     <show>${javadoc.level}</show>
+
+                    <quiet>${javadoc.quiet}</quiet>
 
                     <!-- javadoc to be included -->
                     <links>
