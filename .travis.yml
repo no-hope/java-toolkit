@@ -19,7 +19,7 @@ before_install:
   - echo "<settings><servers><server><id>sonatype-nexus-snapshots</id><username>ketoth.xupack</username><password>${SONATYPE_PASSWORD}</password></server></servers></settings>" > ~/.m2/settings.xml
 
 install:
-  - mvn -e -B -Dsilent=true dependency:go-offline | grep -vP "^Download(ed|ing):"
+  - mvn -e -B -T 1.5C -B -Dskip.tests=true -Dskip.javadoc=true clean verify | grep -vP "^Download(ed|ing):"
 
 script:
   - mvn -e -DrepoToken=$COVERALLS_KEY clean install site
