@@ -36,9 +36,7 @@
                         </goals>
                         <configuration combine.children="append">
                             <excludes>
-                                <exclude>
-                                    <exclide>org.nohope.rpc.protocol.RPC</exclide>
-                                </exclude>
+                                <exclude>org.nohope.rpc.protocol.RPC</exclude>
                             </excludes>
                         </configuration>
                     </execution>
