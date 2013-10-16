@@ -2,6 +2,8 @@ package org.nohope.protobuf.core.exception;
 
 import org.nohope.rpc.protocol.RPC;
 
+import javax.annotation.Nonnull;
+
 import static org.nohope.rpc.protocol.RPC.Error;
 import static org.nohope.rpc.protocol.RPC.RpcRequest;
 
@@ -17,14 +19,14 @@ public class ServerSideException extends Exception {
 
     public ServerSideException(final Throwable t,
                                final RPC.ErrorCode code,
-                               final RpcRequest request,
+                               @Nonnull final RpcRequest request,
                                final String message) {
         this(code, request, message);
         initCause(t);
     }
 
     public ServerSideException(final RPC.ErrorCode code,
-                               final RpcRequest request,
+                               @Nonnull final RpcRequest request,
                                final String message) {
         this(Error.newBuilder()
                   .setErrorCode(code)
@@ -46,11 +48,12 @@ public class ServerSideException extends Exception {
         this.error = error;
     }
 
-
+    @Nonnull
     public Error getError() {
         return error;
     }
 
+    @Nonnull
     public RpcRequest getRequest() {
         return request;
     }

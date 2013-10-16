@@ -56,7 +56,7 @@ class RpcClientHandler extends SimpleChannelUpstreamHandler {
         final ResponsePrototypeRpcCallback callback = callbackMap.remove(seqId);
 
         if (response.hasError() && callback != null && callback.getRpcController() != null) {
-            callback.getRpcController().setFailed(response.getError().getErrorMessage());
+            callback.getRpcController().setError(response.getError());
         }
 
         if (callback == null) {

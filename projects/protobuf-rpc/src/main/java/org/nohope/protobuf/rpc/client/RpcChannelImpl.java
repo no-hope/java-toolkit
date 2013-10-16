@@ -1,9 +1,5 @@
 package org.nohope.protobuf.rpc.client;
 
-import org.nohope.protobuf.core.Controller;
-import org.nohope.protobuf.core.exception.DetailedExpectedException;
-import org.nohope.protobuf.core.exception.RpcTimeoutException;
-import org.nohope.rpc.protocol.RPC;
 import com.google.protobuf.BlockingRpcChannel;
 import com.google.protobuf.InvalidProtocolBufferException;
 import com.google.protobuf.Message;
@@ -14,6 +10,10 @@ import com.google.protobuf.ServiceException;
 import org.jboss.netty.channel.Channel;
 import org.nohope.logging.Logger;
 import org.nohope.logging.LoggerFactory;
+import org.nohope.protobuf.core.Controller;
+import org.nohope.protobuf.core.exception.DetailedExpectedException;
+import org.nohope.protobuf.core.exception.RpcTimeoutException;
+import org.nohope.rpc.protocol.RPC;
 
 import javax.annotation.Nonnull;
 import java.util.concurrent.Callable;
@@ -70,7 +70,7 @@ class RpcChannelImpl implements RpcChannel, BlockingRpcChannel {
                 new ResponsePrototypeRpcCallback(controller, responsePrototype, callback);
 
         final int nextSeqId = handler.getNextSeqId();
-        final Message rpcRequest = buildRequest(nextSeqId, method, request);
+        final RPC.RpcRequest rpcRequest = buildRequest(nextSeqId, method, request);
         handler.registerCallback(nextSeqId, rpcCallback);
         channel.write(rpcRequest);
 
@@ -113,9 +113,9 @@ class RpcChannelImpl implements RpcChannel, BlockingRpcChannel {
         }
     }
 
-    private static Message buildRequest(final int seqId,
-                                        final MethodDescriptor method,
-                                        final Message request) {
+    private static RPC.RpcRequest buildRequest(final int seqId,
+                                               final MethodDescriptor method,
+                                               final Message request) {
         final RPC.RpcRequest.Builder requestBuilder = RPC.RpcRequest.newBuilder();
         return requestBuilder
                 .setId(seqId)

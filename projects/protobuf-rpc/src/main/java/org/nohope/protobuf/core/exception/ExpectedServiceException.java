@@ -19,6 +19,7 @@ import static java.util.Map.Entry;
  */
 public class ExpectedServiceException extends ServiceException {
     private static final long serialVersionUID = 1L;
+
     private final transient Error.Builder builder;
 
     private ExpectedServiceException(final Throwable cause, final Error.Builder builder) {

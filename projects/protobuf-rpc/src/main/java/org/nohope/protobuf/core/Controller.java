@@ -51,6 +51,7 @@ public final class Controller implements RpcController {
     public void setFailed(final String reason) {
         this.reason.set(reason);
         this.failed.set(true);
+        this.error.set(null);
     }
 
     public void setError(final RPC.Error error) {

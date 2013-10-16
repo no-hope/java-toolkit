@@ -4,6 +4,7 @@ import org.nohope.rpc.protocol.RPC;
 import com.google.protobuf.GeneratedMessage;
 import com.google.protobuf.ServiceException;
 
+import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
 /**
@@ -15,16 +16,17 @@ public class DetailedExpectedException extends ServiceException {
 
     private final RPC.Error error;
 
-    public DetailedExpectedException(final RPC.Error error) {
-        super(new Throwable());
+    public DetailedExpectedException(@Nonnull final RPC.Error error) {
+        super(error.getErrorMessage() + " (" + error.getErrorCode() + ")");
         this.error = error;
     }
 
     @Nullable
-    public <T> T getDetailedReason(final GeneratedMessage.GeneratedExtension<RPC.Error, T> extension) {
+    public <T> T getDetailedReason(@Nonnull final GeneratedMessage.GeneratedExtension<RPC.Error, T> extension) {
         return error.getExtension(extension);
     }
 
+    @Nonnull
     public RPC.Error getError() {
         return error;
     }

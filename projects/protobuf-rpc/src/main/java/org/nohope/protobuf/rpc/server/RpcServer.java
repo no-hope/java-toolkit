@@ -43,6 +43,10 @@ public class RpcServer implements IBlockingServiceRegistry {
         });
     }
 
+    public void shutdown() {
+        bootstrap.shutdown();
+    }
+
     @Override
     public void registerService(final BlockingService service) {
         handler.registerService(service);
