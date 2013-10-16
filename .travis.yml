@@ -22,7 +22,7 @@ install:
   - mvn -e -q -B -T 1.5C -B -Dskip.tests=true -Dskip.javadoc=true clean verify
 
 script:
-  - mvn -e -DrepoToken=$COVERALLS_KEY clean install site | grep -vP "^Download(ed|ing): http://(repo.maven.apache.org|oss.sonatype.org)/"
+  - mvn -e -DrepoToken=$COVERALLS_KEY clean install site
 
 after_success:
-  - if [[ "${TRAVIS_PULL_REQUEST}" == "false" ]]; then mvn -q -e -Dskip.jacoco -DskipTests=true deploy; fi
+  - if [[ "${TRAVIS_PULL_REQUEST}" == "false" ]]; then mvn -q -e -Dskip.tests=true deploy; fi
