@@ -345,10 +345,10 @@ public final class SpringAsyncModularApp<M, H extends Handler<M>> extends AsyncA
 
     static <T> Set<Class<?>> getDependencies(final Class<T> clazz) {
         final Set<Class<?>> dependencies = new LinkedHashSet<>();
-        final Set<Constructor<T>> constructors =
-                searchConstructors(clazz, new IMatcher<Constructor<T>>() {
+        final Set<Constructor<? extends T>> constructors =
+                searchConstructors(clazz, new IMatcher<Constructor<? extends T>>() {
                     @Override
-                    public boolean matches(final Constructor<T> obj) {
+                    public boolean matches(final Constructor<? extends T> obj) {
                         return obj.isAnnotationPresent(Inject.class)
                                && !obj.isSynthetic()
                                ;
@@ -359,7 +359,7 @@ public final class SpringAsyncModularApp<M, H extends Handler<M>> extends AsyncA
             throw new IllegalStateException("More than one injectable constructor found for " + clazz);
         }
 
-        for (final Constructor<T> constructor : constructors) {
+        for (final Constructor<? extends T> constructor : constructors) {
             int paramIndex = 0;
             final LinkedHashMap<Integer, Map.Entry<Class<?>, Class<?>>> values = new LinkedHashMap<>();
             final Annotation[][] annotations = constructor.getParameterAnnotations();
