@@ -54,7 +54,11 @@ public class InstanceTestClassRunner extends BlockJUnit4ClassRunner {
     public void run(final RunNotifier notifier) {
         super.run(notifier);
         if (instanceSetupListener != null) {
-            instanceSetupListener.afterClassSetup();
+            try {
+                instanceSetupListener.afterClassSetup();
+            } catch (Exception e) {
+                throw new IllegalStateException(e);
+            }
         }
     }
 }

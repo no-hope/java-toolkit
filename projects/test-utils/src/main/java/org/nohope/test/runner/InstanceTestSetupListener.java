@@ -8,8 +8,8 @@ package org.nohope.test.runner;
  */
 public interface InstanceTestSetupListener {
     /** Code inside will run after test class is created before any test method was run. */
-    void beforeClassSetup();
+    void beforeClassSetup() throws Exception;
 
     /** Code inside will run after all test methods finished execution. */
-    void afterClassSetup();
+    void afterClassSetup() throws Exception;
 }
