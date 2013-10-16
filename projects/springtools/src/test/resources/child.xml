@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans
+         http://www.springframework.org/schema/beans/spring-beans-3.2.xsd">
+    <beans>
+        <import resource="classpath:imported.xml" />
+
+        <bean class="java.lang.String" id="parent" >
+            <constructor-arg value="child" />
+        </bean>
+
+        <bean class="java.lang.String" id="child" >
+            <constructor-arg value="child" />
+        </bean>
+
+        <bean class="java.lang.String" id="imported_parent" >
+            <constructor-arg value="imported_child" />
+        </bean>
+    </beans>
+</beans>

@@ -57,7 +57,7 @@ public class PartiallyDefinedArgumentsFactory<T> implements Serializable {
     public PartiallyDefinedArgumentsFactory<T> addBeans(@Nonnull final Object... beans) {
         final List<Object> list = Arrays.asList(beans);
         if (list.contains(null)) {
-            throw new IllegalStateException("null reference not allowed in beans list");
+            throw new IllegalArgumentException("null reference not allowed in beans list");
         }
 
         this.beans.addAll(list);
