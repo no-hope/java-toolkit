@@ -67,7 +67,9 @@
         <sonar.dynamicAnalysis>reuseReports</sonar.dynamicAnalysis>
 
         <!-- these options might be used to speed up build -->
-        <skip.jacoco>false</skip.jacoco>
+        <skip.tests>false</skip.tests>
+        <skipTests>${skip.tests}</skipTests>
+        <skip.jacoco>${skip.tests}</skip.jacoco>
         <skip.javadoc>false</skip.javadoc>
         <skip.enforcer>false</skip.enforcer>
     </properties>
