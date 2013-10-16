@@ -425,9 +425,9 @@ public final class IntrospectionUtils {
     }
 
     @SuppressWarnings("unchecked")
-    public static<T> Set<Constructor<T>> searchConstructors(final Class<T> clazz,
-                                                            final IMatcher<Constructor<T>> matcher) {
-        final Set<Constructor<T>> mth = new HashSet<>();
+    public static<T> Set<Constructor<? extends T>> searchConstructors(final Class<? extends T> clazz,
+                                                                      final IMatcher<Constructor<? extends T>> matcher) {
+        final Set<Constructor<? extends T>> mth = new HashSet<>();
 
         for (final Constructor<?> c : clazz.getDeclaredConstructors()) {
             final Constructor<T> constructor = (Constructor<T>) c;
