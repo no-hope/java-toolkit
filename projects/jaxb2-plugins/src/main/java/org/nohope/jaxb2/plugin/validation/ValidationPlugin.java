@@ -18,6 +18,7 @@ import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.jvnet.jaxb2_commons.plugin.AbstractParameterizablePlugin;
 import org.jvnet.jaxb2_commons.util.ClassUtils;
 import org.jvnet.jaxb2_commons.util.CustomizationUtils;
+import org.nohope.typetools.TStr;
 import org.w3c.dom.Element;
 import org.w3c.dom.NamedNodeMap;
 import org.w3c.dom.Node;
@@ -114,14 +115,40 @@ public class ValidationPlugin extends AbstractParameterizablePlugin {
         return e;
     }
 
+    private static Element validateValidatorElement(final Element e,
+                                                    final ErrorHandler errorHandler,
+                                                    final CCustomizable customizable) {
+        final NamedNodeMap attributes = e.getAttributes();
+        for (int i = 0; i < attributes.getLength(); i++) {
+            final Node item = attributes.item(i);
+            final String name = item.getNodeName();
+            if (!VALIDATOR_ATTRIBUTE_CLASS.equals(name)
+                && !VALIDATOR_ATTRIBUTE_CONTEXT.equals(name)
+                && !name.startsWith("xmlns:")) {
+                throw fatal("validator element contains unknown '" + name + "' attribute", errorHandler, customizable);
+            }
+        }
+
+        if (TStr.isEmpty(e.getAttribute(VALIDATOR_ATTRIBUTE_CLASS))
+            || TStr.isEmpty(e.getAttribute(VALIDATOR_ATTRIBUTE_CONTEXT))) {
+            throw fatal("validator element contains empty '"
+                        + VALIDATOR_ATTRIBUTE_CLASS
+                        + "' or '"
+                        + VALIDATOR_ATTRIBUTE_CONTEXT
+                        + "' attribute", errorHandler, customizable);
+        }
+
+        return e;
+    }
+
     private void addValidator(final Element validationNode,
                               final CClassInfo info,
                               final ErrorHandler errorHandler,
                               final CCustomizable locator) {
 
         final Map.Entry<String, String> pair = new ImmutablePair<>(
-                validationNode.getAttribute("class"),
-                validationNode.getAttribute("context"));
+                validationNode.getAttribute(VALIDATOR_ATTRIBUTE_CLASS),
+                validationNode.getAttribute(VALIDATOR_ATTRIBUTE_CONTEXT));
 
         final Map.Entry<String, String> old = validatorsMapping.put(info.getName(), pair);
         if (old != null) {
@@ -192,7 +219,7 @@ public class ValidationPlugin extends AbstractParameterizablePlugin {
         }
 
         // TODO: test class attribute exists
-        return validators.iterator().next();
+        return validateValidatorElement(validators.iterator().next(), errorHandler, locator);
     }
 
     @Override

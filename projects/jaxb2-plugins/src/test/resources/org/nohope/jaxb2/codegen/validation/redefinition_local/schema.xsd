@@ -13,7 +13,7 @@
             <validation:bindings>
                 <validation:bind type="complexObjectTypeX1">
                     <validation:validator class="org.nohope.jaxb2.plugin.validation.IsEmptyValidator"
-                                          context="java.lang.String"/>
+                                          context="java.lang.String" />
                 </validation:bind>
             </validation:bindings>
         </xs:appinfo>
@@ -25,7 +25,7 @@
             <xs:appinfo>
                 <validation:bind>
                     <validation:validator class="org.nohope.jaxb2.plugin.validation.IsEmptyValidator"
-                                          context="java.lang.String"/>
+                                          context="java.lang.String" />
                 </validation:bind>
             </xs:appinfo>
         </xs:annotation>

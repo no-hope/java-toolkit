@@ -12,8 +12,8 @@ import static org.junit.Assert.assertNotNull;
  * @since 2013-10-16 14:09
  */
 @RunWith(InstanceTestClassRunner.class)
-public class ValidatorPluginTest extends Jaxb2PluginTestSupport {
-    public ValidatorPluginTest() {
+public class ValidationPluginTest extends Jaxb2PluginTestSupport {
+    public ValidationPluginTest() {
         super("validation", "org/nohope/jaxb2/codegen/validation/correct");
     }
 
