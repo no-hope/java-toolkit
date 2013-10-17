@@ -12,10 +12,12 @@
             <jaxb:globalBindings choiceContentProperty="true" />
             <validation:bindings>
                 <validation:bind type="complexObjectTypeX1">
-                    <validation:validator class="org.nohope.jaxb2.plugin.validation.IsEmptyValidator" />
+                    <validation:validator class="org.nohope.jaxb2.plugin.validation.IsEmptyValidator"
+                                          context="java.lang.String"/>
                 </validation:bind>
                 <validation:bind type="complexObjectTypeX1">
-                    <validation:validator class="org.nohope.jaxb2.plugin.validation.IsEmptyValidator" />
+                    <validation:validator class="org.nohope.jaxb2.plugin.validation.IsEmptyValidator"
+                                          context="java.lang.String"/>
                 </validation:bind>
             </validation:bindings>
         </xs:appinfo>

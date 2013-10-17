@@ -1,5 +1,6 @@
 package org.nohope.jaxb2.plugin.validation;
 
+import com.sun.codemodel.JClass;
 import com.sun.codemodel.JCodeModel;
 import com.sun.codemodel.JDefinedClass;
 import com.sun.codemodel.JExpr;
@@ -13,11 +14,10 @@ import com.sun.tools.xjc.model.CPluginCustomization;
 import com.sun.tools.xjc.model.Model;
 import com.sun.tools.xjc.outline.ClassOutline;
 import com.sun.tools.xjc.outline.Outline;
+import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.jvnet.jaxb2_commons.plugin.AbstractParameterizablePlugin;
 import org.jvnet.jaxb2_commons.util.ClassUtils;
 import org.jvnet.jaxb2_commons.util.CustomizationUtils;
-import org.nohope.IMatcher;
-import org.nohope.reflection.IntrospectionUtils;
 import org.w3c.dom.Element;
 import org.w3c.dom.NamedNodeMap;
 import org.w3c.dom.Node;
@@ -29,8 +29,6 @@ import org.xml.sax.SAXParseException;
 
 import javax.annotation.Nonnull;
 import javax.xml.namespace.QName;
-import java.lang.reflect.Constructor;
-import java.lang.reflect.InvocationTargetException;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
@@ -38,17 +36,14 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
-import static org.nohope.jaxb2.plugin.validation.Customizations.BIND_COMPLEX_TYPE;
-import static org.nohope.jaxb2.plugin.validation.Customizations.NAMESPACE_URI;
-import static org.nohope.jaxb2.plugin.validation.Customizations.VALIDATOR;
-import static org.nohope.reflection.ModifierMatcher.*;
+import static org.nohope.jaxb2.plugin.validation.Customizations.*;
 
 /**
  * @author <a href="mailto:ketoth.xupack@gmail.com">Ketoth Xupack</a>
  * @since 2013-10-16 12:13
  */
 public class ValidationPlugin extends AbstractParameterizablePlugin {
-    private final Map<String, StaticValidator> validatorsMapping = new HashMap<>();
+    private final Map<String, Map.Entry<String, String>> validatorsMapping = new HashMap<>();
 
     @Override
     public String getOptionName() {
@@ -77,7 +72,7 @@ public class ValidationPlugin extends AbstractParameterizablePlugin {
                     final String complexType = element.getAttribute(BIND_COMPLEX_TYPE);
                     final CClassInfo info = getComplexTypeByName(complexType, model, errorHandler);
                     final Element validationNode = getValidationNode(element, errorHandler, model);
-                    addValidator(reflectValidator(validationNode, errorHandler, model), info, errorHandler, model);
+                    addValidator(validationNode, info, errorHandler, model);
                 }
             }
         }
@@ -92,7 +87,7 @@ public class ValidationPlugin extends AbstractParameterizablePlugin {
 
                 final Element element = validateBindElement(customization.element, false, errorHandler, classInfo);
                 final Element validationNode = getValidationNode(element, errorHandler, classInfo);
-                addValidator(reflectValidator(validationNode, errorHandler, model), classInfo, errorHandler, model);
+                addValidator(validationNode, classInfo, errorHandler, model);
             }
         }
     }
@@ -119,11 +114,16 @@ public class ValidationPlugin extends AbstractParameterizablePlugin {
         return e;
     }
 
-    private void addValidator(final StaticValidator validator,
+    private void addValidator(final Element validationNode,
                               final CClassInfo info,
                               final ErrorHandler errorHandler,
                               final CCustomizable locator) {
-        final StaticValidator old = validatorsMapping.put(info.getName(), validator);
+
+        final Map.Entry<String, String> pair = new ImmutablePair<>(
+                validationNode.getAttribute("class"),
+                validationNode.getAttribute("context"));
+
+        final Map.Entry<String, String> old = validatorsMapping.put(info.getName(), pair);
         if (old != null) {
             throw fatal("Too many bindings found for xsd type " + info.getTypeName().getLocalPart(),
                     errorHandler, locator);
@@ -150,73 +150,6 @@ public class ValidationPlugin extends AbstractParameterizablePlugin {
         }
 
         return collected.iterator().next();
-    }
-
-    @SuppressWarnings("unchecked")
-    public static StaticValidator reflectValidator(final Element node,
-                                                   final ErrorHandler errorHandler,
-                                                   final CCustomizable locator) {
-
-        final String validatorFQDN = node.getAttribute("class");
-        try {
-            final Class<?> clazz = Class.forName(validatorFQDN);
-            if (!IntrospectionUtils.instanceOf(clazz, StaticValidator.class)) {
-                throw fatal("Validator "
-                            + validatorFQDN
-                            + " must implement "
-                            + StaticValidator.class.getCanonicalName()
-                            + " interface",
-                        errorHandler, locator);
-            }
-
-            final Class<? extends StaticValidator> validatorClass =
-                    (Class<? extends StaticValidator>) clazz;
-
-            final Set<Constructor<? extends StaticValidator>> constructors =
-                    IntrospectionUtils.searchConstructors(validatorClass,
-                            new IMatcher<Constructor<? extends StaticValidator>>() {
-                                @Override
-                                public boolean matches(final Constructor<? extends StaticValidator> obj) {
-                                    return obj.getTypeParameters().length == 0
-                                           && PUBLIC.matches(obj.getModifiers());
-                                }
-                            });
-
-            if (constructors.size() != 1) {
-                throw fatal("No public default constructor found for validator " + validatorFQDN,
-                        errorHandler, locator);
-            }
-
-            final StaticValidator validatorObject = constructors.iterator().next().newInstance();
-            final Class contextClass = validatorObject.getContextClass().getTypeClass();
-            if (contextClass.isLocalClass() || or(STATIC, ABSTRACT).matches(contextClass.getModifiers())) {
-                throw fatal("Validation context "
-                            + contextClass.getCanonicalName()
-                            + " defined in "
-                            + validatorFQDN
-                            + " must be public and non-local",
-                        errorHandler, locator);
-            }
-
-            return validatorObject;
-        } catch (ClassNotFoundException e) {
-            throw fatal("unable to locate validator " + validatorFQDN, e, errorHandler, locator);
-        } catch (InvocationTargetException | InstantiationException | IllegalAccessException e) {
-            throw fatal("unable to instantiate validator " + validatorFQDN, e, errorHandler, locator);
-        }
-    }
-
-    private static RuntimeException fatal(final String message,
-                                          final Exception ex,
-                                          final ErrorHandler errorHandler,
-                                          final CCustomizable locator) {
-        try {
-            final SAXParseException exception = new SAXParseException(message, locator.getLocator(), ex);
-            errorHandler.fatalError(exception);
-            return new IllegalStateException(exception);
-        } catch (final SAXException e) {
-            return new IllegalStateException(e);
-        }
     }
 
     private static RuntimeException fatal(final String message,
@@ -268,23 +201,20 @@ public class ValidationPlugin extends AbstractParameterizablePlugin {
         for (final ClassOutline classOutline : outline.getClasses()) {
             final JDefinedClass impl = classOutline.implClass;
             final String className = impl.binaryName();
+            final JCodeModel model = impl.owner();
             if (validatorsMapping.containsKey(className)) {
-                final StaticValidator validator = validatorsMapping.get(className);
+                final Map.Entry<String, String> pair = validatorsMapping.get(className);
 
-                final Class contextClass = validator.getContextClass().getTypeClass();
-                final JCodeModel model = impl.owner();
-                ClassUtils._implements(impl, model.ref(Validateable.class).narrow(model.ref(contextClass)));
+                final JClass validatorRef = model.ref(pair.getKey());
+                final JClass contextRef = model.ref(pair.getValue());
 
+                ClassUtils._implements(impl, model.ref(Validateable.class).narrow(contextRef));
                 final JMethod validate = impl.method(JMod.PUBLIC, void.class, "validate");
                 validate._throws(ValidationException.class);
                 validate.annotate(Override.class);
 
-                final JVar context = validate.param(JMod.FINAL, contextClass, "context");
-                validate.body()
-                        .add(JExpr._new(
-                                model.ref(validator.getClass())
-                        ).invoke("validate").arg(context).arg(JExpr._this())
-                );
+                final JVar context = validate.param(JMod.FINAL, contextRef, "context");
+                validate.body().add(JExpr._new(validatorRef).invoke("validate").arg(context).arg(JExpr._this()));
             }
         }
 
