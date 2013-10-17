@@ -22,7 +22,7 @@ public class MetadataPluginTest extends Jaxb2PluginTestSupport {
     public MetadataPluginTest() {
         super("metadata",
               "src/test/resources/org/nohope/jaxb2/codegen/metadata",
-               "org/nohope/jaxb_codegen/metadata");
+               "org/nohope/jaxb_codegen/metadata", new String[0]);
     }
 
     @Test

@@ -17,7 +17,6 @@ import com.sun.tools.xjc.outline.Outline;
 import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.jvnet.jaxb2_commons.plugin.AbstractParameterizablePlugin;
 import org.jvnet.jaxb2_commons.util.ClassUtils;
-import org.jvnet.jaxb2_commons.util.CustomizationUtils;
 import org.nohope.typetools.TStr;
 import org.w3c.dom.Element;
 import org.w3c.dom.NamedNodeMap;
@@ -37,6 +36,8 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
+import static org.jvnet.jaxb2_commons.util.CustomizationUtils.containsCustomization;
+import static org.jvnet.jaxb2_commons.util.CustomizationUtils.findCustomization;
 import static org.nohope.jaxb2.plugin.validation.Customizations.*;
 
 /**
@@ -56,15 +57,14 @@ public class ValidationPlugin extends AbstractParameterizablePlugin {
         return "TBD";
     }
 
+
+
     @Override
-    public void postProcessModel(final Model model,
-                                 final ErrorHandler errorHandler) {
-        final boolean containsModelLevel =
-                CustomizationUtils.containsCustomization(model, Customizations.BINDINGS);
+    public void postProcessModel(final Model model, final ErrorHandler errorHandler) {
+        final boolean containsModelLevel = containsCustomization(model, BINDINGS);
 
         if (containsModelLevel) {
-            final CPluginCustomization customization =
-                    CustomizationUtils.findCustomization(model, Customizations.BINDINGS);
+            final CPluginCustomization customization = findCustomization(model, BINDINGS);
             final NodeList childNodes = customization.element.getChildNodes();
             for (int i = 0; i < childNodes.getLength(); i++) {
                 final Node item = childNodes.item(i);
@@ -79,13 +79,10 @@ public class ValidationPlugin extends AbstractParameterizablePlugin {
         }
 
         for (final CClassInfo classInfo : model.beans().values()) {
-            final boolean containsClassLevel =
-                    CustomizationUtils.containsCustomization(classInfo, Customizations.BIND);
+            final boolean containsClassLevel = containsCustomization(classInfo, BIND);
 
             if (containsClassLevel) {
-                final CPluginCustomization customization =
-                        CustomizationUtils.findCustomization(classInfo, Customizations.BIND);
-
+                final CPluginCustomization customization = findCustomization(classInfo, BIND);
                 final Element element = validateBindElement(customization.element, false, errorHandler, classInfo);
                 final Element validationNode = getValidationNode(element, errorHandler, classInfo);
                 addValidator(validationNode, classInfo, errorHandler, model);
@@ -250,8 +247,6 @@ public class ValidationPlugin extends AbstractParameterizablePlugin {
 
     @Override
     public Collection<QName> getCustomizationElementNames() {
-        return Arrays.asList(Customizations.BINDINGS,
-                Customizations.BIND,
-                VALIDATOR);
+        return Arrays.asList(BINDINGS, BIND, VALIDATOR);
     }
 }

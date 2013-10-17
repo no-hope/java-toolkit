@@ -2,6 +2,7 @@ package org.nohope.jaxb2.plugin;
 
 import org.junit.Test;
 import org.jvnet.jaxb2.maven2.AbstractXJC2Mojo;
+import org.jvnet.jaxb2.maven2.ResourceEntry;
 import org.nohope.ITranslator;
 import org.nohope.logging.Logger;
 import org.nohope.logging.LoggerFactory;
@@ -34,6 +35,8 @@ import static org.junit.Assert.assertNotNull;
 public abstract class Jaxb2PluginTestSupport implements InstanceTestSetupListener {
     static final Logger LOG = LoggerFactory.getLogger("jaxb2-testing");
     private static final Slf4jToMavenLogAdapter MVN_LOGGER = new Slf4jToMavenLogAdapter(LOG);
+    private static final String TEST_RESOURCES_PATH = "src/test/resources/";
+
 
     //static {
     //    System.setProperty("javax.xml.accessExternalStylesheet", "all");
@@ -44,32 +47,38 @@ public abstract class Jaxb2PluginTestSupport implements InstanceTestSetupListene
     private final String arg;
     private final String resources;
     private final String classpath;
+    private final List<String> bindings = new ArrayList<>();
 
     public Jaxb2PluginTestSupport(final String arg,
                                   final String resources,
-                                  final String classpath) {
+                                  final String classpath,
+                                  final String... bindings) {
         this.arg = arg;
         this.resources = resources;
         this.classpath = classpath;
+        this.bindings.addAll(Arrays.asList(bindings));
     }
 
     public Jaxb2PluginTestSupport(final String arg,
-                                  final String resources) {
+                                  final String resources,
+                                  final String... bindings) {
         this.arg = arg;
-        this.resources = "src/test/resources/" + resources;
+
+        this.resources = TEST_RESOURCES_PATH + resources;
         this.classpath = null;
+        this.bindings.addAll(Arrays.asList(bindings));
     }
 
     private String getClasspath() {
         return classpath != null
                 ? classpath
-                : resources.replace("src/test/resources/", "").replace("/", ".");
+                : resources.replace(TEST_RESOURCES_PATH, "").replace("/", ".");
     }
 
     private String getClasspathPath() {
         return classpath != null
                 ? classpath
-                : resources.replace("src/test/resources/", "");
+                : resources.replace(TEST_RESOURCES_PATH, "");
     }
 
     @Override
@@ -208,6 +217,16 @@ public abstract class Jaxb2PluginTestSupport implements InstanceTestSetupListene
                 mojo.setVerbose(true);
                 mojo.setDebug(true);
             }
+
+            if (!bindings.isEmpty()) {
+                final List<ResourceEntry> entries = new ArrayList<>();
+                for (final String binding : bindings) {
+                    final ResourceEntry entry = new ResourceEntry();
+                    entry.setUrl("file://" + getBaseDir().getAbsolutePath() + "/" + resources + "/" + binding);
+                    entries.add(entry);
+                }
+                mojo.setBindings(entries.toArray(new ResourceEntry[entries.size()]));
+            }
         }
 
         @Override
@@ -216,7 +235,6 @@ public abstract class Jaxb2PluginTestSupport implements InstanceTestSetupListene
             args.add("-X" + arg);
             return args;
         }
-
     }
 
     protected void validateBuildFailure(final Exception e) throws Exception {
