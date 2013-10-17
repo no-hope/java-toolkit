@@ -3,6 +3,8 @@ package org.nohope.jaxb2.plugin;
 import org.junit.Test;
 import org.jvnet.jaxb2.maven2.AbstractXJC2Mojo;
 import org.nohope.ITranslator;
+import org.nohope.logging.Logger;
+import org.nohope.logging.LoggerFactory;
 import org.nohope.test.ResourceUtils;
 import org.nohope.test.runner.InstanceTestSetupListener;
 import org.nohope.typetools.collection.CollectionUtils;
@@ -30,6 +32,9 @@ import static org.junit.Assert.assertNotNull;
  * @since 2013-10-16 14:50
  */
 public abstract class Jaxb2PluginTestSupport implements InstanceTestSetupListener {
+    static final Logger LOG = LoggerFactory.getLogger("jaxb2-testing");
+    private static final Slf4jToMavenLogAdapter MVN_LOGGER = new Slf4jToMavenLogAdapter(LOG);
+
     //static {
     //    System.setProperty("javax.xml.accessExternalStylesheet", "all");
     //    System.setProperty("javax.xml.accessExternalSchema", "all");
@@ -194,8 +199,17 @@ public abstract class Jaxb2PluginTestSupport implements InstanceTestSetupListene
             mojo.setForceRegenerate(true);
             mojo.setAddCompileSourceRoot(true);
             mojo.setExtension(true);
+            mojo.setLog(MVN_LOGGER);
+
             if (classpath == null) {
                 mojo.setGeneratePackage(getClasspath());
+            }
+
+            mojo.setVerbose(false);
+            mojo.setDebug(false);
+            if (LOG.isDebugEnabled()) {
+                mojo.setVerbose(true);
+                mojo.setDebug(true);
             }
         }
 
@@ -205,9 +219,11 @@ public abstract class Jaxb2PluginTestSupport implements InstanceTestSetupListene
             args.add("-X" + arg);
             return args;
         }
+
     }
 
     protected boolean validateBuildFailure(final Throwable e) throws Exception {
         return false;
     }
+
 }
