@@ -76,12 +76,9 @@ public abstract class Jaxb2PluginTestSupport implements InstanceTestSetupListene
     public void beforeClassSetup() throws Exception {
         try {
             new RunMetadataPlugin().testExecute();
-        } catch (final Throwable e) {
-            if (!validateBuildFailure(e)) {
-                throw e;
-            } else {
-                return;
-            }
+        } catch (final Exception e) {
+            validateBuildFailure(e);
+            return;
         }
 
         final JavaCompiler compiler = ToolProvider.getSystemJavaCompiler();
@@ -222,8 +219,28 @@ public abstract class Jaxb2PluginTestSupport implements InstanceTestSetupListene
 
     }
 
-    protected boolean validateBuildFailure(final Throwable e) throws Exception {
-        return false;
+    protected void validateBuildFailure(final Exception e) throws Exception {
+        throw e;
     }
 
+    public static void assertBuildFailure(final String arg,
+                                          final String resources,
+                                          final BuildFailureValidator validator) {
+        final Jaxb2PluginTestSupport support = new Jaxb2PluginTestSupport(arg, resources) {
+            @Override
+            protected void validateBuildFailure(final Exception e) throws Exception {
+                validator.validate(e);
+            }
+        };
+
+        try {
+            support.beforeClassSetup();
+        } catch (final Exception e) {
+            throw new AssertionError(e);
+        }
+    }
+
+    public interface BuildFailureValidator {
+        void validate(final Exception e);
+    }
 }
