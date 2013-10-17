@@ -104,6 +104,7 @@ public class MetadataPlugin extends AbstractParameterizablePlugin {
 
         constructor2.body().invoke("super").arg(thisTypeRef).arg(chain);
 
+        // FIXME: iterate over fields
         for (final JMethod method : theClass.methods()) {
             final String name = method.name();
 
