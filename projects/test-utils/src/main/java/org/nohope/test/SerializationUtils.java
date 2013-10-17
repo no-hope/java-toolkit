@@ -79,7 +79,7 @@ public final class SerializationUtils {
     @SuppressWarnings("unchecked")
     public static <T> T cloneJson(@Nonnull final ObjectMapper mapper, final T object) {
         final String marshalled = toJSON(mapper, object);
-        LOG.debug("marshaled value {}", marshalled);
+        LOG.trace("marshaled value {}", marshalled);
         return (T) fromJSON(mapper, marshalled, object.getClass());
     }
 
