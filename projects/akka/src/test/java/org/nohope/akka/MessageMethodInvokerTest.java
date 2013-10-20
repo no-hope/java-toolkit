@@ -43,6 +43,13 @@ public class MessageMethodInvokerTest extends UtilitiesTestSupport {
         MessageMethodInvoker.invokeOnReceive(this, 100);
         assertTrue(MessageMethodInvoker.CACHE.containsKey(
                 SignaturePair.of(new Class<?>[]{Integer.class}, MessageMethodInvokerTest.class)));
+
+        final SignaturePair p1 = SignaturePair.of(new Class<?>[]{Integer.class}, MessageMethodInvokerTest.class);
+        final SignaturePair p2 = SignaturePair.of(new Class<?>[]{Integer.class}, MessageMethodInvokerTest.class);
+        assertEquals(p1, p2);
+        assertEquals(p1, p1);
+        assertNotEquals(p1, "");
+        assertFalse(p1.equals(null));
     }
 
     @Test
