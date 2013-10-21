@@ -1,6 +1,7 @@
 package org.nohope.typetools.json;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.jsonschema.JsonSchema;
 import org.junit.Test;
 
 import java.awt.*;
@@ -26,6 +27,9 @@ public class ColorModuleTest {
 
         assertEquals(color, c);
         assertEquals(color.getAlpha(), c.getAlpha());
+
+        final JsonSchema jsonSchema = usualMapper.generateJsonSchema(Color.class);
+        assertEquals("{\"type\":\"array\"}", jsonSchema.toString());
     }
 
     @Test
