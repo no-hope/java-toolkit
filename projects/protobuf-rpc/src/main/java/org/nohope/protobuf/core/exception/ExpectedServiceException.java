@@ -69,9 +69,8 @@ public class ExpectedServiceException extends ServiceException {
             }
 
             for (final Entry<GeneratedExtension<Error, List<Object>>, List<?>> e : listExtensions.entrySet()) {
-                int i = 0;
                 for (final Object o : e.getValue()) {
-                    builder.setExtension(e.getKey(), i++, o);
+                    builder.addExtension(e.getKey(), o);
                 }
             }
 

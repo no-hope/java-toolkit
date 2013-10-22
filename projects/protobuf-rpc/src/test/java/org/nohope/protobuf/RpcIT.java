@@ -50,17 +50,17 @@ public class RpcIT {
 
         final BlockingRpcChannel channel = client.connect();
         final BlockingInterface stub = TestService.Service.newBlockingStub(channel);
-        final RpcController controller = new Controller();
 
         try {
-            final TestService.Pong pong = stub.ping(controller, TestService.Ping.newBuilder().setData("test").build());
+            final TestService.Pong pong = stub.ping(new Controller(),
+                    TestService.Ping.newBuilder().setData("test").build());
             assertEquals("test", pong.getData());
         } catch (final ServiceException e) {
             fail(e.getMessage());
         }
 
         try {
-            stub.ping(controller, TestService.Ping.newBuilder().setData("fail").build());
+            stub.ping(null, TestService.Ping.newBuilder().setData("fail").build());
             fail();
         } catch (final DetailedExpectedException e) {
             assertEquals(TEST_ERROR, e.getDetailedReason(detailedResason));
@@ -69,7 +69,7 @@ public class RpcIT {
         }
 
         try {
-            stub.ping(controller, TestService.Ping.newBuilder().setData("timeout").build());
+            stub.ping(null, TestService.Ping.newBuilder().setData("timeout").build());
             fail();
         } catch (final RpcTimeoutException e) {
             assertNotNull(e.getCause());
@@ -86,7 +86,7 @@ public class RpcIT {
         }
 
         try {
-            stub.ping(controller, TestService.Ping.newBuilder().setData("test").build());
+            stub.ping(null, TestService.Ping.newBuilder().setData("test").build());
             fail();
         } catch (final ServiceException e) {
             assertTrue(e instanceof DetailedExpectedException);

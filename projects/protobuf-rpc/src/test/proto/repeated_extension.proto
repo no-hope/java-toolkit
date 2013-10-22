@@ -1,0 +1,16 @@
+/* Simple Counters API. */
+package protocol;
+import "rpc.proto";
+
+option java_package = "org.nohope.protocol";
+option java_outer_classname = "Repeated";
+
+enum TestEnum {
+    KIND1 = 0;
+    KIND2 = 0;
+    KIND3 = 0;
+}
+
+extend protocol.Error {
+    repeated TestEnum enum_extension = 11;
+}

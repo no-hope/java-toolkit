@@ -50,20 +50,24 @@ class RpcChannelImpl implements RpcChannel, BlockingRpcChannel {
         }
     }
 
-    public static RpcController newRpcController() {
+    public static Controller newRpcController() {
         return new Controller();
     }
 
     @Override
     public Message callBlockingMethod(final MethodDescriptor method,
-                                      @Nonnull final RpcController originController,
+                                      final RpcController originController,
                                       final Message request,
                                       final Message responsePrototype) throws ServiceException {
-        if (!(originController instanceof Controller)) {
-            throw new IllegalArgumentException("Invalid controller type. You should RpcChannelImpl.newRpcController()");
+        final Controller controller;
+        if (originController == null) {
+            controller = newRpcController();
+        } else {
+            if (!(originController instanceof Controller)) {
+                throw new IllegalArgumentException("Invalid controller type. You should RpcChannelImpl.newRpcController()");
+            }
+            controller = (Controller) originController;
         }
-
-        final Controller controller = (Controller) originController;
 
         final BlockingRpcCallback callback = new BlockingRpcCallback();
         final ResponsePrototypeRpcCallback rpcCallback =
@@ -131,7 +135,7 @@ class RpcChannelImpl implements RpcChannel, BlockingRpcChannel {
                            final Message request,
                            final Message responsePrototype,
                            final RpcCallback<Message> done) {
-        throw new NoSuchMethodError("TBD");
+        throw new UnsupportedOperationException("TBD");
     }
 
     static class ResponsePrototypeRpcCallback implements RpcCallback<RPC.RpcResponse> {
@@ -153,11 +157,11 @@ class RpcChannelImpl implements RpcChannel, BlockingRpcChannel {
         @Override
         public void run(final RPC.RpcResponse message) {
             rpcResponse = message;
-
             if (message == null) {
                 callback.run(null);
                 return;
             }
+
             if (message.hasError()) {
                 controller.setError(message.getError());
                 callback.run(message);
@@ -207,7 +211,5 @@ class RpcChannelImpl implements RpcChannel, BlockingRpcChannel {
         public boolean isDone() {
             return done;
         }
-
     }
-
 }
