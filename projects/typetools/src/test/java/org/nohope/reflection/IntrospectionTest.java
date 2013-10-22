@@ -19,6 +19,7 @@ import static org.easymock.EasyMock.expect;
 import static org.junit.Assert.*;
 import static org.nohope.reflection.IntrospectionUtils.*;
 import static org.nohope.reflection.ModifierMatcher.*;
+import static org.nohope.Matchers.*;
 
 /**
  * @author <a href="mailto:ketoth.xupack@gmail.com">ketoth xupack</a>

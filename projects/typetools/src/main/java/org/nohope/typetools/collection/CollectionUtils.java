@@ -34,6 +34,17 @@ public final class CollectionUtils {
         return target;
     }
 
+    public static <K, V, O> Map<K, V> toExtendedMap(final Map<K, V> target,
+                                                    final Collection<O> collection,
+                                                    final ITranslator<O, Map.Entry<K, V>> translator) {
+        for (final O value : collection) {
+            final Map.Entry<K, V> entry = translator.translate(value);
+            target.put(entry.getKey(), entry.getValue());
+        }
+
+        return target;
+    }
+
     public static <K, V, C extends Collection<K>> C
             toCollection(final C target,
                          final Collection<V> collection,

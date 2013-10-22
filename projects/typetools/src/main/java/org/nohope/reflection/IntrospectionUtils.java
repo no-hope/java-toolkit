@@ -12,6 +12,7 @@ import java.security.PrivilegedAction;
 import java.util.*;
 
 import static org.nohope.reflection.ModifierMatcher.*;
+import static org.nohope.Matchers.*;
 
 //import static java.lang.reflect.Modifier.PUBLIC;
 
@@ -189,10 +190,10 @@ public final class IntrospectionUtils {
      * @throws IllegalAccessException    on on attempt to invoke
      *                                   protected/private method
      *
-     * @see #searchMethod(Object, IModifierMatcher, String, Class[])
+     * @see #searchMethod(Object, IMatcher, String, Class[])
      */
     public static Object invoke(@Nonnull final Object instance,
-                                final IModifierMatcher matcher,
+                                final IMatcher<Integer> matcher,
                                 final String methodName,
                                 final Object... args)
             throws NoSuchMethodException, InvocationTargetException,
@@ -483,7 +484,7 @@ public final class IntrospectionUtils {
      * @return constructor compatible with given signature
      * @throws NoSuchMethodException if no or more than one method found
      *
-     * @see #searchMethod(Object, IModifierMatcher, String, Class[])
+     * @see #searchMethod(Object, IMatcher, String, Class[])
      */
     public static Method searchMethod(final Object instance,
                                       final String methodName,
@@ -511,7 +512,7 @@ public final class IntrospectionUtils {
      * @throws NoSuchMethodException if no or more than one method found
      */
     public static Method searchMethod(final Object instance,
-                                      final IModifierMatcher matcher,
+                                      final IMatcher<Integer> matcher,
                                       final String methodName,
                                       final Class... signature)
             throws NoSuchMethodException {
@@ -1127,7 +1128,7 @@ public final class IntrospectionUtils {
                                                final Class type,
                                                final String methodName,
                                                final Class[] signature,
-                                               final IModifierMatcher matcher) {
+                                               final IMatcher<Integer> matcher) {
         return new NoSuchMethodException(String.format(message,
                 type.getCanonicalName(), methodName,
                 TStr.join(getClassNames(signature)), matcher));
@@ -1144,7 +1145,7 @@ public final class IntrospectionUtils {
     private static NoSuchMethodException tooMuch(
             final Class type, final String methodName,
             final Class[] signature,
-            final IModifierMatcher matcher) {
+            final IMatcher<Integer> matcher) {
         return abort("More than one method %s#%s found conforms signature [%s] and matcher %s",
                 type, methodName, signature, matcher);
     }
@@ -1159,7 +1160,7 @@ public final class IntrospectionUtils {
      */
     private static NoSuchMethodException notFound(
             final Class type, final String methodName,
-            final Class[] signature, final IModifierMatcher matcher) {
+            final Class[] signature, final IMatcher<Integer> matcher) {
         return abort("No methods %s#%s found to conform signature [%s] and matcher %s",
                 type, methodName, signature, matcher);
     }

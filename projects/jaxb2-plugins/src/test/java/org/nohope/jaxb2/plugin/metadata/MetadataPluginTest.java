@@ -12,6 +12,7 @@ import static org.junit.Assert.*;
 import static org.nohope.reflection.IntrospectionUtils.instanceOf;
 import static org.nohope.reflection.IntrospectionUtils.invoke;
 import static org.nohope.reflection.ModifierMatcher.*;
+import static org.nohope.Matchers.*;
 
 /**
  * @author <a href="mailto:ketoth.xupack@gmail.com">Ketoth Xupack</a>
