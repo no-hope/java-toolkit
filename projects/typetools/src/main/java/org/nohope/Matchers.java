@@ -1,5 +1,6 @@
 package org.nohope;
 
+import org.apache.commons.lang3.ObjectUtils;
 import org.nohope.typetools.TStr;
 
 import javax.annotation.Nonnull;
@@ -68,5 +69,22 @@ public class Matchers {
                 return "!" + matcher;
             }
         };
+    }
+
+    public static <T> IMatcher<T> eq(final T obj) {
+        return new EqualsMatcher<>(obj);
+    }
+
+    public static class EqualsMatcher<T> implements IMatcher<T> {
+        private final T obj;
+
+        public EqualsMatcher(final T obj) {
+            this.obj = obj;
+        }
+
+        @Override
+        public boolean matches(final T obj) {
+            return ObjectUtils.equals(this.obj, obj);
+        }
     }
 }
