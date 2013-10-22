@@ -17,6 +17,15 @@ import java.util.TimeZone;
  */
 public final class TTime {
     public static final String UTC_ID = "UTC";
+    private static final DatatypeFactory datatypeFactory;
+
+    static {
+        try {
+            datatypeFactory = DatatypeFactory.newInstance();
+        } catch (DatatypeConfigurationException e) {
+            throw new RuntimeException(e);
+        }
+    }
 
     private TTime() {
     }
@@ -62,11 +71,6 @@ public final class TTime {
         final GregorianCalendar calendar = new GregorianCalendar();
         calendar.setTimeZone(TimeZone.getTimeZone(timezoneId));
         calendar.setTime(date);
-
-        try {
-            return DatatypeFactory.newInstance().newXMLGregorianCalendar(calendar);
-        } catch (DatatypeConfigurationException e) {
-            throw new IllegalStateException(e);
-        }
+        return datatypeFactory.newXMLGregorianCalendar(calendar);
     }
 }
