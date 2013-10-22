@@ -3,8 +3,12 @@ package org.nohope.typetools;
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeZone;
 import org.joda.time.Period;
+import org.nohope.IMatcher;
+import org.nohope.Matchers;
 
+import javax.annotation.Nonnull;
 import javax.xml.datatype.DatatypeConfigurationException;
+import javax.xml.datatype.DatatypeConstants;
 import javax.xml.datatype.DatatypeFactory;
 import javax.xml.datatype.XMLGregorianCalendar;
 import java.util.Date;
@@ -55,6 +59,54 @@ public final class TTime {
      */
     public static XMLGregorianCalendar toXmlUtcCalendar(final Date date) {
         return toXmlCalendar(date, UTC_ID);
+    }
+
+    private static IMatcher<Integer> matcher(final int i) {
+        return new IMatcher<Integer>() {
+            @Override
+            public boolean matches(final Integer obj) {
+                return obj == i;
+            }
+        };
+    }
+
+    public static boolean ne(@Nonnull final XMLGregorianCalendar c1,
+                             @Nonnull final XMLGregorianCalendar c2) {
+        return compare(c1, c2, Matchers.not(matcher(DatatypeConstants.EQUAL)));
+    }
+
+    public static boolean eq(@Nonnull final XMLGregorianCalendar c1,
+                             @Nonnull final XMLGregorianCalendar c2) {
+        return compare(c1, c2, matcher(DatatypeConstants.EQUAL));
+    }
+
+    public static boolean lte(@Nonnull final XMLGregorianCalendar c1,
+                              @Nonnull final XMLGregorianCalendar c2) {
+        return compare(c1, c2, Matchers.or(matcher(DatatypeConstants.LESSER), matcher(DatatypeConstants.EQUAL)));
+    }
+
+    public static boolean lt(@Nonnull final XMLGregorianCalendar c1,
+                             @Nonnull final XMLGregorianCalendar c2) {
+        return compare(c1, c2, matcher(DatatypeConstants.LESSER));
+    }
+
+    public static boolean gte(@Nonnull final XMLGregorianCalendar c1,
+                             @Nonnull final XMLGregorianCalendar c2) {
+        return compare(c1, c2, Matchers.or(
+                matcher(DatatypeConstants.GREATER),
+                matcher(DatatypeConstants.EQUAL)
+        ));
+    }
+
+    public static boolean gt(@Nonnull final XMLGregorianCalendar c1,
+                             @Nonnull final XMLGregorianCalendar c2) {
+        return compare(c1, c2, matcher(DatatypeConstants.GREATER));
+    }
+
+    public static boolean compare(@Nonnull final XMLGregorianCalendar c1,
+                                  @Nonnull final XMLGregorianCalendar c2,
+                                  @Nonnull final IMatcher<Integer> compareResultMatcher) {
+        return compareResultMatcher.matches(c1.compare(c2));
     }
 
     /** Creates {@link XMLGregorianCalendar XMLGregorianCalendar} for given date in given timezone. */
