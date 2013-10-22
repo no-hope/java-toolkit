@@ -1,5 +1,6 @@
 package org.nohope.typetools.collection;
 
+import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.junit.Test;
 import org.nohope.ITranslator;
 import org.nohope.test.UtilitiesTestSupport;
@@ -27,7 +28,7 @@ public class CollectionUtilsTest extends UtilitiesTestSupport {
 
     @Test
     public void toMap() {
-        final Map<String,Integer> map = CollectionUtils.toMap(
+        final Map<String, Integer> map = CollectionUtils.toMap(
                 new HashMap<String, Integer>(),
                 Arrays.asList(1, 2, 3),
                 new ITranslator<Integer, String>() {
@@ -41,6 +42,25 @@ public class CollectionUtilsTest extends UtilitiesTestSupport {
 
         for (final Map.Entry<String, Integer> entry : map.entrySet()) {
             assertEquals("0" + entry.getValue(), entry.getKey());
+        }
+    }
+
+    @Test
+    public void toExtendedMap() {
+        final Map<Long, Long> map = CollectionUtils.toExtendedMap(
+                new HashMap<Long, Long>(),
+                Arrays.asList(1, 2, 3),
+                new ITranslator<Integer, Map.Entry<Long, Long>>() {
+                    @Override
+                    public Map.Entry<Long, Long> translate(final Integer source) {
+                        return new ImmutablePair<>(source * 10L, source + 1L);
+                    }
+                });
+
+        assertEquals(3, map.size());
+
+        for (final Map.Entry<Long, Long> entry : map.entrySet()) {
+            assertEquals((long) entry.getKey(), 10L * (entry.getValue() - 1L));
         }
     }
 

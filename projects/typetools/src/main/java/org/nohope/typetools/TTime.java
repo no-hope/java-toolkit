@@ -109,7 +109,7 @@ public final class TTime {
         return compareResultMatcher.matches(c1.compare(c2));
     }
 
-    public static class LazyDataTypeFactorySingleton {
+    static class LazyDataTypeFactorySingleton {
         private static final DatatypeFactory datatypeFactory;
         static {
             try {

@@ -3,23 +3,27 @@ package org.nohope.reflection;
 import org.junit.AfterClass;
 import org.junit.Assert;
 import org.junit.Test;
+import org.nohope.IMatcher;
 import org.nohope.test.UtilitiesTestSupport;
 
 import java.lang.reflect.Array;
+import java.lang.reflect.Constructor;
 import java.lang.reflect.GenericArrayType;
 import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Modifier;
 import java.net.InetSocketAddress;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import static org.easymock.EasyMock.createMock;
 import static org.easymock.EasyMock.expect;
 import static org.junit.Assert.*;
+import static org.nohope.Matchers.*;
 import static org.nohope.reflection.IntrospectionUtils.*;
 import static org.nohope.reflection.ModifierMatcher.*;
-import static org.nohope.Matchers.*;
 
 /**
  * @author <a href="mailto:ketoth.xupack@gmail.com">ketoth xupack</a>
@@ -103,6 +107,25 @@ public final class IntrospectionTest extends UtilitiesTestSupport {
         for (final Class<?> primitive : getPrimitives()) {
             target = new Class[]{primitive};
             assertFalse(areTypesCompatible(target, source));
+        }
+    }
+
+    @Test
+    public void className() {
+        assertEquals(String.class.getCanonicalName(), getCanonicalClassName("123"));
+        assertNull(getCanonicalClassName(null));
+    }
+
+    @Test
+    public void wrappers() {
+        final Set<Class<?>> wrappers = new HashSet<>();
+        for (final Class<?> primitive : getPrimitives()) {
+            wrappers.add(autoBox(primitive));
+        }
+        assertEquals(wrappers, new HashSet<>(getWrappers()));
+
+        for (final Class<?> c : getWrappers()) {
+            assertFalse(c.isPrimitive());
         }
     }
 
@@ -252,6 +275,33 @@ public final class IntrospectionTest extends UtilitiesTestSupport {
         final Object result = invoke(this, PRIVATE, "method4", 3);
         assertTrue(result instanceof Integer);
         assertEquals(3, result);
+    }
+
+    @Test
+    public void genericBounds() {
+        final List<Class<?>> bounds = getAllBounds(new TypeReference<Map<String, Integer>>() {}.getType());
+        assertTrue(bounds.isEmpty());
+    }
+
+    @Test
+    public void classGetting() {
+        assertNull(IntrospectionUtils.getClass((Object) null));
+        assertEquals(String.class, IntrospectionUtils.getClass("xxx"));
+        final Object clazz = String.class;
+        assertEquals(clazz, IntrospectionUtils.getClass(clazz));
+    }
+
+    @Test
+    public void casting() {
+        final Object o = "123";
+        assertEquals(o, cast(o, String.class));
+        assertEquals(o, cast(o, TypeReference.erasure(String.class)));
+
+        try {
+            cast(o, Integer.class);
+            fail();
+        } catch (final ClassCastException ignored) {
+        }
     }
 
     @Test
@@ -418,6 +468,22 @@ public final class IntrospectionTest extends UtilitiesTestSupport {
     public void collisionMethod()
             throws Exception {
         invoke(this, "method5", 1);
+    }
+
+    @Test
+    public void constructorSearch() {
+        class A {
+            private A(int x) {
+            }
+            public A(long y) {
+            }
+        }
+        assertEquals(1, searchConstructors(A.class, new IMatcher<Constructor<? extends A>>() {
+            @Override
+            public boolean matches(final Constructor<? extends A> obj) {
+                return !Modifier.isPrivate(obj.getModifiers());
+            }
+        }).size());
     }
 
     @Test

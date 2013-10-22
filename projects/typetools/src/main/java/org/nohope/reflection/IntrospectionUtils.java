@@ -6,13 +6,31 @@ import org.nohope.typetools.TStr;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
-import java.lang.reflect.*;
+import java.lang.reflect.AccessibleObject;
+import java.lang.reflect.Array;
+import java.lang.reflect.Constructor;
+import java.lang.reflect.Field;
+import java.lang.reflect.GenericArrayType;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
+import java.lang.reflect.Modifier;
+import java.lang.reflect.ParameterizedType;
+import java.lang.reflect.Type;
+import java.lang.reflect.TypeVariable;
+import java.lang.reflect.WildcardType;
 import java.security.AccessController;
 import java.security.PrivilegedAction;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
+import static org.nohope.Matchers.and;
+import static org.nohope.Matchers.not;
 import static org.nohope.reflection.ModifierMatcher.*;
-import static org.nohope.Matchers.*;
 
 //import static java.lang.reflect.Modifier.PUBLIC;
 
@@ -957,7 +975,8 @@ public final class IntrospectionUtils {
         return null;
     }
 
-    public static Class<?>[] getAllBounds(final Type type) {
+    // TODO: tree traversal
+    public static List<Class<?>> getAllBounds(final Type type) {
         final List<Class<?>> result = new ArrayList<>();
         if (type instanceof TypeVariable) {
             final TypeVariable variable = (TypeVariable) type;
@@ -977,7 +996,7 @@ public final class IntrospectionUtils {
             }
         }
 
-        return result.toArray(new Class<?>[result.size()]);
+        return result;
     }
 
     /**
