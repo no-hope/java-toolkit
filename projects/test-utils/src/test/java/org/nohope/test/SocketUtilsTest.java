@@ -9,11 +9,11 @@ import java.net.ServerSocket;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
+import java.net.UnknownHostException;
 
 import static org.easymock.EasyMock.*;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.*;
+import static org.junit.Assume.assumeNoException;
 
 /**
  * @author <a href="mailto:ketoth.xupack@gmail.com">ketoth xupack</a>
@@ -57,6 +57,22 @@ public class SocketUtilsTest extends UtilitiesTestSupport {
         assertFalse(SocketUtils.isRemoteAddressAvailable("localhost", port));
         try (final ServerSocket ss = new ServerSocket(port)) {
             assertFalse(SocketUtils.isLocalPortAvailable(port));
+        }
+    }
+
+    @Test
+    public void localAddressChecks() {
+        final InetAddress host = SocketUtils.getLocalHost();
+        assertTrue(SocketUtils.isLocal(host));
+
+    }
+
+    @Test
+    public void remoteAddress() {
+        try {
+            assertFalse(SocketUtils.isLocal(InetAddress.getByName("8.8.8.8")));
+        } catch (UnknownHostException e) {
+            assumeNoException(e);
         }
     }
 

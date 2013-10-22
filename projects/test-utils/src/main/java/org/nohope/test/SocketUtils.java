@@ -127,7 +127,7 @@ public final class SocketUtils {
         try (final ServerSocket ss = new ServerSocket(0)) {
             return ss.getLocalPort();
         } catch (final IOException e) {
-            throw new IllegalStateException("no ports available");
+            throw new IllegalStateException("Unable to get local port: no ports available");
         }
     }
 
@@ -139,19 +139,19 @@ public final class SocketUtils {
         return getAvailableAddress(getLocalHostAddress());
     }
 
-    public static String getLocalHostAddress() {
+    public static InetAddress getLocalHost() {
         try {
-            return InetAddress.getLocalHost().getHostAddress();
-        } catch (UnknownHostException e) {
-            throw new IllegalStateException("Unable to obtain local host address");
-        }
-    }
-
-    public static String getLocalHostName() {
-        try {
-            return InetAddress.getLocalHost().getHostName();
+            return InetAddress.getLocalHost();
         } catch (UnknownHostException e) {
             throw new IllegalStateException("Unable to obtain local host name");
         }
+    }
+
+    public static String getLocalHostAddress() {
+        return getLocalHost().getHostAddress();
+    }
+
+    public static String getLocalHostName() {
+        return getLocalHost().getHostName();
     }
 }
