@@ -17,6 +17,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import static java.util.Map.Entry;
 import static org.junit.Assert.*;
 import static org.nohope.akka.Ask.waitReply;
 import static org.nohope.akka.spring.Bean.Props.*;
@@ -29,7 +30,7 @@ import static org.nohope.reflection.ModifierMatcher.*;
 public class SpringActorFactoryTest {
     @Test
     public void partialInject() throws Exception {
-        final Map<Map.Entry<GenericApplicationContext, Integer>,
+        final Map<Entry<GenericApplicationContext, Integer>,
                   SpringActorFactory<Bean>> factoryMap = new HashMap<>();
 
         {
@@ -73,7 +74,7 @@ public class SpringActorFactoryTest {
             factoryMap.put(new ImmutablePair<>(ctx, 1), factory3);
         }
 
-        for (Map.Entry<Map.Entry<GenericApplicationContext, Integer>, SpringActorFactory<Bean>> e : factoryMap.entrySet()) {
+        for (final Entry<Entry<GenericApplicationContext, Integer>, SpringActorFactory<Bean>> e : factoryMap.entrySet()) {
             final SpringActorFactory<Bean> beanFactory = e.getValue();
 
             final ActorSystem system = ActorSystem.create();
