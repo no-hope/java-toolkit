@@ -21,15 +21,6 @@ import java.util.TimeZone;
  */
 public final class TTime {
     public static final String UTC_ID = "UTC";
-    private static final DatatypeFactory datatypeFactory;
-
-    static {
-        try {
-            datatypeFactory = DatatypeFactory.newInstance();
-        } catch (DatatypeConfigurationException e) {
-            throw new RuntimeException(e);
-        }
-    }
 
     private TTime() {
     }
@@ -123,6 +114,24 @@ public final class TTime {
         final GregorianCalendar calendar = new GregorianCalendar();
         calendar.setTimeZone(TimeZone.getTimeZone(timezoneId));
         calendar.setTime(date);
-        return datatypeFactory.newXMLGregorianCalendar(calendar);
+        return LazyDataTypeFactorySingleton.getFactory().newXMLGregorianCalendar(calendar);
+    }
+
+    public static class LazyDataTypeFactorySingleton {
+        private static final DatatypeFactory datatypeFactory;
+        static {
+            try {
+                datatypeFactory = DatatypeFactory.newInstance();
+            } catch (DatatypeConfigurationException e) {
+                throw new IllegalStateException("Unable to create DataTypeFactory instance", e);
+            }
+        }
+
+        private LazyDataTypeFactorySingleton() {
+        }
+
+        public static DatatypeFactory getFactory() {
+            return LazyDataTypeFactorySingleton.datatypeFactory;
+        }
     }
 }
