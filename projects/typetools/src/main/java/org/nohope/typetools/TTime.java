@@ -43,6 +43,10 @@ public final class TTime {
         TimeZone.setDefault(TimeZone.getTimeZone(id));
     }
 
+    public static DatatypeFactory getDatatypeFactory() {
+        return LazyDataTypeFactorySingleton.getFactory();
+    }
+
     /**
      * @return {@link XMLGregorianCalendar XMLGregorianCalendar} representing current date in {@code UTC} timezone
      *
@@ -66,7 +70,7 @@ public final class TTime {
         final GregorianCalendar calendar = new GregorianCalendar();
         calendar.setTimeZone(TimeZone.getTimeZone(timezoneId));
         calendar.setTime(date);
-        return LazyDataTypeFactorySingleton.getFactory().newXMLGregorianCalendar(calendar);
+        return getDatatypeFactory().newXMLGregorianCalendar(calendar);
     }
 
     public static boolean ne(@Nonnull final XMLGregorianCalendar c1,

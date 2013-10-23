@@ -57,6 +57,7 @@ public class TTimeTest extends UtilitiesTestSupport {
     public void comparing() {
         final XMLGregorianCalendar d1 = TTime.xmlCalendarUtcNow();
         final XMLGregorianCalendar d2 = TTime.xmlCalendarUtcNow();
+        d2.add(TTime.getDatatypeFactory().newDuration(10));
 
         assertTrue(TTime.eq(d1, d1));
         assertFalse(TTime.eq(d2, d1));
