@@ -13,6 +13,7 @@ public class AsyncAppExample extends AsyncApp {
 
     @Override
     protected void onPlannedStop() {
+        super.onPlannedStop();
         LOG.debug("AsyncAppExample.onPlannedStop()");
     }
 
@@ -23,7 +24,7 @@ public class AsyncAppExample extends AsyncApp {
 
     @Override
     protected void onVMShutdown() {
+        super.onVMShutdown();
         LOG.debug("AsyncAppExample.onVMShutdown()");
     }
-
 }

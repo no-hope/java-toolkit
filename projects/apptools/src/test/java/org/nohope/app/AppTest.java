@@ -35,7 +35,7 @@ public class AppTest {
     public void asyncApp() throws Exception {
         final AsyncAppExample test = new AsyncAppExample();
 
-        new Thread(new Runnable() {
+        final Thread thread = new Thread(new Runnable() {
             @Override
             public void run() {
                 try {
@@ -45,7 +45,9 @@ public class AppTest {
                 }
                 test.stop();
             }
-        }).start();
+        });
+        thread.start();
+        thread.join();
 
         test.start();
         assertFalse(test.isStarted());
@@ -69,5 +71,15 @@ public class AppTest {
 
         test.start();
         assertFalse(test.isStarted());
+    }
+
+    @Test
+    public void hook() {
+        final App app = new App() {
+            @Override
+            protected void onStart() throws Exception {
+            }
+        };
+        app.onVMShutdown();
     }
 }
