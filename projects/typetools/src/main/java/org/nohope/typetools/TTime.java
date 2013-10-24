@@ -25,6 +25,14 @@ public final class TTime {
     private TTime() {
     }
 
+    public static DateTime utcNow() {
+        return now(UTC_ID);
+    }
+
+    public static DateTime now(final String id) {
+        return DateTime.now(DateTimeZone.forID(id));
+    }
+
     public static int deltaInSeconds(final DateTime ts1, final DateTime ts2) {
         final Period delta = new Period(ts1, ts2);
         final int deltaSec = delta.toStandardSeconds().getSeconds();
@@ -71,6 +79,36 @@ public final class TTime {
         calendar.setTimeZone(TimeZone.getTimeZone(timezoneId));
         calendar.setTime(date);
         return getDatatypeFactory().newXMLGregorianCalendar(calendar);
+    }
+
+    public static boolean ne(@Nonnull final DateTime c1,
+                             @Nonnull final DateTime c2) {
+        return !eq(c1, c2);
+    }
+
+    public static boolean eq(@Nonnull final DateTime c1,
+                             @Nonnull final DateTime c2) {
+        return c1.isEqual(c2);
+    }
+
+    public static boolean lte(@Nonnull final DateTime c1,
+                              @Nonnull final DateTime c2) {
+        return lt(c1, c2) || eq(c1, c2);
+    }
+
+    public static boolean lt(@Nonnull final DateTime c1,
+                             @Nonnull final DateTime c2) {
+        return c1.isBefore(c2);
+    }
+
+    public static boolean gte(@Nonnull final DateTime c1,
+                              @Nonnull final DateTime c2) {
+        return gt(c1, c2) || eq(c1, c2);
+    }
+
+    public static boolean gt(@Nonnull final DateTime c1,
+                             @Nonnull final DateTime c2) {
+        return c1.isAfter(c2);
     }
 
     public static boolean ne(@Nonnull final XMLGregorianCalendar c1,

@@ -2,6 +2,7 @@ package org.nohope.typetools;
 
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeZone;
+import org.joda.time.DurationFieldType;
 import org.junit.Test;
 import org.nohope.test.UtilitiesTestSupport;
 
@@ -44,7 +45,6 @@ public class TTimeTest extends UtilitiesTestSupport {
         TTime.setDefaultTimezone(timeZone01.getID());
     }
 
-
     @Test
     public void xmlCalendar() {
         final XMLGregorianCalendar now = TTime.xmlCalendarUtcNow();
@@ -83,6 +83,38 @@ public class TTimeTest extends UtilitiesTestSupport {
         assertTrue(TTime.gt(d2, d1));
         assertFalse(TTime.gt(d1, d2));
     }
+
+
+    @Test
+    public void jodaComparing() {
+        final DateTime d1 = TTime.utcNow();
+        final DateTime d2 = TTime.utcNow().withFieldAdded(DurationFieldType.millis(), 10);
+
+        assertTrue(TTime.eq(d1, d1));
+        assertFalse(TTime.eq(d2, d1));
+        assertFalse(TTime.eq(d1, d2));
+
+        assertFalse(TTime.ne(d1, d1));
+        assertTrue(TTime.ne(d2, d1));
+        assertTrue(TTime.ne(d1, d2));
+
+        assertTrue(TTime.lte(d1, d1));
+        assertTrue(TTime.lte(d1, d2));
+        assertFalse(TTime.lte(d2, d1));
+
+        assertTrue(TTime.gte(d1, d1));
+        assertTrue(TTime.gte(d2, d1));
+        assertFalse(TTime.gte(d1, d2));
+
+        assertFalse(TTime.lt(d1, d1));
+        assertFalse(TTime.lt(d2, d1));
+        assertTrue(TTime.lt(d1, d2));
+
+        assertFalse(TTime.gt(d1, d1));
+        assertTrue(TTime.gt(d2, d1));
+        assertFalse(TTime.gt(d1, d2));
+    }
+
 
     private static void assertIsUTC(final XMLGregorianCalendar c) {
         assertEquals("GMT+00:00", c.toGregorianCalendar().getTimeZone().getID());
