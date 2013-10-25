@@ -56,6 +56,7 @@
 
         <akka.version>2.2.1</akka.version>
         <akka.version.suffix>_2.10</akka.version.suffix>
+        <bson4jackson.version>2.2.3</bson4jackson.version>
         <commons-beanutils.version>1.8.3</commons-beanutils.version>
         <commons-io.version>2.4</commons-io.version>
         <commons-lang3.version>3.1</commons-lang3.version>
