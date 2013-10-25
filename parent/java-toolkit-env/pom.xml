@@ -45,8 +45,10 @@
         <maven.aspectj-plugin.version>1.5</maven.aspectj-plugin.version>
         <maven.compiler-plugin.version>3.1</maven.compiler-plugin.version>
         <maven.jar-plugin.version>2.4</maven.jar-plugin.version>
+        <maven.project-info-reports-plugin.version>2.7</maven.project-info-reports-plugin.version>
         <maven-resources-plugin.version>2.6</maven-resources-plugin.version>
         <maven.source-plugin.version>2.2.1</maven.source-plugin.version>
+        <maven.site-plugin.version>3.3</maven.site-plugin.version>
 
         <!-- libs -->
         <aspectjrt.version>1.7.3</aspectjrt.version>
@@ -140,6 +142,12 @@
                     <artifactId>maven-clean-plugin</artifactId>
                     <version>${maven.clean-plugin.version}</version>
                 </plugin>
+
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-site-plugin</artifactId>
+                    <version>${maven.site-plugin.version}</version>
+                </plugin>
             </plugins>
         </pluginManagement>
 
@@ -182,7 +190,6 @@
                     </execution>
                 </executions>
             </plugin>
-
         </plugins>
     </build>
 
@@ -214,4 +221,26 @@
             </dependency>
         </dependencies>
     </dependencyManagement>
+
+    <reporting>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-project-info-reports-plugin</artifactId>
+                <version>${maven.project-info-reports-plugin.version}</version>
+                <reportSets>
+                    <reportSet>
+                        <!--
+                            We don't need extensive site reporting so
+                            no reports included here.
+                        -->
+                        <!--reports /-->
+                        <reports>
+                            <report>index</report>
+                        </reports>
+                    </reportSet>
+                </reportSets>
+            </plugin>
+        </plugins>
+    </reporting>
 </project>
