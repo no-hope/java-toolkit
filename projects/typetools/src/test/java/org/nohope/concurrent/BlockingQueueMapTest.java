@@ -12,7 +12,7 @@ import static org.junit.Assert.assertTrue;
  * @since 11/16/11 11:35 AM
  */
 public class BlockingQueueMapTest {
-    @Test(timeout = 3000)
+    @Test(timeout = 10000)
     public void availability() throws InterruptedException, TimeoutException {
         final BlockingQueueMap<Integer, Integer> m =
                 new BlockingQueueMap<>();
