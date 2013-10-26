@@ -39,8 +39,6 @@
         <maven.javadoc-plugin.version>2.9.1</maven.javadoc-plugin.version>
         <maven.jdepend-plugin.version>2.0-beta-2</maven.jdepend-plugin.version>
         <maven.pmd-plugin.version>2.5</maven.pmd-plugin.version>
-        <maven.project-info-reports-plugin.version>2.7</maven.project-info-reports-plugin.version>
-        <maven.site-plugin.version>3.2</maven.site-plugin.version>
         <maven.sonar-plugin.version>3.6.3</maven.sonar-plugin.version>
         <maven.surefire-plugin.version>2.16</maven.surefire-plugin.version>
 
