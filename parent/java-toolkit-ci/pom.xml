@@ -54,7 +54,7 @@
         <jacoco.report.floder.all>target/site/jacoco/all</jacoco.report.floder.all>
 
         <!-- jacoco coverage reports paths -->
-        <jacoco.exec.dir>${basedir}/target/coverage-reports</jacoco.exec.dir>
+        <jacoco.exec.dir>target/coverage-reports</jacoco.exec.dir>
         <jacoco.exec.it>${jacoco.exec.dir}/jacoco-it.exec</jacoco.exec.it>
         <jacoco.exec.unit>${jacoco.exec.dir}/jacoco-unit.exec</jacoco.exec.unit>
         <jacoco.exec.all>${jacoco.exec.dir}/jacoco-all.exec</jacoco.exec.all>
