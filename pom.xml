@@ -38,6 +38,20 @@
         </developer>
     </developers>
 
+    <profiles>
+        <profile>
+            <id>ci</id>
+            <properties>
+                <skip.coveralls>true</skip.coveralls>
+            </properties>
+            <activation>
+                <property>
+                    <name>!env.CI</name>
+                </property>
+            </activation>
+        </profile>
+    </profiles>
+
     <prerequisites>
         <maven>3.0</maven>
     </prerequisites>
