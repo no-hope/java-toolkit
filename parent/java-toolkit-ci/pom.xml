@@ -70,6 +70,7 @@
         <skip.tests>false</skip.tests>
         <skipTests>${skip.tests}</skipTests>
         <skip.jacoco>${skip.tests}</skip.jacoco>
+        <skip.jacoco.report>${skip.jacoco}</skip.jacoco.report>
         <skip.javadoc>false</skip.javadoc>
         <skip.enforcer>false</skip.enforcer>
     </properties>
@@ -310,6 +311,7 @@
                 <artifactId>jacoco-aggregator-maven-plugin</artifactId>
                 <version>${maven.jacoco-aggregator-plugin.version}</version>
                 <configuration>
+                    <skip>${skip.jacoco.report}</skip>
                     <strict>false</strict>
                     <skipModule>true</skipModule>
                     <aggregate>true</aggregate>

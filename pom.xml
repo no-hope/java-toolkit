@@ -66,7 +66,7 @@
     <properties>
         <maven.cobertura-plugin.version>2.6</maven.cobertura-plugin.version>
         <skip.cobertura>true</skip.cobertura>
-        <skip.coveralls>${skip.jacoco}</skip.coveralls>
+        <skip.coveralls>${skip.jacoco.report}</skip.coveralls>
 
         <akka.version>2.2.1</akka.version>
         <akka.version.suffix>_2.10</akka.version.suffix>
