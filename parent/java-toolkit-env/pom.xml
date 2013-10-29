@@ -9,6 +9,35 @@
 
     <packaging>pom</packaging>
 
+    <url>https://github.com/no-hope/java-toolkit</url>
+
+    <licenses>
+        <license>
+            <name>The Apache Software License, Version 2.0</name>
+            <url>http://www.apache.org/licenses/LICENSE-2.0.txt</url>
+            <distribution>repo</distribution>
+        </license>
+    </licenses>
+
+    <scm>
+        <url>git@github.com:no-hope/java-toolkit.git</url>
+        <connection>scm:git:git@github.com:no-hope/java-toolkit.git</connection>
+        <developerConnection>scm:git:git@github.com:no-hope/java-toolkit.git</developerConnection>
+    </scm>
+
+    <developers>
+        <developer>
+            <id>ketoth.xupack</id>
+            <name>Ketoth Xupack</name>
+            <email>ketoth.xupack@gmail.com</email>
+        </developer>
+        <developer>
+            <id>wolfram</id>
+            <name>Fei Wong Reed</name>
+            <email>feiwreed@gmail.com</email>
+        </developer>
+    </developers>
+
     <description>
         Slightly improved version of default maven superpom:
         - Defines java version for source, target and compiler (or, alternatively aspectj compiler)

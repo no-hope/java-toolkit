@@ -3,6 +3,7 @@
 
     <artifactId>test-utils</artifactId>
     <packaging>jar</packaging>
+    <name>${project.artifactId}</name>
 
     <parent>
         <groupId>org.no-hope</groupId>

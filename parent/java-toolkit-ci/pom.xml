@@ -5,6 +5,35 @@
     <name>[java-toolkit-ci]</name>
     <packaging>pom</packaging>
 
+    <url>https://github.com/no-hope/java-toolkit</url>
+
+    <licenses>
+        <license>
+            <name>The Apache Software License, Version 2.0</name>
+            <url>http://www.apache.org/licenses/LICENSE-2.0.txt</url>
+            <distribution>repo</distribution>
+        </license>
+    </licenses>
+
+    <scm>
+        <url>git@github.com:no-hope/java-toolkit.git</url>
+        <connection>scm:git:git@github.com:no-hope/java-toolkit.git</connection>
+        <developerConnection>scm:git:git@github.com:no-hope/java-toolkit.git</developerConnection>
+    </scm>
+
+    <developers>
+        <developer>
+            <id>ketoth.xupack</id>
+            <name>Ketoth Xupack</name>
+            <email>ketoth.xupack@gmail.com</email>
+        </developer>
+        <developer>
+            <id>wolfram</id>
+            <name>Fei Wong Reed</name>
+            <email>feiwreed@gmail.com</email>
+        </developer>
+    </developers>
+
     <description>
         CI configuration aimed to simplify common QA routines
     </description>
@@ -168,38 +197,6 @@
                 </configuration>
             </plugin>
 
-            <!-- tricky way to aggregate jacoco reports -->
-            <plugin>
-                <groupId>org.no-hope</groupId>
-                <artifactId>jacoco-aggregate-maven-plugin</artifactId>
-                <version>1.7</version>
-                <configuration>
-                    <strict>false</strict>
-
-                    <outputFiles>
-                        <outputFile>
-                            <outputFile>${jacoco.exec.it}</outputFile>
-                            <execFiles>
-                                <execFile>${jacoco.exec.it}</execFile>
-                            </execFiles>
-                        </outputFile>
-                        <outputFile>
-                            <outputFile>${jacoco.exec.unit}</outputFile>
-                            <execFiles>
-                                <execFile>${jacoco.exec.unit}</execFile>
-                            </execFiles>
-                        </outputFile>
-                        <outputFile>
-                            <outputFile>${jacoco.exec.all}</outputFile>
-                            <execFiles>
-                                <execFile>${jacoco.exec.it}</execFile>
-                                <execFile>${jacoco.exec.unit}</execFile>
-                            </execFiles>
-                        </outputFile>
-                    </outputFiles>
-                </configuration>
-            </plugin>
-
             <!-- javadoc -->
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
@@ -315,6 +312,8 @@
                     <strict>false</strict>
                     <skipModule>true</skipModule>
                     <aggregate>true</aggregate>
+                    <groupDirectory />
+                    <groupName />
                 </configuration>
                 <reportSets>
                     <reportSet>

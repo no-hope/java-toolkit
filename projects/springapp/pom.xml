@@ -3,6 +3,7 @@
 
     <artifactId>springapp</artifactId>
     <packaging>jar</packaging>
+    <name>${project.artifactId}</name>
 
     <description />
 

@@ -3,6 +3,7 @@
 
     <artifactId>apptools</artifactId>
     <packaging>jar</packaging>
+    <name>${project.artifactId}</name>
 
     <prerequisites>
         <maven>3.0</maven>

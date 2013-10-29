@@ -3,8 +3,9 @@
 
     <artifactId>jsr305-aspectj-validation</artifactId>
     <packaging>jar</packaging>
+    <name>${project.artifactId}</name>
 
-    <description>AspectJ-powered way to bring @Nonnull/@nullable validation on run-time</description>
+    <description>AspectJ-powered way to bring @Nonnull/@Nullable validation on run-time</description>
 
     <prerequisites>
         <maven>3.0</maven>
