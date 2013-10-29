@@ -1,6 +1,5 @@
 package org.nohope.protobuf.rpc.client;
 
-import org.nohope.rpc.protocol.RPC;
 import org.jboss.netty.channel.ChannelHandlerContext;
 import org.jboss.netty.channel.ChannelStateEvent;
 import org.jboss.netty.channel.ExceptionEvent;
@@ -8,13 +7,14 @@ import org.jboss.netty.channel.MessageEvent;
 import org.jboss.netty.channel.SimpleChannelUpstreamHandler;
 import org.nohope.logging.Logger;
 import org.nohope.logging.LoggerFactory;
+import org.nohope.rpc.protocol.RPC;
 
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import static org.nohope.protobuf.rpc.client.RpcChannelImpl.ResponsePrototypeRpcCallback;
 import static org.jboss.netty.channel.ChannelHandler.Sharable;
+import static org.nohope.protobuf.rpc.client.RpcChannelImpl.ResponsePrototypeRpcCallback;
 
 /**
  * @author <a href="mailto:ketoth.xupack@gmail.com">ketoth xupack</a>
@@ -30,8 +30,7 @@ class RpcClientHandler extends SimpleChannelUpstreamHandler {
         return seqNum.getAndIncrement();
     }
 
-    public synchronized void registerCallback(final int seqId,
-                                              final ResponsePrototypeRpcCallback callback) {
+    public synchronized void registerCallback(final int seqId, final ResponsePrototypeRpcCallback callback) {
         if (callbackMap.containsKey(seqId)) {
             throw new IllegalArgumentException("Callback already registered");
         }
@@ -71,7 +70,6 @@ class RpcClientHandler extends SimpleChannelUpstreamHandler {
     public void exceptionCaught(final ChannelHandlerContext ctx,
                                 final ExceptionEvent e) throws Exception {
         LOG.error("Unhandled exception in handler", e.getCause());
-        e.getChannel().close();
-        throw new Exception(e.getCause());
+        //e.getChannel().close();
     }
 }

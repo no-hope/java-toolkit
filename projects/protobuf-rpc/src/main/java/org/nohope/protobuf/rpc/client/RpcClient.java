@@ -23,14 +23,16 @@ public final class RpcClient {
                 Executors.newCachedThreadPool(), Executors.newCachedThreadPool()));
         this.bootstrap.setPipelineFactory(new PipelineFactory(new RpcClientHandler(),
                 RPC.RpcResponse.getDefaultInstance()));
+        this.bootstrap.setOption("remoteAddress", options.getAddress());
+
     }
 
     public BlockingRpcChannel connect() {
-        return new RpcChannelImpl(bootstrap.connect(options.getAddress()).awaitUninterruptibly().getChannel(),
-                options.getTimeout(), options.getTimeoutUnit());
+        return new RpcChannelImpl(bootstrap, options.getTimeout(), options.getTimeoutUnit());
     }
 
     public void shutdown() {
+        bootstrap.shutdown();
         bootstrap.releaseExternalResources();
     }
 }

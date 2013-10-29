@@ -9,6 +9,7 @@ import org.nohope.protobuf.core.Controller;
 import org.nohope.protobuf.core.exception.DetailedExpectedException;
 import org.nohope.protobuf.core.exception.ExpectedServiceException;
 import org.nohope.protobuf.core.exception.RpcTimeoutException;
+import org.nohope.protobuf.core.exception.UnexpectedServiceException;
 import org.nohope.protobuf.rpc.client.RpcClient;
 import org.nohope.protobuf.rpc.client.RpcClientOptions;
 import org.nohope.protobuf.rpc.server.RpcServer;
@@ -29,6 +30,52 @@ import static org.nohope.protocol.TestService.detailedResason;
  * @since 2013-10-01 15:41
  */
 public class RpcIT {
+
+    private static RpcServer createServer() {
+        final RpcServer server = new RpcServer();
+        final BlockingService service = TestService.Service.newReflectiveBlockingService(new ServiceImpl());
+        server.registerService(service);
+
+        return server;
+    }
+
+    @Test
+    public void nonConnectedDuringClientCreating() {
+        final InetSocketAddress address = SocketUtils.getAvailableLocalAddress();
+        new RpcClient(new RpcClientOptions(address, 2, TimeUnit.SECONDS)).connect();
+    }
+
+    @Test
+    public void reconnect() throws ServiceException {
+        final InetSocketAddress address = SocketUtils.getAvailableLocalAddress();
+
+        RpcServer server = createServer();
+        server.bind(address);
+
+        final RpcClient client = new RpcClient(new RpcClientOptions(address, 2, TimeUnit.SECONDS));
+
+        final BlockingRpcChannel channel = client.connect();
+        final BlockingInterface stub = TestService.Service.newBlockingStub(channel);
+
+        final TestService.Ping ping = TestService.Ping.newBuilder().setData("test").build();
+        stub.ping(null, ping);
+
+        server.shutdown();
+
+        try {
+            stub.ping(null, ping);
+            fail();
+        } catch (UnexpectedServiceException e) {
+        }
+
+        server = createServer();
+        server.bind(address);
+
+        stub.ping(null, ping);
+
+        server.shutdown();
+        client.shutdown();
+    }
 
     @Test
     public void blockingInterfaceTest() throws InterruptedException {
