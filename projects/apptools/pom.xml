@@ -5,6 +5,8 @@
     <packaging>jar</packaging>
     <name>${project.artifactId}</name>
 
+    <description />
+
     <prerequisites>
         <maven>3.0</maven>
     </prerequisites>

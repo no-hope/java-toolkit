@@ -5,6 +5,8 @@
     <packaging>jar</packaging>
     <name>${project.artifactId}</name>
 
+    <description />
+
     <parent>
         <groupId>org.no-hope</groupId>
         <artifactId>java-toolkit</artifactId>

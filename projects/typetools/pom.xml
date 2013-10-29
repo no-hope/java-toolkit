@@ -5,7 +5,9 @@
     <packaging>jar</packaging>
     <name>${project.artifactId}</name>
 
-    <description>A set of tools aimed to make daily programming easier.</description>
+    <description>
+        A set of tools aimed to make daily programming easier.
+    </description>
 
     <prerequisites>
         <maven>3.0</maven>

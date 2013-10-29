@@ -6,6 +6,10 @@
     <packaging>jar</packaging>
     <name>${project.artifactId}</name>
 
+    <description>
+        A set of tools making work with akka actors more fun.
+    </description>
+
     <parent>
         <groupId>org.no-hope</groupId>
         <artifactId>java-toolkit</artifactId>

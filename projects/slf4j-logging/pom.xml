@@ -5,7 +5,9 @@
     <artifactId>slf4j-logging</artifactId>
     <name>${project.artifactId}</name>
 
-    <description>Slf4j wrapper extending formatting abilities</description>
+    <description>
+        Wrapper for slf4j logger with extended formatting abilities.
+    </description>
 
     <prerequisites>
         <maven>3.0</maven>
