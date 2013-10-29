@@ -17,7 +17,7 @@ env:
 before_install:
   - sudo apt-get install graphviz
   - sudo apt-get install protobuf-compiler
-  - GH_TOKEN="$(echo $GH_TOKEN | base64 -d)" echo "<settings><servers><server><id>sonatype-nexus-snapshots</id><username>ketoth.xupack</username><password>${SONATYPE_PASSWORD}</password></server><server><id>github</id><username>ketoth.xupack@gmail.com</username><password>${GH_TOKEN}</password></server></servers></settings>" > ~/.m2/settings.xml
+  - scripts/prepare_settings.sh
 
 install:
   - mvn -e -q -B -T 1.5C -B -Dskip.tests=true -Dskip.javadoc=true clean verify
@@ -26,4 +26,4 @@ script:
   - mvn -e -DrepoToken=$COVERALLS_KEY clean install site
 
 after_success:
-  - if [[ "${TRAVIS_PULL_REQUEST}" == "false" ]]; then mvn -q -e -Dskip.tests=true deploy site-deploy; fi
+  - scripts/deploy.sh
