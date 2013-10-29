@@ -70,6 +70,8 @@
         <java.target.level>${java.lang.level}</java.target.level>
         <java.compiler.version>${java.lang.level}</java.compiler.version>
 
+        <skip.site-deploy>true</skip.site-deploy>
+
         <!-- Maven plugins -->
         <maven.aspectj-plugin.version>1.5</maven.aspectj-plugin.version>
         <maven.compiler-plugin.version>3.1</maven.compiler-plugin.version>
@@ -176,6 +178,9 @@
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-site-plugin</artifactId>
                     <version>${maven.site-plugin.version}</version>
+                    <configuration>
+                        <skipDeploy>${skip.site-deploy}</skipDeploy>
+                    </configuration>
                 </plugin>
             </plugins>
         </pluginManagement>

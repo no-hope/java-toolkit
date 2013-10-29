@@ -65,6 +65,8 @@
 
     <properties>
         <maven.cobertura-plugin.version>2.6</maven.cobertura-plugin.version>
+        <github.global.server>github</github.global.server>
+
         <skip.coveralls>${skip.jacoco.report}</skip.coveralls>
 
         <akka.version>2.2.1</akka.version>
@@ -88,6 +90,7 @@
         <slf4j.version>1.7.5</slf4j.version>
         <spring.version>3.2.4.RELEASE</spring.version>
         <xbean-finder.version>3.14</xbean-finder.version>
+        <maven.github-site-plugin.version>0.9</maven.github-site-plugin.version>
     </properties>
 
     <build>
@@ -146,6 +149,25 @@
                     </execution>
                 </executions>
             </plugin>
+
+            <plugin>
+                <groupId>com.github.github</groupId>
+                <artifactId>site-maven-plugin</artifactId>
+                <version>${maven.github-site-plugin.version}</version>
+                <configuration>
+                    <message>Creating site for ${project.version}</message>
+                    <path>${project.distributionManagement.site.url}</path>
+                    <merge>true</merge>
+                </configuration>
+                <executions>
+                    <execution>
+                        <goals>
+                            <goal>site</goal>
+                        </goals>
+                        <phase>site-deploy</phase>
+                    </execution>
+                </executions>
+            </plugin>
         </plugins>
     </build>
 
@@ -183,4 +205,12 @@
         <module>projects/jaxb2-plugins</module>
         <module>projects/protobuf-rpc</module>
     </modules>
+
+    <distributionManagement>
+        <site>
+            <id>${github.global.server}</id>
+            <name>Deployment through GitHub's site deployment plugin</name>
+            <url>site/${project.version}</url>
+        </site>
+    </distributionManagement>
 </project>
