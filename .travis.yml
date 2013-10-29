@@ -12,12 +12,12 @@ env:
   global:
     - secure: "NZJ+d+nZK7S+LJrF2BljLJC/EXYINEP3qAuNpZ5khgSxammFN16FUlCnL/CgWPH5UyN0HdcF1COhwiP/veKaMBig9MGSvKa1ywuCVwMeQ39nPzVBdXt1QpnaBWNfOb3Teh6s3jx80vd2Asj6JCI+TFc0Bjg1wkibueRGXGpwATA="
     - secure: "KW4mr3PQT7i+IL/JpOThNvzzj4MXoLjvBGyZalfYk0OjVGiONHZ/qj4S/aS2bHzPlUEgXpLNsQrn12cLPCLcgh2flfUu9k62PNnPeasmI3Cm23f7WeDgs8sM82Il2sSCAgS1nafkxLLqneKEPBgCCBLxOwjThFgmbSZhUzdn9Nc="
-    - secure: "ZjS2/Fw0ezUyIVh5XCq7OJ4lGdRxZJ5lcyw3kGCz0PlCvej01pJvK5PDPCSlpwe6bqrw+bl+RMgdLuuUuEjT2TgwvL54qZ8VTlhHCkAxLpsg4GQS8jv7jFyHPH0PzGEBLYtTj3dEV4spbbki6V4cdp/XKmbxvjFZaMLawbWNztc="
+    - secure: "DOAf/UBLVLtORH52ds9qEYI3KdBE4Q8I7xr1DAzGoq7Z8YRsWVXOehVPcLXSuZWGkJiZZYfXRNZ8ZEqBTNnefPwpDuBcT4jf+IXcF2UYsJrY50TcEoWbuuSREcM3JAUtkznJC+sBmVeiwG5JV+bKWfog4YzH3AByzeM4CBmubmQ="
 
 before_install:
   - sudo apt-get install graphviz
   - sudo apt-get install protobuf-compiler
-  - echo "<settings><servers><server><id>sonatype-nexus-snapshots</id><username>ketoth.xupack</username><password>${SONATYPE_PASSWORD}</password></server><server><id>github</id><username>ketoth.xupack@gmail.com</username><password>${GH_TOKEN}</password></server></servers></settings>" > ~/.m2/settings.xml
+  - GH_TOKEN="$(echo $GH_TOKEN | base64 -d)" echo "<settings><servers><server><id>sonatype-nexus-snapshots</id><username>ketoth.xupack</username><password>${SONATYPE_PASSWORD}</password></server><server><id>github</id><username>ketoth.xupack@gmail.com</username><password>${GH_TOKEN}</password></server></servers></settings>" > ~/.m2/settings.xml
 
 install:
   - mvn -e -q -B -T 1.5C -B -Dskip.tests=true -Dskip.javadoc=true clean verify
