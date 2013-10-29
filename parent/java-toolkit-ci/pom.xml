@@ -307,6 +307,8 @@
                     <execution>
                         <id>jacoco-report-all</id>
                         <configuration>
+                            <skip>${skip.jacoco}</skip>
+                            <strict>false</strict>
                             <skipModule>false</skipModule>
                             <aggregate>false</aggregate>
 
@@ -314,7 +316,6 @@
                                 <reportFormat>xml</reportFormat>
                             </reportFormats>
 
-                            <groupName>Unit and Integration Tests (per module)</groupName>
                             <groupDirectory>all</groupDirectory>
                             <dataFiles>
                                 <dataFile>${jacoco.exec.it}</dataFile>
