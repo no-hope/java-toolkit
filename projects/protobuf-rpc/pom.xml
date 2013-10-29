@@ -27,8 +27,8 @@
             </plugin>
 
             <plugin>
-                <groupId>org.jacoco</groupId>
-                <artifactId>jacoco-maven-plugin</artifactId>
+                <groupId>org.no-hope</groupId>
+                <artifactId>jacoco-aggregator-maven-plugin</artifactId>
                 <executions>
                     <execution>
                         <id>jacoco-report-all</id>

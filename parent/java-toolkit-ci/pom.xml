@@ -298,6 +298,36 @@
                     </execution>
                 </executions>
             </plugin>
+
+            <plugin>
+                <groupId>org.no-hope</groupId>
+                <artifactId>jacoco-aggregator-maven-plugin</artifactId>
+                <version>${maven.jacoco-aggregator-plugin.version}</version>
+                <executions>
+                    <execution>
+                        <id>jacoco-report-all</id>
+                        <configuration>
+                            <skipModule>false</skipModule>
+                            <aggregate>false</aggregate>
+
+                            <reportFormats>
+                                <reportFormat>xml</reportFormat>
+                            </reportFormats>
+
+                            <groupName>Unit and Integration Tests (per module)</groupName>
+                            <groupDirectory>all</groupDirectory>
+                            <dataFiles>
+                                <dataFile>${jacoco.exec.it}</dataFile>
+                                <dataFile>${jacoco.exec.unit}</dataFile>
+                            </dataFiles>
+                        </configuration>
+                        <phase>post-integration-test</phase>
+                        <goals>
+                            <goal>report</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
         </plugins>
     </build>
 
@@ -349,27 +379,6 @@
                         </reports>
                         <configuration>
                             <groupName>Unit and Integration Tests</groupName>
-                            <groupDirectory>all</groupDirectory>
-                            <dataFiles>
-                                <dataFile>${jacoco.exec.it}</dataFile>
-                                <dataFile>${jacoco.exec.unit}</dataFile>
-                            </dataFiles>
-                        </configuration>
-                    </reportSet>
-                    <reportSet>
-                        <id>modules-xml</id>
-                        <reports>
-                            <report>aggregate</report>
-                        </reports>
-                        <configuration>
-                            <skipModule>false</skipModule>
-                            <aggregate>false</aggregate>
-
-                            <reportFormats>
-                                <reportFormat>xml</reportFormat>
-                            </reportFormats>
-
-                            <groupName>Unit and Integration Tests (per module)</groupName>
                             <groupDirectory>all</groupDirectory>
                             <dataFiles>
                                 <dataFile>${jacoco.exec.it}</dataFile>
