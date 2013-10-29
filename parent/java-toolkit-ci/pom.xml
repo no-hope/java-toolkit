@@ -356,6 +356,27 @@
                             </dataFiles>
                         </configuration>
                     </reportSet>
+                    <reportSet>
+                        <id>modules-xml</id>
+                        <reports>
+                            <report>aggregate</report>
+                        </reports>
+                        <configuration>
+                            <skipModule>false</skipModule>
+                            <aggregate>false</aggregate>
+
+                            <reportFormats>
+                                <reportFormat>xml</reportFormat>
+                            </reportFormats>
+
+                            <groupName>Unit and Integration Tests (per module)</groupName>
+                            <groupDirectory>all</groupDirectory>
+                            <dataFiles>
+                                <dataFile>${jacoco.exec.it}</dataFile>
+                                <dataFile>${jacoco.exec.unit}</dataFile>
+                            </dataFiles>
+                        </configuration>
+                    </reportSet>
                 </reportSets>
             </plugin>
         </plugins>
