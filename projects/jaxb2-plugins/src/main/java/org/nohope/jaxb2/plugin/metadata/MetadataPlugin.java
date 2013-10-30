@@ -19,6 +19,7 @@ import com.sun.tools.xjc.outline.ClassOutline;
 import com.sun.tools.xjc.outline.Outline;
 import org.jvnet.jaxb2_commons.plugin.AbstractParameterizablePlugin;
 import org.jvnet.jaxb2_commons.util.ClassUtils;
+import org.nohope.jaxb2.plugin.Utils;
 import org.nohope.reflection.TypeReference;
 import org.xml.sax.ErrorHandler;
 
@@ -50,8 +51,10 @@ public class MetadataPlugin extends AbstractParameterizablePlugin {
 
         final Collection<? extends ClassOutline> classes = outline.getClasses();
         for (final ClassOutline classOutline : classes) {
-            ClassUtils._implements(classOutline.implClass,
-                    classOutline.implClass.owner().ref(IMetadataHolder.class));
+            final JDefinedClass c = classOutline.implClass;
+            final JCodeModel cm = c.owner();
+            ClassUtils._implements(c, cm.ref(IMetadataHolder.class)
+                                        .narrow(cm.directClass(c.name() + ".IInstanceDescriptor")));
         }
 
         for (final ClassOutline classOutline : classes) {
@@ -68,41 +71,102 @@ public class MetadataPlugin extends AbstractParameterizablePlugin {
 
     private static void generateDescriptor(final JDefinedClass theClass) {
         final JCodeModel codeModel = theClass.owner();
-        final JDefinedClass descriptor;
-        final JDefinedClass descriptorInterface;
+
+        final JDefinedClass classLevelDescriptorInterface;
+        final JDefinedClass classLevelDescriptor;
+
+        final JDefinedClass instanceLevelDescriptorInterface;
+        final JDefinedClass instanceLevelDescriptor;
+
+        final JClass abstractDescriptor = codeModel.ref(AbstractDescriptor.class);
+        final JClass abstractValueDescriptor = codeModel.ref(AbstractValueDescriptor.class);
+        final JClass descriptorInterface = codeModel.ref(IDescriptor.class);
+        final JClass valueDescriptor = codeModel.ref(IValueDescriptor.class);
 
         try {
-            descriptorInterface =
-                    theClass._interface("IDescriptor")
-                            ._extends(codeModel.ref(IDescriptor.class).narrow(theClass))
+            // class-level descriptors
+            classLevelDescriptorInterface =
+                    theClass._interface("IClassDescriptor")
+                            ._extends(descriptorInterface.narrow(theClass))
                             ;
 
-            descriptor =
-                    theClass._class(JMod.PUBLIC | JMod.STATIC, "Descriptor")
-                            ._extends(codeModel.ref(SimpleDescriptor.class).narrow(theClass))
-                            ._implements(descriptorInterface)
+            classLevelDescriptor =
+                    theClass._class(JMod.PUBLIC | JMod.STATIC, "ClassDescriptor")
+                            ._extends(abstractDescriptor.narrow(theClass))
+                            ._implements(classLevelDescriptorInterface)
                             ;
+
+            // class-level descriptors
+            instanceLevelDescriptorInterface =
+                    theClass._interface("IInstanceDescriptor")
+                            ._extends(classLevelDescriptorInterface)
+                            ._implements(valueDescriptor.narrow(theClass))
+                            ;
+
+            instanceLevelDescriptor =
+                    theClass._class(JMod.PUBLIC | JMod.STATIC, "InstanceDescriptor")
+                            ._extends(abstractValueDescriptor.narrow(theClass))
+                            ._implements(instanceLevelDescriptorInterface)
+                            ;
+
         } catch (JClassAlreadyExistsException e) {
             throw new IllegalStateException(e);
         }
 
-        theClass.method(JMod.PUBLIC | JMod.STATIC, descriptorInterface, "descriptor")
+        // public getter methods
+
+        theClass.method(JMod.PUBLIC | JMod.STATIC, classLevelDescriptorInterface, "getClassDescriptor")
                 .body()
-                ._return(JExpr._new(descriptor));
+                ._return(JExpr._new(classLevelDescriptor)
+                              .arg(JExpr._null())
+                              .arg(JExpr._null())
+                );
 
-        final JInvocation thisTypeRef =
-                JExpr._new(codeModel.anonymousClass(codeModel.ref(TypeReference.class).narrow(theClass)));
+        final JMethod instancedDescriptorGetter =
+                theClass.method(JMod.PUBLIC, instanceLevelDescriptorInterface, "getInstanceDescriptor");
+        instancedDescriptorGetter
+                .body()
+                ._return(JExpr._new(instanceLevelDescriptor)
+                              .arg(JExpr._null())
+                              .arg(JExpr._null())
+                              .arg(JExpr._new(codeModel.ref(PasstroughGetter.class).narrow(theClass)).arg(JExpr._this())));
+        instancedDescriptorGetter.annotate(Override.class);
 
-        // default constructor
-        descriptor.constructor(JMod.PROTECTED)
-                  .body()
-                  .invoke("super")
-                  .arg(thisTypeRef);
+        final JClass typeReference = codeModel.ref(TypeReference.class);
+        final JInvocation thisTypeRef = JExpr._new(codeModel.anonymousClass(typeReference.narrow(theClass)));
 
-        final JMethod constructor2 = descriptor.constructor(JMod.PROTECTED);
-        final JVar chain = constructor2.param(JMod.FINAL, codeModel.ref(CallChain.class), "chain");
+        // class-level descriptor constructor
+        {
+            final JClass parentDescriptor = abstractDescriptor.narrow(codeModel.wildcard());
+            final JMethod classLevelDescriptorConstructor = classLevelDescriptor.constructor(JMod.PROTECTED);
+            final JVar parentVar = classLevelDescriptorConstructor.param(JMod.FINAL, parentDescriptor, "parent");
+            final JVar nameVar = classLevelDescriptorConstructor.param(JMod.FINAL, String.class, "name");
+            classLevelDescriptorConstructor
+                    .body()
+                    .invoke("super")
+                    .arg(parentVar)
+                    .arg(nameVar)
+                    .arg(thisTypeRef);
+        }
 
-        constructor2.body().invoke("super").arg(thisTypeRef).arg(chain);
+        // instance-level descriptor constructor
+        {
+            final JClass parentDescriptor = abstractValueDescriptor.narrow(codeModel.directClass("?"));
+            final JClass getter = codeModel.ref(IValueGetter.class).narrow(theClass);
+
+            final JMethod instanceLevelDescriptorConstructor = instanceLevelDescriptor.constructor(JMod.PROTECTED);
+            final JVar parentVar = instanceLevelDescriptorConstructor.param(JMod.FINAL, parentDescriptor, "parent");
+            final JVar nameVar = instanceLevelDescriptorConstructor.param(JMod.FINAL, String.class, "name");
+            final JVar getterVar = instanceLevelDescriptorConstructor.param(JMod.FINAL, getter, "getter");
+            instanceLevelDescriptorConstructor
+                    .body()
+                    .invoke("super")
+                    .arg(parentVar)
+                    .arg(nameVar)
+                    .arg(thisTypeRef)
+                    .arg(getterVar)
+            ;
+        }
 
         // FIXME: iterate over fields
         for (final JMethod method : theClass.methods()) {
@@ -114,47 +178,83 @@ public class MetadataPlugin extends AbstractParameterizablePlugin {
             }
 
             final JType methodType = method.type();
-            final JClass concreteType;
-            final JClass abstractType;
-            final JInvocation expression;
+            final JClass concreteClassLevelReturnType;
+            final JClass abstractClassLevelReturnType;
+            final JClass abstractInstanceLevelReturnType;
+            final JClass concreteInstanceLevelReturnType;
+            final JInvocation classLevelMethodExpression;
+            final JInvocation instanceLevelMethodExpression;
 
-            if (methodType.isReference() && codeModel.ref(IMetadataHolder.class)
-                                                     .isAssignableFrom((JClass) methodType)) {
+            final JDefinedClass valueGetter =
+                    codeModel.anonymousClass(codeModel.ref(IValueGetter.class).narrow(methodType));
+            valueGetter.method(JMod.PUBLIC, methodType.boxify(), "get")
+                       ._throws(codeModel.ref(Exception.class))
+                       .body()
+                       ._return(JExpr.invoke("getValue").invoke(name));
+
+            if (Utils.isErasuredAssignable(codeModel.ref(IMetadataHolder.class), methodType)) {
                 final JClass castedType = (JClass) methodType;
-                concreteType = codeModel.directClass(castedType.name() + ".Descriptor");
-                abstractType = codeModel.directClass(castedType.name() + ".IDescriptor");
-                expression = JExpr._new(concreteType);
+
+                concreteClassLevelReturnType = codeModel.directClass(castedType.name() + ".ClassDescriptor");
+                abstractClassLevelReturnType = codeModel.directClass(castedType.name() + ".IClassDescriptor");
+                classLevelMethodExpression =
+                        JExpr._new(concreteClassLevelReturnType)
+                             .arg(JExpr._this())
+                             .arg(fieldMetaName)
+                             ;
+
+                abstractInstanceLevelReturnType = codeModel.directClass(castedType.name() + ".IInstanceDescriptor");
+                concreteInstanceLevelReturnType = codeModel.directClass(castedType.name() + ".InstanceDescriptor");
+                instanceLevelMethodExpression =
+                        JExpr._new(concreteInstanceLevelReturnType)
+                             .arg(JExpr._this())
+                             .arg(fieldMetaName)
+                             .arg(JExpr._new(valueGetter))
+                             ;
             } else {
                 final JClass returnClass = methodType.isPrimitive() ? methodType.boxify() : (JClass) methodType;
-                concreteType = codeModel.ref(SimpleDescriptor.class).narrow(returnClass);
-                abstractType = codeModel.ref(IDescriptor.class).narrow(returnClass);
+                abstractClassLevelReturnType = descriptorInterface.narrow(returnClass);
+                concreteClassLevelReturnType = abstractDescriptor.narrow(returnClass);
 
-                final JDefinedClass returnTypeRef =
-                        codeModel.anonymousClass(
-                                codeModel.ref(TypeReference.class)
-                                         .narrow(returnClass));
+                final JDefinedClass returnTypeRef = codeModel.anonymousClass(typeReference.narrow(returnClass));
+                final JClass java7concreteClass = abstractDescriptor.narrow(new JClass[]{});
 
-                final JClass java7concreteClass = codeModel.ref(SimpleDescriptor.class).narrow(new JClass[]{});
-                expression = JExpr._new(java7concreteClass).arg(JExpr._new(returnTypeRef));
+                classLevelMethodExpression = JExpr._new(java7concreteClass)
+                                  .arg(JExpr._this())
+                                  .arg(fieldMetaName)
+                                  .arg(JExpr._new(returnTypeRef))
+                                  ;
+
+                abstractInstanceLevelReturnType = valueDescriptor.narrow(returnClass);
+                concreteInstanceLevelReturnType = abstractValueDescriptor.narrow(returnClass);
+                instanceLevelMethodExpression =
+                        JExpr._new(concreteInstanceLevelReturnType)
+                             .arg(JExpr._this())
+                             .arg(fieldMetaName)
+                             .arg(JExpr._new(returnTypeRef))
+                             .arg(JExpr._new(valueGetter))
+                             ;
             }
 
-            descriptorInterface.method(JMod.NONE, abstractType, name);
+            classLevelDescriptorInterface.method(JMod.NONE, abstractClassLevelReturnType, name);
+            instanceLevelDescriptorInterface.method(JMod.NONE, abstractInstanceLevelReturnType, name)
+                                            .annotate(Override.class);
 
-            final JMethod descriptorMethod = descriptor.method(JMod.PUBLIC, concreteType, name);
-            final JInvocation addToChain =
-                    JExpr._this()
-                         .invoke("getCallChain")
-                         .invoke("add")
-                         .arg(JExpr._this())
-                         .arg(fieldMetaName);
+            final JMethod classLevelDescriptorMethod =
+                    classLevelDescriptor.method(JMod.PUBLIC, concreteClassLevelReturnType, name);
 
-            descriptorMethod.javadoc().add("This method reflects '" + fieldMetaName + "' field metadata.\n");
-            descriptorMethod.javadoc().addReturn().add(concreteType.erasure().fullName());
-            descriptorMethod.javadoc().add("@see");
-            descriptorMethod.javadoc().add(IDescriptor.class.getCanonicalName());
+            classLevelDescriptorMethod.javadoc().add("This method reflects '" + fieldMetaName + "' field metadata.\n");
+            classLevelDescriptorMethod.javadoc().addReturn().add(concreteClassLevelReturnType.erasure().fullName());
+            classLevelDescriptorMethod.javadoc().add("@see");
+            classLevelDescriptorMethod.javadoc().add(IDescriptor.class.getCanonicalName());
 
-            descriptorMethod.annotate(Override.class);
-            descriptorMethod.body()._return(expression.arg(addToChain));
+            classLevelDescriptorMethod.annotate(Override.class);
+            classLevelDescriptorMethod.body()._return(classLevelMethodExpression);
+
+            final JMethod instanceDescriptorMethod =
+                    instanceLevelDescriptor.method(JMod.PUBLIC, abstractInstanceLevelReturnType, name);
+            instanceDescriptorMethod.annotate(Override.class);
+            instanceDescriptorMethod.body()._return(instanceLevelMethodExpression);
         }
     }
 

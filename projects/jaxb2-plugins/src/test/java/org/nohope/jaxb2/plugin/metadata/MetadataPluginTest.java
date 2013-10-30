@@ -5,14 +5,18 @@ import org.junit.runner.RunWith;
 import org.nohope.jaxb2.plugin.Jaxb2PluginTestSupport;
 import org.nohope.test.runner.InstanceTestClassRunner;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import static java.lang.Class.forName;
+import static junit.framework.Assert.assertEquals;
+import static junit.framework.Assert.assertNull;
 import static org.junit.Assert.*;
+import static org.nohope.Matchers.not;
 import static org.nohope.reflection.IntrospectionUtils.instanceOf;
 import static org.nohope.reflection.IntrospectionUtils.invoke;
-import static org.nohope.reflection.ModifierMatcher.*;
-import static org.nohope.Matchers.*;
+import static org.nohope.reflection.ModifierMatcher.ABSTRACT;
+import static org.nohope.reflection.ModifierMatcher.ALL;
 
 /**
  * @author <a href="mailto:ketoth.xupack@gmail.com">Ketoth Xupack</a>
@@ -27,35 +31,105 @@ public class MetadataPluginTest extends Jaxb2PluginTestSupport {
     }
 
     @Test
-    public void checkGeneratedObjectsValidity() throws Exception {
-        final Class<?> cobj1 = forName("org.nohope.jaxb_codegen.metadata.ComplexObjectType");
-        final Object descriptor = invoke(cobj1, ALL, "descriptor");
+    public void classDescriptorValidity() throws Exception {
+        final Class<?> clazz = forName("org.nohope.jaxb_codegen.metadata.ComplexObjectType");
+        final Object descriptor = invoke(clazz, ALL, "getClassDescriptor");
 
-        final CallChain boolFieldChain =
-                (CallChain) invoke(invoke(descriptor,
-                        not(ABSTRACT), "isSimple"),
-                        not(ABSTRACT), "getCallChain");
+        {
+            final IDescriptor<?> boolFieldDescriptor =
+                    (IDescriptor<?>) invoke(descriptor,
+                            not(ABSTRACT), "isSimple");
 
-        assertFalse(boolFieldChain.getChain().isEmpty());
-        assertEquals("simple", boolFieldChain.getChain().get(0).getProperty());
+            final List<IDescriptor<?>> callChain = new ArrayList<>();
+            for (final IDescriptor o : boolFieldDescriptor) {
+                callChain.add(o);
+            }
 
-        final CallChain callChain =
-                (CallChain) invoke(invoke(invoke(descriptor,
-                        not(ABSTRACT), "getObjectField"),
-                        not(ABSTRACT), "getFloatField"),
-                        not(ABSTRACT), "getCallChain");
+            assertEquals(2, callChain.size());
+            assertNull(callChain.get(0).getName());
+            assertNull(callChain.get(0).getParent());
+            assertEquals(clazz, callChain.get(0).getType().getTypeClass());
 
-        final List<NamedDescriptor<?>> chain = callChain.getChain();
-        assertEquals(2, chain.size());
-        assertEquals("object_field", chain.get(0).getProperty());
-        assertTrue(instanceOf(chain.get(0).getParentDescriptor(),
-                forName("org.nohope.jaxb_codegen.metadata.ComplexObjectType$IDescriptor")));
+            assertEquals("simple", callChain.get(1).getName());
+            assertEquals(Boolean.class, callChain.get(1).getType().getTypeClass());
+        }
 
-        assertEquals("float_field", chain.get(1).getProperty());
-        assertTrue(instanceOf(chain.get(1).getParentDescriptor(),
-                forName("org.nohope.jaxb_codegen.metadata.ComplexObjectType2$IDescriptor")));
-        assertEquals(forName("org.nohope.jaxb_codegen.metadata.ComplexObjectType2"),
-                chain.get(1).getParentDescriptor().getFieldType().getTypeClass());
+        {
+            final IDescriptor<?> floatFieldDescriptor =
+                    (IDescriptor<?>) invoke(invoke(descriptor,
+                            not(ABSTRACT), "getObjectField"),
+                            not(ABSTRACT), "getFloatField");
+
+            final List<IDescriptor<?>> chain = new ArrayList<>();
+            for (final IDescriptor o : floatFieldDescriptor) {
+                chain.add(o);
+            }
+
+            assertEquals(3, chain.size());
+            assertEquals("float_field", chain.get(2).getName());
+
+            assertEquals(forName("org.nohope.jaxb_codegen.metadata.ComplexObjectType2"),
+                    chain.get(2).getParent().getType().getTypeClass());
+            assertTrue(instanceOf(chain.get(2).getParent(),
+                    forName("org.nohope.jaxb_codegen.metadata.ComplexObjectType2$IClassDescriptor")));
+
+            assertEquals("object_field", chain.get(1).getName());
+            assertTrue(instanceOf(chain.get(1).getParent(),
+                    forName("org.nohope.jaxb_codegen.metadata.ComplexObjectType$IClassDescriptor")));
+
+            assertEquals("org.nohope.jaxb_codegen.metadata.ComplexObjectType"
+                         + "#object_field[org.nohope.jaxb_codegen.metadata.ComplexObjectType2]"
+                         + "#float_field[java.lang.Float]", floatFieldDescriptor.toString());
+        }
+    }
+
+    @Test
+    public void instanceValidity() throws Exception {
+        final Object obj = forName("org.nohope.jaxb_codegen.metadata.ComplexObjectType")
+                .getConstructor().newInstance();
+
+        final Object descriptor = invoke(obj, ALL, "getInstanceDescriptor");
+
+        {
+            final IValueDescriptor<?> boolFieldDescriptor =
+                    (IValueDescriptor<?>) invoke(descriptor,
+                            not(ABSTRACT), "isSimple");
+
+            final List<IValueDescriptor<?>> chain = new ArrayList<>();
+            for (final IDescriptor o : boolFieldDescriptor) {
+                chain.add((IValueDescriptor) o);
+            }
+
+            assertEquals(2, chain.size());
+            assertEquals(obj, chain.get(0).getValue());
+            assertEquals(false, chain.get(1).getValue());
+        }
+
+        {
+            final IDescriptor<?> floatFieldDescriptor =
+                    (IDescriptor<?>) invoke(invoke(descriptor,
+                            not(ABSTRACT), "getObjectField"),
+                            not(ABSTRACT), "getFloatField");
+
+            final List<IValueDescriptor<?>> chain = new ArrayList<>();
+            for (final IDescriptor o : floatFieldDescriptor) {
+                chain.add((IValueDescriptor) o);
+            }
+
+            assertEquals(3, chain.size());
+            try {
+                chain.get(2).getValue();
+                fail();
+            } catch (CallException e) {
+                assertEquals("Error while getting value of descriptor "
+                             + "org.nohope.jaxb_codegen.metadata.ComplexObjectType"
+                             + "#object_field[org.nohope.jaxb_codegen.metadata.ComplexObjectType2]"
+                             + "#float_field[java.lang.Float]", e.getMessage());
+                assertNotNull(e.getCause());
+                assertEquals(chain.get(2), e.getContext());
+                assertEquals(NullPointerException.class, e.getCause().getClass());
+            }
+        }
     }
 
     @Test
