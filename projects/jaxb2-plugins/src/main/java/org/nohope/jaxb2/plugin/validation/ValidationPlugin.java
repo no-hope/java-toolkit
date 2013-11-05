@@ -8,6 +8,7 @@ import com.sun.codemodel.JMethod;
 import com.sun.codemodel.JMod;
 import com.sun.codemodel.JVar;
 import com.sun.tools.xjc.Options;
+import com.sun.tools.xjc.Plugin;
 import com.sun.tools.xjc.model.CClassInfo;
 import com.sun.tools.xjc.model.CCustomizable;
 import com.sun.tools.xjc.model.CPluginCustomization;
@@ -17,6 +18,7 @@ import com.sun.tools.xjc.outline.Outline;
 import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.jvnet.jaxb2_commons.plugin.AbstractParameterizablePlugin;
 import org.jvnet.jaxb2_commons.util.ClassUtils;
+import org.nohope.jaxb2.plugin.metadata.MetadataPlugin;
 import org.nohope.typetools.TStr;
 import org.w3c.dom.Element;
 import org.w3c.dom.NamedNodeMap;
@@ -57,7 +59,18 @@ public class ValidationPlugin extends AbstractParameterizablePlugin {
         return "TBD";
     }
 
+    private boolean metadataAvailable = false;
 
+    @Override
+    protected void init(final Options options) throws Exception {
+        super.init(options);
+        for (final Plugin activePlugin : options.activePlugins) {
+            if (activePlugin instanceof MetadataPlugin) {
+                metadataAvailable = true;
+                break;
+            }
+        }
+    }
 
     @Override
     public void postProcessModel(final Model model, final ErrorHandler errorHandler) {
@@ -222,6 +235,8 @@ public class ValidationPlugin extends AbstractParameterizablePlugin {
     @Override
     protected boolean run(final Outline outline,
                           final Options options) throws Exception {
+
+
         for (final ClassOutline classOutline : outline.getClasses()) {
             final JDefinedClass impl = classOutline.implClass;
             final String className = impl.binaryName();
@@ -238,7 +253,11 @@ public class ValidationPlugin extends AbstractParameterizablePlugin {
                 validate.annotate(Override.class);
 
                 final JVar context = validate.param(JMod.FINAL, contextRef, "context");
-                validate.body().add(JExpr._new(validatorRef).invoke("validate").arg(context).arg(JExpr._this()));
+                validate.body()
+                        .add(JExpr._new(validatorRef)
+                                  .invoke("validate")
+                                  .arg(context)
+                                  .arg(metadataAvailable ? JExpr.invoke("getInstanceDescriptor") : JExpr._this()));
             }
         }
 

@@ -44,7 +44,7 @@ public abstract class Jaxb2PluginTestSupport implements InstanceTestSetupListene
     //    System.setProperty("javax.xml.accessExternalDTD", "all");
     //}
 
-    private final String arg;
+    private final String[] args;
     private final String resources;
     private final String classpath;
     private final List<String> bindings = new ArrayList<>();
@@ -53,16 +53,29 @@ public abstract class Jaxb2PluginTestSupport implements InstanceTestSetupListene
                                   final String resources,
                                   final String classpath,
                                   final String... bindings) {
-        this.arg = arg;
-        this.resources = resources;
-        this.classpath = classpath;
-        this.bindings.addAll(Arrays.asList(bindings));
+        this(new String[] {arg}, resources, classpath, bindings);
     }
 
     public Jaxb2PluginTestSupport(final String arg,
                                   final String resources,
                                   final String... bindings) {
-        this.arg = arg;
+        this(new String[] {arg}, resources, bindings);
+    }
+
+    public Jaxb2PluginTestSupport(final String[] args,
+                                  final String resources,
+                                  final String classpath,
+                                  final String... bindings) {
+        this.args = args.clone();
+        this.resources = resources;
+        this.classpath = classpath;
+        this.bindings.addAll(Arrays.asList(bindings));
+    }
+
+    public Jaxb2PluginTestSupport(final String[] args,
+                                  final String resources,
+                                  final String... bindings) {
+        this.args = args.clone();
 
         this.resources = TEST_RESOURCES_PATH + resources;
         this.classpath = null;
@@ -86,6 +99,7 @@ public abstract class Jaxb2PluginTestSupport implements InstanceTestSetupListene
         try {
             new RunMetadataPlugin().testExecute();
         } catch (final Exception e) {
+            LOG.error(e);
             validateBuildFailure(e);
             return;
         }
@@ -98,9 +112,7 @@ public abstract class Jaxb2PluginTestSupport implements InstanceTestSetupListene
                 .getLocation()
                 .getFile();
 
-        final PathMatchingResourcePatternResolver resolver =
-                new PathMatchingResourcePatternResolver();
-
+        final PathMatchingResourcePatternResolver resolver = new PathMatchingResourcePatternResolver();
         final List<JavaSourceFromString> units = new ArrayList<>();
         final List<String> classFiles = new ArrayList<>();
         final List<String> classes = new ArrayList<>();
@@ -232,7 +244,9 @@ public abstract class Jaxb2PluginTestSupport implements InstanceTestSetupListene
         @Override
         public List<String> getArgs() {
             final List<String> args = new ArrayList<>(super.getArgs());
-            args.add("-X" + arg);
+            for (final String arg : Jaxb2PluginTestSupport.this.args) {
+                args.add("-X" + arg);
+            }
             return args;
         }
     }
@@ -244,7 +258,13 @@ public abstract class Jaxb2PluginTestSupport implements InstanceTestSetupListene
     public static void assertBuildFailure(final String arg,
                                           final String resources,
                                           final BuildFailureValidator validator) {
-        final Jaxb2PluginTestSupport support = new Jaxb2PluginTestSupport(arg, resources) {
+        assertBuildFailure(new String[] {arg}, resources, validator);
+    }
+
+    public static void assertBuildFailure(final String[] args,
+                                          final String resources,
+                                          final BuildFailureValidator validator) {
+        final Jaxb2PluginTestSupport support = new Jaxb2PluginTestSupport(args, resources) {
             @Override
             protected void validateBuildFailure(final Exception e) throws Exception {
                 validator.validate(e);
