@@ -102,7 +102,37 @@
         <skip.jacoco.report>${skip.jacoco}</skip.jacoco.report>
         <skip.javadoc>false</skip.javadoc>
         <skip.enforcer>false</skip.enforcer>
+
+        <verify.it.tests>false</verify.it.tests>
     </properties>
+
+    <profiles>
+        <profile>
+            <id>verify-integration-tests</id>
+            <build>
+                <plugins>
+                    <plugin>
+                        <artifactId>maven-failsafe-plugin</artifactId>
+
+                        <executions>
+                            <execution>
+                                <id>integration-test-verify</id>
+                                <goals>
+                                    <goal>verify</goal>
+                                </goals>
+                            </execution>
+                        </executions>
+                    </plugin>
+                </plugins>
+            </build>
+            <activation>
+                <property>
+                    <name>verify.it.tests</name>
+                    <value>true</value>
+                </property>
+            </activation>
+        </profile>
+    </profiles>
 
     <build>
         <finalName>${project.artifactId}</finalName>
