@@ -24,6 +24,7 @@ import org.nohope.reflection.TypeReference;
 import org.xml.sax.ErrorHandler;
 
 import javax.xml.bind.annotation.XmlElement;
+import javax.xml.bind.annotation.XmlTransient;
 import java.io.StringWriter;
 import java.util.Collection;
 import java.util.Map;
@@ -131,6 +132,7 @@ public class MetadataPlugin extends AbstractParameterizablePlugin {
                               .arg(JExpr._null())
                               .arg(JExpr._new(codeModel.ref(PasstroughGetter.class).narrow(theClass)).arg(JExpr._this())));
         instancedDescriptorGetter.annotate(Override.class);
+        instancedDescriptorGetter.annotate(XmlTransient.class);
 
         final JClass typeReference = codeModel.ref(TypeReference.class);
         final JInvocation thisTypeRef = JExpr._new(codeModel.anonymousClass(typeReference.narrow(theClass)));
