@@ -133,7 +133,7 @@ public final class TTime {
     }
 
     public static boolean gte(@Nonnull final XMLGregorianCalendar c1,
-                             @Nonnull final XMLGregorianCalendar c2) {
+                              @Nonnull final XMLGregorianCalendar c2) {
         return compare(c1, c2, Matchers.or(
                 Matchers.eq(DatatypeConstants.GREATER),
                 Matchers.eq(DatatypeConstants.EQUAL)
