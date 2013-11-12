@@ -98,6 +98,8 @@
         <!-- these options might be used to speed up build -->
         <skip.tests>false</skip.tests>
         <skipTests>${skip.tests}</skipTests>
+        <skip.it.tests>${skip.tests}</skip.it.tests>
+        <skipITs>${skip.it.tests}</skipITs>
         <skip.jacoco>${skip.tests}</skip.jacoco>
         <skip.jacoco.report>${skip.jacoco}</skip.jacoco.report>
         <skip.javadoc>false</skip.javadoc>
@@ -216,6 +218,9 @@
                     <threadCount>1</threadCount>
                     <forkCount>1</forkCount>
                     <reuseForks>true</reuseForks>
+
+                    <skipTests>${skip.it.tests}</skipTests>
+                    <skipITs>${skip.it.tests}</skipITs>
 
                     <includes>
                         <include>**/*IT.java</include>
