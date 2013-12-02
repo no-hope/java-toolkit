@@ -69,7 +69,7 @@
         <maven.javadoc-plugin.version>2.9.1</maven.javadoc-plugin.version>
         <maven.jdepend-plugin.version>2.0-beta-2</maven.jdepend-plugin.version>
         <maven.pmd-plugin.version>2.5</maven.pmd-plugin.version>
-        <maven.sonar-plugin.version>3.6.3</maven.sonar-plugin.version>
+        <maven.sonar-plugin.version>4.0</maven.sonar-plugin.version>
         <maven.surefire-plugin.version>2.16</maven.surefire-plugin.version>
 
         <!-- libs -->
@@ -91,8 +91,9 @@
 
         <!-- sonar settings for jacoco -->
         <sonar.core.codeCoveragePlugin>jacoco</sonar.core.codeCoveragePlugin>
-        <sonar.jacoco.reportPath>${jacoco.exec.unit}</sonar.jacoco.reportPath>
-        <sonar.jacoco.itReportPath>${jacoco.exec.it}</sonar.jacoco.itReportPath>
+        <sonar.java.coveragePlugin>jacoco</sonar.java.coveragePlugin>
+        <sonar.jacoco.reportPath>${basedir}/${jacoco.exec.unit}</sonar.jacoco.reportPath>
+        <sonar.jacoco.itReportPath>${basedir}/${jacoco.exec.it}</sonar.jacoco.itReportPath>
         <sonar.dynamicAnalysis>reuseReports</sonar.dynamicAnalysis>
 
         <!-- these options might be used to speed up build -->
