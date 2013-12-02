@@ -147,7 +147,6 @@ class RpcServerHandler extends SimpleChannelUpstreamHandler implements IBlocking
             extensionRegistry.add(descriptor);
         }
 
-
         blockingServiceMap.put(service.getDescriptorForType().getFullName(),
                 new Pair<>(service, extensionRegistry));
     }

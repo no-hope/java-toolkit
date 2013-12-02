@@ -1,6 +1,8 @@
 package org.nohope.protobuf.rpc.client;
 
 import com.google.protobuf.BlockingRpcChannel;
+import com.google.protobuf.Descriptors;
+import com.google.protobuf.ExtensionRegistry;
 import com.google.protobuf.InvalidProtocolBufferException;
 import com.google.protobuf.Message;
 import com.google.protobuf.RpcCallback;
@@ -19,7 +21,9 @@ import org.nohope.protobuf.core.exception.UnexpectedServiceException;
 import org.nohope.rpc.protocol.RPC;
 
 import javax.annotation.Nonnull;
+import java.util.Map;
 import java.util.concurrent.Callable;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
@@ -40,6 +44,7 @@ class RpcChannelImpl implements RpcChannel, BlockingRpcChannel {
     //private final Channel channel;
     private final RpcClientHandler handler;
     private final ScheduledExecutorService executor = Executors.newScheduledThreadPool(1);
+    private final Map<String, ExtensionRegistry> extensionsCache = new ConcurrentHashMap<>();
 
     private final long timeout;
     private final TimeUnit unit;
@@ -84,6 +89,7 @@ class RpcChannelImpl implements RpcChannel, BlockingRpcChannel {
                                       final RpcController originController,
                                       final Message request,
                                       final Message responsePrototype) throws ServiceException {
+
         final Controller controller;
         if (originController == null) {
             controller = newRpcController();
@@ -95,8 +101,26 @@ class RpcChannelImpl implements RpcChannel, BlockingRpcChannel {
         }
 
         final BlockingRpcCallback callback = new BlockingRpcCallback();
+
+        final Descriptors.ServiceDescriptor service = method.getService();
+        final String serviceFullName = service.getFullName();
+        if (!extensionsCache.containsKey(serviceFullName)) {
+            final ExtensionRegistry extensionRegistry = ExtensionRegistry.newInstance();
+
+            for (final Descriptors.FieldDescriptor descriptor : service.getFile().getExtensions()) {
+                extensionRegistry.add(descriptor);
+            }
+            extensionsCache.put(serviceFullName, extensionRegistry);
+        }
+
+
+
         final ResponsePrototypeRpcCallback rpcCallback =
-                new ResponsePrototypeRpcCallback(controller, responsePrototype, callback);
+                new ResponsePrototypeRpcCallback(
+                        controller,
+                        responsePrototype,
+                        extensionsCache.get(serviceFullName),
+                        callback);
 
         final int nextSeqId = handler.getNextSeqId();
         final RPC.RpcRequest rpcRequest = buildRequest(nextSeqId, method, request);
@@ -168,15 +192,18 @@ class RpcChannelImpl implements RpcChannel, BlockingRpcChannel {
         private final Controller controller;
         private final Message responsePrototype;
         private final RpcCallback<Message> callback;
+        private final ExtensionRegistry extensionRegistry;
 
         private RPC.RpcResponse rpcResponse;
 
         public ResponsePrototypeRpcCallback(@Nonnull final Controller controller,
                                             @Nonnull final Message responsePrototype,
+                                            @Nonnull final ExtensionRegistry extensionRegistry,
                                             @Nonnull final RpcCallback<Message> callback) {
             this.controller = controller;
             this.responsePrototype = responsePrototype;
             this.callback = callback;
+            this.extensionRegistry = extensionRegistry;
         }
 
         @Override
@@ -196,7 +223,7 @@ class RpcChannelImpl implements RpcChannel, BlockingRpcChannel {
             try {
                 final Message response =
                         responsePrototype.newBuilderForType()
-                                         .mergeFrom(message.getPayload())
+                                         .mergeFrom(message.getPayload(), extensionRegistry)
                                          .build();
                 callback.run(response);
             } catch (final InvalidProtocolBufferException e) {
