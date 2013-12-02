@@ -4,6 +4,7 @@ import com.google.protobuf.Descriptors;
 import com.google.protobuf.ExtensionRegistry;
 import com.google.protobuf.InvalidProtocolBufferException;
 import org.junit.Test;
+import org.nohope.protobuf.core.MessageUtils;
 import org.nohope.protocol.Ordinar;
 import org.nohope.protocol.Repeated;
 import org.nohope.rpc.protocol.RPC;
@@ -66,10 +67,7 @@ public class ExpectedServiceExceptionTest {
     }
 
     private static RPC.Error cloned(final Descriptors.FileDescriptor d, final RPC.Error error) {
-        final ExtensionRegistry extensionRegistry = ExtensionRegistry.newInstance();
-        for (final Descriptors.FieldDescriptor descriptor : d.getExtensions()) {
-            extensionRegistry.add(descriptor);
-        }
+        final ExtensionRegistry extensionRegistry = MessageUtils.getExtensionRegistry(d);
 
         try {
             final RPC.Error.Builder builder =

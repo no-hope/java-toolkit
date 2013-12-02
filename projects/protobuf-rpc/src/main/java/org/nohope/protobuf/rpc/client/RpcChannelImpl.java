@@ -15,6 +15,7 @@ import org.jboss.netty.channel.ChannelFuture;
 import org.nohope.logging.Logger;
 import org.nohope.logging.LoggerFactory;
 import org.nohope.protobuf.core.Controller;
+import org.nohope.protobuf.core.MessageUtils;
 import org.nohope.protobuf.core.exception.DetailedExpectedException;
 import org.nohope.protobuf.core.exception.RpcTimeoutException;
 import org.nohope.protobuf.core.exception.UnexpectedServiceException;
@@ -106,14 +107,11 @@ class RpcChannelImpl implements RpcChannel, BlockingRpcChannel {
         final String serviceFullName = service.getFullName();
         if (!extensionsCache.containsKey(serviceFullName)) {
             final ExtensionRegistry extensionRegistry = ExtensionRegistry.newInstance();
-
             for (final Descriptors.FieldDescriptor descriptor : service.getFile().getExtensions()) {
                 extensionRegistry.add(descriptor);
             }
             extensionsCache.put(serviceFullName, extensionRegistry);
         }
-
-
 
         final ResponsePrototypeRpcCallback rpcCallback =
                 new ResponsePrototypeRpcCallback(
@@ -209,14 +207,19 @@ class RpcChannelImpl implements RpcChannel, BlockingRpcChannel {
         @Override
         public void run(final RPC.RpcResponse message) {
             rpcResponse = message;
-            if (message == null) {
+            if (rpcResponse == null) {
                 callback.run(null);
                 return;
             }
 
-            if (message.hasError()) {
-                controller.setError(message.getError());
-                callback.run(message);
+            if (rpcResponse.hasError()) {
+                try {
+                    rpcResponse = MessageUtils.repairedMessage(rpcResponse, extensionRegistry);
+                } catch (InvalidProtocolBufferException e) {
+                    LOG.warn("Could not marshall into error message", e);
+                }
+                controller.setError(rpcResponse.getError());
+                callback.run(rpcResponse);
                 return;
             }
 

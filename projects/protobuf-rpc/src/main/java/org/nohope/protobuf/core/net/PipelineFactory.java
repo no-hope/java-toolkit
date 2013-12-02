@@ -1,5 +1,7 @@
 package org.nohope.protobuf.core.net;
 
+import com.google.protobuf.ExtensionRegistry;
+import com.google.protobuf.Message;
 import com.google.protobuf.MessageLite;
 import org.jboss.netty.channel.ChannelPipeline;
 import org.jboss.netty.channel.ChannelPipelineFactory;
@@ -9,6 +11,8 @@ import org.jboss.netty.handler.codec.frame.LengthFieldBasedFrameDecoder;
 import org.jboss.netty.handler.codec.frame.LengthFieldPrepender;
 import org.jboss.netty.handler.codec.protobuf.ProtobufDecoder;
 import org.jboss.netty.handler.codec.protobuf.ProtobufEncoder;
+
+import static org.nohope.protobuf.core.MessageUtils.getExtensionRegistry;
 
 /**
  * Set of decoders/encoders to convert packet format from/to
@@ -42,7 +46,15 @@ public final class PipelineFactory implements ChannelPipelineFactory {
     public ChannelPipeline getPipeline() throws Exception {
         final ChannelPipeline p = Channels.pipeline();
         p.addLast("frameDecoder", new LengthFieldBasedFrameDecoder(MAX_FRAME_BYTES_LENGTH, 0, HEADER_BYTES, 0, HEADER_BYTES));
-        p.addLast("protobufDecoder", new ProtobufDecoder(prototype));
+
+        final ExtensionRegistry extensionRegistry;
+        if (prototype instanceof Message) {
+            extensionRegistry = getExtensionRegistry(((Message) prototype).getDescriptorForType().getFile());
+        } else {
+            extensionRegistry = null;
+        }
+
+        p.addLast("protobufDecoder", new ProtobufDecoder(prototype, extensionRegistry));
 
         p.addLast("frameEncoder", new LengthFieldPrepender(HEADER_BYTES));
         p.addLast("protobufEncoder", new ProtobufEncoder());

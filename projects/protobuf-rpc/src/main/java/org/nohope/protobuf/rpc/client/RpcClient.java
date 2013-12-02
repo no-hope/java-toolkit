@@ -14,7 +14,6 @@ import java.util.concurrent.Executors;
  */
 public final class RpcClient {
     private final ClientBootstrap bootstrap;
-
     private final RpcClientOptions options;
 
     public RpcClient(final RpcClientOptions options) {

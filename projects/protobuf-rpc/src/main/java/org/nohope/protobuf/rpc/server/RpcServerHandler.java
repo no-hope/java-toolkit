@@ -1,20 +1,9 @@
 package org.nohope.protobuf.rpc.server;
 
-import com.google.protobuf.Descriptors;
-import com.google.protobuf.ExtensionRegistry;
-import org.nohope.protobuf.core.Controller;
-import org.nohope.protobuf.core.IBlockingServiceRegistry;
-import org.nohope.protobuf.core.exception.ExpectedServiceException;
-import org.nohope.protobuf.core.exception.InvalidRpcRequestException;
-import org.nohope.protobuf.core.exception.NoSuchServiceException;
-import org.nohope.protobuf.core.exception.NoSuchServiceMethodException;
-import org.nohope.protobuf.core.exception.RpcException;
-import org.nohope.protobuf.core.exception.RpcServiceException;
-import org.nohope.protobuf.core.exception.ServerSideException;
-import org.nohope.rpc.protocol.RPC;
 import com.google.protobuf.BlockingService;
 import com.google.protobuf.ByteString;
 import com.google.protobuf.Descriptors.MethodDescriptor;
+import com.google.protobuf.ExtensionRegistry;
 import com.google.protobuf.InvalidProtocolBufferException;
 import com.google.protobuf.Message;
 import com.google.protobuf.RpcController;
@@ -30,6 +19,17 @@ import org.jboss.netty.channel.MessageEvent;
 import org.jboss.netty.channel.SimpleChannelUpstreamHandler;
 import org.nohope.logging.Logger;
 import org.nohope.logging.LoggerFactory;
+import org.nohope.protobuf.core.Controller;
+import org.nohope.protobuf.core.IBlockingServiceRegistry;
+import org.nohope.protobuf.core.MessageUtils;
+import org.nohope.protobuf.core.exception.ExpectedServiceException;
+import org.nohope.protobuf.core.exception.InvalidRpcRequestException;
+import org.nohope.protobuf.core.exception.NoSuchServiceException;
+import org.nohope.protobuf.core.exception.NoSuchServiceMethodException;
+import org.nohope.protobuf.core.exception.RpcException;
+import org.nohope.protobuf.core.exception.RpcServiceException;
+import org.nohope.protobuf.core.exception.ServerSideException;
+import org.nohope.rpc.protocol.RPC;
 
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -142,11 +142,8 @@ class RpcServerHandler extends SimpleChannelUpstreamHandler implements IBlocking
             throw new IllegalArgumentException("BlockingService already registered");
         }
 
-        final ExtensionRegistry extensionRegistry = ExtensionRegistry.newInstance();
-        for (final Descriptors.FieldDescriptor descriptor : service.getDescriptorForType().getFile().getExtensions()) {
-            extensionRegistry.add(descriptor);
-        }
-
+        final ExtensionRegistry extensionRegistry =
+                MessageUtils.getExtensionRegistry(service.getDescriptorForType().getFile());
         blockingServiceMap.put(service.getDescriptorForType().getFullName(),
                 new Pair<>(service, extensionRegistry));
     }
