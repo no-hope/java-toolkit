@@ -1,5 +1,7 @@
 package org.nohope.protobuf.rpc.server;
 
+import com.google.protobuf.Descriptors;
+import com.google.protobuf.ExtensionRegistry;
 import org.nohope.protobuf.core.Controller;
 import org.nohope.protobuf.core.IBlockingServiceRegistry;
 import org.nohope.protobuf.core.exception.ExpectedServiceException;
@@ -39,7 +41,8 @@ import java.util.concurrent.ConcurrentHashMap;
 @ChannelHandler.Sharable
 class RpcServerHandler extends SimpleChannelUpstreamHandler implements IBlockingServiceRegistry {
     private static final Logger LOG = LoggerFactory.getLogger(RpcServerHandler.class);
-    private final Map<String, BlockingService> blockingServiceMap = new ConcurrentHashMap<>();
+    private final Map<String, Map.Entry<BlockingService, ExtensionRegistry>> blockingServiceMap =
+            new ConcurrentHashMap<>();
 
     @Override
     public void messageReceived(final ChannelHandlerContext ctx, final MessageEvent e) throws Exception {
@@ -50,20 +53,22 @@ class RpcServerHandler extends SimpleChannelUpstreamHandler implements IBlocking
 
         LOG.debug("Received request for serviceName: {}, method: {}", serviceName, methodName);
 
-        final BlockingService blockingService = blockingServiceMap.get(serviceName);
-        if (blockingService == null) {
+        final Map.Entry<BlockingService, ExtensionRegistry> pair = blockingServiceMap.get(serviceName);
+        if (pair == null) {
             throw new NoSuchServiceException(request, serviceName);
         }
+        final BlockingService blockingService = pair.getKey();
+        final ExtensionRegistry registry = pair.getValue();
         if (blockingService.getDescriptorForType().findMethodByName(methodName) == null) {
             throw new NoSuchServiceMethodException(request, methodName);
         }
 
         final MethodDescriptor methodDescriptor = blockingService.getDescriptorForType().findMethodByName(methodName);
-
         final Message methodRequest;
         try {
             methodRequest = buildMessageFromPrototype(
                     blockingService.getRequestPrototype(methodDescriptor),
+                    registry,
                     request.getPayload());
         } catch (InvalidProtocolBufferException | UninitializedMessageException ex) {
             throw new InvalidRpcRequestException(ex, request,
@@ -125,9 +130,10 @@ class RpcServerHandler extends SimpleChannelUpstreamHandler implements IBlocking
     }
 
     private static Message buildMessageFromPrototype(final Message prototype,
+                                                     final ExtensionRegistry registry,
                                                      final ByteString messageToBuild)
             throws InvalidProtocolBufferException {
-        return prototype.newBuilderForType().mergeFrom(messageToBuild).build();
+        return prototype.newBuilderForType().mergeFrom(messageToBuild, registry).build();
     }
 
     @Override
@@ -135,7 +141,15 @@ class RpcServerHandler extends SimpleChannelUpstreamHandler implements IBlocking
         if (blockingServiceMap.containsKey(service.getDescriptorForType().getFullName())) {
             throw new IllegalArgumentException("BlockingService already registered");
         }
-        blockingServiceMap.put(service.getDescriptorForType().getFullName(), service);
+
+        final ExtensionRegistry extensionRegistry = ExtensionRegistry.newInstance();
+        for (final Descriptors.FieldDescriptor descriptor : service.getDescriptorForType().getFile().getExtensions()) {
+            extensionRegistry.add(descriptor);
+        }
+
+
+        blockingServiceMap.put(service.getDescriptorForType().getFullName(),
+                new Pair<>(service, extensionRegistry));
     }
 
     @Override
@@ -167,6 +181,31 @@ class RpcServerHandler extends SimpleChannelUpstreamHandler implements IBlocking
                             response, future.isCancelled());
                 }
             }
+        }
+    }
+
+    private static final class Pair<K, V> implements Map.Entry<K, V> {
+        private final K key;
+        private final V value;
+
+        private Pair(final K key, final V value) {
+            this.key = key;
+            this.value = value;
+        }
+
+        @Override
+        public K getKey() {
+            return key;
+        }
+
+        @Override
+        public V getValue() {
+            return value;
+        }
+
+        @Override
+        public V setValue(final V value) {
+            throw new UnsupportedOperationException();
         }
     }
 }
