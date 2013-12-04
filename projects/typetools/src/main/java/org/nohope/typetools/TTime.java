@@ -151,7 +151,7 @@ public final class TTime {
         return compareResultMatcher.matches(c1.compare(c2));
     }
 
-    static class LazyDataTypeFactorySingleton {
+    static final class LazyDataTypeFactorySingleton {
         private static final DatatypeFactory datatypeFactory;
         static {
             try {

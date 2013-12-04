@@ -17,11 +17,22 @@ public abstract class UtilitiesTestSupport {
     //XXX: is it really worth it?
     @Test
     public final void testUtilityConstructor() throws Exception {
-        final Constructor<?>[] cons = getUtilityClass().getDeclaredConstructors();
-        assertEquals(1, cons.length);
-        assertTrue(Modifier.isPrivate(cons[0].getModifiers()));
-        cons[0].setAccessible(true);
-        cons[0].newInstance((Object[]) null);
+        final Class<?> clazz = getUtilityClass();
+        assertTrue("Utility class " + clazz.getCanonicalName() + " should be declared final",
+                Modifier.isFinal(clazz.getModifiers()));
+
+        final Constructor<?>[] cons = clazz.getDeclaredConstructors();
+        final String errorMessage = "Utility class "
+                                  + clazz.getCanonicalName()
+                                  + " should have only one private "
+                                  + "default constructor";
+        assertEquals(errorMessage, 1, cons.length);
+
+        final Constructor<?> ctor = cons[0];
+        assertEquals(errorMessage, 0, ctor.getParameterTypes().length);
+        assertTrue(errorMessage, Modifier.isPrivate(ctor.getModifiers()));
+        ctor.setAccessible(true);
+        ctor.newInstance((Object[]) null);
     }
 
     protected abstract Class<?> getUtilityClass();

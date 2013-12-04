@@ -6,7 +6,7 @@ import javax.xml.namespace.QName;
  * @author <a href="mailto:ketoth.xupack@gmail.com">Ketoth Xupack</a>
  * @since 2013-10-16 13:59
  */
-public class Customizations {
+public final class Customizations {
     public static final String NAMESPACE_URI = "http://no-hope.org/jaxb2/validation";
     public static final String BIND_COMPLEX_TYPE = "type";
 

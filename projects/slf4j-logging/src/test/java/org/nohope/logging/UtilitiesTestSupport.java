@@ -40,6 +40,7 @@ public abstract class UtilitiesTestSupport {
                    InstantiationException {
         final Constructor<?>[] cons =
                 getUtilityClass().getDeclaredConstructors();
+        assertTrue(Modifier.isFinal(getUtilityClass().getModifiers()));
         assertEquals(1, cons.length);
         assertTrue(Modifier.isPrivate(cons[0].getModifiers()));
         cons[0].setAccessible(true);

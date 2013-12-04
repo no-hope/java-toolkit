@@ -11,7 +11,7 @@ import javax.annotation.Nonnull;
  * @author <a href="mailto:ketoth.xupack@gmail.com">Ketoth Xupack</a>
  * @since 2013-10-22 15:46
  */
-public class Matchers {
+public final class Matchers {
     private Matchers() {
     }
 
