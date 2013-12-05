@@ -12,7 +12,7 @@ import java.util.concurrent.Executors;
  * @author <a href="mailto:ketoth.xupack@gmail.com">ketoth xupack</a>
  * @since 2013-10-01 15:04
  */
-public final class RpcClient {
+public final class RpcClient implements IRpcClient {
     private final ClientBootstrap bootstrap;
     private final RpcClientOptions options;
 
@@ -26,10 +26,12 @@ public final class RpcClient {
 
     }
 
+    @Override
     public BlockingRpcChannel connect() {
         return new RpcChannelImpl(bootstrap, options.getTimeout(), options.getTimeoutUnit());
     }
 
+    @Override
     public void shutdown() {
         bootstrap.shutdown();
         bootstrap.releaseExternalResources();
