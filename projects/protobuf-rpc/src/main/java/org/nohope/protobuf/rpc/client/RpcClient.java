@@ -6,6 +6,7 @@ import com.google.protobuf.BlockingRpcChannel;
 import org.jboss.netty.bootstrap.ClientBootstrap;
 import org.jboss.netty.channel.socket.nio.NioClientSocketChannelFactory;
 
+import javax.annotation.Nonnull;
 import java.util.concurrent.Executors;
 
 /**
@@ -16,7 +17,7 @@ public final class RpcClient implements IRpcClient {
     private final ClientBootstrap bootstrap;
     private final RpcClientOptions options;
 
-    public RpcClient(final RpcClientOptions options) {
+    public RpcClient(@Nonnull final RpcClientOptions options) {
         this.options = options;
         this.bootstrap = new ClientBootstrap(new NioClientSocketChannelFactory(
                 Executors.newCachedThreadPool(), Executors.newCachedThreadPool()));

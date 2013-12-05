@@ -22,6 +22,7 @@ import org.nohope.protobuf.core.exception.UnexpectedServiceException;
 import org.nohope.rpc.protocol.RPC;
 
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import java.util.Map;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ConcurrentHashMap;
@@ -53,9 +54,9 @@ class RpcChannelImpl implements RpcChannel, BlockingRpcChannel {
     private final AtomicReference<Channel> channel = new AtomicReference<>();
     private final ClientBootstrap bootstrap;
 
-    public RpcChannelImpl(final ClientBootstrap bootstrap,
+    public RpcChannelImpl(@Nonnull final ClientBootstrap bootstrap,
                           final long timeout,
-                          final TimeUnit timeoutUnit) {
+                          @Nonnull final TimeUnit timeoutUnit) {
         final Channel unboundChannel = bootstrap.connect().getChannel();
 
         this.bootstrap = bootstrap;
@@ -72,7 +73,7 @@ class RpcChannelImpl implements RpcChannel, BlockingRpcChannel {
         return new Controller();
     }
 
-    private void write(final RPC.RpcRequest request) throws UnexpectedServiceException {
+    private void write(@Nonnull final RPC.RpcRequest request) throws UnexpectedServiceException {
         final Channel channel = this.channel.get();
         if (!channel.isConnected()) {
             final ChannelFuture connectFuture = bootstrap.connect().awaitUninterruptibly();
@@ -87,7 +88,7 @@ class RpcChannelImpl implements RpcChannel, BlockingRpcChannel {
 
     @Override
     public Message callBlockingMethod(final MethodDescriptor method,
-                                      final RpcController originController,
+                                      @Nullable final RpcController originController,
                                       final Message request,
                                       final Message responsePrototype) throws ServiceException {
 
@@ -151,16 +152,16 @@ class RpcChannelImpl implements RpcChannel, BlockingRpcChannel {
 
         try {
             return handler.get(timeout, unit);
-        } catch (ExecutionException e) {
+        } catch (final ExecutionException e) {
             // TODO: more exceptional types
             final Throwable cause = e.getCause();
             if (cause instanceof ServiceException) {
                 throw (ServiceException) cause;
             }
             throw new IllegalStateException(e);
-        } catch (TimeoutException e) {
+        } catch (final TimeoutException e) {
             throw new RpcTimeoutException(e);
-        } catch (InterruptedException e) {
+        } catch (final InterruptedException e) {
             throw new IllegalStateException(e);
         }
     }
@@ -215,7 +216,7 @@ class RpcChannelImpl implements RpcChannel, BlockingRpcChannel {
             if (rpcResponse.hasError()) {
                 try {
                     rpcResponse = MessageUtils.repairedMessage(rpcResponse, extensionRegistry);
-                } catch (InvalidProtocolBufferException e) {
+                } catch (final InvalidProtocolBufferException e) {
                     LOG.warn("Could not marshall into error message", e);
                 }
                 controller.setError(rpcResponse.getError());

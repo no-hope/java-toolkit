@@ -1,5 +1,6 @@
 package org.nohope.protobuf.rpc.client;
 
+import javax.annotation.Nonnull;
 import java.net.InetSocketAddress;
 import java.util.concurrent.TimeUnit;
 
@@ -12,9 +13,9 @@ public class RpcClientOptions {
     private final long timeout;
     private final TimeUnit timeoutUnit;
 
-    public RpcClientOptions(final InetSocketAddress address,
+    public RpcClientOptions(@Nonnull final InetSocketAddress address,
                             final long timeout,
-                            final TimeUnit timeoutUnit) {
+                            @Nonnull final TimeUnit timeoutUnit) {
         this.address = address;
         this.timeout = timeout;
         this.timeoutUnit = timeoutUnit;
@@ -25,7 +26,7 @@ public class RpcClientOptions {
         private long timeout = 30;
         private TimeUnit timeoutUnit = TimeUnit.SECONDS;
 
-        public Builder(final InetSocketAddress address) {
+        public Builder(@Nonnull final InetSocketAddress address) {
             this.address = address;
         }
 
@@ -34,7 +35,7 @@ public class RpcClientOptions {
             return this;
         }
 
-        public Builder setTimeoutUnit(final TimeUnit timeoutUnit) {
+        public Builder setTimeoutUnit(@Nonnull final TimeUnit timeoutUnit) {
             this.timeoutUnit = timeoutUnit;
             return this;
         }
@@ -44,6 +45,7 @@ public class RpcClientOptions {
         }
     }
 
+    @Nonnull
     public InetSocketAddress getAddress() {
         return address;
     }
@@ -52,6 +54,7 @@ public class RpcClientOptions {
         return timeout;
     }
 
+    @Nonnull
     public TimeUnit getTimeoutUnit() {
         return timeoutUnit;
     }

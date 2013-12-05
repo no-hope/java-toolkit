@@ -9,6 +9,7 @@ import org.nohope.logging.Logger;
 import org.nohope.logging.LoggerFactory;
 import org.nohope.rpc.protocol.RPC;
 
+import javax.annotation.Nonnull;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -30,7 +31,8 @@ class RpcClientHandler extends SimpleChannelUpstreamHandler {
         return seqNum.getAndIncrement();
     }
 
-    public synchronized void registerCallback(final int seqId, final ResponsePrototypeRpcCallback callback) {
+    public synchronized void registerCallback(final int seqId,
+                                              @Nonnull final ResponsePrototypeRpcCallback callback) {
         if (callbackMap.containsKey(seqId)) {
             throw new IllegalArgumentException("Callback already registered");
         }
@@ -54,7 +56,7 @@ class RpcClientHandler extends SimpleChannelUpstreamHandler {
         final int seqId = response.getId();
         final ResponsePrototypeRpcCallback callback = callbackMap.remove(seqId);
 
-        if (response.hasError() && callback != null && callback.getRpcController() != null) {
+        if (response.hasError() && callback != null) {
             callback.getRpcController().setError(response.getError());
         }
 
