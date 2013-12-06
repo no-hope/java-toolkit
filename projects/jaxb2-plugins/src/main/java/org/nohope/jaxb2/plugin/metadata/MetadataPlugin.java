@@ -15,7 +15,11 @@ import com.sun.codemodel.JMod;
 import com.sun.codemodel.JType;
 import com.sun.codemodel.JVar;
 import com.sun.tools.xjc.Options;
+import com.sun.tools.xjc.model.CClassInfo;
+import com.sun.tools.xjc.model.CTypeInfo;
+import com.sun.tools.xjc.outline.Aspect;
 import com.sun.tools.xjc.outline.ClassOutline;
+import com.sun.tools.xjc.outline.FieldOutline;
 import com.sun.tools.xjc.outline.Outline;
 import org.jvnet.jaxb2_commons.plugin.AbstractParameterizablePlugin;
 import org.jvnet.jaxb2_commons.util.ClassUtils;
@@ -27,6 +31,7 @@ import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlTransient;
 import java.io.StringWriter;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.Map;
 
 /**
@@ -51,8 +56,31 @@ public class MetadataPlugin extends AbstractParameterizablePlugin {
                        final ErrorHandler errorHandler) {
 
         final Collection<? extends ClassOutline> classes = outline.getClasses();
+
         for (final ClassOutline classOutline : classes) {
+            final Map<String, JClass> collectionTypes = new HashMap<>();
+            for (final FieldOutline field : classOutline.getDeclaredFields()) {
+                if (field.getPropertyInfo().isCollection()) {
+                    final Collection<? extends CTypeInfo> references = field.getPropertyInfo().ref();
+                    if (references.size() == 1) { // FIXME: more than one?
+                        final CTypeInfo ref = references.iterator().next();
+                        if (ref instanceof CClassInfo) {
+                            final CClassInfo collectionType = (CClassInfo) ref;
+                            collectionTypes.put(field.getPropertyInfo().getName(false),
+                                    collectionType.getType().toType(outline, Aspect.IMPLEMENTATION));
+                        }
+                    }
+                }
+            }
+
             final JDefinedClass c = classOutline.implClass;
+            for (final Map.Entry<String, JClass> entry : collectionTypes.entrySet()) {
+                c.fields()
+                 .get(entry.getKey())
+                 .annotate(CollectionType.class)
+                 .param("value", entry.getValue());
+            }
+
             final JCodeModel cm = c.owner();
             ClassUtils._implements(c, cm.ref(IMetadataHolder.class)
                                         .narrow(cm.directClass(c.name() + ".IInstanceDescriptor")));
