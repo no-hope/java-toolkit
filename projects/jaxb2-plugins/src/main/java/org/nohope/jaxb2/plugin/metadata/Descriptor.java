@@ -73,4 +73,9 @@ public class Descriptor<T> implements IDescriptor<T> {
 
         return builder.toString();
     }
+
+    @Override
+    public IDescriptor<?> getChild(final String name) {
+        throw new IllegalArgumentException("No children found");
+    }
 }

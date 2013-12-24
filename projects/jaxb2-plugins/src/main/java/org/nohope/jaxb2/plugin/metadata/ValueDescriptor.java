@@ -22,10 +22,15 @@ public class ValueDescriptor<T>
     }
 
     @Override
+    public IValueDescriptor<?> getChild(final String name) {
+        throw new IllegalArgumentException("No children found");
+    }
+
+    @Override
     public T getValue() throws CallException {
         try {
             return getter.get();
-        } catch (Exception e) {
+        } catch (final Exception e) {
             if (e instanceof CallException) {
                 throw (CallException) e;
             }

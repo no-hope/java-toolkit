@@ -12,6 +12,7 @@ import com.sun.codemodel.JFormatter;
 import com.sun.codemodel.JInvocation;
 import com.sun.codemodel.JMethod;
 import com.sun.codemodel.JMod;
+import com.sun.codemodel.JSwitch;
 import com.sun.codemodel.JType;
 import com.sun.codemodel.JVar;
 import com.sun.tools.xjc.Options;
@@ -198,6 +199,10 @@ public class MetadataPlugin extends AbstractParameterizablePlugin {
             ;
         }
 
+
+        final Map<String, JMethod> instanceMethods = new HashMap<>();
+        final Map<String, JMethod> classMethods = new HashMap<>();
+
         // FIXME: iterate over fields
         for (final JMethod method : theClass.methods()) {
             final String name = method.name();
@@ -285,6 +290,60 @@ public class MetadataPlugin extends AbstractParameterizablePlugin {
                     instanceLevelDescriptor.method(JMod.PUBLIC, abstractInstanceLevelReturnType, name);
             instanceDescriptorMethod.annotate(Override.class);
             instanceDescriptorMethod.body()._return(instanceLevelMethodExpression);
+
+            instanceMethods.put(fieldMetaName, instanceDescriptorMethod);
+            classMethods.put(fieldMetaName, classLevelDescriptorMethod);
+        }
+
+        {
+            final JMethod instancedDescriptorChildGetter =
+                    instanceLevelDescriptor.method(JMod.PUBLIC,
+                            codeModel.ref(IValueDescriptor.class).narrow(codeModel.wildcard()),
+                            "getChild");
+            //instancedDescriptorChildGetter._throws(CallException.class);
+            final JVar name =
+                    instancedDescriptorChildGetter.param(String.class, "name");
+
+            final JSwitch _switch =
+                    instancedDescriptorChildGetter.body()
+                                                  ._switch(name);
+
+            for (final Map.Entry<String, JMethod> e : instanceMethods.entrySet()) {
+                _switch._case(JExpr.lit(e.getKey()))
+                       .body()
+                       ._return(JExpr.invoke(e.getValue()));
+            }
+
+            _switch._default()
+                   .body()
+                   ._throw(JExpr._new(codeModel.ref(IllegalArgumentException.class))
+                                .arg(JExpr.lit("No requested child found")));
+            instancedDescriptorChildGetter.annotate(Override.class);
+        }
+
+        {
+            final JMethod instancedDescriptorChildGetter =
+                    classLevelDescriptor.method(JMod.PUBLIC,
+                            codeModel.ref(IDescriptor.class).narrow(codeModel.wildcard()),
+                            "getChild");
+            //instancedDescriptorChildGetter._throws(CallException.class);
+            final JVar name =
+                    instancedDescriptorChildGetter.param(String.class, "name");
+
+            final JSwitch _switch =
+                    instancedDescriptorChildGetter.body()._switch(name);
+
+            for (final Map.Entry<String, JMethod> e : classMethods.entrySet()) {
+                _switch._case(JExpr.lit(e.getKey()))
+                       .body()
+                       ._return(JExpr.invoke(e.getValue()));
+            }
+
+            _switch._default()
+                   .body()
+                   ._throw(JExpr._new(codeModel.ref(IllegalArgumentException.class))
+                                .arg(JExpr.lit("No requested child found")));
+            instancedDescriptorChildGetter.annotate(Override.class);
         }
     }
 

@@ -8,6 +8,7 @@ import org.nohope.reflection.TypeReference;
  */
 public interface IDescriptor<T> extends Iterable<IDescriptor<?>> {
     IDescriptor<?> getParent();
+    IDescriptor<?> getChild(final String name);
     String getName();
     TypeReference<T> getType();
 }

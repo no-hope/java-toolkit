@@ -6,4 +6,5 @@ package org.nohope.jaxb2.plugin.metadata;
  */
 public interface IValueDescriptor<T> extends IDescriptor<T> {
     T getValue() throws CallException;
+    @Override IValueDescriptor<?> getChild(final String name);
 }
