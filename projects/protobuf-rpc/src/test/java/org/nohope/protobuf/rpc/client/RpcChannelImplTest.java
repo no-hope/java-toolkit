@@ -86,8 +86,7 @@ public class RpcChannelImplTest {
         }
         {
             final Capture<Class<? extends ChannelHandler>> type = new Capture<>();
-            final Entry<Channel, ChannelPipeline> pair =
-                    mockChannel(type, new RpcClientHandler());
+            final Entry<Channel, ChannelPipeline> pair = mockChannel(type, new RpcClientHandler());
             final Channel channel = pair.getKey();
             final ChannelPipeline pipeline = pair.getValue();
             final ClientBootstrap bootstrap = createMock(ClientBootstrap.class);

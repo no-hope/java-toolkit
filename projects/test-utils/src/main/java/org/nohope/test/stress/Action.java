@@ -2,7 +2,7 @@ package org.nohope.test.stress;
 
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
-import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.atomic.AtomicReference;
 
 /**
  * @author <a href="mailto:ketoth.xupack@gmail.com">ketoth xupack</a>
@@ -13,9 +13,8 @@ public abstract class Action {
                                      final int operationNumber)
             throws Exception;
 
-    private final AtomicInteger threads = new AtomicInteger();
-
-    final ConcurrentMap<String, MultiInvocationStat> map = new ConcurrentHashMap<>();
+    private final AtomicReference<StressScenario> scenario= new AtomicReference<>();
+    private final ConcurrentMap<String, MultiInvocationStat> map = new ConcurrentHashMap<>();
 
 
     protected final <T> T invoke(final int threadId,
@@ -34,12 +33,15 @@ public abstract class Action {
         void invoke() throws Exception;
     }
 
-    protected final void setTcreadsCount(final int threadsCount) {
-        threads.set(threadsCount);
+    protected final void setScenario(final StressScenario scenario) {
+        this.scenario.set(scenario);
     }
 
     private MultiInvocationStat getStat(final String name) {
-        map.putIfAbsent(name, new MultiInvocationStat(name, threads.get()));
+        map.putIfAbsent(name, new MultiInvocationStat(
+                this.scenario.get().getResolution(),
+                name));
+
         return map.get(name);
     }
 

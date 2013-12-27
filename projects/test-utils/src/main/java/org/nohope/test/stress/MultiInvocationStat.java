@@ -5,8 +5,9 @@ package org.nohope.test.stress;
 * @since 2013-12-27 16:18
 */
 public class MultiInvocationStat extends AbstractStat {
-    protected MultiInvocationStat(final String name, final int threadsCount) {
-        super(name, threadsCount);
+    protected MultiInvocationStat(final TimerResolution resolution,
+                                  final String name) {
+        super(resolution, name);
     }
 
     protected void invoke(final int threadId,

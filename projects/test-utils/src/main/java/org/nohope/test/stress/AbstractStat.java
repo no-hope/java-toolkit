@@ -24,11 +24,12 @@ public class AbstractStat implements IStressStat {
     private final ConcurrentHashMap<Class, AtomicInteger> errorStats = new ConcurrentHashMap<>();
     private final AtomicReference<Result> result = new AtomicReference<>();
     private final String name;
-    private final int threadsCount;
+    private final TimerResolution resolution;
 
-    protected AbstractStat(final String name, final int threadsCount) {
+    protected AbstractStat(final TimerResolution resolution,
+                           final String name) {
+        this.resolution = resolution;
         this.name = name;
-        this.threadsCount = threadsCount;
     }
 
     @Override
@@ -53,9 +54,9 @@ public class AbstractStat implements IStressStat {
                 new CopyOnWriteArrayList<Map.Entry<Long, Long>>());
 
         try {
-            final long start = System.currentTimeMillis();
+            final long start = resolution.currentTime();
             final T result = invoke.invoke();
-            final long diff = System.currentTimeMillis() - start;
+            final long diff = resolution.currentTime() - start;
             timesPerThread.get(threadId).add(new ImmutablePair<>(start, diff));
             return result;
         } catch (final Exception e) {
@@ -79,6 +80,8 @@ public class AbstractStat implements IStressStat {
             times.addAll(e);
         }
 
+        final int threadsCount = timesPerThread.size();
+
         for (final Map.Entry<Long, Long> time : times) {
             final Long runtimeInMillis = time.getValue();
             totalDeltaMillis += runtimeInMillis;
@@ -89,7 +92,7 @@ public class AbstractStat implements IStressStat {
                 minTime = runtimeInMillis;
             }
 
-            final long second = time.getKey() / 1000;
+            final long second = time.getKey() / (long) resolution.getFactor();
             if (!requests.containsKey(second)) {
                 requests.put(second, 0L);
             }
@@ -100,7 +103,7 @@ public class AbstractStat implements IStressStat {
                 1. * totalDeltaMillis / times.size();
 
         final double throughput =
-                1000. * threadsCount * times.size() / totalDeltaMillis;
+                resolution.getFactor() * threadsCount * times.size() / totalDeltaMillis;
 
         result.set(new Result(
                 requests,
@@ -125,14 +128,20 @@ public class AbstractStat implements IStressStat {
 
         builder.append("Min request time: ")
                .append(res.getMinTime())
+               .append(" ")
+               .append(resolution.getName())
                .append('\n');
 
         builder.append("Max request time: ")
                .append(res.getMaxTime())
+               .append(" ")
+               .append(resolution.getName())
                .append('\n');
 
         builder.append("Mean request time: ")
                .append(res.getMeanRequestTime())
+               .append(" ")
+               .append(resolution.getName())
                .append('\n');
 
         builder.append("Overall errors: ")
@@ -165,7 +174,7 @@ public class AbstractStat implements IStressStat {
 
         builder.append("Throughput: ")
                .append(res.getThroughput())
-               .append(" responses/sec")
+               .append(" resp/sec")
                .append('\n');
 
         return builder.toString();

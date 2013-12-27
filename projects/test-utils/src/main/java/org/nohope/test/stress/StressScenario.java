@@ -10,17 +10,29 @@ import java.util.Map;
  * @since 2013-12-26 21:39
  */
 public class StressScenario {
-    private StressScenario() {
+    private StressScenario(final TimerResolution resolution) {
+        this.resolution = resolution;
     }
 
-    public static StressResult measure(final int threadsNumber,
+    private final TimerResolution resolution;
+
+    protected TimerResolution getResolution() {
+        return resolution;
+    }
+
+    public static StressScenario of(TimerResolution resolution) {
+        return new StressScenario(resolution);
+    }
+
+    public StressResult measure(final int threadsNumber,
                                final int cycleCount,
                                final NamedAction... actions)
             throws InterruptedException {
 
         final Map<String, SingleInvocationStat> result = new HashMap<>();
         for (final NamedAction action : actions) {
-            result.put(action.getName(), new SingleInvocationStat(action, threadsNumber));
+            result.put(action.getName(), new SingleInvocationStat(resolution,
+                    action));
         }
 
         final List<Thread> threads = new ArrayList<>();
@@ -43,7 +55,7 @@ public class StressScenario {
             }, "stress-worker-" + k));
         }
 
-        final long overallStart = System.currentTimeMillis();
+        final long overallStart = resolution.currentTime();
         for (final Thread thread : threads) {
             thread.start();
         }
@@ -51,7 +63,7 @@ public class StressScenario {
         for (final Thread thread : threads) {
             thread.join();
         }
-        final long overallEnd = System.currentTimeMillis();
+        final long overallEnd = resolution.currentTime();
 
         final double overallApprox = (overallEnd - overallStart) / 1000.0;
 
@@ -68,12 +80,12 @@ public class StressScenario {
                 overallApprox);
     }
 
-    public static StressResult measure(final int threadsNumber,
-                                       final int cycleCount,
-                                       final Action action)
+    public StressResult measure(final int threadsNumber,
+                                final int cycleCount,
+                                final Action action)
             throws InterruptedException {
 
-        action.setTcreadsCount(threadsNumber);
+        action.setScenario(this);
         final List<Thread> threads = new ArrayList<>();
 
         for (int i = 0; i < threadsNumber; i++) {
@@ -92,14 +104,16 @@ public class StressScenario {
             }, "stress-worker-" + k));
         }
 
-        final long overallStart = System.currentTimeMillis();
+
+
+        final long overallStart = resolution.currentTime();
         for (final Thread thread : threads) {
             thread.start();
         }
         for (final Thread thread : threads) {
             thread.join();
         }
-        final long overallEnd = System.currentTimeMillis();
+        final long overallEnd = resolution.currentTime();
 
         final double overallApprox = (overallEnd - overallStart) / 1000.0;
 
@@ -109,6 +123,7 @@ public class StressScenario {
             fails += stats.getFails();
         }
 
+        action.setScenario(null);
         return new StressResult(action.getMap(),
                 threadsNumber * cycleCount,
                 fails,

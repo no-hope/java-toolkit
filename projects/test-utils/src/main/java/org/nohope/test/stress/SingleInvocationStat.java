@@ -7,8 +7,9 @@ package org.nohope.test.stress;
 public class SingleInvocationStat extends AbstractStat {
     private final NamedAction action;
 
-    public SingleInvocationStat(final NamedAction action, final int threadsCount) {
-        super(action.getName(), threadsCount);
+    public SingleInvocationStat(final TimerResolution resolution,
+                                final NamedAction action) {
+        super(resolution, action.getName());
         this.action = action;
     }
 
