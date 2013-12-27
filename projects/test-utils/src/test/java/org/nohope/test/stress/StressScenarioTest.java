@@ -18,7 +18,7 @@ public class StressScenarioTest {
                                   @Override
                                   protected void doAction(final int threadId, final int operationNumber)
                                           throws Exception {
-                                      Thread.sleep(10);
+                                      Thread.sleep(1);
                                   }
                               });
         final StressResult m2 =
@@ -27,11 +27,12 @@ public class StressScenarioTest {
                                   @Override
                                   protected void doAction(final int threadId, final int operationNumber)
                                           throws Exception {
-                                      Thread.sleep(10);
+                                      Thread.sleep(1);
                                   }
                               });
 
         System.err.println(m1);
+        System.err.println();
         System.err.println(m2);
     }
 }

@@ -65,7 +65,7 @@ public class StressScenario {
         }
         final long overallEnd = resolution.currentTime();
 
-        final double overallApprox = (overallEnd - overallStart) / 1000.0;
+        final double overallApprox = (overallEnd - overallStart) / resolution.getFactor();
 
         int fails = 0;
         for (final SingleInvocationStat stats : result.values()) {
@@ -74,7 +74,8 @@ public class StressScenario {
         }
 
         return new StressResult(result,
-                threadsNumber * cycleCount,
+                threadsNumber,
+                cycleCount,
                 fails,
                 overallStart, overallEnd,
                 overallApprox);
@@ -115,7 +116,7 @@ public class StressScenario {
         }
         final long overallEnd = resolution.currentTime();
 
-        final double overallApprox = (overallEnd - overallStart) / 1000.0;
+        final double overallApprox = (overallEnd - overallStart) / resolution.getFactor();
 
         int fails = 0;
         for (final MultiInvocationStat stats : action.getMap().values()) {
@@ -125,7 +126,8 @@ public class StressScenario {
 
         action.setScenario(null);
         return new StressResult(action.getMap(),
-                threadsNumber * cycleCount,
+                threadsNumber,
+                cycleCount,
                 fails,
                 overallStart, overallEnd,
                 overallApprox);

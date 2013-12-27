@@ -13,10 +13,12 @@ public class StressResult {
     private final long end;
     private final double runtime;
     private final int fails;
-    private final int measurements;
+    private final int threadsCount;
+    private final int cycleCount;
 
     public StressResult(final Map<String, ? extends IStressStat> stats,
-                        final int measurements,
+                        final int threadsCount,
+                        final int cycleCount,
                         final int fails,
                         final long start,
                         final long end,
@@ -25,12 +27,13 @@ public class StressResult {
         this.end = end;
         this.runtime = runtime;
         this.fails = fails;
-        this.measurements = measurements;
+        this.threadsCount = threadsCount;
+        this.cycleCount = cycleCount;
         results.putAll(stats);
     }
 
     public double getApproxThroughput() {
-        return (measurements * 1.0 - fails) / runtime;
+        return (threadsCount * cycleCount * 1.0 - fails) / runtime;
     }
 
     public Map<String, IStressStat> getResults() {
@@ -53,24 +56,24 @@ public class StressResult {
         return fails;
     }
 
-    public int getMeasurements() {
-        return measurements;
-    }
-
     @Override
     public String toString() {
         final StringBuilder builder = new StringBuilder();
         builder.append("===== Stress test result =====\n")
-               .append("==============================\n");
+               .append("Threads: ")
+               .append(threadsCount)
+               .append("\nCycles: ")
+               .append(cycleCount)
+               .append("\n==============================\n");
         for (final IStressStat stats : results.values()) {
             builder.append(stats.toString());
         }
-
         return builder.append("==============================\n")
                       .append("Overall Running Time: ")
                       .append(runtime)
-                      .append(", approx throughput: ")
+                      .append(" sec\nApprox throughput: ")
                       .append(getApproxThroughput())
+                      .append(" resp/sec")
                       .toString();
     }
 }

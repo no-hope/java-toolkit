@@ -9,13 +9,11 @@ import java.util.concurrent.atomic.AtomicReference;
  * @since 2013-12-27 16:21
  */
 public abstract class Action {
-    protected abstract void doAction(final int threadId,
-                                     final int operationNumber)
-            throws Exception;
-
     private final AtomicReference<StressScenario> scenario= new AtomicReference<>();
     private final ConcurrentMap<String, MultiInvocationStat> map = new ConcurrentHashMap<>();
 
+    protected abstract void doAction(final int threadId,
+                                     final int operationNumber) throws Exception;
 
     protected final <T> T invoke(final int threadId,
                                  final String name,
@@ -29,11 +27,7 @@ public abstract class Action {
         getStat(name).invoke(threadId, invoke);
     }
 
-    public interface Invoke {
-        void invoke() throws Exception;
-    }
-
-    protected final void setScenario(final StressScenario scenario) {
+    final void setScenario(final StressScenario scenario) {
         this.scenario.set(scenario);
     }
 
@@ -45,8 +39,12 @@ public abstract class Action {
         return map.get(name);
     }
 
-    public ConcurrentMap<String, MultiInvocationStat> getMap() {
+    ConcurrentMap<String, MultiInvocationStat> getMap() {
         return map;
+    }
+
+    public interface Invoke {
+        void invoke() throws Exception;
     }
 
     public interface Getter<T> {
