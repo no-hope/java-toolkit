@@ -22,11 +22,11 @@ public final class MeasureProvider extends MeasureData {
         this.map = map;
     }
 
-    protected <T> T invoke(final String name, final Get<T> getter) throws Exception {
+    public <T> T invoke(final String name, final Get<T> getter) throws Exception {
         return getStat(name).invoke(getThreadId(), getter);
     }
 
-    protected void invoke(final String name, final Invoke invoke) throws Exception {
+    public void invoke(final String name, final Invoke invoke) throws Exception {
         getStat(name).invoke(getThreadId(), invoke);
     }
 
