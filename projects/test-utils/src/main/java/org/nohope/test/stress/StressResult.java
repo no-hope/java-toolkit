@@ -29,7 +29,7 @@ public class StressResult {
         this.fails = fails;
         this.threadsCount = threadsCount;
         this.cycleCount = cycleCount;
-        results.putAll(stats);
+        this.results.putAll(stats);
     }
 
     public double getApproxThroughput() {
@@ -73,7 +73,7 @@ public class StressResult {
                       .append(runtime)
                       .append(" sec\nApprox throughput: ")
                       .append(getApproxThroughput())
-                      .append(" resp/sec")
+                      .append(" op/sec")
                       .toString();
     }
 }

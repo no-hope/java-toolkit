@@ -4,6 +4,8 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
 
 /**
  * @author <a href="mailto:ketoth.xupack@gmail.com">ketoth xupack</a>
@@ -20,7 +22,7 @@ public class StressScenario {
         return resolution;
     }
 
-    public static StressScenario of(TimerResolution resolution) {
+    public static StressScenario of(final TimerResolution resolution) {
         return new StressScenario(resolution);
     }
 
@@ -29,14 +31,13 @@ public class StressScenario {
                                final NamedAction... actions)
             throws InterruptedException {
 
-        final Map<String, SingleInvocationStat> result = new HashMap<>();
+        final Map<String, SingleInvocationStat> stats = new HashMap<>();
         for (final NamedAction action : actions) {
-            result.put(action.getName(), new SingleInvocationStat(resolution,
-                    action));
+            stats.put(action.getName(),
+                    new SingleInvocationStat(resolution, action));
         }
 
         final List<Thread> threads = new ArrayList<>();
-
         for (int i = 0; i < threadsNumber; i++) {
             final int k = i;
             threads.add(new Thread(new Runnable() {
@@ -44,10 +45,10 @@ public class StressScenario {
                 public void run() {
                     for (int j = k * cycleCount; j < (k + 1) * cycleCount; j++) {
                         try {
-                            for (final SingleInvocationStat stats : result.values()) {
-                                stats.invoke(k, j);
+                            for (final SingleInvocationStat stat : stats.values()) {
+                                stat.invoke(k, j);
                             }
-                        } catch (final IStressStat.InvocationException e) {
+                        } catch (final InvocationException e) {
                             // TODO
                         }
                     }
@@ -68,16 +69,17 @@ public class StressScenario {
         final double overallApprox = resolution.toSeconds(overallEnd - overallStart);
 
         int fails = 0;
-        for (final SingleInvocationStat stats : result.values()) {
-            stats.calculate();
-            fails += stats.getFails();
+        for (final SingleInvocationStat stat : stats.values()) {
+            stat.calculate();
+            fails += stat.getFails();
         }
 
-        return new StressResult(result,
+        return new StressResult(stats,
                 threadsNumber,
                 cycleCount,
                 fails,
-                overallStart, overallEnd,
+                overallStart,
+                overallEnd,
                 overallApprox);
     }
 
@@ -86,9 +88,17 @@ public class StressScenario {
                                 final Action action)
             throws InterruptedException {
 
-        action.setScenario(this);
-        final List<Thread> threads = new ArrayList<>();
+        final ConcurrentMap<String, MultiInvocationStat> result =
+                new ConcurrentHashMap<>();
 
+        final List<MeasureProvider> providers = new ArrayList<>();
+        for (int i = 0; i < threadsNumber; i++) {
+            for (int j = i * cycleCount; j < (i + 1) * cycleCount; j++) {
+                providers.add(new MeasureProvider(this, i, j, result));
+            }
+        }
+
+        final List<Thread> threads = new ArrayList<>();
         for (int i = 0; i < threadsNumber; i++) {
             final int k = i;
             threads.add(new Thread(new Runnable() {
@@ -96,7 +106,7 @@ public class StressScenario {
                 public void run() {
                     for (int j = k * cycleCount; j < (k + 1) * cycleCount; j++) {
                         try {
-                            action.doAction(k, j);
+                            action.doAction(providers.get(j));
                         } catch (final Exception e) {
                             // TODO: print skipped
                         }
@@ -104,8 +114,6 @@ public class StressScenario {
                 }
             }, "stress-worker-" + k));
         }
-
-
 
         final long overallStart = resolution.currentTime();
         for (final Thread thread : threads) {
@@ -119,13 +127,12 @@ public class StressScenario {
         final double overallApprox = resolution.toSeconds(overallEnd - overallStart);
 
         int fails = 0;
-        for (final MultiInvocationStat stats : action.getMap().values()) {
+        for (final MultiInvocationStat stats : result.values()) {
             stats.calculate();
             fails += stats.getFails();
         }
 
-        action.setScenario(null);
-        return new StressResult(action.getMap(),
+        return new StressResult(result,
                 threadsNumber,
                 cycleCount,
                 fails,

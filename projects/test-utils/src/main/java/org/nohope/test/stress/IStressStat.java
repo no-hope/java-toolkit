@@ -1,8 +1,8 @@
 package org.nohope.test.stress;
 
+import javax.annotation.Nullable;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.atomic.AtomicInteger;
 
 /**
  * @author <a href="mailto:ketoth.xupack@gmail.com">ketoth xupack</a>
@@ -10,14 +10,7 @@ import java.util.concurrent.atomic.AtomicInteger;
  */
 public interface IStressStat {
     List<Map.Entry<Long, Long>> getInvocationTimes();
-    Map<Class, AtomicInteger> getErrorStats();
+    Map<Class, List<Exception>> getErrorStats();
     int getFails();
-
-    interface InvocationHandler<T> {
-        T invoke() throws Exception;
-    }
-
-    class InvocationException extends Exception {
-        private static final long serialVersionUID = 397360373479180369L;
-    }
+    @Nullable Result getResult();
 }

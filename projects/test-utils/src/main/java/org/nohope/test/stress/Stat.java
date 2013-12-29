@@ -2,8 +2,8 @@ package org.nohope.test.stress;
 
 import org.apache.commons.lang3.tuple.ImmutablePair;
 
+import javax.annotation.Nullable;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -15,26 +15,36 @@ import java.util.concurrent.atomic.AtomicReference;
 * @author <a href="mailto:ketoth.xupack@gmail.com">ketoth xupack</a>
 * @since 2013-12-27 16:18
 */
-public class AbstractStat implements IStressStat {
+class Stat implements IStressStat {
     private final ConcurrentHashMap<Integer,
             List<Map.Entry<Long,Long>>> timesPerThread = new
             ConcurrentHashMap<>();
 
     private final AtomicInteger fails = new AtomicInteger(0);
-    private final ConcurrentHashMap<Class, AtomicInteger> errorStats = new ConcurrentHashMap<>();
+    private final ConcurrentHashMap<Class, List<Exception>> errorStats = new ConcurrentHashMap<>();
     private final AtomicReference<Result> result = new AtomicReference<>();
     private final String name;
     private final TimerResolution resolution;
 
-    protected AbstractStat(final TimerResolution resolution,
-                           final String name) {
+    protected Stat(final TimerResolution resolution,
+                   final String name) {
         this.resolution = resolution;
         this.name = name;
     }
 
     @Override
     public final List<Map.Entry<Long, Long>> getInvocationTimes() {
-        return null;
+        final List<Map.Entry<Long, Long>> times = new ArrayList<>();
+        for (final List<Map.Entry<Long, Long>> e : timesPerThread.values()) {
+            times.addAll(e);
+        }
+        return times;
+    }
+
+    @Nullable
+    @Override
+    public Result getResult() {
+        return result.get();
     }
 
     @Override
@@ -43,16 +53,14 @@ public class AbstractStat implements IStressStat {
     }
 
     @Override
-    public final Map<Class, AtomicInteger> getErrorStats() {
+    public final Map<Class, List<Exception>> getErrorStats() {
         return errorStats;
     }
 
     protected final <T> T invoke(final int threadId,
                                  final InvocationHandler<T> invoke)
             throws InvocationException {
-        timesPerThread.putIfAbsent(threadId,
-                new CopyOnWriteArrayList<Map.Entry<Long, Long>>());
-
+        timesPerThread.putIfAbsent(threadId, new CopyOnWriteArrayList<Map.Entry<Long, Long>>());
         try {
             final long start = resolution.currentTime();
             final T result = invoke.invoke();
@@ -61,8 +69,8 @@ public class AbstractStat implements IStressStat {
             return result;
         } catch (final Exception e) {
             final Class aClass = e.getClass();
-            errorStats.putIfAbsent(aClass, new AtomicInteger(0));
-            errorStats.get(aClass).getAndIncrement();
+            errorStats.putIfAbsent(aClass, new CopyOnWriteArrayList<Exception>());
+            errorStats.get(aClass).add(e);
             fails.getAndIncrement();
             throw new InvocationException();
         }
@@ -71,15 +79,9 @@ public class AbstractStat implements IStressStat {
     protected final void calculate() {
         long maxTime = 0;
         long minTime = Long.MAX_VALUE;
-        final Map<Long, Long> requests = new HashMap<>();
-
         long totalDelta = 0L;
 
-        final List<Map.Entry<Long, Long>> times = new ArrayList<>();
-        for (final List<Map.Entry<Long, Long>> e : timesPerThread.values()) {
-            times.addAll(e);
-        }
-
+        final List<Map.Entry<Long, Long>> times = getInvocationTimes();
         final int threadsCount = timesPerThread.size();
 
         for (final Map.Entry<Long, Long> time : times) {
@@ -91,31 +93,18 @@ public class AbstractStat implements IStressStat {
             if (minTime > runtimeInMillis) {
                 minTime = runtimeInMillis;
             }
-
-            final long second = (long) resolution.toSeconds(time.getKey());
-            if (!requests.containsKey(second)) {
-                requests.put(second, 0L);
-            }
-            requests.put(second, requests.get(second) + 1);
         }
 
-        final double meanRequestTimeMillis =
-                1. * totalDelta / times.size();
-
         final double totalDeltaSeconds = resolution.toSeconds(totalDelta);
-        final double throughput =
-                 threadsCount * times.size() / totalDeltaSeconds;
-
-        final double workerThrp =
-                times.size() / totalDeltaSeconds;
-
+        final double meanRequestTimeMillis = totalDeltaSeconds / times.size();
+        final double workerThroughput = times.size() / totalDeltaSeconds;
+        final double throughput = threadsCount * workerThroughput;
         result.set(new Result(
-                requests,
                 meanRequestTimeMillis,
                 throughput,
-                workerThrp,
-                minTime,
-                maxTime));
+                workerThroughput,
+                resolution.toMillis(minTime),
+                resolution.toMillis(maxTime)));
     }
 
     @Override
@@ -132,17 +121,17 @@ public class AbstractStat implements IStressStat {
                .append(") -----\n");
 
         builder.append("Min request time: ")
-               .append(resolution.toMillis(res.getMinTime()))
+               .append(res.getMinTime())
                .append(" ms")
                .append('\n');
 
         builder.append("Max request time: ")
-               .append(resolution.toMillis(res.getMaxTime()))
+               .append(res.getMaxTime())
                .append(" ms")
                .append('\n');
 
         builder.append("Mean request time: ")
-               .append(resolution.toMillis(res.getMeanRequestTime()))
+               .append(res.getMeanRequestTime())
                .append(" ms")
                .append('\n');
 
@@ -150,17 +139,10 @@ public class AbstractStat implements IStressStat {
                .append(fails.get())
                .append('\n');
 
-        //for (final Map.Entry<Long, Long> e : res.getRequests().entrySet()) {
-        //    builder.append(e.getKey())
-        //           .append(" : ")
-        //           .append(e.getValue())
-        //           .append('\n');
-        //}
-
-        for (final Map.Entry<Class, AtomicInteger> e : errorStats.entrySet()) {
+        for (final Map.Entry<Class, List<Exception>> e : errorStats.entrySet()) {
             builder.append(e.getKey().getName())
                    .append(" happened ")
-                   .append(e.getValue().get())
+                   .append(e.getValue().size())
                    .append(" times")
                    .append('\n');
         }
@@ -179,11 +161,10 @@ public class AbstractStat implements IStressStat {
                .append(" op/sec")
                .append('\n');
 
-        builder.append("Mean per-worker throughput: ")
-                .append(res.getWorkerThrp())
+        builder.append("Mean worker throughput: ")
+                .append(res.getWorkerThroughput())
                 .append(" op/sec")
                 .append('\n');
-
 
         return builder.toString();
     }

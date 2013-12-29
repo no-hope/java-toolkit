@@ -5,13 +5,13 @@ package org.nohope.test.stress;
  * @since 2013-12-27 23:51
  */
 public enum TimerResolution {
-    NANOSECONDS("ns", 3) {
+    NANOSECONDS(3) {
         @Override
         public long currentTime() {
             return System.nanoTime();
         }
     },
-    MILLISECONDS("ms", 1) {
+    MILLISECONDS(1) {
         @Override
         public long currentTime() {
             return System.currentTimeMillis();
@@ -19,18 +19,12 @@ public enum TimerResolution {
     };
 
     private final double factor;
-    private final String name;
 
-    TimerResolution(final String name, final double factor) {
+    TimerResolution(final double factor) {
         this.factor = factor;
-        this.name = name;
     }
 
     public abstract long currentTime();
-
-    public String getName() {
-        return name;
-    }
 
     public double toSeconds(final double time) {
         return time / Math.pow(1000, factor);
