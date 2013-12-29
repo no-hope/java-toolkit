@@ -13,17 +13,19 @@ public class Result {
     private final long minTime;
     private final long maxTime;
     private final Map<Long, Long> requests = new TreeMap<>();
+    private final double workerThrp;
 
     public Result(final Map<Long, Long> requests,
                   final double meanRequestTime,
                   final double throughput,
-                  final long minTime,
+                  final double workerThrp, final long minTime,
                   final long maxTime) {
         this.meanRequestTime = meanRequestTime;
         this.throughput = throughput;
         this.minTime = minTime;
         this.maxTime = maxTime;
         this.requests.putAll(requests);
+        this.workerThrp = workerThrp;
     }
 
     public double getMeanRequestTime() {
@@ -44,5 +46,9 @@ public class Result {
 
     public Map<Long, Long> getRequests() {
         return requests;
+    }
+
+    public double getWorkerThrp() {
+        return workerThrp;
     }
 }

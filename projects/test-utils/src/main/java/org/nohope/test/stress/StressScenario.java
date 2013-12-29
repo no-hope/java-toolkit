@@ -65,7 +65,7 @@ public class StressScenario {
         }
         final long overallEnd = resolution.currentTime();
 
-        final double overallApprox = (overallEnd - overallStart) / resolution.getFactor();
+        final double overallApprox = resolution.toSeconds(overallEnd - overallStart);
 
         int fails = 0;
         for (final SingleInvocationStat stats : result.values()) {
@@ -116,7 +116,7 @@ public class StressScenario {
         }
         final long overallEnd = resolution.currentTime();
 
-        final double overallApprox = (overallEnd - overallStart) / resolution.getFactor();
+        final double overallApprox = resolution.toSeconds(overallEnd - overallStart);
 
         int fails = 0;
         for (final MultiInvocationStat stats : action.getMap().values()) {

@@ -73,7 +73,7 @@ public class AbstractStat implements IStressStat {
         long minTime = Long.MAX_VALUE;
         final Map<Long, Long> requests = new HashMap<>();
 
-        long totalDeltaMillis = 0L;
+        long totalDelta = 0L;
 
         final List<Map.Entry<Long, Long>> times = new ArrayList<>();
         for (final List<Map.Entry<Long, Long>> e : timesPerThread.values()) {
@@ -84,7 +84,7 @@ public class AbstractStat implements IStressStat {
 
         for (final Map.Entry<Long, Long> time : times) {
             final Long runtimeInMillis = time.getValue();
-            totalDeltaMillis += runtimeInMillis;
+            totalDelta += runtimeInMillis;
             if (maxTime < runtimeInMillis) {
                 maxTime = runtimeInMillis;
             }
@@ -92,7 +92,7 @@ public class AbstractStat implements IStressStat {
                 minTime = runtimeInMillis;
             }
 
-            final long second = time.getKey() / (long) resolution.getFactor();
+            final long second = (long) resolution.toSeconds(time.getKey());
             if (!requests.containsKey(second)) {
                 requests.put(second, 0L);
             }
@@ -100,15 +100,20 @@ public class AbstractStat implements IStressStat {
         }
 
         final double meanRequestTimeMillis =
-                1. * totalDeltaMillis / times.size();
+                1. * totalDelta / times.size();
 
+        final double totalDeltaSeconds = resolution.toSeconds(totalDelta);
         final double throughput =
-                resolution.getFactor() * threadsCount * times.size() / totalDeltaMillis;
+                 threadsCount * times.size() / totalDeltaSeconds;
+
+        final double workerThrp =
+                times.size() / totalDeltaSeconds;
 
         result.set(new Result(
                 requests,
                 meanRequestTimeMillis,
                 throughput,
+                workerThrp,
                 minTime,
                 maxTime));
     }
@@ -127,21 +132,18 @@ public class AbstractStat implements IStressStat {
                .append(") -----\n");
 
         builder.append("Min request time: ")
-               .append(res.getMinTime())
-               .append(" ")
-               .append(resolution.getName())
+               .append(resolution.toMillis(res.getMinTime()))
+               .append(" ms")
                .append('\n');
 
         builder.append("Max request time: ")
-               .append(res.getMaxTime())
-               .append(" ")
-               .append(resolution.getName())
+               .append(resolution.toMillis(res.getMaxTime()))
+               .append(" ms")
                .append('\n');
 
         builder.append("Mean request time: ")
-               .append(res.getMeanRequestTime())
-               .append(" ")
-               .append(resolution.getName())
+               .append(resolution.toMillis(res.getMeanRequestTime()))
+               .append(" ms")
                .append('\n');
 
         builder.append("Overall errors: ")
@@ -172,10 +174,16 @@ public class AbstractStat implements IStressStat {
                .append(times.size())
                .append('\n');
 
-        builder.append("Throughput: ")
+        builder.append("Mean throughput: ")
                .append(res.getThroughput())
-               .append(" resp/sec")
+               .append(" op/sec")
                .append('\n');
+
+        builder.append("Mean per-worker throughput: ")
+                .append(res.getWorkerThrp())
+                .append(" op/sec")
+                .append('\n');
+
 
         return builder.toString();
     }
