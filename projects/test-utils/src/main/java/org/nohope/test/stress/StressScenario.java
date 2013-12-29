@@ -66,7 +66,7 @@ public class StressScenario {
         }
         final long overallEnd = resolution.currentTime();
 
-        final double overallApprox = resolution.toSeconds(overallEnd - overallStart);
+        final double runtime = resolution.toSeconds(overallEnd - overallStart);
 
         int fails = 0;
         for (final SingleInvocationStat stat : stats.values()) {
@@ -74,13 +74,8 @@ public class StressScenario {
             fails += stat.getFails();
         }
 
-        return new StressResult(stats,
-                threadsNumber,
-                cycleCount,
-                fails,
-                overallStart,
-                overallEnd,
-                overallApprox);
+        return new StressResult(stats, threadsNumber, cycleCount, fails,
+                runtime);
     }
 
     public StressResult measure(final int threadsNumber,
@@ -124,7 +119,7 @@ public class StressScenario {
         }
         final long overallEnd = resolution.currentTime();
 
-        final double overallApprox = resolution.toSeconds(overallEnd - overallStart);
+        final double runtime = resolution.toSeconds(overallEnd - overallStart);
 
         int fails = 0;
         for (final MultiInvocationStat stats : result.values()) {
@@ -132,11 +127,7 @@ public class StressScenario {
             fails += stats.getFails();
         }
 
-        return new StressResult(result,
-                threadsNumber,
-                cycleCount,
-                fails,
-                overallStart, overallEnd,
-                overallApprox);
+        return new StressResult(result, threadsNumber, cycleCount, fails,
+                runtime);
     }
 }

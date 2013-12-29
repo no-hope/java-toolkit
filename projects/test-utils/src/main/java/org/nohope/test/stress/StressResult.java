@@ -9,8 +9,6 @@ import java.util.Map;
 */
 public class StressResult {
     private final Map<String, IStressStat> results = new HashMap<>();
-    private final long start;
-    private final long end;
     private final double runtime;
     private final int fails;
     private final int threadsCount;
@@ -20,11 +18,7 @@ public class StressResult {
                         final int threadsCount,
                         final int cycleCount,
                         final int fails,
-                        final long start,
-                        final long end,
                         final double runtime) {
-        this.start = start;
-        this.end = end;
         this.runtime = runtime;
         this.fails = fails;
         this.threadsCount = threadsCount;
@@ -32,26 +26,30 @@ public class StressResult {
         this.results.putAll(stats);
     }
 
-    public double getApproxThroughput() {
-        return (threadsCount * cycleCount * 1.0 - fails) / runtime;
-    }
-
+    /**
+     * @return per test results
+     */
     public Map<String, IStressStat> getResults() {
         return results;
     }
 
-    public long getStart() {
-        return start;
+    /**
+     * @return approximate overall throughput in op/sec
+     */
+    public double getApproxThroughput() {
+        return (threadsCount * cycleCount * 1.0 - fails) / runtime;
     }
 
-    public long getEnd() {
-        return end;
-    }
-
+    /**
+     * @return overall running time in milliseconds
+     */
     public double getRuntime() {
         return runtime;
     }
 
+    /**
+     * @return overall exceptions count
+     */
     public int getFails() {
         return fails;
     }
@@ -69,6 +67,8 @@ public class StressResult {
             builder.append(stats.toString());
         }
         return builder.append("==============================\n")
+                      .append("Overall Errors: ")
+                      .append(fails)
                       .append("Overall Running Time: ")
                       .append(runtime)
                       .append(" sec\nApprox throughput: ")
