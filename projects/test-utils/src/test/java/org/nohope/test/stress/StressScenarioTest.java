@@ -106,7 +106,6 @@ public class StressScenarioTest {
                  .get(IllegalStateException.class)
                  .size()
         );
-        assertTrue(m.getStart() < m.getEnd());
 
         final StressResult m2 =
                 StressScenario.of(TimerResolution.MILLISECONDS)
