@@ -8,13 +8,13 @@ import java.util.Map;
 * @since 2013-12-27 16:19
 */
 public class StressResult {
-    private final Map<String, IStressStat> results = new HashMap<>();
+    private final Map<String, Result> results = new HashMap<>();
     private final double runtime;
     private final int fails;
     private final int threadsCount;
     private final int cycleCount;
 
-    public StressResult(final Map<String, ? extends IStressStat> stats,
+    public StressResult(final Map<String, Result> stats,
                         final int threadsCount,
                         final int cycleCount,
                         final int fails,
@@ -29,7 +29,7 @@ public class StressResult {
     /**
      * @return per test results
      */
-    public Map<String, IStressStat> getResults() {
+    public Map<String, Result> getResults() {
         return results;
     }
 
@@ -63,15 +63,15 @@ public class StressResult {
                .append("\nCycles: ")
                .append(cycleCount)
                .append("\n==============================\n");
-        for (final IStressStat stats : results.values()) {
+        for (final Result stats : results.values()) {
             builder.append(stats.toString());
         }
         return builder.append("==============================\n")
-                      .append("Overall Errors: ")
+                      .append("Total error count: ")
                       .append(fails)
-                      .append("Overall Running Time: ")
+                      .append("\nTotal running time: ")
                       .append(runtime)
-                      .append(" sec\nApprox throughput: ")
+                      .append(" sec\nApproximate throughput: ")
                       .append(getApproxThroughput())
                       .append(" op/sec")
                       .toString();

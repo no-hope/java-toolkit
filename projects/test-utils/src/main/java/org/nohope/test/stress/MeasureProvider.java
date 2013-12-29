@@ -11,12 +11,12 @@ import java.util.concurrent.ConcurrentMap;
  */
 public final class MeasureProvider extends MeasureData {
     private final StressScenario scenario;
-    private final ConcurrentMap<String, MultiInvocationStat> map;
+    private final ConcurrentMap<String, MultiInvocationStatCalculator> map;
 
     protected MeasureProvider(final StressScenario scenario,
                               final int threadId,
                               final int operationNumber,
-                              final ConcurrentMap<String, MultiInvocationStat> map) {
+                              final ConcurrentMap<String, MultiInvocationStatCalculator> map) {
         super(threadId, operationNumber);
         this.scenario = scenario;
         this.map = map;
@@ -30,8 +30,8 @@ public final class MeasureProvider extends MeasureData {
         getStat(name).invoke(getThreadId(), invoke);
     }
 
-    private MultiInvocationStat getStat(final String name) {
-        map.putIfAbsent(name, new MultiInvocationStat(this.scenario.getResolution(), name));
+    private MultiInvocationStatCalculator getStat(final String name) {
+        map.putIfAbsent(name, new MultiInvocationStatCalculator(this.scenario.getResolution(), name));
         return map.get(name);
     }
 }

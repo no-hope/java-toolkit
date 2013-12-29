@@ -7,9 +7,9 @@ import org.nohope.test.stress.action.Invoke;
 * @author <a href="mailto:ketoth.xupack@gmail.com">ketoth xupack</a>
 * @since 2013-12-27 16:18
 */
-class MultiInvocationStat extends Stat {
-    protected MultiInvocationStat(final TimerResolution resolution,
-                                  final String name) {
+class MultiInvocationStatCalculator extends StatCalculator {
+    protected MultiInvocationStatCalculator(final TimerResolution resolution,
+                                            final String name) {
         super(resolution, name);
     }
 

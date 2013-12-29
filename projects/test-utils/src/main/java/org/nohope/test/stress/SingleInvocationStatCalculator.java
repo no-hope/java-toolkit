@@ -4,11 +4,11 @@ package org.nohope.test.stress;
 * @author <a href="mailto:ketoth.xupack@gmail.com">ketoth xupack</a>
 * @since 2013-12-27 16:18
 */
-class SingleInvocationStat extends Stat {
+class SingleInvocationStatCalculator extends StatCalculator {
     private final NamedAction action;
 
-    public SingleInvocationStat(final TimerResolution resolution,
-                                final NamedAction action) {
+    public SingleInvocationStatCalculator(final TimerResolution resolution,
+                                          final NamedAction action) {
         super(resolution, action.getName());
         this.action = action;
     }

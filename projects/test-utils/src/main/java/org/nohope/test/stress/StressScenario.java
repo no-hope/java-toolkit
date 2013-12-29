@@ -31,10 +31,10 @@ public class StressScenario {
                                final NamedAction... actions)
             throws InterruptedException {
 
-        final Map<String, SingleInvocationStat> stats = new HashMap<>();
+        final Map<String, SingleInvocationStatCalculator> stats = new HashMap<>();
         for (final NamedAction action : actions) {
             stats.put(action.getName(),
-                    new SingleInvocationStat(resolution, action));
+                    new SingleInvocationStatCalculator(resolution, action));
         }
 
         final List<Thread> threads = new ArrayList<>();
@@ -45,7 +45,7 @@ public class StressScenario {
                 public void run() {
                     for (int j = k * cycleCount; j < (k + 1) * cycleCount; j++) {
                         try {
-                            for (final SingleInvocationStat stat : stats.values()) {
+                            for (final SingleInvocationStatCalculator stat : stats.values()) {
                                 stat.invoke(k, j);
                             }
                         } catch (final InvocationException e) {
@@ -68,13 +68,15 @@ public class StressScenario {
 
         final double runtime = resolution.toSeconds(overallEnd - overallStart);
 
+        final Map<String, Result> results = new HashMap<>();
         int fails = 0;
-        for (final SingleInvocationStat stat : stats.values()) {
-            stat.calculate();
-            fails += stat.getFails();
+        for (final SingleInvocationStatCalculator stat : stats.values()) {
+            final Result r = stat.getResult();
+            fails += r.getErrors().size();
+            results.put(r.getName(), r);
         }
 
-        return new StressResult(stats, threadsNumber, cycleCount, fails,
+        return new StressResult(results, threadsNumber, cycleCount, fails,
                 runtime);
     }
 
@@ -83,7 +85,7 @@ public class StressScenario {
                                 final Action action)
             throws InterruptedException {
 
-        final ConcurrentMap<String, MultiInvocationStat> result =
+        final ConcurrentMap<String, MultiInvocationStatCalculator> result =
                 new ConcurrentHashMap<>();
 
         final List<MeasureProvider> providers = new ArrayList<>();
@@ -122,12 +124,14 @@ public class StressScenario {
         final double runtime = resolution.toSeconds(overallEnd - overallStart);
 
         int fails = 0;
-        for (final MultiInvocationStat stats : result.values()) {
-            stats.calculate();
-            fails += stats.getFails();
+        final Map<String, Result> results = new HashMap<>();
+        for (final MultiInvocationStatCalculator stats : result.values()) {
+            final Result r = stats.getResult();
+            fails += r.getErrors().size();
+            results.put(r.getName(), r);
         }
 
-        return new StressResult(result, threadsNumber, cycleCount, fails,
+        return new StressResult(results, threadsNumber, cycleCount, fails,
                 runtime);
     }
 }

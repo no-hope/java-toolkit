@@ -78,34 +78,81 @@ public class StressScenarioTest {
 
     @Test
     public void counts() throws InterruptedException {
-        final StressResult m =
-                StressScenario.of(TimerResolution.NANOSECONDS)
-                              .measure(2, 100, new NamedAction("test") {
-                                  @Override
-                                  protected void doAction(final MeasureData p) throws Exception {
-                                      if (p.getOperationNumber() >= 100) {
-                                          throw new IllegalStateException();
+        {
+            final StressResult m =
+                    StressScenario.of(TimerResolution.NANOSECONDS)
+                                  .measure(2, 100, new NamedAction("test") {
+                                      @Override
+                                      protected void doAction(final MeasureData p)
+                                              throws Exception {
+                                          if (p.getOperationNumber() >= 100) {
+                                              throw new IllegalStateException();
+                                          }
+                                          Thread.sleep(1);
                                       }
-                                      Thread.sleep(1);
-                                  }
-                              });
+                                  });
 
-        final Map<String, IStressStat> results = m.getResults();
-        assertNotNull(m.toString());
-        assertEquals(1, results.size());
-        final Result testResult = results.get("test").getResult();
-        assertNotNull(testResult);
-        assertTrue(testResult.getThroughput() <= 2000);
-        assertTrue(testResult.getWorkerThroughput() <= 1000);
-        assertEquals(100, results.get("test").getInvocationTimes().size());
-        assertEquals(100, m.getFails());
-        assertEquals(100,
-                m.getResults()
-                 .get("test")
-                 .getErrorStats()
-                 .get(IllegalStateException.class)
-                 .size()
-        );
+            final Map<String, Result> results = m.getResults();
+            assertNotNull(m.toString());
+            assertEquals(1, results.size());
+            final Result testResult = results.get("test");
+            assertNotNull(testResult);
+            assertTrue(testResult.getThroughput() <= 2000);
+            assertTrue(testResult.getWorkerThroughput() <= 1000);
+            assertEquals(100, testResult.getRuntimes().size());
+            assertEquals(2, testResult.getPerThreadRuntimes().size());
+            assertTrue(testResult.getMaxTime() >= testResult.getMinTime());
+            assertTrue(testResult.getMaxTime() >= testResult.getMeanTime());
+            assertTrue(testResult.getMeanTime() >= testResult.getMinTime());
+            assertTrue(m.getRuntime() > 0);
+            assertTrue(testResult.getRuntime() > 0);
+            assertEquals(100, m.getFails());
+            assertEquals(100, testResult.getErrorsPerClass()
+                                        .get(IllegalStateException.class)
+                                        .size()
+            );
+        }
+
+        {
+            final StressResult m =
+                    StressScenario.of(TimerResolution.NANOSECONDS)
+                                  .measure(2, 100, new Action() {
+                                      @Override
+                                      protected void doAction(final MeasureProvider p)
+                                              throws Exception {
+                                          p.invoke("test", new Invoke() {
+                                              @Override
+                                              public void invoke()
+                                                      throws Exception {
+                                                  if (p.getOperationNumber() >= 100) {
+                                                      throw new IllegalStateException();
+                                                  }
+                                                  Thread.sleep(1);
+                                              }
+                                          });
+                                      }
+                                  });
+
+            final Map<String, Result> results = m.getResults();
+            assertNotNull(m.toString());
+            assertEquals(1, results.size());
+            final Result testResult = results.get("test");
+            assertNotNull(testResult);
+            assertTrue(testResult.getThroughput() <= 2000);
+            assertTrue(testResult.getWorkerThroughput() <= 1000);
+            assertEquals(100, testResult.getRuntimes().size());
+            assertEquals(2, testResult.getPerThreadRuntimes().size());
+            assertTrue(testResult.getMaxTime() >= testResult.getMinTime());
+            assertTrue(testResult.getMaxTime() >= testResult.getMeanTime());
+            assertTrue(testResult.getMeanTime() >= testResult.getMinTime());
+            assertTrue(m.getRuntime() > 0);
+            assertTrue(testResult.getRuntime() > 0);
+            assertEquals(100, m.getFails());
+            assertEquals(100, testResult.getErrorsPerClass()
+                                        .get(IllegalStateException.class)
+                                        .size()
+            );
+        }
 
         final StressResult m2 =
                 StressScenario.of(TimerResolution.MILLISECONDS)
