@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 import static java.util.Map.Entry;
 
@@ -14,6 +15,7 @@ import static java.util.Map.Entry;
 public class Result {
     private final Map<Integer, List<Double>> timesPerThread = new HashMap<>();
     private final Map<Class, List<Exception>> errorStats = new HashMap<>();
+    private final Map<Class, List<Throwable>> rootErrorStats = new HashMap<>();
 
     private final String name;
 
@@ -27,6 +29,7 @@ public class Result {
     public Result(final String name,
                   final Map<Integer, List<Double>> timesPerThread,
                   final Map<Class, List<Exception>> errorStats,
+                  final ConcurrentHashMap<Class, List<Throwable>> rootErrorStats,
                   final double totalDeltaSeconds,
                   final double meanRequestTime,
                   final double throughput,
@@ -42,6 +45,7 @@ public class Result {
         this.totalDeltaSeconds = totalDeltaSeconds;
         this.timesPerThread.putAll(timesPerThread);
         this.errorStats.putAll(errorStats);
+        this.rootErrorStats.putAll(rootErrorStats);
     }
 
     /**
@@ -162,6 +166,17 @@ public class Result {
                .append('\n');
 
         for (final Entry<Class, List<Exception>> e : errorStats.entrySet()) {
+            builder.append("| ")
+                   .append(e.getKey().getName())
+                   .append(" happened ")
+                   .append(e.getValue().size())
+                   .append(" times")
+                   .append('\n');
+        }
+
+        builder.append("Roots:\n");
+
+        for (final Entry<Class, List<Throwable>> e : rootErrorStats.entrySet()) {
             builder.append("| ")
                    .append(e.getKey().getName())
                    .append(" happened ")

@@ -1,5 +1,6 @@
 package org.nohope.test.stress;
 
+import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.apache.commons.lang3.tuple.ImmutablePair;
 
 import javax.annotation.Nonnull;
@@ -21,6 +22,7 @@ import static java.util.Map.Entry;
 class StatCalculator {
     private final ConcurrentHashMap<Integer, List<Entry<Long, Long>>> timesPerThread = new ConcurrentHashMap<>();
     private final ConcurrentHashMap<Class, List<Exception>> errorStats = new ConcurrentHashMap<>();
+    private final ConcurrentHashMap<Class, List<Throwable>> rootErrorStats = new ConcurrentHashMap<>();
     private final AtomicReference<Result> result = new AtomicReference<>();
     private final AtomicInteger fails = new AtomicInteger(0);
     private final String name;
@@ -51,9 +53,18 @@ class StatCalculator {
             timesPerThread.get(threadId).add(new ImmutablePair<>(start, diff));
             return result;
         } catch (final Exception e) {
+            Throwable root = ExceptionUtils.getRootCause(e);
+            if (root == null) {
+                root = e;
+            }
             final Class aClass = e.getClass();
             errorStats.putIfAbsent(aClass, new CopyOnWriteArrayList<Exception>());
             errorStats.get(aClass).add(e);
+
+            final Class rClass = root.getClass();
+            rootErrorStats.putIfAbsent(rClass, new CopyOnWriteArrayList<Throwable>());
+            rootErrorStats.get(rClass).add(root);
+
             fails.getAndIncrement();
             throw new InvocationException();
         }
@@ -103,6 +114,7 @@ class StatCalculator {
                 name,
                 perThreadTimes,
                 errorStats,
+                rootErrorStats,
                 totalDeltaSeconds,
                 meanRequestTimeMillis,
                 throughput,
