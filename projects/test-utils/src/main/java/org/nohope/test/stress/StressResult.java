@@ -72,7 +72,7 @@ public class StressResult {
                       .append("\nTotal running time: ")
                       .append(String.format("%.3f", runtime))
                       .append(" sec\nApproximate throughput: ")
-                      .append(String.format("%e", getApproxThroughput()))
+                      .append(String.format("%.3e", getApproxThroughput()))
                       .append(" op/sec")
                       .toString();
     }

@@ -197,6 +197,7 @@ public class StressScenarioTest {
                                       });
                                   }
                               });
+        System.err.println(m4);
         assertNotNull(m4.toString());
         assertTrue(m4.getRuntime() >= 1);
         assertTrue(m4.getApproxThroughput() <= 200);

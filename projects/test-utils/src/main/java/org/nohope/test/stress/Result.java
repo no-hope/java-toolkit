@@ -203,12 +203,12 @@ public class Result {
                .append(" sec\n");
 
         builder.append("Avg thread throughput: ")
-               .append(String.format("%e", workerThroughput))
+               .append(String.format("%.3e", workerThroughput))
                .append(" op/sec")
                .append('\n');
 
         builder.append("Avg throughput: ")
-               .append(String.format("%e",throughput))
+               .append(String.format("%.3e",throughput))
                .append(" op/sec")
                .append('\n');
 
