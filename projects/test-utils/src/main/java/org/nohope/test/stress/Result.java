@@ -191,7 +191,7 @@ public class Result {
         }
 
         builder.append("Operations: ")
-               .append(String.format("%e",times))
+               .append(times)
                .append('\n');
 
         builder.append("Running time: ")
