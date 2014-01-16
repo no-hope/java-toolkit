@@ -70,9 +70,9 @@ public class StressResult {
                       .append("Total error count: ")
                       .append(fails)
                       .append("\nTotal running time: ")
-                      .append(runtime)
+                      .append(String.format("%.3f", runtime))
                       .append(" sec\nApproximate throughput: ")
-                      .append(getApproxThroughput())
+                      .append(String.format("%e", getApproxThroughput()))
                       .append(" op/sec")
                       .toString();
     }
