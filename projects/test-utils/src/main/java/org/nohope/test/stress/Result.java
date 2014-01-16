@@ -142,17 +142,17 @@ public class Result {
                .append(") -----\n");
 
         builder.append("Min operation time: ")
-               .append(minTime)
+               .append(String.format("%.3f", minTime))
                .append(" ms")
                .append('\n');
 
         builder.append("Max operation time: ")
-               .append(maxTime)
+               .append(String.format("%.3f", maxTime))
                .append(" ms")
                .append('\n');
 
         builder.append("Avg operation time: ")
-               .append(meanRequestTime)
+               .append(String.format("%.3f", meanRequestTime))
                .append(" ms")
                .append('\n');
 
@@ -191,24 +191,24 @@ public class Result {
         }
 
         builder.append("Operations: ")
-               .append(times)
+               .append(String.format("%e",times))
                .append('\n');
 
         builder.append("Running time: ")
-               .append(totalDeltaSeconds)
+               .append(String.format("%.3f", totalDeltaSeconds))
                .append(" sec\n");
 
         builder.append("Running time per thread: ")
-               .append(totalDeltaSeconds / timesPerThread.size())
+               .append(String.format("%.3f", totalDeltaSeconds / timesPerThread.size()))
                .append(" sec\n");
 
         builder.append("Avg thread throughput: ")
-               .append(workerThroughput)
+               .append(String.format("%e", workerThroughput))
                .append(" op/sec")
                .append('\n');
 
         builder.append("Avg throughput: ")
-               .append(throughput)
+               .append(String.format("%e",throughput))
                .append(" op/sec")
                .append('\n');
 
