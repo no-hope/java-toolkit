@@ -8,12 +8,11 @@ import org.nohope.test.stress.action.Invoke;
 * @since 2013-12-27 16:18
 */
 class MultiInvocationStatCalculator extends StatCalculator {
-    protected MultiInvocationStatCalculator(final TimerResolution resolution,
-                                            final String name) {
+    protected MultiInvocationStatCalculator(final TimerResolution resolution, final String name) {
         super(resolution, name);
     }
 
-    protected void invoke(final int threadId, final Invoke invoke)
+    protected void invoke(final long threadId, final Invoke invoke)
             throws InvocationException {
         invoke(threadId, new InvocationHandler<Object>() {
             @Override
@@ -24,7 +23,7 @@ class MultiInvocationStatCalculator extends StatCalculator {
         });
     }
 
-    protected <T> T invoke(final int threadId, final Get<T> getter)
+    protected <T> T invoke(final long threadId, final Get<T> getter)
             throws InvocationException {
         return invoke(threadId, new InvocationHandler<T>() {
             @Override

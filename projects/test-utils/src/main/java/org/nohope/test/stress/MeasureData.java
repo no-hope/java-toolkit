@@ -14,7 +14,7 @@ public class MeasureData {
         this.operationNumber = operationNumber;
     }
 
-    public final int getThreadId() {
+    public long getThreadId() {
         return threadId;
     }
 

@@ -5,32 +5,19 @@ package org.nohope.test.stress;
  * @since 2013-12-27 23:51
  */
 public enum TimerResolution {
-    NANOSECONDS(3) {
+    NANOSECONDS {
         @Override
         public long currentTime() {
             return System.nanoTime();
         }
     },
-    MILLISECONDS(1) {
+    MILLISECONDS {
         @Override
         public long currentTime() {
-            return System.currentTimeMillis();
+            return System.currentTimeMillis() * 1000000;
         }
     };
 
-    private final double factor;
-
-    TimerResolution(final double factor) {
-        this.factor = factor;
-    }
-
+    /** @return current time in <b>nanoseconds</b> */
     public abstract long currentTime();
-
-    public double toSeconds(final double time) {
-        return time / Math.pow(1000, factor);
-    }
-
-    public double toMillis(final double time) {
-        return time / Math.pow(1000, factor - 1);
-    }
 }

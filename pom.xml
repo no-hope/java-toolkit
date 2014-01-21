@@ -76,6 +76,7 @@
         <commons-io.version>2.4</commons-io.version>
         <commons-lang3.version>3.1</commons-lang3.version>
         <easymock.version>3.2</easymock.version>
+        <guava.version>15.0</guava.version>
         <jackson.version>2.2.3</jackson.version>
         <javax-inject.version>1</javax-inject.version>
         <jaxb-xjc.version>2.2.7</jaxb-xjc.version>
