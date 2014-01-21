@@ -27,12 +27,13 @@ public class Result {
     private final String name;
 
     private final double meanRequestTime;
-    //private final double throughput;
     private final long minTime;
     private final long maxTime;
-    //private final double workerThroughputPerNanos;
     private final double totalDeltaNanos;
     private final long operationsCount;
+    private final int numberOfThreads;
+    private final double threadThroughput;
+    private final double averageThroughput;
 
     public Result(final String name,
                   final Map<Long, List<Entry<Long, Long>>> timestampsPerThread,
@@ -55,6 +56,10 @@ public class Result {
         this.errorStats.putAll(errorStats);
         this.rootErrorStats.putAll(rootErrorStats);
         this.timestampsPerThread.putAll(timestampsPerThread);
+
+        this.numberOfThreads = timestampsPerThread.size();
+        this.threadThroughput = operationsCount / timeTo(totalDeltaNanos, SECONDS);
+        this.averageThroughput = numberOfThreads * threadThroughput;
     }
 
     /**
@@ -86,17 +91,17 @@ public class Result {
     }
 
     /**
-     * @return overall op/nanos
+     * @return overall op/sec
      */
     public double getThroughput() {
-        return 0L; // FIXME
+        return threadThroughput;
     }
 
     /**
-     * @return op/nanos per thread
+     * @return op/sec per thread
      */
-    public double getWorkerThroughputPerNanos() {
-        return 0L; // FIXME
+    public double getWorkerThroughput() {
+        return averageThroughput;
     }
 
     /**
@@ -154,11 +159,6 @@ public class Result {
 
     @Override
     public final String toString() {
-
-        final int numberOfThreads = timestampsPerThread.size();
-        final double threadThroughput = operationsCount / timeTo(totalDeltaNanos, SECONDS);
-        final double averageThroughput = numberOfThreads * threadThroughput;
-
         final Map<Long, Pair<Long, Long>> startEndForThread = new HashMap<>();
         for (final Entry<Long, List<Entry<Long, Long>>> entries : timestampsPerThread.entrySet()) {
             long minStart = Long.MAX_VALUE;
@@ -200,6 +200,7 @@ public class Result {
         builder.append("----- Stats for (name: ")
                .append(name)
                .append(") -----\n");
+
 
         builder.append(pad("Operations:"))
                .append(operationsCount)
