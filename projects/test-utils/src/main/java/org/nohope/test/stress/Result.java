@@ -13,6 +13,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import static java.util.Map.Entry;
 import static java.util.concurrent.TimeUnit.MILLISECONDS;
 import static java.util.concurrent.TimeUnit.SECONDS;
+import static org.nohope.test.stress.TimeUtils.throughputTo;
 import static org.nohope.test.stress.TimeUtils.timeTo;
 
 /**
@@ -32,8 +33,6 @@ public class Result {
     private final double totalDeltaNanos;
     private final long operationsCount;
     private final int numberOfThreads;
-    private final double threadThroughput;
-    private final double averageThroughput;
 
     public Result(final String name,
                   final Map<Long, List<Entry<Long, Long>>> timestampsPerThread,
@@ -51,15 +50,13 @@ public class Result {
         for (final List<Entry<Long, Long>> entries : timestampsPerThread.values()) {
             result += entries.size();
         }
-        operationsCount = result;
+        this.operationsCount = result;
         this.meanRequestTime = 1.0 * totalDeltaNanos / operationsCount;
         this.errorStats.putAll(errorStats);
         this.rootErrorStats.putAll(rootErrorStats);
         this.timestampsPerThread.putAll(timestampsPerThread);
 
         this.numberOfThreads = timestampsPerThread.size();
-        this.threadThroughput = operationsCount / timeTo(totalDeltaNanos, SECONDS);
-        this.averageThroughput = numberOfThreads * threadThroughput;
     }
 
     /**
@@ -91,17 +88,17 @@ public class Result {
     }
 
     /**
-     * @return overall op/sec
+     * @return overall op/nanos
      */
     public double getThroughput() {
-        return threadThroughput;
+        return operationsCount / totalDeltaNanos;
     }
 
     /**
-     * @return op/sec per thread
+     * @return op/nanos per thread
      */
     public double getWorkerThroughput() {
-        return averageThroughput;
+        return numberOfThreads * getThroughput();
     }
 
     /**
@@ -243,12 +240,12 @@ public class Result {
                .append(" ms\n");
 
         builder.append(pad("Avg thread throughput:"))
-               .append(String.format("%.3e", threadThroughput))
+               .append(String.format("%.3e", throughputTo(getWorkerThroughput(), SECONDS)))
                .append(" op/sec")
                .append('\n');
 
         builder.append(pad("Avg throughput:"))
-               .append(String.format("%.3e", averageThroughput))
+               .append(String.format("%.3e", throughputTo(getThroughput(), SECONDS)))
                .append(" op/sec")
                .append('\n');
 
