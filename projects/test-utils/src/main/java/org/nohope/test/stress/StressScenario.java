@@ -1,11 +1,18 @@
 package org.nohope.test.stress;
 
+import com.google.common.cache.CacheBuilder;
+import com.google.common.cache.CacheLoader;
+import com.google.common.cache.LoadingCache;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
 
 /**
  * @author <a href="mailto:ketoth.xupack@gmail.com">ketoth xupack</a>
@@ -43,6 +50,7 @@ public class StressScenario {
             threads.add(new Thread(new Runnable() {
                 @Override
                 public void run() {
+
                     for (int j = k * cycleCount; j < (k + 1) * cycleCount; j++) {
                         try {
                             for (final SingleInvocationStatCalculator stat : stats.values()) {
@@ -52,6 +60,7 @@ public class StressScenario {
                             // TODO
                         }
                     }
+
                 }
             }, "stress-worker-" + k));
         }
@@ -66,7 +75,7 @@ public class StressScenario {
         }
         final long overallEnd = resolution.currentTime();
 
-        final double runtime = resolution.toSeconds(overallEnd - overallStart);
+        final double runtime = overallEnd - overallStart;
 
         final Map<String, Result> results = new HashMap<>();
         int fails = 0;
@@ -76,8 +85,7 @@ public class StressScenario {
             results.put(r.getName(), r);
         }
 
-        return new StressResult(results, threadsNumber, cycleCount, fails,
-                runtime);
+        return new StressResult(results, threadsNumber, cycleCount, fails, runtime);
     }
 
     public StressResult measure(final int threadsNumber,
@@ -121,7 +129,7 @@ public class StressScenario {
         }
         final long overallEnd = resolution.currentTime();
 
-        final double runtime = resolution.toSeconds(overallEnd - overallStart);
+        final double runtime = overallEnd - overallStart;
 
         int fails = 0;
         final Map<String, Result> results = new HashMap<>();
@@ -133,5 +141,85 @@ public class StressScenario {
 
         return new StressResult(results, threadsNumber, cycleCount, fails,
                 runtime);
+    }
+
+    public StressResult measurePooled(final int threadsNumber,
+                                      final int cycleCount,
+                                      final int coordinateThreadsCount,
+                                      final PooledAction action)
+            throws InterruptedException {
+
+        final LoadingCache<String, ExecutorService> threadPools =
+                CacheBuilder.newBuilder()
+                            .concurrencyLevel(threadsNumber)
+                            .build(new CacheLoader<String, ExecutorService>() {
+                                @Override
+                                public ExecutorService load(final String key) throws Exception {
+                                    return Executors.newFixedThreadPool(threadsNumber);
+                                }
+                            });
+
+        final LoadingCache<String, MultiInvocationStatCalculator> calcPool =
+                CacheBuilder.newBuilder()
+                            .concurrencyLevel(threadsNumber)
+                            .build(new CacheLoader<String, MultiInvocationStatCalculator>() {
+                                @Override
+                                public MultiInvocationStatCalculator load(final String key) throws Exception {
+                                    return new MultiInvocationStatCalculator(getResolution(), key);
+                                }
+                            });
+
+        final List<PooledMeasureProvider> providers = new ArrayList<>();
+        for (int i = 0; i < threadsNumber; i++) {
+            for (int j = i * cycleCount; j < (i + 1) * cycleCount; j++) {
+                providers.add(new PooledMeasureProvider(i, j, calcPool, threadPools));
+            }
+        }
+
+        final int mul = threadsNumber / coordinateThreadsCount;
+        final List<Thread> threads = new ArrayList<>();
+        for (int i = 0; i < coordinateThreadsCount; i++) {
+            final int k = i;
+            threads.add(new Thread(new Runnable() {
+                @Override
+                public void run() {
+                    for (int j = k * mul * cycleCount; j < (k + 1) * cycleCount * mul; j++) {
+                        try {
+                            action.doAction(providers.get(j));
+                        } catch (final Exception e) {
+                            // TODO: print skipped
+                        }
+                    }
+                }
+            }, "stress-worker-" + k));
+        }
+
+        final long overallStart = resolution.currentTime();
+        for (final Thread thread : threads) {
+            thread.start();
+        }
+        for (final Thread thread : threads) {
+            thread.join();
+        }
+        for (final ExecutorService service : threadPools.asMap().values()) {
+            try {
+                service.shutdown();
+                service.awaitTermination(Long.MAX_VALUE, TimeUnit.HOURS);
+            } catch (final InterruptedException ignored) {
+            }
+        }
+        final long overallEnd = resolution.currentTime();
+
+        final double runtime = overallEnd - overallStart;
+
+        int fails = 0;
+        final Map<String, Result> results = new HashMap<>();
+        for (final MultiInvocationStatCalculator stats : calcPool.asMap().values()) {
+            final Result r = stats.getResult();
+            fails += r.getErrors().size();
+            results.put(r.getName(), r);
+        }
+
+        return new StressResult(results, threadsNumber, cycleCount, fails, runtime);
     }
 }

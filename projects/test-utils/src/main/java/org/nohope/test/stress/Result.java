@@ -1,5 +1,9 @@
 package org.nohope.test.stress;
 
+import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.tuple.ImmutablePair;
+import org.apache.commons.lang3.tuple.Pair;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -7,45 +11,52 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 import static java.util.Map.Entry;
+import static java.util.concurrent.TimeUnit.MILLISECONDS;
+import static java.util.concurrent.TimeUnit.SECONDS;
+import static org.nohope.test.stress.TimeUtils.throughputTo;
+import static org.nohope.test.stress.TimeUtils.timeTo;
 
 /**
 * @author <a href="mailto:ketoth.xupack@gmail.com">ketoth xupack</a>
 * @since 2013-12-27 16:19
 */
 public class Result {
-    private final Map<Integer, List<Double>> timesPerThread = new HashMap<>();
+    private final Map<Long, List<Entry<Long, Long>>> timestampsPerThread = new HashMap<>();
     private final Map<Class, List<Exception>> errorStats = new HashMap<>();
     private final Map<Class, List<Throwable>> rootErrorStats = new HashMap<>();
 
     private final String name;
 
     private final double meanRequestTime;
-    private final double throughput;
-    private final double minTime;
-    private final double maxTime;
-    private final double workerThroughput;
-    private final double totalDeltaSeconds;
+    private final long minTime;
+    private final long maxTime;
+    private final double totalDeltaNanos;
+    private final long operationsCount;
+    private final int numberOfThreads;
 
     public Result(final String name,
-                  final Map<Integer, List<Double>> timesPerThread,
+                  final Map<Long, List<Entry<Long, Long>>> timestampsPerThread,
                   final Map<Class, List<Exception>> errorStats,
                   final ConcurrentHashMap<Class, List<Throwable>> rootErrorStats,
-                  final double totalDeltaSeconds,
-                  final double meanRequestTime,
-                  final double throughput,
-                  final double workerThroughput,
-                  final double minTime,
-                  final double maxTime) {
+                  final long totalDeltaNanos,
+                  final long minTime,
+                  final long maxTime) {
         this.name = name;
-        this.meanRequestTime = meanRequestTime;
-        this.throughput = throughput;
+        this.totalDeltaNanos = totalDeltaNanos;
         this.minTime = minTime;
         this.maxTime = maxTime;
-        this.workerThroughput = workerThroughput;
-        this.totalDeltaSeconds = totalDeltaSeconds;
-        this.timesPerThread.putAll(timesPerThread);
+
+        long result = 0;
+        for (final List<Entry<Long, Long>> entries : timestampsPerThread.values()) {
+            result += entries.size();
+        }
+        this.operationsCount = result;
+        this.meanRequestTime = 1.0 * totalDeltaNanos / operationsCount;
         this.errorStats.putAll(errorStats);
         this.rootErrorStats.putAll(rootErrorStats);
+        this.timestampsPerThread.putAll(timestampsPerThread);
+
+        this.numberOfThreads = timestampsPerThread.size();
     }
 
     /**
@@ -56,52 +67,60 @@ public class Result {
     }
 
     /**
-     * @return average request time in milliseconds
+     * @return average request time in nanos
      */
     public double getMeanTime() {
         return meanRequestTime;
     }
 
     /**
-     * @return minimum request time in milliseconds
+     * @return minimum request time in nanos
      */
     public double getMinTime() {
         return minTime;
     }
 
     /**
-     * @return maximum request time in milliseconds
+     * @return maximum request time in nanos
      */
     public double getMaxTime() {
         return maxTime;
     }
 
     /**
-     * @return overall op/sec
+     * @return overall op/nanos
      */
     public double getThroughput() {
-        return throughput;
+        return operationsCount / totalDeltaNanos;
     }
 
     /**
-     * @return op/sec per thread
+     * @return op/nanos per thread
      */
     public double getWorkerThroughput() {
-        return workerThroughput;
+        return numberOfThreads * getThroughput();
     }
 
     /**
-     * @return get pure running time in seconds
+     * @return get pure running time in nanos
      */
     public double getRuntime() {
-        return totalDeltaSeconds;
+        return totalDeltaNanos;
     }
 
     /**
-     * @return in milliseconds
+     * @return in nanoseconds
      */
-    public Map<Integer, List<Double>> getPerThreadRuntimes() {
-        return timesPerThread;
+    public Map<Long, List<Long>> getPerThreadRuntimes() {
+        final Map<Long, List<Long>> times = new HashMap<>();
+        for (final Entry<Long, List<Entry<Long, Long>>> perThreadTime : timestampsPerThread.entrySet()) {
+            final List<Long> perThread = new ArrayList<>();
+            for (final Entry<Long, Long> e : perThreadTime.getValue()) {
+                perThread.add(e.getValue() - e.getKey());
+            }
+            times.put(perThreadTime.getKey(), perThread);
+        }
+        return times;
     }
 
     /**
@@ -123,36 +142,79 @@ public class Result {
     }
 
     /**
-     * @return list of all running times of each thread
+     * @return list of all running times of each thread in nanos
      */
-    public final List<Double> getRuntimes() {
-        final List<Double> times = new ArrayList<>();
-        for (final List<Double> e : timesPerThread.values()) {
-            times.addAll(e);
+    public final List<Long> getRuntimes() {
+        final List<Long> times = new ArrayList<>();
+        for (final List<Entry<Long, Long>> perThreadTime : timestampsPerThread.values()) {
+            for (final Entry<Long, Long> e : perThreadTime) {
+                times.add(e.getValue() - e.getKey());
+            }
         }
         return times;
     }
 
     @Override
     public final String toString() {
+        final Map<Long, Pair<Long, Long>> startEndForThread = new HashMap<>();
+        for (final Entry<Long, List<Entry<Long, Long>>> entries : timestampsPerThread.entrySet()) {
+            long minStart = Long.MAX_VALUE;
+            long maxEnd = 0;
+            for (final Entry<Long, Long> e : entries.getValue()) {
+                final Long start = e.getKey();
+                final Long end = e.getValue();
+                if (start < minStart) {
+                    minStart = start;
+                }
+                if (end > maxEnd) {
+                    maxEnd = end;
+                }
+            }
+
+            startEndForThread.put(entries.getKey(), new ImmutablePair<>(minStart, maxEnd));
+        }
+
+        double avgWastedNanos = 0;
+        double avgRuntimeIncludingWastedNanos = 0;
+        for (final Entry<Long, Pair<Long, Long>> entry : startEndForThread.entrySet()) {
+            final Long threadId = entry.getKey();
+            final Long minStart = entry.getValue().getKey();
+            final Long maxEnd = entry.getValue().getValue();
+            double threadDelta = 0;
+            for (final Entry<Long, Long> delta : timestampsPerThread.get(threadId)) {
+                threadDelta += (delta.getValue() - delta.getKey());
+            }
+
+            final double delta = maxEnd - minStart;
+            avgRuntimeIncludingWastedNanos += delta;
+            avgWastedNanos += (delta - threadDelta);
+        }
+        avgWastedNanos /= numberOfThreads;
+        avgRuntimeIncludingWastedNanos /= numberOfThreads;
+
         final StringBuilder builder = new StringBuilder();
 
         builder.append("----- Stats for (name: ")
                .append(name)
                .append(") -----\n");
 
-        builder.append("Min operation time: ")
-               .append(String.format("%.3f", minTime))
+
+        builder.append(pad("Operations:"))
+               .append(operationsCount)
+               .append('\n');
+
+        builder.append(pad("Min operation time:"))
+               .append(String.format("%.3f", timeTo(minTime, MILLISECONDS)))
                .append(" ms")
                .append('\n');
 
-        builder.append("Max operation time: ")
-               .append(String.format("%.3f", maxTime))
+        builder.append(pad("Max operation time:"))
+               .append(String.format("%.3f", timeTo(maxTime, MILLISECONDS)))
                .append(" ms")
                .append('\n');
 
-        builder.append("Avg operation time: ")
-               .append(String.format("%.3f", meanRequestTime))
+        builder.append(pad("Avg operation time:"))
+               .append(String.format("%.3f", timeTo(meanRequestTime, MILLISECONDS)))
                .append(" ms")
                .append('\n');
 
@@ -161,7 +223,33 @@ public class Result {
             fails += exceptions.size();
         }
 
-        builder.append("Errors count: ")
+        builder.append(pad("Running time: "))
+               .append(String.format("%.3f", timeTo(totalDeltaNanos, SECONDS)))
+               .append(" sec\n");
+
+        builder.append(pad("Total time per thread:"))
+               .append(String.format("%.3f", timeTo(avgRuntimeIncludingWastedNanos, SECONDS)))
+               .append(" sec\n");
+
+        builder.append(pad("Running time per thread:"))
+               .append(String.format("%.3f", timeTo(totalDeltaNanos / numberOfThreads, SECONDS)))
+               .append(" sec\n");
+
+        builder.append(pad("Avg wasted time per thread:"))
+               .append(String.format("%.3e", timeTo(avgWastedNanos, MILLISECONDS)))
+               .append(" ms\n");
+
+        builder.append(pad("Avg thread throughput:"))
+               .append(String.format("%.3e", throughputTo(getWorkerThroughput(), SECONDS)))
+               .append(" op/sec")
+               .append('\n');
+
+        builder.append(pad("Avg throughput:"))
+               .append(String.format("%.3e", throughputTo(getThroughput(), SECONDS)))
+               .append(" op/sec")
+               .append('\n');
+
+        builder.append(pad("Errors count:"))
                .append(fails)
                .append('\n');
 
@@ -174,44 +262,23 @@ public class Result {
                    .append('\n');
         }
 
-        builder.append("Roots:\n");
-
-        for (final Entry<Class, List<Throwable>> e : rootErrorStats.entrySet()) {
-            builder.append("| ")
-                   .append(e.getKey().getName())
-                   .append(" happened ")
-                   .append(e.getValue().size())
-                   .append(" times")
-                   .append('\n');
+        if (!errorStats.isEmpty()) {
+            builder.append("Roots:\n");
+            for (final Entry<Class, List<Throwable>> e : rootErrorStats.entrySet()) {
+                builder.append("| ")
+                       .append(e.getKey().getName())
+                       .append(" happened ")
+                       .append(e.getValue().size())
+                       .append(" times")
+                       .append('\n');
+            }
         }
-
-        int times = 0;
-        for (final List<Double> e : timesPerThread.values()) {
-            times += e.size();
-        }
-
-        builder.append("Operations: ")
-               .append(times)
-               .append('\n');
-
-        builder.append("Running time: ")
-               .append(String.format("%.3f", totalDeltaSeconds))
-               .append(" sec\n");
-
-        builder.append("Running time per thread: ")
-               .append(String.format("%.3f", totalDeltaSeconds / timesPerThread.size()))
-               .append(" sec\n");
-
-        builder.append("Avg thread throughput: ")
-               .append(String.format("%.3e", workerThroughput))
-               .append(" op/sec")
-               .append('\n');
-
-        builder.append("Avg throughput: ")
-               .append(String.format("%.3e",throughput))
-               .append(" op/sec")
-               .append('\n');
 
         return builder.toString();
+    }
+
+    private static String pad(final String str) {
+        final int padSize = 30;
+        return StringUtils.rightPad(str, padSize, '.');
     }
 }

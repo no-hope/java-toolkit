@@ -6,6 +6,7 @@ import org.nohope.test.stress.action.Get;
 import org.nohope.test.stress.action.Invoke;
 
 import java.util.Map;
+import java.util.concurrent.atomic.AtomicLong;
 
 import static org.junit.Assert.*;
 
@@ -154,52 +155,153 @@ public class StressScenarioTest {
             );
         }
 
-        final StressResult m2 =
-                StressScenario.of(TimerResolution.MILLISECONDS)
-                              .measure(2, 100, new NamedAction("test") {
-                                  @Override
-                                  protected void doAction(final MeasureData p) throws Exception {
-                                      Thread.sleep(10);
-                                  }
-                              });
-        assertNotNull(m2.toString());
-        assertTrue(m2.getRuntime() >= 1);
-        assertTrue(m2.getApproxThroughput() <= 200);
+        {
+            final StressResult m2 =
+                    StressScenario.of(TimerResolution.MILLISECONDS)
+                                  .measure(2, 100, new NamedAction("test") {
+                                      @Override
+                                      protected void doAction(final MeasureData p) throws Exception {
+                                          Thread.sleep(10);
+                                      }
+                                  });
+            assertNotNull(m2.toString());
+            assertTrue(m2.getRuntime() >= 1);
+            assertTrue(m2.getApproxThroughput() <= 200);
 
-        final StressResult m3 =
-                StressScenario.of(TimerResolution.MILLISECONDS)
-                              .measure(2, 100, new Action() {
-                                  @Override
-                                  protected void doAction(final MeasureProvider p) throws Exception {
-                                      p.invoke("test", new Invoke() {
-                                          @Override
-                                          public void invoke() throws Exception {
-                                              Thread.sleep(10);
-                                          }
-                                      });
-                                  }
-                              });
-        assertNotNull(m3.toString());
-        assertTrue(m3.getRuntime() >= 1);
-        assertTrue(m3.getApproxThroughput() <= 200);
+            final StressResult m3 =
+                    StressScenario.of(TimerResolution.MILLISECONDS)
+                                  .measure(2, 100, new Action() {
+                                      @Override
+                                      protected void doAction(final MeasureProvider p) throws Exception {
+                                          p.invoke("test", new Invoke() {
+                                              @Override
+                                              public void invoke() throws Exception {
+                                                  Thread.sleep(10);
+                                              }
+                                          });
+                                      }
+                                  });
+            assertNotNull(m3.toString());
+            assertTrue(m3.getRuntime() >= 1);
+            assertTrue(m3.getApproxThroughput() <= 200);
 
-        final StressResult m4 =
-                StressScenario.of(TimerResolution.MILLISECONDS)
-                              .measure(2, 100, new Action() {
-                                  @Override
-                                  protected void doAction(final MeasureProvider p) throws Exception {
-                                      p.invoke("test", new Get<Object>() {
-                                          @Override
-                                          public Object get() throws Exception {
-                                              Thread.sleep(10);
-                                              return null;
-                                          }
-                                      });
-                                  }
-                              });
-        System.err.println(m4);
-        assertNotNull(m4.toString());
-        assertTrue(m4.getRuntime() >= 1);
-        assertTrue(m4.getApproxThroughput() <= 200);
+            final StressResult m4 =
+                    StressScenario.of(TimerResolution.MILLISECONDS)
+                                  .measure(2, 100, new Action() {
+                                      @Override
+                                      protected void doAction(final MeasureProvider p) throws Exception {
+                                          p.invoke("test", new Get<Object>() {
+                                              @Override
+                                              public Object get() throws Exception {
+                                                  Thread.sleep(10);
+                                                  return null;
+                                              }
+                                          });
+                                      }
+                                  });
+            assertNotNull(m4.toString());
+            assertTrue(m4.getRuntime() >= 1);
+            assertTrue(m4.getApproxThroughput() <= 200);
+        }
+
+        {
+            final StressResult m2 =
+                    StressScenario.of(TimerResolution.MILLISECONDS)
+                                  .measurePooled(2, 100, 2, new PooledAction() {
+                                      @Override
+                                      protected void doAction(final PooledMeasureProvider p) throws Exception {
+                                          p.invoke("test", new Invoke() {
+                                              @Override
+                                              public void invoke() throws Exception {
+                                                  Thread.sleep(10);
+                                              }
+                                          });
+                                      }
+                                  });
+            assertNotNull(m2.toString());
+            assertTrue(m2.getRuntime() >= 1);
+            assertTrue(m2.getApproxThroughput() <= 200);
+            assertNotNull(m2.toString());
+
+            final StressResult m3 =
+                    StressScenario.of(TimerResolution.MILLISECONDS)
+                                  .measurePooled(2, 100, 2, new PooledAction() {
+                                      @Override
+                                      protected void doAction(final PooledMeasureProvider p) throws Exception {
+                                          p.invoke("test", new Get<Object>() {
+                                              @Override
+                                              public Object get() throws Exception {
+                                                  Thread.sleep(10);
+                                                  return null;
+                                              }
+                                          });
+                                      }
+                                  });
+            assertNotNull(m3.toString());
+            assertTrue(m3.getRuntime() >= 1);
+            assertTrue(m3.getApproxThroughput() <= 200);
+            assertNotNull(m3.toString());
+        }
     }
+
+    @Test
+    @Ignore("for manual testing")
+    public void pooled() throws InterruptedException {
+        {
+            final AtomicLong atomic = new AtomicLong();
+            final StressResult result =
+                    StressScenario.of(TimerResolution.NANOSECONDS)
+                                  .measure(500, 100, new Action() {
+                                      @Override
+                                      protected void doAction(final MeasureProvider p) throws Exception {
+                                          p.invoke("test1", new Get<Long>() {
+                                              @Override
+                                              public Long get() throws Exception {
+                                                  long old;
+                                                  for (;;) {
+                                                      old = atomic.get();
+                                                      Thread.sleep(1);
+                                                      if (atomic.compareAndSet(old, old + 1)) {
+                                                          break;
+                                                      }
+                                                  }
+                                                  return old;
+                                              }
+                                          });
+                                      }
+                                  });
+
+            System.err.println(result);
+        }
+
+        System.err.println("-----------------------------------");
+
+        {
+            final AtomicLong atomic = new AtomicLong();
+            final StressResult result =
+                    StressScenario.of(TimerResolution.MILLISECONDS)
+                                  .measurePooled(500, 100, 10, new PooledAction() {
+                                      @Override
+                                      protected void doAction(final PooledMeasureProvider p) throws Exception {
+                                          p.invoke("test1", new Get<Long>() {
+                                              @Override
+                                              public Long get() throws Exception {
+                                                  long old;
+                                                  for (; ; ) {
+                                                      old = atomic.get();
+                                                      Thread.sleep(1);
+                                                      if (atomic.compareAndSet(old, old + 1)) {
+                                                          break;
+                                                      }
+                                                  }
+                                                  return old;
+                                              }
+                                          });
+                                      }
+                                  });
+
+            System.err.println(result);
+        }
+    }
+
 }
