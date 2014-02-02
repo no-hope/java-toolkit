@@ -11,7 +11,13 @@ import org.jboss.netty.handler.codec.frame.LengthFieldBasedFrameDecoder;
 import org.jboss.netty.handler.codec.frame.LengthFieldPrepender;
 import org.jboss.netty.handler.codec.protobuf.ProtobufDecoder;
 import org.jboss.netty.handler.codec.protobuf.ProtobufEncoder;
+import org.jboss.netty.handler.execution.ExecutionHandler;
+import org.jboss.netty.handler.execution.OrderedMemoryAwareThreadPoolExecutor;
 
+import java.util.concurrent.Executor;
+
+import static java.util.concurrent.Executors.defaultThreadFactory;
+import static java.util.concurrent.TimeUnit.MILLISECONDS;
 import static org.nohope.protobuf.core.MessageUtils.getExtensionRegistry;
 
 /**
@@ -33,6 +39,7 @@ import static org.nohope.protobuf.core.MessageUtils.getExtensionRegistry;
 public final class PipelineFactory implements ChannelPipelineFactory {
     private static final int MAX_FRAME_BYTES_LENGTH = Integer.MAX_VALUE;
     private static final int HEADER_BYTES = 4;
+    private static final long MEMORY_SIZE = 1048576L;
 
     private final ChannelUpstreamHandler handler;
     private final MessageLite prototype;
@@ -47,6 +54,10 @@ public final class PipelineFactory implements ChannelPipelineFactory {
         final ChannelPipeline p = Channels.pipeline();
         p.addLast("frameDecoder", new LengthFieldBasedFrameDecoder(MAX_FRAME_BYTES_LENGTH, 0, HEADER_BYTES, 0, HEADER_BYTES));
 
+        final Executor eventExecutor =
+                new OrderedMemoryAwareThreadPoolExecutor(16, MEMORY_SIZE, MEMORY_SIZE, 1000, MILLISECONDS, defaultThreadFactory());
+        final ExecutionHandler executionHandler = new ExecutionHandler(eventExecutor);
+
         final ExtensionRegistry extensionRegistry;
         if (prototype instanceof Message) {
             extensionRegistry = getExtensionRegistry(((Message) prototype).getDescriptorForType().getFile());
@@ -58,6 +69,7 @@ public final class PipelineFactory implements ChannelPipelineFactory {
 
         p.addLast("frameEncoder", new LengthFieldPrepender(HEADER_BYTES));
         p.addLast("protobufEncoder", new ProtobufEncoder());
+        p.addLast("executionHandler", executionHandler);
         p.addLast("handler", handler);
         return p;
     }
