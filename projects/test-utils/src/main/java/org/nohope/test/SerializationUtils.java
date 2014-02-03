@@ -36,9 +36,7 @@ public final class SerializationUtils {
             try(final ByteArrayInputStream inputStream =
                         new ByteArrayInputStream(outputStream.toByteArray());
                 ObjectInputStream in = new ObjectInputStream(inputStream)) {
-                final T result = (T) in.readObject();
-                assertNotSame(object, result);
-                return result;
+                return (T) in.readObject();
             }
         } catch (IOException | ClassNotFoundException e) {
             fail(e.getMessage());
