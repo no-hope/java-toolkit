@@ -1,8 +1,5 @@
 package org.nohope.protobuf.rpc.server;
 
-import org.nohope.protobuf.core.IBlockingServiceRegistry;
-import org.nohope.protobuf.core.net.PipelineFactory;
-import org.nohope.rpc.protocol.RPC;
 import com.google.protobuf.BlockingService;
 import org.jboss.netty.bootstrap.ServerBootstrap;
 import org.jboss.netty.channel.Channel;
@@ -11,6 +8,9 @@ import org.jboss.netty.channel.ChannelFutureListener;
 import org.jboss.netty.channel.socket.nio.NioServerSocketChannelFactory;
 import org.nohope.logging.Logger;
 import org.nohope.logging.LoggerFactory;
+import org.nohope.protobuf.core.IBlockingServiceRegistry;
+import org.nohope.protobuf.core.net.PipelineFactory;
+import org.nohope.rpc.protocol.RPC;
 
 import java.net.InetSocketAddress;
 import java.util.concurrent.Executors;

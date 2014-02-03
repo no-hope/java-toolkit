@@ -24,7 +24,6 @@ public final class RpcClient implements IRpcClient {
         this.bootstrap.setPipelineFactory(new PipelineFactory(new RpcClientHandler(),
                 RPC.RpcResponse.getDefaultInstance()));
         this.bootstrap.setOption("remoteAddress", options.getAddress());
-
     }
 
     @Override
