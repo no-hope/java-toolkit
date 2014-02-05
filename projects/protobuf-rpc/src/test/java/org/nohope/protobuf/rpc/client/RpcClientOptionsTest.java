@@ -26,6 +26,5 @@ public class RpcClientOptionsTest {
         assertEquals(address, options.getAddress());
         assertEquals(timeout, options.getTimeout());
         assertEquals(unit, options.getTimeoutUnit());
-
     }
 }

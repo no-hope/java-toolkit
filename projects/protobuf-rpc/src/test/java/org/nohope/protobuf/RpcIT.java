@@ -58,11 +58,13 @@ public class RpcIT {
 
         final BlockingRpcChannel channel = client.connect();
         final BlockingInterface stub = TestService.Service.newBlockingStub(channel);
+        assertTrue(client.isAvailable());
 
         final TestService.Ping ping = TestService.Ping.newBuilder().setData("test").build();
         stub.ping(null, ping);
 
         server.shutdown();
+        assertFalse(client.isAvailable());
 
         try {
             stub.ping(null, ping);
