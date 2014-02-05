@@ -7,7 +7,7 @@ import org.nohope.ITranslator;
 import org.nohope.logging.Logger;
 import org.nohope.logging.LoggerFactory;
 import org.nohope.test.ResourceUtils;
-import org.nohope.test.runner.InstanceTestSetupListener;
+import org.nohope.test.runner.TestLifecycleListener;
 import org.nohope.typetools.collection.CollectionUtils;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.support.PathMatchingResourcePatternResolver;
@@ -32,7 +32,7 @@ import static org.junit.Assert.assertNotNull;
  * @author <a href="mailto:ketoth.xupack@gmail.com">Ketoth Xupack</a>
  * @since 2013-10-16 14:50
  */
-public abstract class Jaxb2PluginTestSupport implements InstanceTestSetupListener {
+public abstract class Jaxb2PluginTestSupport implements TestLifecycleListener {
     static final Logger LOG = LoggerFactory.getLogger("jaxb2-testing");
     private static final Slf4jToMavenLogAdapter MVN_LOGGER = new Slf4jToMavenLogAdapter(LOG);
     private static final String TEST_RESOURCES_PATH = "src/test/resources/";
@@ -95,7 +95,7 @@ public abstract class Jaxb2PluginTestSupport implements InstanceTestSetupListene
     }
 
     @Override
-    public void beforeClassSetup() throws Exception {
+    public void runBeforeAllTests() throws Exception {
         try {
             new RunMetadataPlugin().testExecute();
         } catch (final Exception e) {
@@ -166,7 +166,7 @@ public abstract class Jaxb2PluginTestSupport implements InstanceTestSetupListene
     }
 
     @Override
-    public void afterClassSetup() {
+    public void runAfterAllTests() {
     }
 
     /**
@@ -272,7 +272,7 @@ public abstract class Jaxb2PluginTestSupport implements InstanceTestSetupListene
         };
 
         try {
-            support.beforeClassSetup();
+            support.runBeforeAllTests();
         } catch (final Exception e) {
             throw new AssertionError(e);
         }

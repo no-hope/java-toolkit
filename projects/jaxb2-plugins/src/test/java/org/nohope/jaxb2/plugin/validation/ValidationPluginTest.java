@@ -3,7 +3,7 @@ package org.nohope.jaxb2.plugin.validation;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.nohope.jaxb2.plugin.Jaxb2PluginTestSupport;
-import org.nohope.test.runner.InstanceTestClassRunner;
+import org.nohope.test.runner.TestLifecycleListeningClassRunner;
 
 import static org.junit.Assert.assertNotNull;
 import static org.nohope.jaxb2.plugin.validation.ParseExceptionValidator.message;
@@ -12,7 +12,7 @@ import static org.nohope.jaxb2.plugin.validation.ParseExceptionValidator.message
  * @author <a href="mailto:ketoth.xupack@gmail.com">Ketoth Xupack</a>
  * @since 2013-10-16 14:09
  */
-@RunWith(InstanceTestClassRunner.class)
+@RunWith(TestLifecycleListeningClassRunner.class)
 public class ValidationPluginTest extends Jaxb2PluginTestSupport {
     public ValidationPluginTest() {
         super("validation", "org/nohope/jaxb2/codegen/validation/correct");

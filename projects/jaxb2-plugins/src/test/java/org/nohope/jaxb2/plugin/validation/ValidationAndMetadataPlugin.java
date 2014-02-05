@@ -3,7 +3,7 @@ package org.nohope.jaxb2.plugin.validation;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.nohope.jaxb2.plugin.Jaxb2PluginTestSupport;
-import org.nohope.test.runner.InstanceTestClassRunner;
+import org.nohope.test.runner.TestLifecycleListeningClassRunner;
 
 import static java.lang.Class.forName;
 
@@ -11,7 +11,7 @@ import static java.lang.Class.forName;
  * @author <a href="mailto:ketoth.xupack@gmail.com">Ketoth Xupack</a>
  * @since 2013-11-05 11:58
  */
-@RunWith(InstanceTestClassRunner.class)
+@RunWith(TestLifecycleListeningClassRunner.class)
 public class ValidationAndMetadataPlugin extends Jaxb2PluginTestSupport {
     public ValidationAndMetadataPlugin() {
         super(new String[] {"metadata", "validation"},

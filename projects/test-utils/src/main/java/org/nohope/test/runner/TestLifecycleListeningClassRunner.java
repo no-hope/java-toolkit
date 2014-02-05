@@ -1,5 +1,7 @@
 package org.nohope.test.runner;
 
+import org.junit.internal.AssumptionViolatedException;
+import org.junit.internal.runners.model.EachTestNotifier;
 import org.junit.runner.notification.RunNotifier;
 import org.junit.runners.BlockJUnit4ClassRunner;
 import org.junit.runners.model.InitializationError;
@@ -10,14 +12,14 @@ import org.junit.runners.model.InitializationError;
  *
  * <p>Example:
  * <pre>
- *     {@link org.junit.runner.RunWith &#064;RunWith}({@link InstanceTestClassRunner InstanceTestClassRunner})
- *     public class MyTest implements {@link InstanceTestSetupListener} {
+ *     {@link org.junit.runner.RunWith &#064;RunWith}({@link TestLifecycleListeningClassRunner TestLifecycleListeningClassRunner})
+ *     public class MyTest implements {@link TestLifecycleListener} {
  *         &#064;Override
- *         public void beforeClassSetup() {
+ *         public void runBeforeAllTests() {
  *         }
  *
  *         &#064;Override
- *         public void afterClassSetup(){
+ *         public void runAfterAllTests(){
  *         }
  *     }
  * </pre>
@@ -26,11 +28,11 @@ import org.junit.runners.model.InitializationError;
  * @author <a href="mailto:ketoth.xupack@gmail.com">ketoth xupack</a>
  * @since 9/27/13 10:53 AM
  */
-public class InstanceTestClassRunner extends BlockJUnit4ClassRunner {
-    private InstanceTestSetupListener instanceSetupListener;
+public class TestLifecycleListeningClassRunner extends BlockJUnit4ClassRunner {
+    private TestLifecycleListener instanceSetupListener;
     private Object test;
 
-    public InstanceTestClassRunner(final Class<?> clazz) throws InitializationError {
+    public TestLifecycleListeningClassRunner(final Class<?> clazz) throws InitializationError {
         super(clazz);
     }
 
@@ -38,14 +40,14 @@ public class InstanceTestClassRunner extends BlockJUnit4ClassRunner {
     protected synchronized Object createTest() throws Exception {
         // Note that JUnit4 will call this createTest() multiple times for each
         // test method, so we need to ensure to create test class only once as well
-        // as to call "beforeClassSetup".
+        // as to call "runBeforeAllTests".
 
         if (test == null) {
             test = super.createTest();
         }
-        if (test instanceof InstanceTestSetupListener && instanceSetupListener == null) {
-            instanceSetupListener = (InstanceTestSetupListener) test;
-            instanceSetupListener.beforeClassSetup();
+        if (test instanceof TestLifecycleListener && instanceSetupListener == null) {
+            instanceSetupListener = (TestLifecycleListener) test;
+            instanceSetupListener.runBeforeAllTests();
         }
         return test;
     }
@@ -55,8 +57,10 @@ public class InstanceTestClassRunner extends BlockJUnit4ClassRunner {
         super.run(notifier);
         if (instanceSetupListener != null) {
             try {
-                instanceSetupListener.afterClassSetup();
-            } catch (Exception e) {
+                instanceSetupListener.runAfterAllTests();
+            } catch (final AssumptionViolatedException e) {
+                new EachTestNotifier(notifier, getDescription()).fireTestIgnored();
+            } catch (final Exception e) {
                 throw new IllegalStateException(e);
             }
         }

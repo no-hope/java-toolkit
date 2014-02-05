@@ -12,17 +12,17 @@ import static org.junit.Assert.assertTrue;
  * @author <a href="mailto:ketoth.xupack@gmail.com">Ketoth Xupack</a>
  * @since 2013-10-13 04:53
  */
-@RunWith(InstanceTestClassRunner.class)
-public class InstanceTestClassRunnerTest implements InstanceTestSetupListener {
+@RunWith(TestLifecycleListeningClassRunner.class)
+public class TestClassRunnerTestLifecycleListening implements TestLifecycleListener {
     private final AtomicBoolean before = new AtomicBoolean();
 
     @Override
-    public void beforeClassSetup() {
+    public void runBeforeAllTests() {
         before.set(true);
     }
 
     @Override
-    public void afterClassSetup() {
+    public void runAfterAllTests() {
     }
 
     @Test

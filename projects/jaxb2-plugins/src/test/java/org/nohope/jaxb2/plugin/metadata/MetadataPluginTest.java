@@ -3,7 +3,7 @@ package org.nohope.jaxb2.plugin.metadata;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.nohope.jaxb2.plugin.Jaxb2PluginTestSupport;
-import org.nohope.test.runner.InstanceTestClassRunner;
+import org.nohope.test.runner.TestLifecycleListeningClassRunner;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -22,7 +22,7 @@ import static org.nohope.reflection.ModifierMatcher.ALL;
  * @author <a href="mailto:ketoth.xupack@gmail.com">Ketoth Xupack</a>
  * @since 2013-10-11 16:31
  */
-@RunWith(InstanceTestClassRunner.class)
+@RunWith(TestLifecycleListeningClassRunner.class)
 public class MetadataPluginTest extends Jaxb2PluginTestSupport {
     public MetadataPluginTest() {
         super("metadata",
