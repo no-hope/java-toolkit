@@ -110,14 +110,16 @@ class RpcServerHandler extends SimpleChannelUpstreamHandler implements IBlocking
     @Override
     public void exceptionCaught(final ChannelHandlerContext ctx, final ExceptionEvent e) {
         final Throwable cause = e.getCause();
-        LOG.error("Server-side exception caught", cause);
-
         final RPC.RpcResponse.Builder responseBuilder = RPC.RpcResponse.newBuilder();
 
         /* Cannot respond to this exception, because it is not tied to a request */
         if (!(cause instanceof ServerSideException)) {
             LOG.error("Cannot respond to handler exception", cause);
             return;
+        }
+
+        if (cause instanceof RpcException) {
+            LOG.error("Server-side exception caught", cause);
         }
 
         final ServerSideException ex = (ServerSideException) cause;
