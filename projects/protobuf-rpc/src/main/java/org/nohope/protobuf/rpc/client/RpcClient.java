@@ -39,7 +39,7 @@ public final class RpcClient implements IRpcClient {
     }
 
     @Override
-    public boolean isAvailable() {
+    public boolean isServerAvailable() {
         try {
             return ((RpcChannelImpl) connect()).getChannel().isConnected();
         } catch (final UnexpectedServiceException e) {

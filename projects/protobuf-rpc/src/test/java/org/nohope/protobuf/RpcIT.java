@@ -44,7 +44,7 @@ public class RpcIT {
     public void nonConnectedDuringClientCreating() {
         final InetSocketAddress address = SocketUtils.getAvailableLocalAddress();
         final IRpcClient connect = new RpcClient(new RpcClientOptions(address, 2, TimeUnit.SECONDS));
-        assertFalse(connect.isAvailable());
+        assertFalse(connect.isServerAvailable());
     }
 
     @Test
@@ -58,13 +58,13 @@ public class RpcIT {
 
         final BlockingRpcChannel channel = client.connect();
         final BlockingInterface stub = TestService.Service.newBlockingStub(channel);
-        assertTrue(client.isAvailable());
+        assertTrue(client.isServerAvailable());
 
         final TestService.Ping ping = TestService.Ping.newBuilder().setData("test").build();
         stub.ping(null, ping);
 
         server.shutdown();
-        assertFalse(client.isAvailable());
+        assertFalse(client.isServerAvailable());
 
         try {
             stub.ping(null, ping);
