@@ -46,7 +46,6 @@ class RpcServerHandler extends SimpleChannelUpstreamHandler implements IBlocking
 
     @Override
     public void messageReceived(final ChannelHandlerContext ctx, final MessageEvent e) throws Exception {
-
         final RPC.RpcRequest request = (RPC.RpcRequest) e.getMessage();
         final String serviceName = request.getServiceName();
         final String methodName = request.getMethodName();

@@ -28,7 +28,6 @@ public class RpcServer implements IBlockingServiceRegistry {
         bootstrap = new ServerBootstrap(new NioServerSocketChannelFactory(
                 Executors.newCachedThreadPool(),
                 Executors.newCachedThreadPool()));
-
         bootstrap.setPipelineFactory(new PipelineFactory(handler, RPC.RpcRequest.getDefaultInstance()));
     }
 

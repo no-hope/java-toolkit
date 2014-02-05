@@ -74,8 +74,12 @@ class RpcChannelImpl implements RpcChannel, BlockingRpcChannel {
     }
 
     private void write(@Nonnull final RPC.RpcRequest request) throws UnexpectedServiceException {
-        final Channel channel = this.channel.get();
-        if (!channel.isConnected()) {
+        getChannel().write(request);
+    }
+
+    Channel getChannel() throws UnexpectedServiceException {
+        if (!this.channel.get().isConnected()) {
+            // FIXME: is awaitUninterruptibly is really necessary here?
             final ChannelFuture connectFuture = bootstrap.connect().awaitUninterruptibly();
             final Throwable cause = connectFuture.getCause();
             if (cause != null) {
@@ -83,7 +87,7 @@ class RpcChannelImpl implements RpcChannel, BlockingRpcChannel {
             }
             this.channel.set(connectFuture.getChannel());
         }
-        this.channel.get().write(request);
+        return this.channel.get();
     }
 
     @Override

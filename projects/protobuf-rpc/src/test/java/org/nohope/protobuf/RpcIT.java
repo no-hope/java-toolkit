@@ -10,6 +10,7 @@ import org.nohope.protobuf.core.exception.DetailedExpectedException;
 import org.nohope.protobuf.core.exception.ExpectedServiceException;
 import org.nohope.protobuf.core.exception.RpcTimeoutException;
 import org.nohope.protobuf.core.exception.UnexpectedServiceException;
+import org.nohope.protobuf.rpc.client.IRpcClient;
 import org.nohope.protobuf.rpc.client.RpcClient;
 import org.nohope.protobuf.rpc.client.RpcClientOptions;
 import org.nohope.protobuf.rpc.server.RpcServer;
@@ -42,7 +43,8 @@ public class RpcIT {
     @Test
     public void nonConnectedDuringClientCreating() {
         final InetSocketAddress address = SocketUtils.getAvailableLocalAddress();
-        new RpcClient(new RpcClientOptions(address, 2, TimeUnit.SECONDS)).connect();
+        final IRpcClient connect = new RpcClient(new RpcClientOptions(address, 2, TimeUnit.SECONDS));
+        assertFalse(connect.isAvailable());
     }
 
     @Test
@@ -65,7 +67,7 @@ public class RpcIT {
         try {
             stub.ping(null, ping);
             fail();
-        } catch (UnexpectedServiceException e) {
+        } catch (final UnexpectedServiceException e) {
         }
 
         server = createServer();
@@ -129,7 +131,7 @@ public class RpcIT {
         try {
             server.unregisterService(service);
             fail();
-        } catch (IllegalArgumentException ignored) {
+        } catch (final IllegalArgumentException ignored) {
         }
 
         try {
@@ -157,7 +159,7 @@ public class RpcIT {
             if ("timeout".contains(data)) {
                 try {
                     Thread.sleep(TimeUnit.SECONDS.toMillis(3));
-                } catch (InterruptedException ignored) {
+                } catch (final InterruptedException ignored) {
                 }
             }
 

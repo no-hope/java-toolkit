@@ -9,4 +9,5 @@ import com.google.protobuf.BlockingRpcChannel;
 public interface IRpcClient {
     BlockingRpcChannel connect();
     void shutdown();
+    boolean isAvailable();
 }

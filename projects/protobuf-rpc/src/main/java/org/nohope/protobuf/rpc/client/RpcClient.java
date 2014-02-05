@@ -1,10 +1,11 @@
 package org.nohope.protobuf.rpc.client;
 
-import org.nohope.protobuf.core.net.PipelineFactory;
-import org.nohope.rpc.protocol.RPC;
 import com.google.protobuf.BlockingRpcChannel;
 import org.jboss.netty.bootstrap.ClientBootstrap;
 import org.jboss.netty.channel.socket.nio.NioClientSocketChannelFactory;
+import org.nohope.protobuf.core.exception.UnexpectedServiceException;
+import org.nohope.protobuf.core.net.PipelineFactory;
+import org.nohope.rpc.protocol.RPC;
 
 import javax.annotation.Nonnull;
 import java.util.concurrent.Executors;
@@ -35,5 +36,14 @@ public final class RpcClient implements IRpcClient {
     public void shutdown() {
         bootstrap.shutdown();
         bootstrap.releaseExternalResources();
+    }
+
+    @Override
+    public boolean isAvailable() {
+        try {
+            return ((RpcChannelImpl) connect()).getChannel().isConnected();
+        } catch (final UnexpectedServiceException e) {
+            return false;
+        }
     }
 }

@@ -25,7 +25,7 @@ public class RpcClientHandlerTest {
         try {
             handler.registerCallback(1, mock);
             fail();
-        } catch (IllegalArgumentException e) {
+        } catch (final IllegalArgumentException e) {
         }
     }
 
@@ -38,7 +38,7 @@ public class RpcClientHandlerTest {
         final RpcClientHandler handler = new RpcClientHandler();
         try {
             handler.exceptionCaught(ctx, ee);
-        } catch (Exception e) {
+        } catch (final Exception e) {
             assertSame(cause, e.getCause());
         }
     }
