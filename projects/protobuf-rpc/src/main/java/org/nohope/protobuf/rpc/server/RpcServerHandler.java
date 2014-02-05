@@ -79,12 +79,12 @@ class RpcServerHandler extends SimpleChannelUpstreamHandler implements IBlocking
         final Message methodResponse;
         try {
             methodResponse = blockingService.callBlockingMethod(methodDescriptor, controller, methodRequest);
-        } catch (ExpectedServiceException ex) {
+        } catch (final ExpectedServiceException ex) {
             throw RpcServiceException.wrapExpectedException(ex, request);
-        } catch (ServiceException ex) {
+        } catch (final ServiceException ex) {
             throw new RpcServiceException(ex, request,
                     String.format("%s.%s RPC call threw ServiceException", serviceName, methodName));
-        } catch (Exception ex) {
+        } catch (final Exception ex) {
             throw new RpcException(ex, request,
                     String.format("%s.%s RPC call threw unexpected exception", serviceName, methodName));
         }
@@ -111,6 +111,8 @@ class RpcServerHandler extends SimpleChannelUpstreamHandler implements IBlocking
     @Override
     public void exceptionCaught(final ChannelHandlerContext ctx, final ExceptionEvent e) {
         final Throwable cause = e.getCause();
+        LOG.error("Server-side exception caught", cause);
+
         final RPC.RpcResponse.Builder responseBuilder = RPC.RpcResponse.newBuilder();
 
         /* Cannot respond to this exception, because it is not tied to a request */
@@ -120,7 +122,7 @@ class RpcServerHandler extends SimpleChannelUpstreamHandler implements IBlocking
         }
 
         final ServerSideException ex = (ServerSideException) cause;
-        if (ex.getRequest() != null && ex.getRequest().hasId()) {
+        if (ex.getRequest().hasId()) {
             responseBuilder.setId(ex.getRequest().getId());
             responseBuilder.setError(ex.getError());
             writeResponse(e.getChannel(), responseBuilder.build());
