@@ -100,6 +100,7 @@ public class StressScenarioTest {
             assertNotNull(testResult);
             assertTrue(testResult.getThroughput() <= 2000);
             assertTrue(testResult.getWorkerThroughput() <= 1000);
+            assertTrue(testResult.getWorkerThroughput() <= testResult.getThroughput());
             assertEquals(100, testResult.getRuntimes().size());
             assertEquals(2, testResult.getPerThreadRuntimes().size());
             assertTrue(testResult.getMaxTime() >= testResult.getMinTime());

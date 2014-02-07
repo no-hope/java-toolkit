@@ -98,7 +98,7 @@ public class Result {
      * @return op/nanos per thread
      */
     public double getWorkerThroughput() {
-        return numberOfThreads * getThroughput();
+        return  getThroughput() / numberOfThreads;
     }
 
     /**
