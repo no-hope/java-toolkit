@@ -33,6 +33,9 @@ public class Result {
     private final double totalDeltaNanos;
     private final long operationsCount;
     private final int numberOfThreads;
+    private final Map<Long,Pair<Long,Long>> startEndForThread;
+    private double avgWastedNanos;
+    private double avgRuntimeIncludingWastedNanos;
 
     public Result(final String name,
                   final Map<Long, List<Entry<Long, Long>>> timestampsPerThread,
@@ -57,6 +60,52 @@ public class Result {
         this.timestampsPerThread.putAll(timestampsPerThread);
 
         this.numberOfThreads = timestampsPerThread.size();
+
+        startEndForThread = new HashMap<>();
+        for (final Entry<Long, List<Entry<Long, Long>>> entries : timestampsPerThread.entrySet()) {
+            if (!entries.getValue().isEmpty()) {
+                long minStart = Long.MAX_VALUE;
+                long maxEnd = 0;
+                for (final Entry<Long, Long> e : entries.getValue()) {
+                    final Long start = e.getKey();
+                    final Long end = e.getValue();
+                    if (start < minStart) {
+                        minStart = start;
+                    }
+                    if (end > maxEnd) {
+                        maxEnd = end;
+                    }
+                }
+
+                startEndForThread.put(entries.getKey(), new ImmutablePair<>(minStart, maxEnd));
+            }
+        }
+
+        avgWastedNanos = 0;
+        avgRuntimeIncludingWastedNanos = 0;
+        for (final Entry<Long, Pair<Long, Long>> entry : startEndForThread.entrySet()) {
+            final Long threadId = entry.getKey();
+            final Long minStart = entry.getValue().getKey();
+            final Long maxEnd = entry.getValue().getValue();
+            double threadDelta = 0;
+            for (final Entry<Long, Long> delta : timestampsPerThread.get(threadId)) {
+                threadDelta += (delta.getValue() - delta.getKey());
+            }
+
+            final double delta = maxEnd - minStart;
+            avgRuntimeIncludingWastedNanos += delta;
+            avgWastedNanos += (delta - threadDelta);
+        }
+        avgWastedNanos /= numberOfThreads;
+        avgRuntimeIncludingWastedNanos /= numberOfThreads;
+    }
+
+    public double getAvgWastedNanos() {
+        return avgWastedNanos;
+    }
+
+    public double getAvgRuntimeIncludingWastedNanos() {
+        return avgRuntimeIncludingWastedNanos;
     }
 
     /**
@@ -91,14 +140,14 @@ public class Result {
      * @return overall op/nanos
      */
     public double getThroughput() {
-        return operationsCount / totalDeltaNanos;
+        return getWorkerThroughput() * numberOfThreads;
     }
 
     /**
      * @return op/nanos per thread
      */
     public double getWorkerThroughput() {
-        return  getThroughput() / numberOfThreads;
+        return  operationsCount / totalDeltaNanos;
     }
 
     /**
@@ -156,42 +205,6 @@ public class Result {
 
     @Override
     public final String toString() {
-        final Map<Long, Pair<Long, Long>> startEndForThread = new HashMap<>();
-        for (final Entry<Long, List<Entry<Long, Long>>> entries : timestampsPerThread.entrySet()) {
-            long minStart = Long.MAX_VALUE;
-            long maxEnd = 0;
-            for (final Entry<Long, Long> e : entries.getValue()) {
-                final Long start = e.getKey();
-                final Long end = e.getValue();
-                if (start < minStart) {
-                    minStart = start;
-                }
-                if (end > maxEnd) {
-                    maxEnd = end;
-                }
-            }
-
-            startEndForThread.put(entries.getKey(), new ImmutablePair<>(minStart, maxEnd));
-        }
-
-        double avgWastedNanos = 0;
-        double avgRuntimeIncludingWastedNanos = 0;
-        for (final Entry<Long, Pair<Long, Long>> entry : startEndForThread.entrySet()) {
-            final Long threadId = entry.getKey();
-            final Long minStart = entry.getValue().getKey();
-            final Long maxEnd = entry.getValue().getValue();
-            double threadDelta = 0;
-            for (final Entry<Long, Long> delta : timestampsPerThread.get(threadId)) {
-                threadDelta += (delta.getValue() - delta.getKey());
-            }
-
-            final double delta = maxEnd - minStart;
-            avgRuntimeIncludingWastedNanos += delta;
-            avgWastedNanos += (delta - threadDelta);
-        }
-        avgWastedNanos /= numberOfThreads;
-        avgRuntimeIncludingWastedNanos /= numberOfThreads;
-
         final StringBuilder builder = new StringBuilder();
 
         builder.append("----- Stats for (name: ")
@@ -223,7 +236,11 @@ public class Result {
             fails += exceptions.size();
         }
 
-        builder.append(pad("Running time: "))
+        builder.append(pad("Objective avg runtime:"))
+                .append(String.format("%.3f", timeTo(totalDeltaNanos / numberOfThreads, SECONDS)))
+                .append(" sec\n");
+
+        builder.append(pad(String.format("Total running time (%d workers):", numberOfThreads)))
                .append(String.format("%.3f", timeTo(totalDeltaNanos, SECONDS)))
                .append(" sec\n");
 
@@ -278,7 +295,7 @@ public class Result {
     }
 
     private static String pad(final String str) {
-        final int padSize = 30;
+        final int padSize = 40;
         return StringUtils.rightPad(str, padSize, '.');
     }
 }

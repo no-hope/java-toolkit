@@ -8,7 +8,9 @@ import org.nohope.test.stress.action.Invoke;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicLong;
 
+import static java.util.concurrent.TimeUnit.SECONDS;
 import static org.junit.Assert.*;
+import static org.nohope.test.stress.TimeUtils.throughputTo;
 
 /**
  * @author <a href="mailto:ketoth.xupack@gmail.com">Ketoth Xupack</a>
@@ -87,6 +89,7 @@ public class StressScenarioTest {
                                       protected void doAction(final MeasureData p)
                                               throws Exception {
                                           if (p.getOperationNumber() >= 100) {
+                                              //System.err.println(p.getOperationNumber());
                                               throw new IllegalStateException();
                                           }
                                           Thread.sleep(1);
@@ -96,11 +99,17 @@ public class StressScenarioTest {
             final Map<String, Result> results = m.getResults();
             assertNotNull(m.toString());
             assertEquals(1, results.size());
+
             final Result testResult = results.get("test");
+            //System.err.println(testResult);
             assertNotNull(testResult);
-            assertTrue(testResult.getThroughput() <= 2000);
-            assertTrue(testResult.getWorkerThroughput() <= 1000);
-            assertTrue(testResult.getWorkerThroughput() <= testResult.getThroughput());
+            final double throughput = testResult.getThroughput();
+            final double workerThroughput = testResult.getWorkerThroughput();
+            assertTrue(workerThroughput <= throughput);
+            assertTrue(throughputTo(throughput, SECONDS) <= 2000);
+            assertTrue(throughputTo(throughput, SECONDS) >= 1500);
+            assertTrue(throughputTo(workerThroughput, SECONDS) <= 1000);
+            assertTrue(throughputTo(workerThroughput, SECONDS) >= 500);
             assertEquals(100, testResult.getRuntimes().size());
             assertEquals(2, testResult.getPerThreadRuntimes().size());
             assertTrue(testResult.getMaxTime() >= testResult.getMinTime());
@@ -149,6 +158,9 @@ public class StressScenarioTest {
             assertTrue(testResult.getMeanTime() >= testResult.getMinTime());
             assertTrue(m.getRuntime() > 0);
             assertTrue(testResult.getRuntime() > 0);
+            assertTrue(testResult.getAvgRuntimeIncludingWastedNanos() > 0);
+            assertTrue(testResult.getAvgWastedNanos() > 0);
+            assertTrue(testResult.getAvgWastedNanos() < testResult.getAvgRuntimeIncludingWastedNanos());
             assertEquals(100, m.getFails());
             assertEquals(100, testResult.getErrorsPerClass()
                                         .get(IllegalStateException.class)
