@@ -1,4 +1,4 @@
-package org.nohope.app;
+package org.nohope.test;
 
 /**
  * Date: 10/17/13
