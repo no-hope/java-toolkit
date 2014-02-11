@@ -12,12 +12,12 @@ useful for testing/reporting routines.
 | skip.enforcer         | skips dependency versions checks    | false          |
 | javadoc.quiet         | enables verbose javadoc output      | true           |
 | javadoc.level         | degree of API doc detalization      | public         |
-| maven.version.lower   | Minimal accepted maven version      | 3.0.4
-| maven.version.upper   | Maximal accepted maven version      | **empty**
+| maven.version.lower   | Minimal accepted maven version      | 3.0.4          |
+| maven.version.upper   | Maximal accepted maven version      | **empty**     |
 
 ### Testing
 
-By default verification of integration tests is disabled. To enable it you may override either override `verify.it.tests` in
+Verification of integration tests is disabled by default. To enable it you may override either override `verify.it.tests` in
 child pom.xml or pass it directly from command line:
 
     mvn -Dverify.it.tests=true clean verify
