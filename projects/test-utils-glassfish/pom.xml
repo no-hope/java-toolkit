@@ -50,13 +50,12 @@
             <groupId>org.glassfish</groupId>
             <artifactId>simple-glassfish-api</artifactId>
             <version>${simple-glassfish-api.version}</version>
-
         </dependency>
         <dependency>
             <groupId>org.glassfish.extras</groupId>
             <artifactId>glassfish-embedded-all</artifactId>
             <version>${simple-glassfish-api.version}</version>
-            <scope>provided</scope>
+            <!--scope>provided</scope-->
         </dependency>
 
 

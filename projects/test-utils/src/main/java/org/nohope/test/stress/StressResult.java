@@ -88,6 +88,7 @@ public class StressResult {
                       .append(pad("Approximate throughput:"))
                       .append(String.format("%.3e", throughputTo(getApproxThroughput(), SECONDS)))
                       .append(" op/sec")
+                      .append("\n")
                       .toString();
     }
 
