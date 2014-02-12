@@ -73,7 +73,7 @@
         <skip.site-deploy>true</skip.site-deploy>
 
         <!-- Maven plugins -->
-        <maven.aspectj-plugin.version>1.5</maven.aspectj-plugin.version>
+        <maven.aspectj-plugin.version>1.6</maven.aspectj-plugin.version>
         <maven.compiler-plugin.version>3.1</maven.compiler-plugin.version>
         <maven.jar-plugin.version>2.4</maven.jar-plugin.version>
         <maven.project-info-reports-plugin.version>2.7</maven.project-info-reports-plugin.version>
@@ -82,9 +82,9 @@
         <maven.site-plugin.version>3.3</maven.site-plugin.version>
 
         <!-- libs -->
-        <aspectjrt.version>1.7.3</aspectjrt.version>
-        <findbugs-annotations.version>2.0.2</findbugs-annotations.version>
-        <jsr305.version>2.0.1</jsr305.version>
+        <aspectjrt.version>1.7.4</aspectjrt.version>
+        <findbugs-annotations.version>2.0.3</findbugs-annotations.version>
+        <jsr305.version>2.0.3</jsr305.version>
         <junit.version>4.11</junit.version>
         <maven.clean-plugin.version>2.5</maven.clean-plugin.version>
     </properties>

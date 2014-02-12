@@ -71,26 +71,26 @@
 
         <akka.version>2.2.1</akka.version>
         <akka.version.suffix>_2.10</akka.version.suffix>
-        <bson4jackson.version>2.2.3</bson4jackson.version>
-        <commons-beanutils.version>1.8.3</commons-beanutils.version>
+        <bson4jackson.version>2.3.1</bson4jackson.version>
+        <commons-beanutils.version>1.9.1</commons-beanutils.version>
         <commons-io.version>2.4</commons-io.version>
-        <commons-lang3.version>3.1</commons-lang3.version>
+        <commons-lang3.version>3.2.1</commons-lang3.version>
         <easymock.version>3.2</easymock.version>
         <guava.version>15.0</guava.version>
-        <jackson.version>2.2.3</jackson.version>
+        <jackson.version>2.3.1</jackson.version>
         <javax-inject.version>1</javax-inject.version>
         <jaxb-xjc.version>2.2.7</jaxb-xjc.version>
-        <jaxb2-basics.version>0.6.4</jaxb2-basics.version>
+        <jaxb2-basics.version>0.6.5</jaxb2-basics.version>
         <jaxb2-testing.version>0.8.3</jaxb2-testing.version>
         <joda-time.version>2.3</joda-time.version>
         <jongo.version>0.4</jongo.version>
-        <logback.version>1.0.13</logback.version>
-        <mongo.version>2.11.2</mongo.version>
+        <logback.version>1.1.1</logback.version>
+        <mongo.version>2.11.4</mongo.version>
         <netty.version>3.7.0.Final</netty.version>
         <protobuf.version>2.4.1</protobuf.version>
-        <slf4j.version>1.7.5</slf4j.version>
+        <slf4j.version>1.7.6</slf4j.version>
         <spring.version>3.2.4.RELEASE</spring.version>
-        <xbean-finder.version>3.14</xbean-finder.version>
+        <xbean-finder.version>3.16</xbean-finder.version>
         <maven.github-site-plugin.version>0.9</maven.github-site-plugin.version>
     </properties>
 
@@ -205,6 +205,7 @@
         <module>projects/jaxb2-plugins</module>
         <module>projects/protobuf-rpc</module>
 
+        <module>projects/jaxws-json</module>
         <module>projects/test-utils</module>
         <module>projects/test-utils-glassfish</module>
 

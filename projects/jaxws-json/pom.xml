@@ -1,0 +1,120 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <parent>
+        <groupId>org.no-hope</groupId>
+        <artifactId>java-toolkit</artifactId>
+        <version>0.1.4-SNAPSHOT</version>
+        <relativePath>../../pom.xml</relativePath>
+    </parent>
+
+    <properties>
+        <skip.enforcer>true</skip.enforcer>
+        <jaxws-maven-plugin.version>1.10</jaxws-maven-plugin.version>
+        <jaxws-rt.version>2.1.3</jaxws-rt.version>
+        <jaxb-impl.version>2.1.3</jaxb-impl.version>
+        <streambuffer.version>1.5.3</streambuffer.version>
+        <xsom.version>20110809</xsom.version>
+        <jettison.version>1.3.5</jettison.version>
+        <velocity.version>1.5</velocity.version>
+        <relaxngDatatype.version>1.0</relaxngDatatype.version>
+        <http.version>20070405</http.version>
+    </properties>
+
+    <artifactId>jaxws-json</artifactId>
+    <packaging>jar</packaging>
+
+    <name>${project.artifactId}</name>
+    <description>Legacy org.jvnet JAXWS-JSON code bugfixed and ported to recent Glassfish</description>
+
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>jaxws-maven-plugin</artifactId>
+                <version>${jaxws-maven-plugin.version}</version>
+                <executions>
+                    <execution>
+                        <goals>
+                            <goal>wsgen-test</goal>
+                        </goals>
+                    </execution>
+                </executions>
+                <configuration>
+                    <sei>foo.MyService</sei>
+                </configuration>
+                <dependencies>
+                    <dependency>
+                        <groupId>com.sun</groupId>
+                        <artifactId>tools</artifactId>
+                        <version>1.5</version>
+                        <scope>system</scope>
+                        <systemPath>${java.home}/../lib/tools.jar</systemPath>
+                    </dependency>
+                </dependencies>
+            </plugin>
+        </plugins>
+    </build>
+
+    <dependencies>
+        <dependency>
+            <groupId>org.no-hope</groupId>
+            <artifactId>typetools</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>junit</groupId>
+            <artifactId>junit</artifactId>
+            <version>${junit.version}</version>
+            <scope>test</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>com.sun.xml.ws</groupId>
+            <artifactId>jaxws-rt</artifactId>
+            <version>${jaxws-rt.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.sun.xml.bind</groupId>
+            <artifactId>jaxb-impl</artifactId>
+            <version>${jaxb-impl.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.sun.xml.stream.buffer</groupId>
+            <artifactId>streambuffer</artifactId>
+            <version>${streambuffer.version}</version>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.sun.xsom</groupId>
+            <artifactId>xsom</artifactId>
+            <version>${xsom.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.codehaus.jettison</groupId>
+            <artifactId>jettison</artifactId>
+            <version>${jettison.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.velocity</groupId>
+            <artifactId>velocity</artifactId>
+            <version>${velocity.version}</version>
+        </dependency>
+
+        <!-- once xsom adds this dependency we shouldn't need it -->
+        <!--dependency>
+            <groupId>com.sun.xml</groupId>
+            <artifactId>relaxngDatatype</artifactId>
+            <version>${relaxngDatatype.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>com.sun.net.httpserver</groupId>
+            <artifactId>http</artifactId>
+            <version>${http.version}</version>
+            <scope>test</scope>
+        </dependency-->
+    </dependencies>
+</project>
