@@ -10,14 +10,16 @@ import com.sun.xml.ws.api.pipe.Codec;
  * @author Jitendra Kotamraju
  */
 public class JSONBindingID extends BindingID {
-
     public static final String JSON_BINDING = "https://jax-ws-commons.dev.java.net/json/";
 
+    @Override
     public SOAPVersion getSOAPVersion() {
         return SOAPVersion.SOAP_11;
     }
 
-    public @NotNull Codec createEncoder(@NotNull final WSBinding binding) {
+    @NotNull
+    @Override
+    public Codec createEncoder(@NotNull final WSBinding binding) {
         return new JSONCodec(binding);
     }
 
@@ -29,5 +31,4 @@ public class JSONBindingID extends BindingID {
     public boolean canGenerateWSDL() {
         return true;
     }
-
 }

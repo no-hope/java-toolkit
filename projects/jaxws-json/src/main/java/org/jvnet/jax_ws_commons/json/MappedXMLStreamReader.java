@@ -19,6 +19,7 @@ public class MappedXMLStreamReader extends AbstractXMLStreamReader {
     private String valueKey = "$";
     private final NamespaceContext ctx;
     private int popArrayNodes;
+
     public MappedXMLStreamReader(final JSONObject obj)
             throws JSONException, XMLStreamException {
         this(obj, new MappedNamespaceConvention());
@@ -33,8 +34,8 @@ public class MappedXMLStreamReader extends AbstractXMLStreamReader {
         this.ctx = con;
         final Object top = obj.get(rootName);
         if (top instanceof JSONObject) {
-            this.node = new Node(null, rootName, (JSONObject)top, convention);
-        } else if (top instanceof JSONArray && !(((JSONArray)top).length() == 1 && ((JSONArray)top).get(0).equals(""))) {
+            this.node = new Node(null, rootName, (JSONObject) top, convention);
+        } else if (top instanceof JSONArray && !(((JSONArray) top).length() == 1 && "".equals(((JSONArray) top).get(0)))) {
             this.node = new Node(null, rootName, obj, convention);
         } else {
             node = new Node(rootName, convention);
@@ -46,6 +47,7 @@ public class MappedXMLStreamReader extends AbstractXMLStreamReader {
     }
 
 
+    @Override
     public int next() throws XMLStreamException {
         if (event == START_DOCUMENT) {
             event = START_ELEMENT;
@@ -80,10 +82,10 @@ public class MappedXMLStreamReader extends AbstractXMLStreamReader {
         }
         // handle value in nodes with attributes
         if (!nodes.isEmpty()) {
-            final Node next = (Node)nodes.peek();
+            final Node next = (Node) nodes.peek();
             if (event == START_ELEMENT && next.getName().getLocalPart().equals(valueKey)) {
                 event = CHARACTERS;
-                node = (Node)nodes.pop();
+                node = (Node) nodes.pop();
             }
         }
         return event;
@@ -91,18 +93,15 @@ public class MappedXMLStreamReader extends AbstractXMLStreamReader {
 
     private void processElement() throws XMLStreamException {
         try {
-            Object newObj = null;
-            String nextKey = null;
+            final Object newObj;
+            String nextKey;
             if (node.getArray() != null) {
                 int index = node.getArrayIndex();
                 if (index >= node.getArray().length()) {
-
                     nodes.pop();
-
                     node = (Node) nodes.peek();
 
-                    if (node == null)
-                    {
+                    if (node == null) {
                         event = END_DOCUMENT;
                         return;
                     }
@@ -112,8 +111,7 @@ public class MappedXMLStreamReader extends AbstractXMLStreamReader {
                             node = (Node) nodes.pop();
                         }
                         processElement();
-                    }
-                    else {
+                    } else {
                         event = END_ELEMENT;
                         node = (Node) nodes.pop();
                     }
@@ -121,9 +119,9 @@ public class MappedXMLStreamReader extends AbstractXMLStreamReader {
                 }
                 newObj = node.getArray().get(index++);
                 nextKey = node.getName().getLocalPart();
-                if (!"".equals(node.getName().getNamespaceURI())) {
+                if (node.getName().getNamespaceURI() != null && !node.getName().getNamespaceURI().isEmpty()) {
                     final String prefix = this.convention.getPrefix(node.getName().getNamespaceURI());
-                    if (null != prefix && !"".equals(prefix)) {
+                    if (null != prefix && !prefix.isEmpty()) {
                         nextKey = prefix + "." + nextKey;
                     }
                 }
@@ -137,7 +135,6 @@ public class MappedXMLStreamReader extends AbstractXMLStreamReader {
                 nodes.push(node);
                 currentValue = (String) newObj;
                 event = START_ELEMENT;
-                return;
             } else if (newObj instanceof JSONArray) {
                 final JSONArray array = (JSONArray) newObj;
                 if (!processUniformArrayIfPossible(nextKey, array)) {
@@ -147,18 +144,15 @@ public class MappedXMLStreamReader extends AbstractXMLStreamReader {
                     nodes.push(node);
                     processElement();
                 }
-                return;
             } else if (newObj instanceof JSONObject) {
-                node = new Node((Node)nodes.peek(), nextKey, (JSONObject) newObj, convention);
+                node = new Node((Node) nodes.peek(), nextKey, (JSONObject) newObj, convention);
                 nodes.push(node);
                 event = START_ELEMENT;
-                return;
             } else {
                 node = new Node(nextKey, convention);
                 nodes.push(node);
                 currentValue = JSONObject.NULL.equals(newObj) ? null : newObj.toString();
                 event = START_ELEMENT;
-                return;
             }
         } catch (final JSONException e) {
             throw new XMLStreamException(e);
@@ -166,7 +160,6 @@ public class MappedXMLStreamReader extends AbstractXMLStreamReader {
     }
 
     private boolean processUniformArrayIfPossible(final String arrayKey, final JSONArray array) throws JSONException, XMLStreamException {
-
         if (!isAvoidArraySpecificEvents(arrayKey)) {
             return false;
         }
@@ -175,13 +168,13 @@ public class MappedXMLStreamReader extends AbstractXMLStreamReader {
         int depth = 0;
         String lastKey = null;
         final int parentIndex = nodes.size();
-        final boolean isRoot = ((Node)nodes.get(0)).getName().getLocalPart().equals(arrayKey);
+        final boolean isRoot = ((Node) nodes.get(0)).getName().getLocalPart().equals(arrayKey);
         final Node parent = !isRoot ? new Node(arrayKey, convention) : node;
 
         for (int i = arrayLength - 1; i >= 0; i--) {
             final Object object = array.get(i);
             if (object instanceof JSONObject) {
-                final JSONObject jsonObject = (JSONObject)object;
+                final JSONObject jsonObject = (JSONObject) object;
                 // lets limit to single key JSONObjects for now
                 if (jsonObject.length() == 1) {
                     final String theKey = jsonObject.keys().next().toString();
@@ -212,28 +205,32 @@ public class MappedXMLStreamReader extends AbstractXMLStreamReader {
             node = parent;
             event = START_ELEMENT;
         } else {
-            node = (Node)nodes.pop();
+            node = (Node) nodes.pop();
             processElement();
         }
         popArrayNodes++;
         return true;
     }
 
+    @Override
     public void close() throws XMLStreamException {
     }
 
+    @Override
     public String getElementText() throws XMLStreamException {
         event = CHARACTERS;
         return currentValue;
     }
 
+    @Override
     public NamespaceContext getNamespaceContext() {
         return ctx;
     }
 
+    @Override
     public String getText() {
         if (convention.isReadNullAsString() && currentValue != null
-                && "null".equals(currentValue)) {
+            && "null".equals(currentValue)) {
             return "";
         }
         return currentValue;

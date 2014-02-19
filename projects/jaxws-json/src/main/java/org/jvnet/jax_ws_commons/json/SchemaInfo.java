@@ -27,7 +27,11 @@ import org.jvnet.jax_ws_commons.json.schema.JsonOperation;
 import org.jvnet.jax_ws_commons.json.schema.JsonTypeBuilder;
 import org.w3c.dom.Document;
 import org.w3c.dom.NodeList;
-import org.xml.sax.*;
+import org.xml.sax.ContentHandler;
+import org.xml.sax.EntityResolver;
+import org.xml.sax.ErrorHandler;
+import org.xml.sax.InputSource;
+import org.xml.sax.SAXException;
 
 import javax.jws.soap.SOAPBinding.Style;
 import javax.xml.XMLConstants;
@@ -43,7 +47,13 @@ import javax.xml.transform.sax.TransformerHandler;
 import javax.xml.ws.WebServiceException;
 import java.io.IOException;
 import java.io.Writer;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.LinkedHashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 /**
  * Captures the information parsed from XML Schema.
@@ -55,9 +65,7 @@ public final class SchemaInfo {
     /**
      * Endpoint for which this schema info applies.
      */
-    private final
-    @NotNull
-    WSEndpoint endpoint;
+    @NotNull private final WSEndpoint endpoint;
 
     /**
      * Parent tag name to possible child tag names.
@@ -79,8 +87,9 @@ public final class SchemaInfo {
         final ServiceDefinition sd = endpoint.getServiceDefinition();
         final Map<String, SDDocument> byURL = new HashMap<>();
 
-        for (final SDDocument doc : sd)
+        for (final SDDocument doc : sd) {
             byURL.put(doc.getURL().toExternalForm(), doc);
+        }
 
         // set up XSOMParser to read from SDDocuments
         final XSOMParser p = new XSOMParser(new XMLParser() {
@@ -122,8 +131,9 @@ public final class SchemaInfo {
             extractTagNames(p.getResult());
             convention = new SchemaConvention(tagNames);
 
-            if (endpoint.getPort() != null)
+            if (endpoint.getPort() != null) {
                 buildJsonSchema(p.getResult(), endpoint.getPort());
+            }
         } catch (XMLStreamException | SAXException | IOException e) {
             throw new WebServiceException("Failed to parse WSDL", e);
         } catch (final TransformerConfigurationException e) {
@@ -134,8 +144,10 @@ public final class SchemaInfo {
     public String getServiceName() {
         String name = endpoint.getPort().getName().getLocalPart();
         if (name.endsWith("ServicePort"))
-            // when doing java2wsdl and the class name ends with 'Service', you get this.
+        // when doing java2wsdl and the class name ends with 'Service', you get this.
+        {
             name = name.substring(0, name.length() - 4);
+        }
         return name;
     }
 
@@ -143,8 +155,9 @@ public final class SchemaInfo {
         return new MappedXMLStreamWriter(convention, writer) {
             @Override
             public void writeEndDocument() throws XMLStreamException {
-                if (!stack.isEmpty())
+                if (!stack.isEmpty()) {
                     throw new XMLStreamException("Missing some closing tags.");
+                }
                 try {
                     // We know the root is a JSONPropertyObject so this cast is safe
                     JSONObject root = (JSONObject) current.getValue();
@@ -156,7 +169,7 @@ public final class SchemaInfo {
                     //final Object v = root;
                     // if this is the sole return value unwrap that, too
                 /*if (root.length() == 1)
-        		v = root.get((String) root.keys().next());
+                        v = root.get((String) root.keys().next());
         	    else
         		v = root;*/
 
@@ -164,8 +177,7 @@ public final class SchemaInfo {
                         writer.write("null");
                     } else {
                         final Object firstElement = root.get((String) root.keys().next());
-                        if (root.length() == 1)
-                        {
+                        if (root.length() == 1) {
                             if (firstElement == null) {
                                 writer.write("null");
                             } else if (firstElement instanceof JSONArray) {
@@ -228,8 +240,9 @@ public final class SchemaInfo {
                 tagNames.add(new QName(decl.getTargetNamespace(), decl.getName()));
             }
         };
-        for (final XSSchema s : schemas.getSchemas())
+        for (final XSSchema s : schemas.getSchemas()) {
             s.visit(collector);
+        }
     }
 
     private static MutableXMLStreamBuffer readToBuffer(final SDDocument doc) throws XMLStreamException, IOException {
@@ -248,8 +261,9 @@ public final class SchemaInfo {
     private void buildJsonSchema(final XSSchemaSet schemas, final WSDLPort port) {
         final Style style = port.getBinding().getStyle();
         final JsonTypeBuilder builder = new JsonTypeBuilder(convention);
-        for (final WSDLBoundOperation bo : port.getBinding().getBindingOperations())
+        for (final WSDLBoundOperation bo : port.getBinding().getBindingOperations()) {
             operations.add(new JsonOperation(bo, schemas, builder, style));
+        }
     }
 
     public List<JsonOperation> getOperations() {

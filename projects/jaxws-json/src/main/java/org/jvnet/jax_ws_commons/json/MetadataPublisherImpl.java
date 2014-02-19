@@ -7,7 +7,12 @@ import com.sun.xml.ws.transport.http.WSHTTPConnection;
 import org.apache.velocity.VelocityContext;
 import org.apache.velocity.app.VelocityEngine;
 
-import java.io.*;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.OutputStream;
+import java.io.OutputStreamWriter;
+import java.io.PrintWriter;
 import java.net.HttpURLConnection;
 import java.net.URL;
 
@@ -26,45 +31,49 @@ final class MetadataPublisherImpl extends HttpMetadataPublisher {
     @Override
     public boolean handleMetadataRequest(@NotNull final HttpAdapter adapter, @NotNull final WSHTTPConnection con) throws IOException {
         final QueryStringParser qsp = new QueryStringParser(con);
-        if(qsp.containsKey("js")) {
+        if (qsp.containsKey("js")) {
             // JavaScript proxy code
             con.setStatus(HttpURLConnection.HTTP_OK);
             con.setContentTypeResponseHeader("application/javascript;charset=utf-8");
 
             final ClientGenerator gen = new ClientGenerator(model, con, adapter);
             final String varName = qsp.get("var");
-            if(varName!=null)
+            if (varName != null) {
                 gen.setVariableName(varName);
+            }
 
             gen.generate(new PrintWriter(
-                new OutputStreamWriter(con.getOutput(),"UTF-8")));
+                    new OutputStreamWriter(con.getOutput(), "UTF-8")));
             return true;
         }
 
-        if(con.getQueryString()==null || qsp.containsKey("help")) {
+        if (con.getQueryString() == null || qsp.containsKey("help")) {
             // index page
             con.setStatus(HttpURLConnection.HTTP_OK);
             con.setContentTypeResponseHeader("text/html;charset=UTF-8");
 
-            generateHelpHtml(con,adapter,new OutputStreamWriter(con.getOutput(), "UTF-8"));
+            generateHelpHtml(con, adapter, new OutputStreamWriter(con.getOutput(), "UTF-8"));
             return true;
         }
 
         final URL res = getClass().getResource("template/" + con.getQueryString());
-        if(res!=null) {
+        if (res != null) {
             // static resource accesss
             con.setStatus(HttpURLConnection.HTTP_OK);
-            if(res.getPath().endsWith(".gif"))
+            if (res.getPath().endsWith(".gif")) {
                 con.setContentTypeResponseHeader("image/gif");
-            if(res.getPath().endsWith(".css"))
+            }
+            if (res.getPath().endsWith(".css")) {
                 con.setContentTypeResponseHeader("text/css");
+            }
 
             final InputStream is = res.openStream();
             final OutputStream os = con.getOutput();
             final byte[] buf = new byte[1024];
             int len;
-            while((len=is.read(buf))>=0)
-                os.write(buf,0,len);
+            while ((len = is.read(buf)) >= 0) {
+                os.write(buf, 0, len);
+            }
             is.close();
             os.close();
             return true;
@@ -75,12 +84,12 @@ final class MetadataPublisherImpl extends HttpMetadataPublisher {
 
     /*package for testing*/ void generateHelpHtml(final WSHTTPConnection con, final HttpAdapter adapter, final OutputStreamWriter writer) throws IOException {
         final VelocityContext context = new VelocityContext();
-        context.put("model",model);
-        context.put("requestURL",con.getBaseAddress()+adapter.urlPattern);
+        context.put("model", model);
+        context.put("requestURL", con.getBaseAddress() + adapter.urlPattern);
 
         new VelocityEngine().evaluate(context, writer, "velocity",
-            new InputStreamReader(getClass().getResourceAsStream("template/index.html"),"UTF-8")
-            );
+                new InputStreamReader(getClass().getResourceAsStream("template/index.html"), "UTF-8")
+        );
         writer.close();
     }
 }

@@ -20,13 +20,19 @@ import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamReader;
 import javax.xml.stream.XMLStreamWriter;
 import javax.xml.ws.WebServiceException;
-import java.io.*;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.OutputStream;
+import java.io.OutputStreamWriter;
+import java.io.Reader;
+import java.io.StringWriter;
 import java.nio.channels.ReadableByteChannel;
 import java.nio.channels.WritableByteChannel;
 
 
 /**
- * Server-side {@link Codec} that generates JSON. 
+ * Server-side {@link Codec} that generates JSON.
  *
  * @author Jitendra Kotamraju
  */
@@ -53,46 +59,53 @@ class JSONCodec implements EndpointAwareCodec, EndpointComponent {
         this.endpoint = that.endpoint;
     }
 
+    @Override
     public void setEndpoint(final WSEndpoint endpoint) {
         this.endpoint = endpoint;
         schemaInfo = new SchemaInfo(endpoint);
         endpoint.getComponentRegistry().add(this);
     }
 
+    @Override
     public String getMimeType() {
         return JSON_MIME_TYPE;
     }
 
+    @Override
     public ContentType getStaticContentType(final Packet packet) {
         return jsonContentType;
     }
 
 
-    public @Nullable <T> T getSPI(@NotNull final Class<T> type) {
-        if(type==HttpMetadataPublisher.class) {
-            if(metadataPublisher==null)
+    @Nullable
+    @Override
+    public <T> T getSPI(@NotNull final Class<T> type) {
+        if (type == HttpMetadataPublisher.class) {
+            if (metadataPublisher == null) {
                 metadataPublisher = new MetadataPublisherImpl(checkSchemaInfo());
+            }
             return type.cast(metadataPublisher);
         }
         return null;
     }
 
+    @Override
     public ContentType encode(final Packet packet, final OutputStream out) throws IOException {
         final Message message = packet.getMessage();
         if (message != null) {
             XMLStreamWriter sw = null;
             try {
-                sw = checkSchemaInfo().createXMLStreamWriter(new OutputStreamWriter(out,"UTF-8"));
+                sw = checkSchemaInfo().createXMLStreamWriter(new OutputStreamWriter(out, "UTF-8"));
                 sw.writeStartDocument();
                 message.writePayloadTo(sw);
                 sw.writeEndDocument();
-            } catch(final XMLStreamException xe) {
+            } catch (final XMLStreamException xe) {
                 throw new WebServiceException(xe);
             } finally {
                 if (sw != null) {
                     try {
                         sw.close();
-                    } catch(final XMLStreamException xe) {
+                    } catch (final XMLStreamException xe) {
                         // let the original exception get through
                     }
                 }
@@ -101,6 +114,7 @@ class JSONCodec implements EndpointAwareCodec, EndpointComponent {
         return jsonContentType;
     }
 
+    @Override
     public ContentType encode(final Packet packet, final WritableByteChannel buffer) {
         throw new UnsupportedOperationException();
     }
@@ -110,29 +124,33 @@ class JSONCodec implements EndpointAwareCodec, EndpointComponent {
      * by either using a cache or by parsing new.
      */
     private SchemaInfo checkSchemaInfo() {
-        if(schemaInfo==null)
+        if (schemaInfo == null) {
             throw new IllegalStateException("JSON binding is only available for the server");
+        }
         return schemaInfo;
     }
 
+    @Override
     public Codec copy() {
         return new JSONCodec(this);
     }
 
+    @Override
     public void decode(final InputStream in, final String contentType, final Packet response) throws IOException {
         final Message message;
         try {
             final StringWriter sw = new StringWriter();
             // TODO: RFC-4627 calls for BOM check
             // TODO: honor charset sub header.
-            final Reader r = new InputStreamReader(in,"UTF-8");
+            final Reader r = new InputStreamReader(in, "UTF-8");
             final char[] buf = new char[1024];
             int len;
-            while((len=r.read(buf))>=0)
-                sw.write(buf,0,len);
+            while ((len = r.read(buf)) >= 0) {
+                sw.write(buf, 0, len);
+            }
             r.close();
 
-            if(sw.getBuffer().length()==0) {
+            if (sw.getBuffer().length() == 0) {
                 // no content
                 message = Messages.createEmpty(soapVersion);
             } else {
@@ -143,31 +161,33 @@ class JSONCodec implements EndpointAwareCodec, EndpointComponent {
                 message = Messages.createUsingPayload(reader, soapVersion);
                 //System.err.println(">>>>>>>>>>>>>>>>>>> 2: "+ JSON.JSON.pretty(message));
             }
-        } catch(final XMLStreamException e) {
-            throw new WebServiceException(e);
-        } catch (final JSONException e) {
+        } catch (final XMLStreamException | JSONException e) {
             throw new WebServiceException(e);
         }
 
         response.setMessage(message);
     }
 
+    @Override
     public void decode(final ReadableByteChannel in, final String contentType, final Packet response) {
         throw new UnsupportedOperationException();
     }
 
-    private static final class  JSONContentType implements ContentType {
+    private static final class JSONContentType implements ContentType {
 
         private static final String JSON_CONTENT_TYPE = JSON_MIME_TYPE;
 
+        @Override
         public String getContentType() {
             return JSON_CONTENT_TYPE;
         }
 
+        @Override
         public String getSOAPActionHeader() {
             return null;
         }
 
+        @Override
         public String getAcceptHeader() {
             return JSON_CONTENT_TYPE;
         }

@@ -11,7 +11,7 @@ import java.util.Set;
  */
 public class CompositeJsonType extends JsonType {
     private final String name;
-    public final Map<String,JsonType> properties = new LinkedHashMap<String,JsonType>();
+    public final Map<String, JsonType> properties = new LinkedHashMap<>();
 
     public CompositeJsonType(final String name) {
         this.name = name;
@@ -23,22 +23,25 @@ public class CompositeJsonType extends JsonType {
 
     @Override
     public String getLink() {
-        return String.format("<a href=#%1$s>%1$s</a>",name);
+        return String.format("<a href=#%1$s>%1$s</a>", name);
     }
 
     @Override
     public JsonType unwrap() {
-        if(properties.size()!=1)
+        if (properties.size() != 1) {
             return this;
-        else
+        } else {
             return properties.values().iterator().next();
+        }
     }
 
     @Override
     public void listCompositeTypes(final Set<CompositeJsonType> result) {
-        if(result.add(this))
-            for (final JsonType t : properties.values())
+        if (result.add(this)) {
+            for (final JsonType t : properties.values()) {
                 t.listCompositeTypes(result);
+            }
+        }
     }
 
     public Map<String, JsonType> getProperties() {

@@ -1,8 +1,10 @@
 package foo;
 
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.io.PrintStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
 
@@ -35,7 +37,8 @@ public class MyClient {
         final OutputStream out = con.getOutputStream();
         out.write(json.getBytes());
         out.close();
-        dump(con);
+        final ByteArrayOutputStream stream = new ByteArrayOutputStream();
+        dump(con, new PrintStream(stream));
 
         // dump help HTML
         //System.out.println("\n---HTML---");
@@ -45,7 +48,7 @@ public class MyClient {
         //dump(con);
     }
 
-    private static void dump(final HttpURLConnection con) throws IOException {
+    private static void dump(final HttpURLConnection con, final PrintStream out) throws IOException {
         // Check if we got the correct HTTP response code
         final int code = con.getResponseCode();
 
@@ -53,9 +56,8 @@ public class MyClient {
         final InputStream in = (code == 200) ? con.getInputStream() : con.getErrorStream();
         int ch;
         while((ch=in.read()) != -1) {
-            System.out.print((char)ch);
+            out.print((char) ch);
         }
-        System.out.println();
+        out.println();
     }
-
 }

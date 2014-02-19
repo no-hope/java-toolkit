@@ -103,6 +103,12 @@
             <version>${velocity.version}</version>
         </dependency>
 
+        <dependency>
+            <groupId>org.no-hope</groupId>
+            <artifactId>test-utils</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+
         <!-- once xsom adds this dependency we shouldn't need it -->
         <!--dependency>
             <groupId>com.sun.xml</groupId>

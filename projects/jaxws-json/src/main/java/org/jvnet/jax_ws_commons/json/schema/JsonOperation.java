@@ -12,7 +12,7 @@ import java.util.Map;
 
 /**
  * Represents the JSON type signature of an operation.
- * 
+ *
  * @author Kohsuke Kawaguchi
  */
 public class JsonOperation {
@@ -20,7 +20,7 @@ public class JsonOperation {
      * Method name of this operation, inferred from the operation name.
      */
     public final String methodName;
-    public final JsonType input,output;
+    public final JsonType input, output;
     /**
      * This JSON operation is modeled after this WSDL operation.
      */
@@ -38,32 +38,38 @@ public class JsonOperation {
 
     /**
      * Infer the JavaScript type from the given parts set.
-     *
      */
-    private JsonType build(final String name, final XSSchemaSet schemas, final Map<String, WSDLPart> parts, final JsonTypeBuilder builder, final Style style) {
+    private static JsonType build(final String name,
+                                  final XSSchemaSet schemas,
+                                  final Map<String, WSDLPart> parts,
+                                  final JsonTypeBuilder builder,
+                                  final Style style) {
         final CompositeJsonType wrapper = new CompositeJsonType(name);
-        for(final Map.Entry<String,WSDLPart> in : parts.entrySet() ) {
-            if(!in.getValue().getBinding().isBody())
+        for (final Map.Entry<String, WSDLPart> in : parts.entrySet()) {
+            if (!in.getValue().getBinding().isBody()) {
                 continue;   // JSON binding has no header support for now.
+            }
             final WSDLPartDescriptor d = in.getValue().getDescriptor();
 
             switch (d.type()) {
-            case ELEMENT:
-                final XSElementDecl decl = schemas.getElementDecl(d.name().getNamespaceURI(), d.name().getLocalPart());
-                wrapper.properties.put(in.getKey(),builder.create(decl.getType()));
-                break;
-            case TYPE:
-                wrapper.properties.put(in.getKey(),builder.create(
-                    schemas.getType(d.name().getNamespaceURI(), d.name().getLocalPart())));
-                break;
+                case ELEMENT:
+                    final XSElementDecl decl = schemas.getElementDecl(d.name().getNamespaceURI(), d.name().getLocalPart());
+                    wrapper.properties.put(in.getKey(), builder.create(decl.getType()));
+                    break;
+                case TYPE:
+                    wrapper.properties.put(in.getKey(), builder.create(
+                            schemas.getType(d.name().getNamespaceURI(), d.name().getLocalPart())));
+                    break;
             }
         }
 
-        if(style==Style.DOCUMENT)
-            // peel off the outermost part that doesn't actually have a representation on the wire.
+        if (style == Style.DOCUMENT)
+        // peel off the outermost part that doesn't actually have a representation on the wire.
+        {
             return wrapper.unwrap();
-        else
+        } else {
             return wrapper;
+        }
     }
 
     public String getMethodName() {

@@ -12,8 +12,9 @@ import javax.xml.ws.WebServiceException;
  */
 public class JSONBindingIDFactory extends BindingIDFactory {
 
-    public @Nullable BindingID parse(@NotNull final String lexical) throws WebServiceException {
+    @Nullable
+    @Override
+    public BindingID parse(@NotNull final String lexical) throws WebServiceException {
         return new JSONBindingID();
     }
-    
 }

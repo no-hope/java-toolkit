@@ -9,19 +9,25 @@ import java.util.HashMap;
  *
  * @author Kohsuke Kawaguchi
  */
-final class QueryStringParser extends HashMap<String,String> {
+final class QueryStringParser extends HashMap<String, String> {
+    private static final long serialVersionUID = 1L;
+
     QueryStringParser(final WSHTTPConnection con) {
         this(con.getQueryString());
     }
-    QueryStringParser(final String queryString) {
-        if(queryString==null)   return;
 
-        for( final String token : queryString.split("&") ) {
+    QueryStringParser(final String queryString) {
+        if (queryString == null) {
+            return;
+        }
+
+        for (final String token : queryString.split("&")) {
             final int idx = token.indexOf('=');
-            if(idx<0)
-                put(token,"");
-            else
-                put(token.substring(0,idx),token.substring(idx+1));
+            if (idx < 0) {
+                put(token, "");
+            } else {
+                put(token.substring(0, idx), token.substring(idx + 1));
+            }
         }
     }
 }

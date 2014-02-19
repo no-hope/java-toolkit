@@ -8,7 +8,7 @@ import java.util.Set;
 public abstract class JsonType {
     /**
      * Number primitive type.
-     *
+     * <p/>
      * I needed to make primitive types public to keep Velocity happy. Argh.
      */
     public static final JsonType NUMBER = new NumberType();
@@ -47,20 +47,23 @@ public abstract class JsonType {
     }
 
     public static class NumberType extends JsonType {
+        @Override
         public String getLink() {
             return "NUMBER";
         }
     }
 
     public static class BooleanType extends JsonType {
+        @Override
         public String getLink() {
-                return "BOOLEAN";
-            }
+            return "BOOLEAN";
+        }
     }
 
     public static class StringType extends JsonType {
+        @Override
         public String getLink() {
-                return "STRING";
-            }
+            return "STRING";
+        }
     }
 }

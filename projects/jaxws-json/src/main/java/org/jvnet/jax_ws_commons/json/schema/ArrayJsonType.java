@@ -14,7 +14,7 @@ public class ArrayJsonType extends JsonType {
 
     @Override
     public String getLink() {
-        return "array of "+componentType.getLink();
+        return "array of " + componentType.getLink();
     }
 
     @Override
