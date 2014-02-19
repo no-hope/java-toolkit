@@ -20,7 +20,7 @@ before_install:
   - scripts/prepare_settings.sh
 
 install:
-  - mvn -e -q -B -T 1.5C -B -Dskip.tests=true -Dskip.javadoc=true clean verify
+  - mvn -e -q -B -T 1.5C -B -U -Dskip.tests=true -Dskip.javadoc=true clean verify
 
 script:
   - mvn -e -DrepoToken=$COVERALLS_KEY clean install site
