@@ -79,7 +79,7 @@
         <maven-ant-tasks.version>2.1.3</maven-ant-tasks.version>
 
         <!-- jacoco reporting folders -->
-        <jacoco.output.dir>target/site</jacoco.output.dir>
+        <jacoco.output.dir>target/site/jacoco</jacoco.output.dir>
         <jacoco.report.floder.it>${jacoco.output.dir}/it</jacoco.report.floder.it>
         <jacoco.report.floder.unit>${jacoco.output.dir}/unit</jacoco.report.floder.unit>
         <jacoco.report.floder.all>${jacoco.output.dir}/all</jacoco.report.floder.all>
