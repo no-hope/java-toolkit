@@ -392,6 +392,7 @@
     </build>
 
     <!-- TODO: remove on plugins stabilization -->
+    <!--
     <pluginRepositories>
         <pluginRepository>
             <id>sonatype-nexus-snapshots</id>
@@ -405,4 +406,5 @@
             </snapshots>
         </pluginRepository>
     </pluginRepositories>
+    -->
 </project>
