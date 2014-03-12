@@ -92,6 +92,7 @@
         <spring.version>3.2.4.RELEASE</spring.version>
         <xbean-finder.version>3.16</xbean-finder.version>
         <maven.github-site-plugin.version>0.9</maven.github-site-plugin.version>
+        <protoc-maven-plugin.version>0.0.1</protoc-maven-plugin.version>
     </properties>
 
     <build>
@@ -100,7 +101,7 @@
                 <plugin>
                     <groupId>org.no-hope</groupId>
                     <artifactId>protoc-maven-plugin</artifactId>
-                    <version>${project.version}</version>
+                    <version>${protoc-maven-plugin.version}</version>
                     <executions>
                         <execution>
                             <id>compile</id>
