@@ -23,3 +23,7 @@
  * [akka-spring](projects/akka-spring)
  * [jaxb2-plugins](projects/jaxb2-plugins)
  * [protobuf-rpc](projects/protobuf-rpc)
+
+### Additional documentation
+
+ * [Release process](doc/TOOLKIT-RELEASE.md)
