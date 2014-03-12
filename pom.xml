@@ -158,6 +158,7 @@
                 <artifactId>site-maven-plugin</artifactId>
                 <version>${maven.github-site-plugin.version}</version>
                 <configuration>
+                    <skip>${skip.site-deploy}</skip>
                     <message>Creating site for ${project.version}</message>
                     <path>${project.distributionManagement.site.url}</path>
                     <merge>true</merge>
