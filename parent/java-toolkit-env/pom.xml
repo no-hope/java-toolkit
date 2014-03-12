@@ -72,6 +72,9 @@
 
         <skip.site-deploy>true</skip.site-deploy>
 
+        <!-- additional release properties -->
+        <release.arguments />
+
         <!-- Maven plugins -->
         <maven.aspectj-plugin.version>1.6</maven.aspectj-plugin.version>
         <maven.compiler-plugin.version>3.1</maven.compiler-plugin.version>
@@ -190,6 +193,13 @@
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-resources-plugin</artifactId>
                 <version>${maven-resources-plugin.version}</version>
+            </plugin>
+
+            <plugin>
+                <artifactId>maven-release-plugin</artifactId>
+                <configuration combine.self="append">
+                    <arguments>-Psonatype-oss-release ${release.arguments}</arguments>
+                </configuration>
             </plugin>
 
             <plugin>
