@@ -29,13 +29,14 @@
             </plugin>
 
             <plugin>
-                <groupId>org.no-hope</groupId>
-                <artifactId>jacoco-aggregator-maven-plugin</artifactId>
+                <groupId>org.jacoco</groupId>
+                <artifactId>jacoco-maven-plugin</artifactId>
                 <executions>
                     <execution>
-                        <id>jacoco-report-all</id>
+                        <id>jacoco-merge-data</id>
+                        <phase>post-integration-test</phase>
                         <goals>
-                            <goal>report</goal>
+                            <goal>merge</goal>
                         </goals>
                         <configuration combine.children="append">
                             <excludes>

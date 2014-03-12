@@ -65,7 +65,7 @@
         <maven.failsafe-plugin.version>2.16</maven.failsafe-plugin.version>
         <maven.findbugs-plugin.version>2.3.2</maven.findbugs-plugin.version>
         <maven.jacoco-aggregator-plugin.version>0.0.1-SNAPSHOT</maven.jacoco-aggregator-plugin.version>
-        <maven.jacoco-plugin.version>0.6.4.201312101107</maven.jacoco-plugin.version>
+        <maven.jacoco-plugin.version>0.6.5.201403032054</maven.jacoco-plugin.version>
         <maven.javadoc-plugin.version>2.9.1</maven.javadoc-plugin.version>
         <maven.jdepend-plugin.version>2.0-beta-2</maven.jdepend-plugin.version>
         <maven.pmd-plugin.version>2.5</maven.pmd-plugin.version>
@@ -79,9 +79,10 @@
         <maven-ant-tasks.version>2.1.3</maven-ant-tasks.version>
 
         <!-- jacoco reporting folders -->
-        <jacoco.report.floder.it>target/site/jacoco/it</jacoco.report.floder.it>
-        <jacoco.report.floder.unit>target/site/jacoco/unit</jacoco.report.floder.unit>
-        <jacoco.report.floder.all>target/site/jacoco/all</jacoco.report.floder.all>
+        <jacoco.output.dir>target/site</jacoco.output.dir>
+        <jacoco.report.floder.it>${jacoco.output.dir}/it</jacoco.report.floder.it>
+        <jacoco.report.floder.unit>${jacoco.output.dir}/unit</jacoco.report.floder.unit>
+        <jacoco.report.floder.all>${jacoco.output.dir}/all</jacoco.report.floder.all>
 
         <!-- jacoco coverage reports paths -->
         <jacoco.exec.dir>target/coverage-reports</jacoco.exec.dir>
@@ -174,6 +175,59 @@
                         <configuration>
                             <propertyName>jacoco.argline.unit</propertyName>
                             <destFile>${jacoco.exec.unit}</destFile>
+                        </configuration>
+                    </execution>
+
+                    <execution>
+                        <id>jacoco-merge-data</id>
+                        <phase>post-integration-test</phase>
+                        <goals>
+                            <goal>merge</goal>
+                        </goals>
+                        <configuration>
+                            <destFile>${jacoco.exec.all}</destFile>
+                            <fileSets>
+                                <fileSet>
+                                    <directory>${project.basedir}/target/coverage-reports</directory>
+                                    <includes>
+                                        <include>*.exec</include>
+                                    </includes>
+                                </fileSet>
+                            </fileSets>
+                        </configuration>
+                    </execution>
+
+                    <execution>
+                        <id>jacoco-report-all</id>
+                        <phase>pre-site</phase>
+                        <goals>
+                            <goal>report</goal>
+                        </goals>
+                        <configuration>
+                            <dataFile>${jacoco.exec.all}</dataFile>
+                            <outputDirectory>${jacoco.report.floder.all}</outputDirectory>
+                        </configuration>
+                    </execution>
+                    <execution>
+                        <id>jacoco-report-it</id>
+                        <phase>pre-site</phase>
+                        <goals>
+                            <goal>report</goal>
+                        </goals>
+                        <configuration>
+                            <dataFile>${jacoco.exec.it}</dataFile>
+                            <outputDirectory>${jacoco.report.floder.it}</outputDirectory>
+                        </configuration>
+                    </execution>
+                    <execution>
+                        <id>jacoco-report-unit</id>
+                        <phase>pre-site</phase>
+                        <goals>
+                            <goal>report</goal>
+                        </goals>
+                        <configuration>
+                            <dataFile>${jacoco.exec.unit}</dataFile>
+                            <outputDirectory>${jacoco.report.floder.unit}</outputDirectory>
                         </configuration>
                     </execution>
                 </executions>
@@ -334,99 +388,8 @@
                     </execution>
                 </executions>
             </plugin>
-
-            <plugin>
-                <groupId>org.no-hope</groupId>
-                <artifactId>jacoco-aggregator-maven-plugin</artifactId>
-                <version>${maven.jacoco-aggregator-plugin.version}</version>
-                <executions>
-                    <execution>
-                        <id>jacoco-report-all</id>
-                        <configuration>
-                            <skip>${skip.jacoco}</skip>
-                            <strict>false</strict>
-                            <skipModule>false</skipModule>
-                            <aggregate>false</aggregate>
-
-                            <reportFormats>
-                                <reportFormat>xml</reportFormat>
-                            </reportFormats>
-
-                            <groupDirectory>all</groupDirectory>
-                            <dataFiles>
-                                <dataFile>${jacoco.exec.it}</dataFile>
-                                <dataFile>${jacoco.exec.unit}</dataFile>
-                            </dataFiles>
-                        </configuration>
-                        <phase>post-integration-test</phase>
-                        <goals>
-                            <goal>report</goal>
-                        </goals>
-                    </execution>
-                </executions>
-            </plugin>
         </plugins>
     </build>
-
-    <reporting>
-        <plugins>
-            <plugin>
-                <groupId>org.no-hope</groupId>
-                <artifactId>jacoco-aggregator-maven-plugin</artifactId>
-                <version>${maven.jacoco-aggregator-plugin.version}</version>
-                <configuration>
-                    <skip>${skip.jacoco.report}</skip>
-                    <strict>false</strict>
-                    <skipModule>true</skipModule>
-                    <aggregate>true</aggregate>
-                    <groupDirectory />
-                    <groupName />
-                </configuration>
-                <reportSets>
-                    <reportSet>
-                        <id>unit</id>
-                        <reports>
-                            <report>aggregate</report>
-                        </reports>
-                        <configuration>
-                            <groupName>Unit Tests</groupName>
-                            <groupDirectory>unit</groupDirectory>
-                            <dataFiles>
-                                <dataFile>${jacoco.exec.unit}</dataFile>
-                            </dataFiles>
-                        </configuration>
-                    </reportSet>
-                    <reportSet>
-                        <id>it</id>
-                        <reports>
-                            <report>aggregate</report>
-                        </reports>
-                        <configuration>
-                            <groupName>Integration Tests</groupName>
-                            <groupDirectory>it</groupDirectory>
-                            <dataFiles>
-                                <dataFile>${jacoco.exec.it}</dataFile>
-                            </dataFiles>
-                        </configuration>
-                    </reportSet>
-                    <reportSet>
-                        <id>all</id>
-                        <reports>
-                            <report>aggregate</report>
-                        </reports>
-                        <configuration>
-                            <groupName>Unit and Integration Tests</groupName>
-                            <groupDirectory>all</groupDirectory>
-                            <dataFiles>
-                                <dataFile>${jacoco.exec.it}</dataFile>
-                                <dataFile>${jacoco.exec.unit}</dataFile>
-                            </dataFiles>
-                        </configuration>
-                    </reportSet>
-                </reportSets>
-            </plugin>
-        </plugins>
-    </reporting>
 
     <!-- TODO: remove on plugins stabilization -->
     <pluginRepositories>
