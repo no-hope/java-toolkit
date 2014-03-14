@@ -57,7 +57,7 @@ public final class SerializationUtils {
         try {
 
             return mapper.readValue(json, clazz);
-        } catch (Exception e) {
+        } catch (final Exception e) {
             final String message = String.format("Unable to unmarshall from json: %s to %s", json, clazz);
             throw new MarshallingException(message, e);
         }
@@ -68,7 +68,7 @@ public final class SerializationUtils {
             final Writer writer = new StringWriter();
             mapper.writeValue(writer, obj);
             return writer.toString();
-        } catch (Exception e) {
+        } catch (final Exception e) {
             final String message = String.format("Unable to marshall json from: %s", obj);
             throw new MarshallingException(message, e);
         }

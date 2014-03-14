@@ -47,7 +47,7 @@ public final class PooledMeasureProvider extends MeasureData {
             public void run() {
                 try {
                     calc.invoke(getThreadId(), invoke);
-                } catch (InvocationException ignored) { // already accounted
+                } catch (final InvocationException ignored) { // already accounted
                 }
             }
         });

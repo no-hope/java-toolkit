@@ -65,30 +65,30 @@ public class StressResult {
         final StringBuilder builder = new StringBuilder();
         final String separator = StringUtils.rightPad("", 50, '=');
         builder.append(StringUtils.rightPad("====== Stress test result ", 50, '='))
-               .append("\n")
+               .append('\n')
                .append(pad("Threads: "))
                .append(threadsCount)
-               .append("\n")
+               .append('\n')
                .append(pad("Cycles: "))
                .append(cycleCount)
-               .append("\n")
+               .append('\n')
                .append(separator)
-               .append("\n");
+               .append('\n');
         for (final Result stats : results.values()) {
             builder.append(stats.toString());
         }
         return builder.append(separator)
-                      .append("\n")
+                      .append('\n')
                       .append(pad("Total error count:"))
                       .append(fails)
-                      .append("\n")
+                      .append('\n')
                       .append(pad("Total running time:"))
                       .append(String.format("%.3f", timeTo(runtime, SECONDS)))
                       .append(" sec\n")
                       .append(pad("Approximate throughput:"))
                       .append(String.format("%.3e", throughputTo(getApproxThroughput(), SECONDS)))
                       .append(" op/sec")
-                      .append("\n")
+                      .append('\n')
                       .toString();
     }
 

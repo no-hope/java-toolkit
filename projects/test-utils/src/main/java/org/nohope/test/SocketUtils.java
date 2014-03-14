@@ -92,7 +92,7 @@ public final class SocketUtils {
         try (final Socket sock = new Socket()) {
             sock.connect(address, 100);
             return true;
-        } catch (IOException e) {
+        } catch (final IOException e) {
             return false;
         }
     }
@@ -142,7 +142,7 @@ public final class SocketUtils {
     public static InetAddress getLocalHost() {
         try {
             return InetAddress.getLocalHost();
-        } catch (UnknownHostException e) {
+        } catch (final UnknownHostException e) {
             throw new IllegalStateException("Unable to obtain local host name");
         }
     }
