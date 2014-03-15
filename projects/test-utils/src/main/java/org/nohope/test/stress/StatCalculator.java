@@ -4,6 +4,7 @@ import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.apache.commons.lang3.tuple.ImmutablePair;
 
 import javax.annotation.Nonnull;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArrayList;
@@ -42,7 +43,8 @@ class StatCalculator {
     protected final <T> T invoke(final long threadId,
                                  final InvocationHandler<T> invoke)
             throws InvocationException {
-        timesPerThread.putIfAbsent(threadId, new CopyOnWriteArrayList<Entry<Long, Long>>());
+        // it's safe to use ArrayList here, they are always modified by same thread!
+        timesPerThread.putIfAbsent(threadId, new ArrayList<Entry<Long, Long>>());
         try {
             final long start = resolution.currentTime();
             final T result = invoke.invoke();
