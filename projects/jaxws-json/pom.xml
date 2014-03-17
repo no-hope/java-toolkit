@@ -10,7 +10,7 @@
 
     <properties>
         <skip.enforcer>true</skip.enforcer>
-        <jaxws-maven-plugin.version>1.10</jaxws-maven-plugin.version>
+        <jaxws-maven-plugin.version>1.12</jaxws-maven-plugin.version>
         <jaxws-rt.version>2.1.3</jaxws-rt.version>
         <jaxb-impl.version>2.1.3</jaxb-impl.version>
         <streambuffer.version>1.5.3</streambuffer.version>
