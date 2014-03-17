@@ -197,6 +197,7 @@
         <module>projects/jaxws-json</module>
 
         <module>projects/test-utils</module>
+        <module>projects/test-utils/test-utils</module>
     </modules>
 
     <distributionManagement>

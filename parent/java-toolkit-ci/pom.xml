@@ -387,6 +387,7 @@
                             <rules>
                                 <dependencyConvergence />
                                 <requireUpperBoundDeps />
+                                <banCircularDependencies />
                                 <bannedDependencies>
                                     <excludes>
                                         <exclude>commons-logging:commons-logging</exclude>

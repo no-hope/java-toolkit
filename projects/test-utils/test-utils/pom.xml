@@ -9,9 +9,9 @@
 
     <parent>
         <groupId>org.no-hope</groupId>
-        <artifactId>test-utils-parent</artifactId>
+        <artifactId>java-toolkit</artifactId>
         <version>0.1.5-SNAPSHOT</version>
-        <relativePath>../pom.xml</relativePath>
+        <relativePath>../../../pom.xml</relativePath>
     </parent>
 
     <dependencies>
