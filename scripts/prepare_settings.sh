@@ -3,6 +3,9 @@ SONATYPE_PASSWORD=${SONATYPE_PASSWORD-}
 GITHUB_PASSWORD=${GITHUB_PASSWORD-}
 GITHUB_PASSWORD="$(echo ${GITHUB_PASSWORD} | base64 -d)"
 
+# force repo rebuild
+rm -rf ~/.m2
+
 echo "
 <settings>
     <servers>
