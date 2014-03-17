@@ -1,20 +1,27 @@
 # About this lib
 
-This library provides a set packages:
+This library provides a set of modules:
 
- * `org.nohope.test` - set of test utilities aimed to deal with common testing routines
- * `org.nohope.test.runner` - collection of junit-specific test runners
- * `org.nohope.test.stress` - simple performance measurement tool for multi-threaded environments which is useful for
-  performing stress testing
+ * [`test-utils-common`](test-utils-common) - set of test utilities aimed to deal with common testing routines
+ * [`test-utils-akka`](test-utils-akka) - akka test configuration builder
+ * [`test-utils-junit`](test-utils-junit) - collection of junit-specific test runners
+ * [`test-utils-glassfish`](test-utils-glassfish) - set of utilities on top of embedded glassfish approach
+ * [`test-utils-stress`](test-utils-stress) - simple performance measurement tool for multi-threaded environments
+ which is useful for performing stress testing
 
 ## Utilities
 
+### test-utils-akka
+
  * `AkkaUtils` - uri/system configuration builders for [Akka project](http://akka.io/)
+
+### test-utils-common
+
  * `TRandom` - a wrapper over standard set of random generators with extended features
  * `SocketUtils` - set of utilities for determinig local/remote address availability
  * `SerializationUtils` - assertions for java/jackson (de)serialization cycles
 
-## Stress-tests framework (org.nohope.test.stress)
+## Stress-tests framework (test-utils-stress)
 
 ### Example
 

@@ -209,8 +209,8 @@
         <module>projects/protobuf-rpc</module>
 
         <module>projects/jaxws-json</module>
+
         <module>projects/test-utils</module>
-        <module>projects/test-utils-glassfish</module>
     </modules>
 
     <distributionManagement>

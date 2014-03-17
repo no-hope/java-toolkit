@@ -1,7 +1,7 @@
 package org.nohope.akka;
 
 import org.junit.Test;
-import org.nohope.test.RandomUtils;
+import org.nohope.test.TRandom;
 import org.nohope.test.UtilitiesTestSupport;
 
 import static org.junit.Assert.assertEquals;
@@ -24,8 +24,8 @@ public class SupervisorRequestsTest extends UtilitiesTestSupport {
 
     @Test
     public void serialization() {
-        final String id = RandomUtils.nextString();
-        final String data = RandomUtils.nextString();
+        final String id = TRandom.standard().nextString();
+        final String data = TRandom.standard().nextString();
         final NamedWorkerMetadata meta = new NamedWorkerMetadata(id, data);
         final StartupReply reply = new StartupReply(meta);
         final StartupReply cloned = assertJavaClonedEquals(reply);

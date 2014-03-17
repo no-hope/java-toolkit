@@ -9,7 +9,7 @@ import akka.pattern.AskTimeoutException;
 import akka.testkit.TestActorRef;
 import org.junit.Test;
 import org.nohope.test.AkkaUtils;
-import org.nohope.test.RandomUtils;
+import org.nohope.test.TRandom;
 
 import java.io.Serializable;
 import java.util.Arrays;
@@ -97,8 +97,8 @@ public class BaseSupervisorTest {
             final ActorRef actorRef2 = Ask.waitReply(ActorRef.class, ref, new Bean("a", 1));
             assertEquals(actorRef, actorRef2);
 
-            final String id = RandomUtils.nextString();
-            final String data = RandomUtils.nextString();
+            final String id = TRandom.standard().nextString();
+            final String data = TRandom.standard().nextString();
             final NamedWorkerMetadata meta = new NamedWorkerMetadata(id, data);
             try {
                 Ask.waitReply(ActorRef.class, ref, new StartupReply(meta), 500);

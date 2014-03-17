@@ -57,14 +57,14 @@ public class AskTest extends UtilitiesTestSupport {
         try {
             Ask.waitReply(String.class, ref, 123);
             fail();
-        } catch (Exception e) {
+        } catch (final Exception e) {
             assertTrue(e.getCause() instanceof ClassCastException);
         }
 
         try {
             Ask.waitReply(Object.class, ref, "fail");
             fail();
-        } catch (Exception e) {
+        } catch (final Exception e) {
             assertTrue(e.getCause() instanceof InvalidMessageException);
             assertEquals("Message 'invalid object' must implement java.io.Serializable",
                     e.getCause().getMessage());
@@ -73,7 +73,7 @@ public class AskTest extends UtilitiesTestSupport {
         try {
             Ask.waitReply(Object.class, ref, "null");
             fail();
-        } catch (Exception e) {
+        } catch (final Exception e) {
             assertTrue(e.getCause() instanceof AskTimeoutException);
         }
     }
