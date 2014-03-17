@@ -38,7 +38,7 @@ public class SocketUtilsTest extends UtilitiesTestSupport {
                 SocketUtils.getAvailableLocalAddress().getAddress()));
 
         final int availablePort = SocketUtils.getAvailablePort();
-        try (final ServerSocket ss = new ServerSocket(availablePort)) {
+        try (final ServerSocket ignored = new ServerSocket(availablePort)) {
             assertTrue(SocketUtils.isRemoteAddressAvailable(
                     new InetSocketAddress(
                             SocketUtils.getLocalHostAddress(),
@@ -55,7 +55,7 @@ public class SocketUtilsTest extends UtilitiesTestSupport {
     public void ports() throws IOException {
         final int port = SocketUtils.getAvailablePort();
         assertFalse(SocketUtils.isRemoteAddressAvailable("localhost", port));
-        try (final ServerSocket ss = new ServerSocket(port)) {
+        try (final ServerSocket ignored = new ServerSocket(port)) {
             assertFalse(SocketUtils.isLocalPortAvailable(port));
         }
     }
@@ -71,7 +71,7 @@ public class SocketUtilsTest extends UtilitiesTestSupport {
     public void remoteAddress() {
         try {
             assertFalse(SocketUtils.isLocal(InetAddress.getByName("8.8.8.8")));
-        } catch (UnknownHostException e) {
+        } catch (final UnknownHostException e) {
             assumeNoException(e);
         }
     }

@@ -71,7 +71,6 @@
             <groupId>com.google.guava</groupId>
             <artifactId>guava</artifactId>
             <version>${guava.version}</version>
-            <classifier>cdi1.0</classifier>
         </dependency>
 
         <dependency>
