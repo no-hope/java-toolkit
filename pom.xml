@@ -94,7 +94,7 @@
         <xbean-finder.version>3.16</xbean-finder.version>
         <maven.github-site-plugin.version>0.9</maven.github-site-plugin.version>
         <protoc-maven-plugin.version>0.0.1</protoc-maven-plugin.version>
-        <coveralls-extensions-maven-plugin.version>0.0.2</coveralls-extensions-maven-plugin.version>
+        <coveralls-extensions-maven-plugin.version>0.0.3</coveralls-extensions-maven-plugin.version>
     </properties>
 
     <build>
