@@ -1,7 +1,7 @@
 package org.nohope.test.stress;
 
 import org.junit.Test;
-import org.nohope.test.UtilitiesTestSupport;
+import org.nohope.test.UtilityClassUtils;
 
 import java.util.concurrent.TimeUnit;
 
@@ -13,10 +13,11 @@ import static org.nohope.test.stress.TimeUtils.timeTo;
  * @author <a href="mailto:ketoth.xupack@gmail.com">Ketoth Xupack</a>
  * @since 2014-01-21 11:38
  */
-public class TimeUtilsTest extends UtilitiesTestSupport {
-    @Override
-    protected Class<?> getUtilityClass() {
-        return TimeUtils.class;
+public class TimeUtilsTest  {
+
+    @Test
+    public void isUtility() throws Exception {
+        UtilityClassUtils.assertUtilityClass(TimeUtils.class);
     }
 
     @Test

@@ -19,10 +19,10 @@ import static org.junit.Assert.assertSame;
  * @author <a href="mailto:ketoth.xupack@gmail.com">ketoth xupack</a>
  * @since 9/18/12 5:34 PM
  */
-public class CollectionUtilsTest extends UtilitiesTestSupport {
+public class CollectionUtilsTest extends UtilitiesTestSupport<CollectionUtils> {
 
     @Override
-    protected Class<?> getUtilityClass() {
+    protected Class<CollectionUtils> getUtilityClass() {
         return CollectionUtils.class;
     }
 

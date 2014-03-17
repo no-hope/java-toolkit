@@ -16,9 +16,10 @@ import static org.nohope.spring.SpringUtils.*;
  * @author <a href="mailto:ketoth.xupack@gmail.com">Ketoth Xupack</a>
  * @since 2013-10-14 18:22
  */
-public class SpringUtilsTest extends UtilitiesTestSupport {
+public class SpringUtilsTest extends UtilitiesTestSupport<SpringUtils> {
+
     @Override
-    protected Class<?> getUtilityClass() {
+    protected Class<SpringUtils> getUtilityClass() {
         return SpringUtils.class;
     }
 

@@ -11,10 +11,10 @@ import static org.junit.Assert.assertNull;
  * @author <a href="mailto:ketoth.xupack@gmail.com">Ketoth Xupack</a>
  * @since 2013-10-10 02:30
  */
-public class TNumbTest extends UtilitiesTestSupport {
+public class TNumbTest extends UtilitiesTestSupport<TNumb> {
 
     @Override
-    protected Class<?> getUtilityClass() {
+    protected Class<TNumb> getUtilityClass() {
         return TNumb.class;
     }
 

@@ -16,9 +16,9 @@ import static org.junit.Assert.*;
  * Date: 07.08.12
  * Time: 17:26
  */
-public class TTimeTest extends UtilitiesTestSupport {
+public class TTimeTest extends UtilitiesTestSupport<TTime> {
     @Override
-    protected Class<?> getUtilityClass() {
+    protected Class<TTime> getUtilityClass() {
         return TTime.class;
     }
 

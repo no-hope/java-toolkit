@@ -11,9 +11,9 @@ import static org.junit.Assert.assertEquals;
  * @author <a href="mailto:ketoth.xupack@gmail.com">Ketoth Xupack</a>
  * @since 2013-10-11 12:27
  */
-public class TColorTest extends UtilitiesTestSupport {
+public class TColorTest extends UtilitiesTestSupport<TColor> {
     @Override
-    protected Class<?> getUtilityClass() {
+    protected Class<TColor> getUtilityClass() {
         return TColor.class;
     }
 

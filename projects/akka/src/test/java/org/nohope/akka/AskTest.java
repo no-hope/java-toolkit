@@ -16,10 +16,10 @@ import static org.junit.Assert.*;
  * @since 10/17/12 9:13 PM
  */
 @SuppressWarnings("MethodMayBeStatic")
-public class AskTest extends UtilitiesTestSupport {
+public class AskTest extends UtilitiesTestSupport<Ask> {
 
     @Override
-    protected Class<?> getUtilityClass() {
+    protected Class<Ask> getUtilityClass() {
         return Ask.class;
     }
 

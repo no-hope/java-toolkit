@@ -1,14 +1,16 @@
 package org.nohope.test.stress;
 
-import org.nohope.test.EnumTestSupport;
+import org.junit.Test;
+import org.nohope.test.EnumUtils;
 
 /**
  * @author <a href="mailto:ketoth.xupack@gmail.com">Ketoth Xupack</a>
  * @since 2013-12-29 20:10
  */
-public class TimerResolutionTest extends EnumTestSupport<TimerResolution> {
-    @Override
-    protected Class<TimerResolution> getEnumClass() {
-        return TimerResolution.class;
+public class TimerResolutionTest {
+    @Test
+    public void enumTest() {
+        EnumUtils.basicAssertions(TimerResolution.class);
+        EnumUtils.assertEnumConstructor(TimerResolution.class);
     }
 }

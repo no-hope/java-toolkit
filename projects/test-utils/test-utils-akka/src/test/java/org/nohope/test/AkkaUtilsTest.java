@@ -14,7 +14,7 @@ import static org.junit.Assert.*;
  * @author <a href="mailto:ketoth.xupack@gmail.com">ketoth xupack</a>
  * @since 10/4/12 12:27 PM
  */
-public class AkkaUtilsTest extends UtilitiesTestSupport {
+public class AkkaUtilsTest extends UtilitiesTestSupport<AkkaUtils> {
 
     @Test
     public void actorUri() {
@@ -85,7 +85,7 @@ public class AkkaUtilsTest extends UtilitiesTestSupport {
     }
 
     @Override
-    protected Class<?> getUtilityClass() {
+    protected Class<AkkaUtils> getUtilityClass() {
         return AkkaUtils.class;
     }
 }

@@ -19,6 +19,7 @@
         <module>test-utils-junit</module>
         <module>test-utils-common</module>
         <module>test-utils-stress</module>
+        <module>test-utils-serialization</module>
 
         <!-- standalone glassfish utility -->
         <module>test-utils-glassfish</module>

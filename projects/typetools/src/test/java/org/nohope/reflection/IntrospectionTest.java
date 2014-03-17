@@ -29,12 +29,12 @@ import static org.nohope.reflection.ModifierMatcher.*;
  * @author <a href="mailto:ketoth.xupack@gmail.com">ketoth xupack</a>
  * @since 10/28/11 8:02 PM
  */
-public final class IntrospectionTest extends UtilitiesTestSupport {
+public final class IntrospectionTest extends UtilitiesTestSupport<IntrospectionUtils> {
     private static final Map<Class<?>, Class<?>[]> classCache =
             new HashMap<>();
 
     @Override
-    public Class<?> getUtilityClass() {
+    public Class<IntrospectionUtils> getUtilityClass() {
         return IntrospectionUtils.class;
     }
 

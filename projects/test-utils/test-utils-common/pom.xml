@@ -29,27 +29,10 @@
                     </aspectLibraries>
                 </configuration>
             </plugin>
-
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-javadoc-plugin</artifactId>
-                <configuration>
-                    <links>
-                        <link>http://junit.sourceforge.net/javadoc/</link>
-                    </links>
-                </configuration>
-            </plugin>
         </plugins>
     </build>
 
     <dependencies>
-        <dependency>
-            <groupId>org.no-hope</groupId>
-            <artifactId>typetools-json</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-
-        <!-- other -->
         <dependency>
             <groupId>org.no-hope</groupId>
             <artifactId>jsr305-aspectj-validation</artifactId>
@@ -76,16 +59,27 @@
         </dependency>
 
         <dependency>
+            <groupId>joda-time</groupId>
+            <artifactId>joda-time</artifactId>
+            <version>${joda-time.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>org.hamcrest</groupId>
+            <artifactId>hamcrest-core</artifactId>
+            <version>${hamcrest-core.version}</version>
+        </dependency>
+
+        <dependency>
             <groupId>ch.qos.logback</groupId>
             <artifactId>logback-classic</artifactId>
             <version>${logback.version}</version>
-            <scope>provided</scope>
+            <scope>test</scope>
         </dependency>
 
         <dependency>
             <groupId>junit</groupId>
             <artifactId>junit</artifactId>
-            <scope>compile</scope>
         </dependency>
     </dependencies>
 </project>

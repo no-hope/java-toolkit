@@ -13,10 +13,10 @@ import static org.nohope.akka.MessageMethodInvoker.SignaturePair;
  * Time: 11:29
  */
 @SuppressWarnings("MethodMayBeStatic")
-public class MessageMethodInvokerTest extends UtilitiesTestSupport {
+public class MessageMethodInvokerTest extends UtilitiesTestSupport<MessageMethodInvoker> {
 
     @Override
-    protected Class<?> getUtilityClass() {
+    protected Class<MessageMethodInvoker> getUtilityClass() {
         return MessageMethodInvoker.class;
     }
 

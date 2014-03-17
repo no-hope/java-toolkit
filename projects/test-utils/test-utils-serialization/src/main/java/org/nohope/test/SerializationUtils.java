@@ -1,6 +1,7 @@
 package org.nohope.test;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import org.hamcrest.CoreMatchers;
 import org.nohope.logging.Logger;
 import org.nohope.logging.LoggerFactory;
 
@@ -14,8 +15,7 @@ import java.io.Serializable;
 import java.io.StringWriter;
 import java.io.Writer;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.fail;
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.nohope.typetools.TypeSafeObjectMapper.createPreConfiguredMapper;
 
 /**
@@ -39,15 +39,13 @@ public final class SerializationUtils {
                 return (T) in.readObject();
             }
         } catch (IOException | ClassNotFoundException e) {
-            fail(e.getMessage());
+            throw new AssertionError(e.getMessage());
         }
-
-        return null;
     }
 
     public static<T extends Serializable> T assertJavaClonedEquals(final T origin) {
         final T result = cloneJava(origin);
-        assertEquals(origin, result);
+        assertThat(result, CoreMatchers.equalTo(origin));
         return result;
     }
 
@@ -83,7 +81,7 @@ public final class SerializationUtils {
 
     public static<T> T assertJsonClonedEquals(@Nonnull final ObjectMapper mapper, final T origin) {
         final T result = cloneJson(mapper, origin);
-        assertEquals(origin, result);
+        assertThat(result, CoreMatchers.equalTo(origin));
         return result;
     }
 

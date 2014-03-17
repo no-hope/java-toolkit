@@ -19,10 +19,11 @@ import static org.junit.Assume.assumeNoException;
  * @author <a href="mailto:ketoth.xupack@gmail.com">ketoth xupack</a>
  * @since 8/16/12 10:42 PM
  */
-public class SocketUtilsTest extends UtilitiesTestSupport {
-    @Override
-    protected Class<?> getUtilityClass() {
-        return SocketUtils.class;
+public class SocketUtilsTest {
+
+    @Test
+    public void isUtility() throws Exception {
+        UtilityClassUtils.assertUtilityClass(SocketUtils.class);
     }
 
     @Test

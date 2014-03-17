@@ -17,7 +17,7 @@
     <dependencies>
         <dependency>
             <groupId>org.no-hope</groupId>
-            <artifactId>test-utils-common</artifactId>
+            <artifactId>test-utils-junit</artifactId>
             <version>${project.version}</version>
         </dependency>
 
@@ -67,32 +67,6 @@
                     <groupId>org.slf4j</groupId>
                 </exclusion>
             </exclusions>
-        </dependency>
-
-        <dependency>
-            <groupId>com.typesafe.akka</groupId>
-            <artifactId>akka-testkit${akka.version.suffix}</artifactId>
-            <version>${akka.version}</version>
-        </dependency>
-
-        <!-- other -->
-        <dependency>
-            <groupId>org.no-hope</groupId>
-            <artifactId>jongo</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-
-        <dependency>
-            <groupId>org.no-hope</groupId>
-            <artifactId>slf4j-logging</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-
-        <dependency>
-            <groupId>ch.qos.logback</groupId>
-            <artifactId>logback-classic</artifactId>
-            <version>${logback.version}</version>
-            <scope>provided</scope>
         </dependency>
     </dependencies>
 </project>

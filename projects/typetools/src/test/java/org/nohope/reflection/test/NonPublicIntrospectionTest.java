@@ -14,10 +14,10 @@ import static org.nohope.reflection.IntrospectionUtils.searchMethod;
  * @author <a href="mailto:ketoth.xupack@gmail.com">ketoth xupack</a>
  * @since 10/28/11 8:02 PM
  */
-public final class NonPublicIntrospectionTest extends UtilitiesTestSupport {
+public final class NonPublicIntrospectionTest extends UtilitiesTestSupport<IntrospectionUtils> {
 
     @Override
-    public Class<?> getUtilityClass() {
+    public Class<IntrospectionUtils> getUtilityClass() {
         return IntrospectionUtils.class;
     }
 

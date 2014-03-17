@@ -9,9 +9,9 @@ import static org.junit.Assert.assertEquals;
  * Date: 07.08.12
  * Time: 17:02
  */
-public class TBoolTest extends UtilitiesTestSupport {
+public class TBoolTest extends UtilitiesTestSupport<TBool> {
     @Override
-    protected Class<?> getUtilityClass() {
+    protected Class<TBool> getUtilityClass() {
         return TBool.class;
     }
 

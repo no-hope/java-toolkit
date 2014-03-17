@@ -4,16 +4,15 @@ import org.junit.Test;
 import org.nohope.test.UtilitiesTestSupport;
 
 import static org.junit.Assert.*;
-import static org.junit.Assert.assertEquals;
 
 /**
  * Date: 07.08.12
  * Time: 17:02
  */
-public class TDoubleTest extends UtilitiesTestSupport {
+public class TDoubleTest extends UtilitiesTestSupport<TDouble> {
 
     @Override
-    protected Class<?> getUtilityClass() {
+    protected Class<TDouble> getUtilityClass() {
         return TDouble.class;
     }
 

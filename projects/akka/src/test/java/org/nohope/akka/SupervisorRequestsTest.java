@@ -15,10 +15,10 @@ import static org.nohope.test.SerializationUtils.assertMongoClonedEquals;
  * @author <a href="mailto:ketoth.xupack@gmail.com">Ketoth Xupack</a>
  * @since 2013-10-10 22:21
  */
-public class SupervisorRequestsTest extends UtilitiesTestSupport {
+public class SupervisorRequestsTest extends UtilitiesTestSupport<SupervisorRequests> {
 
     @Override
-    protected Class<?> getUtilityClass() {
+    protected Class<SupervisorRequests> getUtilityClass() {
         return SupervisorRequests.class;
     }
 

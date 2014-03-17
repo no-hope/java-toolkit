@@ -77,6 +77,7 @@
         <commons-lang3.version>3.3</commons-lang3.version>
         <easymock.version>3.2</easymock.version>
         <guava.version>16.0.1</guava.version>
+        <hamcrest-core.version>1.3</hamcrest-core.version>
         <jackson.version>2.3.2</jackson.version>
         <javax-inject.version>1</javax-inject.version>
         <jaxb-xjc.version>2.2.7</jaxb-xjc.version>

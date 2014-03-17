@@ -13,11 +13,11 @@ import static org.nohope.test.SerializationUtils.*;
  * @author <a href="mailto:ketoth.xupack@gmail.com">ketoth xupack</a>
  * @since 9/21/12 1:06 AM
  */
-public class SerializationUtilsTest extends UtilitiesTestSupport {
+public class SerializationUtilsTest {
 
-    @Override
-    protected Class<?> getUtilityClass() {
-        return SerializationUtils.class;
+    @Test
+    public void isUtility() throws Exception {
+        UtilityClassUtils.assertUtilityClass(SerializationUtils.class);
     }
 
     @Test
@@ -34,6 +34,7 @@ public class SerializationUtilsTest extends UtilitiesTestSupport {
         assertEquals(origin.state, result.state);
         assertEquals(origin.state, fromMongo(toMongo(result), Bean1.class).state);
         assertEquals(origin.state, cloneMongo(result).state);
+
     }
 
     @Test(expected = AssertionError.class)

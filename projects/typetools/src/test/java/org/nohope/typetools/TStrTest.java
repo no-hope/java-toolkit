@@ -13,19 +13,17 @@ import java.util.Map;
 import static com.mongodb.util.MyAsserts.assertFalse;
 import static com.mongodb.util.MyAsserts.assertTrue;
 import static org.easymock.EasyMock.*;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
+import static org.junit.Assert.*;
 import static org.nohope.typetools.TStr.join;
 
 /**
  * @author <a href="mailto:ketoth.xupack@gmail.com">ketoth xupack</a>
  * @since 10/31/11 7:12 PM
  */
-public final class TStrTest extends UtilitiesTestSupport {
+public final class TStrTest extends UtilitiesTestSupport<TStr> {
 
     @Override
-    public Class<?> getUtilityClass() {
+    public Class<TStr> getUtilityClass() {
         return TStr.class;
     }
 
