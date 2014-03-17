@@ -323,4 +323,42 @@ public class StressScenarioTest {
         }
     }
 
+
+    @Test
+    public void sortedOutput() throws InterruptedException {
+        final StressResult result =
+                StressScenario.of(TimerResolution.MILLISECONDS).measure(10, 1, new Action() {
+                    @Override
+                    protected void doAction(final MeasureProvider p) throws Exception {
+                        p.invoke("action4", new Invoke() {
+                            @Override
+                            public void invoke() throws Exception {
+                            }
+                        });
+                        p.invoke("action1", new Invoke() {
+                            @Override
+                            public void invoke() throws Exception {
+                            }
+                        });
+                        p.invoke("action2", new Invoke() {
+                            @Override
+                            public void invoke() throws Exception {
+                            }
+                        });
+                        p.invoke("action3", new Invoke() {
+                            @Override
+                            public void invoke() throws Exception {
+                            }
+                        });
+                    }
+                });
+
+        final int action1 = result.toString().indexOf("action1");
+        final int action2 = result.toString().indexOf("action2");
+        final int action3 = result.toString().indexOf("action3");
+        final int action4 = result.toString().indexOf("action4");
+        assertTrue(action4 > action3);
+        assertTrue(action3 > action2);
+        assertTrue(action2 > action1);
+    }
 }

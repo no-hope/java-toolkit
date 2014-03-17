@@ -4,6 +4,8 @@ import org.apache.commons.lang3.StringUtils;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Set;
+import java.util.TreeSet;
 
 import static java.util.concurrent.TimeUnit.SECONDS;
 import static org.nohope.test.stress.TimeUtils.throughputTo;
@@ -74,9 +76,13 @@ public class StressResult {
                .append('\n')
                .append(separator)
                .append('\n');
-        for (final Result stats : results.values()) {
-            builder.append(stats.toString());
+
+        // sorted output
+        final Set<String> keys = new TreeSet<>(results.keySet());
+        for (final String key : keys) {
+            builder.append(results.get(key).toString());
         }
+
         return builder.append(separator)
                       .append('\n')
                       .append(pad("Total error count:"))
