@@ -2,7 +2,6 @@ package org.nohope.akka;
 
 import akka.actor.ActorRef;
 import akka.actor.Props;
-import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 
 import java.text.MessageFormat;
 import java.util.HashMap;
@@ -12,15 +11,9 @@ import static org.nohope.akka.SupervisorRequests.StartupReply;
 import static org.nohope.typetools.JSON.JSON;
 
 /**
- *
- *
  * Date: 25.07.12
  * Time: 12:14
  */
-@SuppressFBWarnings(
-        value = "UPM_UNCALLED_PRIVATE_METHOD",
-        justification = "onConcreteMessage here is invoked "
-                        + "reflectively to not to check types all the time")
 public abstract class BaseSupervisor extends MessageTypeMatchingActor {
     private final Map<NamedWorkerMetadata, ActorRef> startingActors = new HashMap<>();
 

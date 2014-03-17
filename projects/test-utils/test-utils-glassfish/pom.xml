@@ -8,6 +8,9 @@
     <description />
     <properties>
         <simple-glassfish-api.version>3.2-b06</simple-glassfish-api.version>
+
+        <!-- TODO: glassfish-embedded contains aggregates a lot of modules! -->
+        <skip.enforcer>true</skip.enforcer>
     </properties>
 
     <parent>

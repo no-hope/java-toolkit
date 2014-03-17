@@ -87,6 +87,7 @@
         <!-- libs -->
         <aspectjrt.version>1.7.4</aspectjrt.version>
         <findbugs-annotations.version>2.0.3</findbugs-annotations.version>
+        <jcip-annotations.version>1.0</jcip-annotations.version>
         <jsr305.version>2.0.3</jsr305.version>
         <junit.version>4.11</junit.version>
         <maven.clean-plugin.version>2.5</maven.clean-plugin.version>
@@ -251,6 +252,13 @@
                 <version>${aspectjrt.version}</version>
             </dependency>
 
+            <dependency>
+                <groupId>net.jcip</groupId>
+                <artifactId>jcip-annotations</artifactId>
+                <version>${jcip-annotations.version}</version>
+            </dependency>
+
+            <!-- superset of jsr305 and jcip use with caution -->
             <dependency>
                 <groupId>com.google.code.findbugs</groupId>
                 <artifactId>annotations</artifactId>
