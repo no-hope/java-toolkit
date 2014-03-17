@@ -5,6 +5,7 @@ GITHUB_PASSWORD="$(echo ${GITHUB_PASSWORD} | base64 -d)"
 
 # force repo rebuild
 rm -rf ~/.m2/repository/
+rm ~/.m2/settings.xml
 [[ -d ~/.m2 ]] || mkdir ~/.m2
 
 echo "
