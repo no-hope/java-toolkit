@@ -106,14 +106,16 @@ public class StressScenarioTest {
             final double throughput = testResult.getThroughput();
             final double workerThroughput = testResult.getWorkerThroughput();
             assertTrue(workerThroughput <= throughput);
-            final double seconds = throughputTo(throughput, SECONDS);
-            assertTrue("Illegal assumptions : " + seconds + " <= 2000", seconds <= 2000);
-            assertTrue(throughputTo(workerThroughput, SECONDS) <= 1000);
+            final double throughputSeconds = throughputTo(throughput, SECONDS);
+            final double workerSeconds = throughputTo(workerThroughput, SECONDS);
+
+            assertTrue("Illegal assumptions : " + throughputSeconds + " <= 2000", throughputSeconds <= 2000);
+            assertTrue(workerSeconds <= 1000);
 
             // FIXME: virtual hosting on travis really weak so there is no way to run this test in such environment
             if (System.getenv("TRAVIS") == null) {
-                assertTrue("Illegal assumptions : " + seconds + " >= 1500", seconds >= 1500);
-                assertTrue(throughputTo(workerThroughput, SECONDS) >= 500);
+                assertTrue("Illegal assumptions : " + throughputSeconds + " >= 1000", throughputSeconds >= 1000);
+                assertTrue("Illegal assumptions : " + workerSeconds + " >= 500", workerSeconds >= 500);
             }
 
             assertEquals(100, testResult.getRuntimes().size());
