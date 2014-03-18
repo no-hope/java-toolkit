@@ -3,6 +3,7 @@ package org.nohope.test.stress;
 import com.google.common.cache.CacheBuilder;
 import com.google.common.cache.CacheLoader;
 import com.google.common.cache.LoadingCache;
+import com.google.common.util.concurrent.ThreadFactoryBuilder;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -12,6 +13,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -159,12 +161,7 @@ public class StressScenario {
         final LoadingCache<String, ExecutorService> threadPools =
                 CacheBuilder.newBuilder()
                             .concurrencyLevel(threadsNumber)
-                            .build(new CacheLoader<String, ExecutorService>() {
-                                @Override
-                                public ExecutorService load(final String key) throws Exception {
-                                    return Executors.newFixedThreadPool(threadsNumber);
-                                }
-                            });
+                            .build(new PoolLoader(threadsNumber));
 
         final LoadingCache<String, MultiInvocationStatCalculator> calcPool =
                 CacheBuilder.newBuilder()
@@ -231,5 +228,22 @@ public class StressScenario {
 
         return new StressResult(results, threadsNumber, cycleCount,
                 fails, runtime, memoryStart, memoryEnd);
+    }
+
+    private static class PoolLoader extends CacheLoader<String, ExecutorService> {
+        private final int threadsNumber;
+
+        private PoolLoader(final int threadsNumber) {
+            this.threadsNumber = threadsNumber;
+        }
+
+        @Override
+        public ExecutorService load(final String key) throws Exception {
+            final String nameFormat = "measure-pool-" + key + "-%d";
+            final ThreadFactory threadFactory =
+                    new ThreadFactoryBuilder().setNameFormat(nameFormat).build();
+            return Executors.newFixedThreadPool(threadsNumber,
+                    threadFactory);
+        }
     }
 }
