@@ -65,6 +65,7 @@ public class StressScenario {
             }, "stress-worker-" + k));
         }
 
+        final Memory memoryStart = Memory.getCurrent();
         final long overallStart = resolution.currentTime();
         for (final Thread thread : threads) {
             thread.start();
@@ -75,7 +76,10 @@ public class StressScenario {
         }
         final long overallEnd = resolution.currentTime();
 
-        final double runtime = overallEnd - overallStart;
+        final Memory memoryEnd = Memory.getCurrent();
+
+
+        final double runningTime = overallEnd - overallStart;
 
         final Map<String, Result> results = new HashMap<>();
         int fails = 0;
@@ -85,7 +89,8 @@ public class StressScenario {
             results.put(r.getName(), r);
         }
 
-        return new StressResult(results, threadsNumber, cycleCount, fails, runtime);
+        return new StressResult(results, threadsNumber, cycleCount,
+                fails, runningTime, memoryStart, memoryEnd);
     }
 
     public StressResult measure(final int threadsNumber,
@@ -120,6 +125,7 @@ public class StressScenario {
             }, "stress-worker-" + k));
         }
 
+        final Memory memoryStart = Memory.getCurrent();
         final long overallStart = resolution.currentTime();
         for (final Thread thread : threads) {
             thread.start();
@@ -128,6 +134,7 @@ public class StressScenario {
             thread.join();
         }
         final long overallEnd = resolution.currentTime();
+        final Memory memoryEnd = Memory.getCurrent();
 
         final double runtime = overallEnd - overallStart;
 
@@ -139,8 +146,8 @@ public class StressScenario {
             results.put(r.getName(), r);
         }
 
-        return new StressResult(results, threadsNumber, cycleCount, fails,
-                runtime);
+        return new StressResult(results, threadsNumber, cycleCount,
+                fails, runtime, memoryStart, memoryEnd);
     }
 
     public StressResult measurePooled(final int threadsNumber,
@@ -194,6 +201,7 @@ public class StressScenario {
             }, "stress-worker-" + k));
         }
 
+        final Memory memoryStart = Memory.getCurrent();
         final long overallStart = resolution.currentTime();
         for (final Thread thread : threads) {
             thread.start();
@@ -209,6 +217,7 @@ public class StressScenario {
             }
         }
         final long overallEnd = resolution.currentTime();
+        final Memory memoryEnd = Memory.getCurrent();
 
         final double runtime = overallEnd - overallStart;
 
@@ -220,6 +229,7 @@ public class StressScenario {
             results.put(r.getName(), r);
         }
 
-        return new StressResult(results, threadsNumber, cycleCount, fails, runtime);
+        return new StressResult(results, threadsNumber, cycleCount,
+                fails, runtime, memoryStart, memoryEnd);
     }
 }

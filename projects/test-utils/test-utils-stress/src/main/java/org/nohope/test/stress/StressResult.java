@@ -21,17 +21,23 @@ public class StressResult {
     private final int fails;
     private final int threadsCount;
     private final int cycleCount;
+    private final Memory memoryStart;
+    private final Memory memoryEnd;
 
     public StressResult(final Map<String, Result> stats,
                         final int threadsCount,
                         final int cycleCount,
                         final int fails,
-                        final double runtime) {
+                        final double runtime,
+                        final Memory memoryStart,
+                        final Memory memoryEnd) {
         this.runtime = runtime;
         this.fails = fails;
         this.threadsCount = threadsCount;
         this.cycleCount = cycleCount;
         this.results.putAll(stats);
+        this.memoryStart = memoryStart;
+        this.memoryEnd = memoryEnd;
     }
 
     /**
@@ -60,6 +66,14 @@ public class StressResult {
      */
     public int getFails() {
         return fails;
+    }
+
+    public Memory getMemoryStart() {
+        return memoryStart;
+    }
+
+    public Memory getMemoryEnd() {
+        return memoryEnd;
     }
 
     @Override
@@ -94,6 +108,11 @@ public class StressResult {
                       .append(pad("Approximate throughput:"))
                       .append(String.format("%.3e", throughputTo(getApproxThroughput(), SECONDS)))
                       .append(" op/sec")
+                      .append('\n')
+                      .append("Memory usage before test: ")
+                      .append(memoryStart)
+                      .append("\nMemory usage after test: ")
+                      .append(memoryEnd)
                       .append('\n')
                       .toString();
     }
