@@ -1,12 +1,11 @@
 #!/bin/sh
-SONATYPE_PASSWORD=${SONATYPE_PASSWORD-}
-GITHUB_PASSWORD=${GITHUB_PASSWORD-}
-GITHUB_PASSWORD="$(echo ${GITHUB_PASSWORD} | base64 -d)"
 
-# force repo rebuild
-rm -rf ~/.m2/repository/
-rm ~/.m2/settings.xml
-[[ -d ~/.m2 ]] || mkdir ~/.m2
+. ./env.sh
+
+# force repo rebuild (disabled for now)
+#rm -rf ~/.m2/repository/
+#rm ~/.m2/settings.xml
+#[[ -d ~/.m2 ]] || mkdir ~/.m2
 
 echo "
 <settings>
@@ -22,5 +21,16 @@ echo "
             <password>${GITHUB_PASSWORD}</password>
         </server>
     </servers>
+    <profiles>
+        <profile>
+            <id>protobuf-compiler</id>
+            <activation>
+                <activeByDefault>true</activeByDefault>
+            </activation>
+            <properties>
+                <protocExecutable>${PROTOC_PATH}</protocExecutable>
+            </properties>
+        </profile>
+    </profiles>
 </settings>
 " > ~/.m2/settings_deploy.xml

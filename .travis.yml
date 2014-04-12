@@ -15,8 +15,8 @@ env:
     - secure: "DOAf/UBLVLtORH52ds9qEYI3KdBE4Q8I7xr1DAzGoq7Z8YRsWVXOehVPcLXSuZWGkJiZZYfXRNZ8ZEqBTNnefPwpDuBcT4jf+IXcF2UYsJrY50TcEoWbuuSREcM3JAUtkznJC+sBmVeiwG5JV+bKWfog4YzH3AByzeM4CBmubmQ="
 
 before_install:
-  - sudo apt-get install graphviz
-  - sudo apt-get install protobuf-compiler
+  - sudo apt-get install graphviz xmlstarlet build-essential
+  - scripts/compile_protoc.sh
   - scripts/prepare_settings.sh
 
 install:
