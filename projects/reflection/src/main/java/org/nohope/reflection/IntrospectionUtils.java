@@ -676,7 +676,6 @@ public final class IntrospectionUtils {
             throw arrayCastError(source, clazz);
         }
 
-
         for (int i = 0; i < arrayLength; i++) {
             Object origin = Array.get(source, i);
 
