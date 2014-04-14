@@ -1,6 +1,6 @@
 #!/bin/bash
 
-. ./env.sh
+sorce scripts/env.sh
 
 if [[ ! -f "${PROTOC_PATH}" ]]; then
     cd /tmp/

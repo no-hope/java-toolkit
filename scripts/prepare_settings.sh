@@ -1,6 +1,6 @@
-#!/bin/sh
+#!/bin/bash
 
-. ./env.sh
+sorce scripts/env.sh
 
 # force repo rebuild (disabled for now)
 #rm -rf ~/.m2/repository/
