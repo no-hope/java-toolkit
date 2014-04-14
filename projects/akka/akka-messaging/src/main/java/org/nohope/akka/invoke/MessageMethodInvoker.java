@@ -1,6 +1,7 @@
 package org.nohope.akka.invoke;
 
 import com.google.common.base.Joiner;
+import com.google.common.collect.Lists;
 import org.apache.commons.lang3.ArrayUtils;
 import org.nohope.reflection.IntrospectionUtils;
 
@@ -8,9 +9,7 @@ import javax.annotation.Nonnull;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.text.MessageFormat;
-import java.util.Collections;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 
 import static org.nohope.reflection.IntrospectionUtils.*;
@@ -137,27 +136,33 @@ public final class MessageMethodInvoker {
             throws NoSuchMethodException {
 
         final Set<Method> methods = searchMethods(targetClass, new SignatureMatcher(parameterTypes));
-
         if (methods.isEmpty()) {
             return null;
         }
 
-        if (parameterTypes.length == 1) {
-            return Collections.min(methods, provider.getComparator(targetClass, parameterTypes[0]));
-        } else {
-            if (methods.size() > 1) {
-                throw new NoSuchMethodException(
-                        "Only one @OnReceive method expected to match ("
-                                + JOINER.join(getClassNames(parameterTypes))
-                                + ") parameter types but found "
-                                + methods.size()
-                                + "; happened at instance of class "
-                                + targetClass.getCanonicalName()
-                );
-            }
-
+        if (methods.size() == 1) {
             return methods.iterator().next();
         }
+
+        final List<Method> allMethods = Lists.newArrayList(methods);
+        final Comparator<Method> comparator = provider.getComparator(targetClass, parameterTypes[0]);
+        Collections.sort(allMethods, comparator);
+
+        final Method bestMatch = allMethods.get(0);
+        final Method nextMatch = allMethods.get(1);
+
+        if (comparator.compare(bestMatch, nextMatch) == 0) {
+            throw new NoSuchMethodException(
+                    "Only one @OnReceive method expected to match ("
+                    + JOINER.join(getClassNames(parameterTypes))
+                    + ") parameter types but found "
+                    + methods.size()
+                    + "; happened at instance of class "
+                    + targetClass.getCanonicalName()
+            );
+        }
+
+        return bestMatch;
     }
 
     private static Method getOrCache(final ComparatorProvider provider,
