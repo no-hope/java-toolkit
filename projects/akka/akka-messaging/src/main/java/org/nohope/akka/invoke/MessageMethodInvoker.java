@@ -22,6 +22,8 @@ import static org.nohope.reflection.IntrospectionUtils.*;
 public final class MessageMethodInvoker {
     /** Cache for @OnReceive messages. */
     static final Map<Signature, Method> CACHE = new ConcurrentHashMap<>();
+    private static final Joiner JOINER = Joiner.on(", ").useForNull("null");
+
 
     private MessageMethodInvoker() {
     }
@@ -121,6 +123,7 @@ public final class MessageMethodInvoker {
             throws Exception {
         return invokeOnReceive(target, message, false, provider, handlers);
     }
+
     public static Object invokeOnReceive(final Object target,
                                          final Object message,
                                          final Object... handlers)
@@ -145,7 +148,7 @@ public final class MessageMethodInvoker {
             if (methods.size() > 1) {
                 throw new NoSuchMethodException(
                         "Only one @OnReceive method expected to match ("
-                                + Joiner.on(", ").useForNull("null").join(getClassNames(parameterTypes))
+                                + JOINER.join(getClassNames(parameterTypes))
                                 + ") parameter types but found "
                                 + methods.size()
                                 + "; happened at instance of class "
@@ -174,9 +177,9 @@ public final class MessageMethodInvoker {
             if (method == null) {
                 throw new NoSuchMethodException(
                         "No @OnReceive methods found to match ("
-                        + Joiner.on(", ").useForNull("null").join(getClassNames(parameterTypes))
+                        + JOINER.join(getClassNames(parameterTypes))
                         + ") parameter types for handlers ["
-                        + Joiner.on(", ").useForNull("null").join(getClassNames(fallbackClasses))
+                        + JOINER.join(getClassNames(fallbackClasses))
                         + ']'
                 );
             }
