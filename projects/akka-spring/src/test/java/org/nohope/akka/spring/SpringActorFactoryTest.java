@@ -78,7 +78,7 @@ public class SpringActorFactoryTest {
             final SpringActorFactory<Bean> beanFactory = e.getValue();
 
             final ActorSystem system = ActorSystem.create();
-            final ActorRef ref = system.actorOf(new Props(beanFactory));
+            final ActorRef ref = system.actorOf(Props.create(beanFactory));
 
             assertEquals(1, (int) waitReply(Integer.class, ref, PARAM1));
             assertEquals("test1", waitReply(String.class, ref, PARAM2));

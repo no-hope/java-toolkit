@@ -50,7 +50,7 @@ public class AskTest extends UtilitiesTestSupport<Ask> {
                          .put("actor.creation-timeout", "500ms")
                          .put("test.single-expect-default", "500ms")
                          .build();
-        final TestActorRef ref = TestActorRef.apply(new Props(EchoActor.class), system);
+        final TestActorRef ref = TestActorRef.apply(Props.create(EchoActor.class), system);
         assertEquals(123, (int) Ask.waitReply(Integer.class, ref, 123));
         assertEquals(125, Ask.waitReply(ref, 125));
 

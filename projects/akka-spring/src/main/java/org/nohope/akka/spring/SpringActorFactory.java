@@ -2,7 +2,7 @@ package org.nohope.akka.spring;
 
 import akka.actor.Props;
 import akka.actor.UntypedActor;
-import akka.actor.UntypedActorFactory;
+import akka.japi.Creator;
 import org.nohope.spring.PartiallyDefinedArgumentsFactory;
 import org.springframework.context.ApplicationContext;
 
@@ -47,7 +47,7 @@ import java.util.Map;
  */
 public final class SpringActorFactory<T extends UntypedActor>
         extends PartiallyDefinedArgumentsFactory<T>
-        implements UntypedActorFactory {
+        implements Creator<T> {
     private static final long serialVersionUID = 0L;
 
     public SpringActorFactory(@Nonnull final ApplicationContext ctx, @Nonnull final Class<T> clazz) {
@@ -68,7 +68,7 @@ public final class SpringActorFactory<T extends UntypedActor>
     }
 
     public Props getProps() {
-        return new Props(this);
+        return Props.create(this);
     }
 
     @Override
@@ -89,7 +89,7 @@ public final class SpringActorFactory<T extends UntypedActor>
     }
 
     @Override
-    public UntypedActor create() throws Exception {
+    public T create() throws Exception {
         return super.instantiate();
     }
 }

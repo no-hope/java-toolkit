@@ -69,7 +69,7 @@
 
         <skip.coveralls>${skip.jacoco.report}</skip.coveralls>
 
-        <akka.version>2.2.1</akka.version>
+        <akka.version>2.3.1</akka.version>
         <akka.version.suffix>_2.10</akka.version.suffix>
         <bson4jackson.version>2.3.1</bson4jackson.version>
         <commons-beanutils.version>1.9.1</commons-beanutils.version>
@@ -88,7 +88,7 @@
         <logback.version>1.1.1</logback.version>
         <mongo.version>2.11.4</mongo.version>
         <netty.version>3.7.0.Final</netty.version>
-        <protobuf.version>2.4.1</protobuf.version>
+        <protobuf.version>2.5.0</protobuf.version>
         <slf4j.version>1.7.6</slf4j.version>
         <spring.version>3.2.4.RELEASE</spring.version>
         <xbean-finder.version>3.16</xbean-finder.version>

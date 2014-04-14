@@ -4,7 +4,7 @@ import akka.actor.Actor;
 import akka.actor.ActorRef;
 import akka.actor.ActorSystem;
 import akka.actor.Props;
-import akka.actor.UntypedActorFactory;
+import akka.japi.Creator;
 import akka.pattern.AskTimeoutException;
 import akka.testkit.TestActorRef;
 import org.junit.Test;
@@ -47,14 +47,6 @@ public class BaseSupervisorTest {
     }
 
     private static class Supervisor extends BaseSupervisor {
-        protected Supervisor(final boolean expandObjectArrays) {
-            super(expandObjectArrays);
-        }
-
-        protected Supervisor() {
-            super();
-        }
-
         @OnReceive
         private ActorRef getExistingWorker(final Bean meta) {
             return obtainWorker(new NamedWorkerMetadata(meta.a, meta.b));
@@ -62,25 +54,30 @@ public class BaseSupervisorTest {
 
         @Override
         protected Props newInputProps(final NamedWorkerMetadata inputClassId) {
-            return new Props(new UntypedActorFactory() {
-                @Override
-                public Actor create() throws Exception {
-                    return new MyActor(inputClassId);
-                }
-            });
+            return Props.create(new ActorCreator(inputClassId));
+        }
+
+        private static class ActorCreator implements Creator<Actor> {
+            private static final long serialVersionUID = 1L;
+
+            private final NamedWorkerMetadata inputClassId;
+
+            public ActorCreator(final NamedWorkerMetadata inputClassId) {
+                this.inputClassId = inputClassId;
+            }
+
+            @Override
+            public Actor create() throws Exception {
+                return new MyActor(inputClassId);
+            }
         }
     }
 
     @Test
     public void supervisor() throws Exception {
         final List<Props> props = Arrays.asList(
-                new Props(Supervisor.class),
-                new Props(new UntypedActorFactory() {
-                    @Override
-                    public Actor create() throws Exception {
-                        return new Supervisor(false);
-                    }
-                }));
+                Props.create(Supervisor.class),
+                Props.create(new SupervisorCreator()));
 
         for (final Props prop : props) {
             final ActorSystem system =
@@ -108,6 +105,15 @@ public class BaseSupervisorTest {
             }
 
             ref.stop();
+        }
+    }
+
+    private static class SupervisorCreator implements Creator<Actor> {
+        private static final long serialVersionUID = 1L;
+
+        @Override
+        public Actor create() throws Exception {
+            return new Supervisor();
         }
     }
 }

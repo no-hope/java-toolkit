@@ -4,7 +4,8 @@ import akka.actor.UntypedActor;
 import akka.event.Logging;
 import akka.event.LoggingAdapter;
 import org.nohope.IMatcher;
-
+import org.nohope.akka.invoke.ComparatorProvider;
+import org.nohope.akka.invoke.InvokeStrategy;
 
 import javax.annotation.Nonnull;
 import java.lang.reflect.Method;
@@ -12,11 +13,11 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-import static org.nohope.akka.MessageMethodInvoker.invokeOnReceive;
+import static org.nohope.akka.invoke.MessageMethodInvoker.invokeOnReceive;
 import static org.nohope.reflection.IntrospectionUtils.getClassNames;
 import static org.nohope.reflection.IntrospectionUtils.searchMethods;
-import static org.nohope.typetools.TStr.join;
 import static org.nohope.typetools.JSON.JSON;
+import static org.nohope.typetools.TStr.join;
 
 /**
  * This actor allows to simplify working with typed messages using java reflection.
@@ -24,7 +25,7 @@ import static org.nohope.typetools.JSON.JSON;
  * <b>Usages</b>:
  * <pre>
  *     class MyActor extends MessageTypeMatchingActor
- *         {@link OnReceive &#064;OnReceive}
+ *         {@link org.nohope.akka.OnReceive &#064;OnReceive}
  *         private AnotherObject processSomeObject(final SomeObject readMessage) {
  *             if (condition) {
  *                 return new AnotherObject(data); // will be sent back to sender
@@ -33,7 +34,7 @@ import static org.nohope.typetools.JSON.JSON;
  *             return null; // will not be send
  *         }
  *
- *         {@link OnReceive &#064;OnReceive}
+ *         {@link org.nohope.akka.OnReceive &#064;OnReceive}
  *         private void processOtherObject(final OtherObject readMessage) {
  *             // nothing will be sent back to sender
  *         }
@@ -46,11 +47,11 @@ import static org.nohope.typetools.JSON.JSON;
 public class MessageTypeMatchingActor extends UntypedActor {
     @SuppressWarnings("ThisEscapedInObjectConstruction")
     protected final LoggingAdapter log = Logging.getLogger(getContext().system(), this);
-    protected final boolean expandObjectArrays;
     private final List<Object> handlers = new ArrayList<>();
+    private final ComparatorProvider provider;
 
-    protected MessageTypeMatchingActor(final boolean expandObjectArrays) {
-        this.expandObjectArrays = expandObjectArrays;
+    protected MessageTypeMatchingActor(final ComparatorProvider provider) {
+        this.provider = provider;
 
         final List<Class<?>[]> signatures = new ArrayList<>();
         searchMethods(getClass(), new IMatcher<Method>() {
@@ -77,7 +78,7 @@ public class MessageTypeMatchingActor extends UntypedActor {
     }
 
     protected MessageTypeMatchingActor() {
-        this(false);
+        this(InvokeStrategy.CLOSEST_BY_PARAMETER);
     }
 
     @Override
@@ -85,7 +86,8 @@ public class MessageTypeMatchingActor extends UntypedActor {
         try {
             final Object result = invokeOnReceive(this,
                     message,
-                    expandObjectArrays,
+                    false,
+                    provider,
                     handlers.toArray());
 
             // if method return type is not void

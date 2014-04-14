@@ -17,14 +17,6 @@ import static org.nohope.typetools.JSON.JSON;
 public abstract class BaseSupervisor extends MessageTypeMatchingActor {
     private final Map<NamedWorkerMetadata, ActorRef> startingActors = new HashMap<>();
 
-    protected BaseSupervisor(final boolean expandObjectArrays) {
-        super(expandObjectArrays);
-    }
-
-    protected BaseSupervisor() {
-        super();
-    }
-
     protected abstract Props newInputProps(final NamedWorkerMetadata inputClassId);
 
     @OnReceive
@@ -56,8 +48,7 @@ public abstract class BaseSupervisor extends MessageTypeMatchingActor {
             if (deviceRef.isTerminated()) {
                 final String actId = inputClassId.getIdentifier();
                 log.debug("Starting new input processing actor with id {} in supervisor '{}'...", actId, getSelf().path().name());
-                deviceRef = getContext().actorOf(newInputProps(inputClassId)
-                        , actId);
+                deviceRef = getContext().actorOf(newInputProps(inputClassId), actId);
                 startingActors.put(inputClassId, deviceRef);
                 deviceRef.tell(new SupervisorRequests.StartupRequest(), getSelf());
             } else {

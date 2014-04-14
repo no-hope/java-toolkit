@@ -10,14 +10,8 @@ import static org.nohope.akka.SupervisorRequests.StartupRequest;
 public abstract class BaseWorkerActor extends MessageTypeMatchingActor {
     protected final NamedWorkerMetadata workerMetadata;
 
-    protected BaseWorkerActor(final NamedWorkerMetadata workerMetadata,
-                              final boolean expandObjectArrays) {
-        super(expandObjectArrays);
-        this.workerMetadata = workerMetadata;
-    }
-
     protected BaseWorkerActor(final NamedWorkerMetadata workerMetadata) {
-        this(workerMetadata, false);
+        this.workerMetadata = workerMetadata;
     }
 
     public NamedWorkerMetadata getWorkerMetadata() {
