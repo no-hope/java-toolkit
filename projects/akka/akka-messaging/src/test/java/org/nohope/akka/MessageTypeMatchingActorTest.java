@@ -25,6 +25,15 @@ public class MessageTypeMatchingActorTest {
     public static class IllegalParent extends MessageTypeMatchingActor {
         @OnReceive public Integer one(final Integer param) {return param;}
         @OnReceive public Integer two(final Integer param) {return param;}
+
+
+        @Override
+        protected void onReceiveError(final Exception e,
+                                      final Object message) {
+            if (e instanceof NoSuchMethodException) {
+                getSender().tell(e, getSelf());
+            }
+        }
     }
 
     public static class LegalParent extends MessageTypeMatchingActor {
@@ -53,7 +62,7 @@ public class MessageTypeMatchingActorTest {
 
     // child method clashes with parent methods
     public static class IllegalChild2 extends LegalParent {
-        @OnReceive public Integer two(final Integer param) {return param;}
+        @OnReceive public Integer two(final Integer param) {return param + 1;}
     }
 
     public static class WideParent extends MessageTypeMatchingActor {
@@ -72,6 +81,11 @@ public class MessageTypeMatchingActorTest {
         @OnReceive public Integer one(final Number param) {return param.intValue() + 1;}
     }
 
+    public static class ChildWithSameParameterType extends NarrowParent {
+        @OnReceive public Integer two(final Integer param) {return param + 2;}
+        @OnReceive public Integer three(final Number param) {return param.intValue() + 1;}
+    }
+
     @Test
     public void wideNarrow() throws Exception {
         final ActorSystem system = AkkaUtils.createLocalSystem("test");
@@ -81,6 +95,9 @@ public class MessageTypeMatchingActorTest {
 
         final TestActorRef ref2 = TestActorRef.create(system, Props.create(WideChild.class), "actor2");
         assertEquals(1, Ask.waitReply(Number.class, ref2, 1));
+
+        final TestActorRef ref3 = TestActorRef.create(system, Props.create(ChildWithSameParameterType.class), "actor3");
+        assertEquals(3, Ask.waitReply(Number.class, ref3, 1));
     }
 
     private static class HierComparator implements Comparator<Method>, Serializable {
@@ -211,23 +228,20 @@ public class MessageTypeMatchingActorTest {
         final TestProbe probe = TestProbe.apply(system);
         {
             final TestActorRef ref = TestActorRef.apply(Props.create(IllegalParent.class), system);
-            ref.tell(1, ref);
-            probe.expectNoMsg();
-            assertTrue(ref.isTerminated());
+            ref.tell(1, probe.ref());
+            probe.expectMsgClass(NoSuchMethodException.class);
         }
 
         {
             final TestActorRef ref = TestActorRef.apply(Props.create(IllegalChild.class), system);
-            ref.tell(1, ref);
-            probe.expectNoMsg();
-            assertTrue(ref.isTerminated());
+            ref.tell(1, probe.ref());
+            probe.expectMsgClass(NoSuchMethodException.class);
         }
 
         {
             final TestActorRef ref = TestActorRef.apply(Props.create(IllegalChild2.class), system);
-            ref.tell(1, ref);
-            probe.expectNoMsg();
-            assertTrue(ref.isTerminated());
+            ref.tell(1, probe.ref());
+            probe.expectMsg(2);
         }
     }
 

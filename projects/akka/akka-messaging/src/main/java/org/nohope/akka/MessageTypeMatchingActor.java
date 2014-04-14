@@ -3,20 +3,14 @@ package org.nohope.akka;
 import akka.actor.UntypedActor;
 import akka.event.Logging;
 import akka.event.LoggingAdapter;
-import com.google.common.base.Joiner;
-import com.google.common.base.Predicate;
 import org.nohope.akka.invoke.ComparatorProvider;
 import org.nohope.akka.invoke.InvokeStrategy;
 import org.nohope.akka.invoke.MessageMethodInvoker;
 
 import javax.annotation.Nonnull;
-import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-
-import static org.nohope.reflection.IntrospectionUtils.getClassNames;
-import static org.nohope.reflection.IntrospectionUtils.searchMethods;
 
 /**
  * This actor allows to simplify working with typed messages using java reflection.
@@ -51,30 +45,6 @@ public class MessageTypeMatchingActor extends UntypedActor {
 
     protected MessageTypeMatchingActor(final ComparatorProvider provider) {
         this.provider = provider;
-
-        final Joiner joiner = Joiner.on(", ").useForNull("null");
-        final List<Class<?>[]> signatures = new ArrayList<>();
-        searchMethods(getClass(), new Predicate<Method>() {
-            @Override
-            public boolean apply(final Method method) {
-                final boolean check = method.isAnnotationPresent(OnReceive.class);
-                if (check) {
-                    final Class<?>[] types = method.getParameterTypes();
-                    for (final Class<?>[] prev : signatures) {
-                        if (Arrays.deepEquals(prev, types)) {
-                            throw new IllegalStateException("More than one @OnReceive "
-                                    + "method found conforming signature ["
-                                    + joiner.join(getClassNames(types))
-                                    + "] in "
-                                    + getClass());
-                        }
-                    }
-
-                    signatures.add(types);
-                }
-                return check;
-            }
-        });
     }
 
     protected MessageTypeMatchingActor() {
