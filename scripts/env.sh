@@ -3,8 +3,10 @@
 set -e
 set -e pipefail
 
+POM_NAMESPACE="http://maven.apache.org/POM/4.0.0"
+
 if [[ -f "pom.xml" ]]; then
-    PROTOC_VERSION="$(xmlstarlet sel -t -v '/_:project/_:properties/_:protobuf.version/text()' pom.xml)"
+    PROTOC_VERSION="$(xmlstarlet sel -N p=${POM_NAMESPACE} -t -v '/p:project/p:properties/p:protobuf.version/text()' pom.xml)"
 fi
 
 PROTOC_VERSION="${PROTOC_VERSION:-2.5.0}"
