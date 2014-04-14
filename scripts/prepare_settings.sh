@@ -33,4 +33,4 @@ echo "
         </profile>
     </profiles>
 </settings>
-" > ~/.m2/settings_deploy.xml
+" > ~/.m2/settings.xml
