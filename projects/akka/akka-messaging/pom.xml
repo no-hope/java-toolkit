@@ -6,9 +6,7 @@
     <packaging>jar</packaging>
     <name>${project.artifactId}</name>
 
-    <description>
-        A set of tools making work with akka actors more fun.
-    </description>
+    <description>An attempt to make message type matching for java api.</description>
 
     <parent>
         <groupId>org.no-hope</groupId>
