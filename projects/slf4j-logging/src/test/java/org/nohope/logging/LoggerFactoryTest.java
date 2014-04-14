@@ -29,4 +29,10 @@ public class LoggerFactoryTest extends UtilitiesTestSupport {
         assertTrue(LoggerFactory.getILoggerFactory() instanceof EnhancedLoggerFactory);
         assertTrue(LoggerFactory.getILoggerFactory().getLogger("test") instanceof EnhancedLogger);
     }
+
+    @Test
+    public void lastArgIsException() {
+        org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger("teste");
+        logger.error("{} {} {} {} {} {}", 1, 2, 3 ,4 ,5 ,6 , new Throwable());
+    }
 }

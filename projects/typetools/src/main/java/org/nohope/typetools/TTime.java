@@ -1,10 +1,10 @@
 package org.nohope.typetools;
 
+import com.google.common.base.Predicate;
+import com.google.common.base.Predicates;
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeZone;
 import org.joda.time.Period;
-import org.nohope.IMatcher;
-import org.nohope.Matchers;
 
 import javax.annotation.Nonnull;
 import javax.xml.datatype.DatatypeConfigurationException;
@@ -113,42 +113,42 @@ public final class TTime {
 
     public static boolean ne(@Nonnull final XMLGregorianCalendar c1,
                              @Nonnull final XMLGregorianCalendar c2) {
-        return compare(c1, c2, Matchers.not(Matchers.eq(DatatypeConstants.EQUAL)));
+        return compare(c1, c2, Predicates.not(Predicates.equalTo(DatatypeConstants.EQUAL)));
     }
 
     public static boolean eq(@Nonnull final XMLGregorianCalendar c1,
                              @Nonnull final XMLGregorianCalendar c2) {
-        return compare(c1, c2, Matchers.eq(DatatypeConstants.EQUAL));
+        return compare(c1, c2, Predicates.equalTo(DatatypeConstants.EQUAL));
     }
 
     public static boolean lte(@Nonnull final XMLGregorianCalendar c1,
                               @Nonnull final XMLGregorianCalendar c2) {
-        return compare(c1, c2, Matchers.or(Matchers.eq(DatatypeConstants.LESSER),
-                Matchers.eq(DatatypeConstants.EQUAL)));
+        return compare(c1, c2, Predicates.or(Predicates.equalTo(DatatypeConstants.LESSER),
+                Predicates.equalTo(DatatypeConstants.EQUAL)));
     }
 
     public static boolean lt(@Nonnull final XMLGregorianCalendar c1,
                              @Nonnull final XMLGregorianCalendar c2) {
-        return compare(c1, c2, Matchers.eq(DatatypeConstants.LESSER));
+        return compare(c1, c2, Predicates.equalTo(DatatypeConstants.LESSER));
     }
 
     public static boolean gte(@Nonnull final XMLGregorianCalendar c1,
                               @Nonnull final XMLGregorianCalendar c2) {
-        return compare(c1, c2, Matchers.or(
-                Matchers.eq(DatatypeConstants.GREATER),
-                Matchers.eq(DatatypeConstants.EQUAL)
+        return compare(c1, c2, Predicates.or(
+                Predicates.equalTo(DatatypeConstants.GREATER),
+                Predicates.equalTo(DatatypeConstants.EQUAL)
         ));
     }
 
     public static boolean gt(@Nonnull final XMLGregorianCalendar c1,
                              @Nonnull final XMLGregorianCalendar c2) {
-        return compare(c1, c2, Matchers.eq(DatatypeConstants.GREATER));
+        return compare(c1, c2, Predicates.equalTo(DatatypeConstants.GREATER));
     }
 
     public static boolean compare(@Nonnull final XMLGregorianCalendar c1,
                                   @Nonnull final XMLGregorianCalendar c2,
-                                  @Nonnull final IMatcher<Integer> compareResultMatcher) {
-        return compareResultMatcher.matches(c1.compare(c2));
+                                  @Nonnull final Predicate<Integer> compareResultMatcher) {
+        return compareResultMatcher.apply(c1.compare(c2));
     }
 
     static final class LazyDataTypeFactorySingleton {
@@ -156,7 +156,7 @@ public final class TTime {
         static {
             try {
                 datatypeFactory = DatatypeFactory.newInstance();
-            } catch (DatatypeConfigurationException e) {
+            } catch (final DatatypeConfigurationException e) {
                 throw new IllegalStateException("Unable to create DataTypeFactory instance", e);
             }
         }

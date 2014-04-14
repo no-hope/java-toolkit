@@ -5,8 +5,7 @@ import org.nohope.reflection.test.ClassWithPrivateField;
 
 import java.util.List;
 
-import static com.mongodb.util.MyAsserts.assertEquals;
-import static org.junit.Assert.fail;
+import static org.junit.Assert.*;
 
 /**
  * @author <a href="mailto:ketoth.xupack@gmail.com">Ketoth Xupack</a>

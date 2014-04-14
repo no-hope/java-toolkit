@@ -191,9 +191,11 @@
         <module>projects/jongo</module>
         <module>projects/akka</module>
         <module>projects/akka-spring</module>
+        <module>projects/akka-messaging</module>
         <module>projects/validation</module>
         <module>projects/jaxb2-plugins</module>
         <module>projects/protobuf-rpc</module>
+        <module>projects/reflection</module>
 
         <module>projects/jaxws-json</module>
 

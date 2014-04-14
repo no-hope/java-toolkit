@@ -1,14 +1,16 @@
 package org.nohope.akka.invoke;
 
+import com.google.common.base.Joiner;
 import org.apache.commons.lang3.ArrayUtils;
 import org.nohope.reflection.IntrospectionUtils;
-import org.nohope.typetools.TStr;
 
 import javax.annotation.Nonnull;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.text.MessageFormat;
-import java.util.*;
+import java.util.Collections;
+import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
 import static org.nohope.reflection.IntrospectionUtils.*;
@@ -143,7 +145,7 @@ public final class MessageMethodInvoker {
             if (methods.size() > 1) {
                 throw new NoSuchMethodException(
                         "Only one @OnReceive method expected to match ("
-                                + TStr.join(getClassNames(parameterTypes))
+                                + Joiner.on(", ").useForNull("null").join(getClassNames(parameterTypes))
                                 + ") parameter types but found "
                                 + methods.size()
                                 + "; happened at instance of class "
@@ -172,9 +174,9 @@ public final class MessageMethodInvoker {
             if (method == null) {
                 throw new NoSuchMethodException(
                         "No @OnReceive methods found to match ("
-                        + TStr.join(getClassNames(parameterTypes))
+                        + Joiner.on(", ").useForNull("null").join(getClassNames(parameterTypes))
                         + ") parameter types for handlers ["
-                        + TStr.join(getClassNames(fallbackClasses))
+                        + Joiner.on(", ").useForNull("null").join(getClassNames(fallbackClasses))
                         + ']'
                 );
             }

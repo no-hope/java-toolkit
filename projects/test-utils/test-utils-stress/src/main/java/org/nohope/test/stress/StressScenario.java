@@ -52,7 +52,6 @@ public class StressScenario {
             threads.add(new Thread(new Runnable() {
                 @Override
                 public void run() {
-
                     for (int j = k * cycleCount; j < (k + 1) * cycleCount; j++) {
                         try {
                             for (final SingleInvocationStatCalculator stat : stats.values()) {
@@ -62,7 +61,6 @@ public class StressScenario {
                             // TODO
                         }
                     }
-
                 }
             }, "stress-worker-" + k));
         }

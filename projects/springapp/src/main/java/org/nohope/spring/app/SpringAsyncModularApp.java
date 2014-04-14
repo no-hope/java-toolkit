@@ -1,17 +1,17 @@
 package org.nohope.spring.app;
 
+import com.google.common.base.Predicate;
 import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.apache.xbean.finder.ResourceFinder;
+import org.nohope.ITranslator;
+import org.nohope.app.AsyncApp;
 import org.nohope.logging.Logger;
 import org.nohope.logging.LoggerFactory;
+import org.nohope.reflection.IntrospectionUtils;
+import org.nohope.typetools.collection.CollectionUtils;
 import org.springframework.beans.factory.NoSuchBeanDefinitionException;
 import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.core.io.ClassPathResource;
-import org.nohope.IMatcher;
-import org.nohope.ITranslator;
-import org.nohope.app.AsyncApp;
-import org.nohope.reflection.IntrospectionUtils;
-import org.nohope.typetools.collection.CollectionUtils;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -21,15 +21,7 @@ import java.lang.annotation.Annotation;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Iterator;
-import java.util.LinkedHashMap;
-import java.util.LinkedHashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Properties;
-import java.util.Set;
+import java.util.*;
 
 import static org.nohope.reflection.IntrospectionUtils.instanceOf;
 import static org.nohope.reflection.IntrospectionUtils.searchConstructors;
@@ -346,11 +338,11 @@ public final class SpringAsyncModularApp<M, H extends Handler<M>> extends AsyncA
     static <T> Set<Class<?>> getDependencies(final Class<T> clazz) {
         final Set<Class<?>> dependencies = new LinkedHashSet<>();
         final Set<Constructor<? extends T>> constructors =
-                searchConstructors(clazz, new IMatcher<Constructor<? extends T>>() {
+                searchConstructors(clazz, new Predicate<Constructor<? extends T>>() {
                     @Override
-                    public boolean matches(final Constructor<? extends T> obj) {
-                        return obj.isAnnotationPresent(Inject.class)
-                               && !obj.isSynthetic()
+                    public boolean apply(final Constructor<? extends T> ctor) {
+                        return ctor.isAnnotationPresent(Inject.class)
+                            && !ctor.isSynthetic()
                                ;
                     }
                 });
@@ -361,7 +353,7 @@ public final class SpringAsyncModularApp<M, H extends Handler<M>> extends AsyncA
 
         for (final Constructor<? extends T> constructor : constructors) {
             int paramIndex = 0;
-            final LinkedHashMap<Integer, Map.Entry<Class<?>, Class<?>>> values = new LinkedHashMap<>();
+            final Map<Integer, Map.Entry<Class<?>, Class<?>>> values = new LinkedHashMap<>();
             final Annotation[][] annotations = constructor.getParameterAnnotations();
             for (final Type type : constructor.getGenericParameterTypes()) {
                 final Class<?> typeClass = IntrospectionUtils.getClass(type);

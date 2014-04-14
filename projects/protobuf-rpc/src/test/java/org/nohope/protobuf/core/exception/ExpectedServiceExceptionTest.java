@@ -76,7 +76,7 @@ public class ExpectedServiceExceptionTest {
                        .newBuilderForType()
                        .mergeFrom(error.toByteString(), extensionRegistry);
             return builder.build();
-        } catch (InvalidProtocolBufferException e) {
+        } catch (final InvalidProtocolBufferException e) {
             throw new IllegalStateException(e);
         }
     }

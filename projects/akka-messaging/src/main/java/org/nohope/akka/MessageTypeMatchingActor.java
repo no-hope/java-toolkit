@@ -3,9 +3,11 @@ package org.nohope.akka;
 import akka.actor.UntypedActor;
 import akka.event.Logging;
 import akka.event.LoggingAdapter;
-import org.nohope.IMatcher;
+import com.google.common.base.Joiner;
+import com.google.common.base.Predicate;
 import org.nohope.akka.invoke.ComparatorProvider;
 import org.nohope.akka.invoke.InvokeStrategy;
+import org.nohope.akka.invoke.MessageMethodInvoker;
 
 import javax.annotation.Nonnull;
 import java.lang.reflect.Method;
@@ -13,11 +15,8 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-import static org.nohope.akka.invoke.MessageMethodInvoker.invokeOnReceive;
 import static org.nohope.reflection.IntrospectionUtils.getClassNames;
 import static org.nohope.reflection.IntrospectionUtils.searchMethods;
-import static org.nohope.typetools.JSON.JSON;
-import static org.nohope.typetools.TStr.join;
 
 /**
  * This actor allows to simplify working with typed messages using java reflection.
@@ -53,10 +52,11 @@ public class MessageTypeMatchingActor extends UntypedActor {
     protected MessageTypeMatchingActor(final ComparatorProvider provider) {
         this.provider = provider;
 
+        final Joiner joiner = Joiner.on(", ").useForNull("null");
         final List<Class<?>[]> signatures = new ArrayList<>();
-        searchMethods(getClass(), new IMatcher<Method>() {
+        searchMethods(getClass(), new Predicate<Method>() {
             @Override
-            public boolean matches(final Method method) {
+            public boolean apply(final Method method) {
                 final boolean check = method.isAnnotationPresent(OnReceive.class);
                 if (check) {
                     final Class<?>[] types = method.getParameterTypes();
@@ -64,7 +64,7 @@ public class MessageTypeMatchingActor extends UntypedActor {
                         if (Arrays.deepEquals(prev, types)) {
                             throw new IllegalStateException("More than one @OnReceive "
                                     + "method found conforming signature ["
-                                    + join(getClassNames(types))
+                                    + joiner.join(getClassNames(types))
                                     + "] in "
                                     + getClass());
                         }
@@ -84,7 +84,7 @@ public class MessageTypeMatchingActor extends UntypedActor {
     @Override
     public final void onReceive(final Object message) {
         try {
-            final Object result = invokeOnReceive(this,
+            final Object result = MessageMethodInvoker.invokeOnReceive(this,
                     message,
                     false,
                     provider,
@@ -151,6 +151,6 @@ public class MessageTypeMatchingActor extends UntypedActor {
      * @param message original message caused an error
      */
     protected void onReceiveError(final Exception e, final Object message) {
-        log.error(e, "Unhandled message: {}", JSON.pretty(message));
+        log.error(e, "Unhandled message: {}", message);
     }
 }

@@ -1,6 +1,6 @@
 package org.nohope.akka.invoke;
 
-import org.nohope.IMatcher;
+import com.google.common.base.Predicate;
 import org.nohope.akka.OnReceive;
 
 import java.lang.reflect.Method;
@@ -12,7 +12,7 @@ import static org.nohope.reflection.IntrospectionUtils.areTypesVarargCompatible;
 * @author <a href="mailto:ketoth.xupack@gmail.com">Ketoth Xupack</a>
 * @since 2014-04-11 19:36
 */
-final class SignatureMatcher implements IMatcher<Method> {
+final class SignatureMatcher implements Predicate<Method> {
     private final Class[] classes;
 
     public SignatureMatcher(final Class[] classes) {
@@ -20,7 +20,7 @@ final class SignatureMatcher implements IMatcher<Method> {
     }
 
     @Override
-    public boolean matches(final Method method) {
+    public boolean apply(final Method method) {
         final Class<?>[] params = method.getParameterTypes();
         return (areTypesCompatible(params, classes)
                 || areTypesVarargCompatible(params, classes))

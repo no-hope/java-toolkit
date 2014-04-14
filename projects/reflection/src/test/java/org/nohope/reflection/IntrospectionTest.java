@@ -1,27 +1,19 @@
 package org.nohope.reflection;
 
+import com.google.common.base.Predicate;
+import com.google.common.base.Predicates;
 import org.junit.AfterClass;
 import org.junit.Assert;
 import org.junit.Test;
-import org.nohope.IMatcher;
 import org.nohope.test.UtilitiesTestSupport;
 
-import java.lang.reflect.Array;
-import java.lang.reflect.Constructor;
-import java.lang.reflect.GenericArrayType;
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Modifier;
+import java.lang.reflect.*;
 import java.net.InetSocketAddress;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 import static org.easymock.EasyMock.createMock;
 import static org.easymock.EasyMock.expect;
 import static org.junit.Assert.*;
-import static org.nohope.Matchers.*;
 import static org.nohope.reflection.IntrospectionUtils.*;
 import static org.nohope.reflection.ModifierMatcher.*;
 
@@ -478,9 +470,9 @@ public final class IntrospectionTest extends UtilitiesTestSupport<IntrospectionU
             public A(long y) {
             }
         }
-        assertEquals(1, searchConstructors(A.class, new IMatcher<Constructor<? extends A>>() {
+        assertEquals(1, searchConstructors(A.class, new Predicate<Constructor<? extends A>>() {
             @Override
-            public boolean matches(final Constructor<? extends A> obj) {
+            public boolean apply(final Constructor<? extends A> obj) {
                 return !Modifier.isPrivate(obj.getModifiers());
             }
         }).size());
@@ -488,7 +480,7 @@ public final class IntrospectionTest extends UtilitiesTestSupport<IntrospectionU
 
     @Test
     public void methodSearch() throws NoSuchMethodException {
-        assertNotNull(searchMethod(getClass(), not(or(PUBLIC, PROTECTED, PRIVATE)), "testCall"));
+        assertNotNull(searchMethod(getClass(), Predicates.not(Predicates.or(PUBLIC, PROTECTED, PRIVATE)), "testCall"));
     }
 
     @Test
@@ -750,9 +742,9 @@ public final class IntrospectionTest extends UtilitiesTestSupport<IntrospectionU
             searchMethod(Child.class, PROTECTED, "protectedMethod");
             searchMethod(Child.class, PRIVATE, "privateMethod");
             searchMethod(Child.class, PACKAGE_DEFAULT, "packageDefaultMethod");
-            searchMethod(Child.class, and(STATIC, PUBLIC), "staticMethod");
-            searchMethod(Child.class, and(FINAL, PUBLIC), "finalMethod");
-            searchMethod(Child.class, or(FINAL, PUBLIC), "finalMethod");
+            searchMethod(Child.class, Predicates.and(STATIC, PUBLIC), "staticMethod");
+            searchMethod(Child.class, Predicates.and(FINAL, PUBLIC), "finalMethod");
+            searchMethod(Child.class, Predicates.or(FINAL, PUBLIC), "finalMethod");
 
             searchMethod(Child.class, ALL, "publicMethod");
             searchMethod(Child.class, ALL, "protectedMethod");

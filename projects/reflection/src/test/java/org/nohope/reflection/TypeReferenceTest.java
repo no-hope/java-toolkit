@@ -9,10 +9,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
-import static com.mongodb.util.MyAsserts.assertFalse;
-import static com.mongodb.util.MyAsserts.assertNotEquals;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNull;
+import static org.junit.Assert.*;
 
 /**
  * @author <a href="mailto:ketoth.xupack@gmail.com">ketoth xupack</a>
@@ -83,16 +80,10 @@ public final class TypeReferenceTest {
             "EqualsBetweenInconvertibleTypes",
             "AssertEqualsBetweenInconvertibleTypes"})
     public void equality() throws Exception {
-        assertEquals(new TypeReference<List<Integer>>() {},
-                new TypeReference<List<Integer>>() {});
-        assertNotEquals(new TypeReference<List<Integer>>() {},
-                new TypeReference<List<Boolean>>() {});
-
-        assertNotEquals(new TypeReference<List<Integer>>() {},
-                new TypeReference<List>() {});
-
-        assertFalse(new TypeReference<List<Integer>>() {
-        }.equals(null));
+        assertEquals(new TypeReference<List<Integer>>() {}, new TypeReference<List<Integer>>() {});
+        assertNotEquals(new TypeReference<List<Integer>>() {}, new TypeReference<List<Boolean>>() {});
+        assertNotEquals(new TypeReference<List<Integer>>() {}, new TypeReference<List>() {});
+        assertFalse(new TypeReference<List<Integer>>() {}.equals(null));
         assertFalse(new TypeReference<List<Integer>>() {}.equals(""));
         final TypeReference<List<Integer>> ref = new TypeReference<List<Integer>>() {};
         final TypeReference<List<Integer>> ref2 = new TypeReference<List<Integer>>() {};

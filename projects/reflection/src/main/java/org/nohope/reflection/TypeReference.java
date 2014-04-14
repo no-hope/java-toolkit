@@ -69,10 +69,10 @@ public abstract class TypeReference<T> {
         final Class clazz = (Class) type;
         if (clazz.isArray()) {
             Class component = (Class) type;
-            String postfix = "";
+            final StringBuilder postfix = new StringBuilder("");
             while (component.isArray()) {
                 component = component.getComponentType();
-                postfix += "[]";
+                postfix.append("[]");
             }
             return repr(component) + postfix;
         }
@@ -83,23 +83,23 @@ public abstract class TypeReference<T> {
             final String name = matcher.matches() ? matcher.group(1) : clazz.getName();
             final Method method = clazz.getEnclosingMethod();
             final String methodName = method == null ? "new" : method.getName();
-            return "{"
+            return '{'
                    + repr(clazz.getEnclosingClass())
-                   + "#"
+                   + '#'
                    + methodName
                    + " -> "
                    + name
-                   + "}";
+                   + '}';
         }
         if (clazz.isAnonymousClass()) {
             final Method method = clazz.getEnclosingMethod();
             final String methodName = method == null ? "new" : method.getName();
-            return "{"
+            return '{'
                    + repr(clazz.getEnclosingClass())
-                   + "#"
+                   + '#'
                    + methodName
                    + " -> <anonymous>"
-                   + "}";
+                   + '}';
         }
 
         return clazz.getCanonicalName();
@@ -159,7 +159,7 @@ public abstract class TypeReference<T> {
 
     @Override
     public final String toString() {
-        return "TypeReference<" + repr(type) + ">";
+        return "TypeReference<" + repr(type) + '>';
     }
 
     private static final class ErasureTypeReference<T> extends TypeReference<T> {

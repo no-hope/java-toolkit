@@ -1,35 +1,17 @@
 package org.nohope.reflection;
 
+import com.google.common.base.Joiner;
+import com.google.common.base.Predicate;
+import com.google.common.base.Predicates;
 import org.apache.commons.lang3.ArrayUtils;
-import org.nohope.IMatcher;
-import org.nohope.typetools.TStr;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
-import java.lang.reflect.AccessibleObject;
-import java.lang.reflect.Array;
-import java.lang.reflect.Constructor;
-import java.lang.reflect.Field;
-import java.lang.reflect.GenericArrayType;
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
-import java.lang.reflect.Modifier;
-import java.lang.reflect.ParameterizedType;
-import java.lang.reflect.Type;
-import java.lang.reflect.TypeVariable;
-import java.lang.reflect.WildcardType;
+import java.lang.reflect.*;
 import java.security.AccessController;
 import java.security.PrivilegedAction;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
-import static org.nohope.Matchers.and;
-import static org.nohope.Matchers.not;
 import static org.nohope.reflection.ModifierMatcher.*;
 
 //import static java.lang.reflect.Modifier.PUBLIC;
@@ -186,7 +168,7 @@ public final class IntrospectionUtils {
                                 final Object... args)
             throws NoSuchMethodException, InvocationTargetException,
             IllegalAccessException {
-        return invoke(instance, and(PUBLIC, not(ABSTRACT)), methodName, args);
+        return invoke(instance, Predicates.and(PUBLIC, Predicates.not(ABSTRACT)), methodName, args);
     }
 
     /**
@@ -208,10 +190,10 @@ public final class IntrospectionUtils {
      * @throws IllegalAccessException    on on attempt to invoke
      *                                   protected/private method
      *
-     * @see #searchMethod(Object, IMatcher, String, Class[])
+     * @see #searchMethod(Object, Predicate, String, Class[])
      */
     public static Object invoke(@Nonnull final Object instance,
-                                final IMatcher<Integer> matcher,
+                                final Predicate<Integer> matcher,
                                 final String methodName,
                                 final Object... args)
             throws NoSuchMethodException, InvocationTargetException,
@@ -235,8 +217,8 @@ public final class IntrospectionUtils {
             final int classFlags = clazz.getModifiers();
 
             // request privileges for non-public method/instance class/parent class
-            if (!PUBLIC.matches(flags)
-                || !PUBLIC.matches(classFlags)
+            if (!PUBLIC.apply(flags)
+                || !PUBLIC.apply(classFlags)
                 || clazz != method.getDeclaringClass()) {
                 setAccessible(method);
             }
@@ -445,12 +427,12 @@ public final class IntrospectionUtils {
 
     @SuppressWarnings("unchecked")
     public static<T> Set<Constructor<? extends T>> searchConstructors(final Class<? extends T> clazz,
-                                                                      final IMatcher<Constructor<? extends T>> matcher) {
+                                                                      final Predicate<Constructor<? extends T>> matcher) {
         final Set<Constructor<? extends T>> mth = new HashSet<>();
 
         for (final Constructor<?> c : clazz.getDeclaredConstructors()) {
             final Constructor<T> constructor = (Constructor<T>) c;
-            if (!matcher.matches(constructor)) {
+            if (!matcher.apply(constructor)) {
                 continue;
             }
             mth.add(constructor);
@@ -458,15 +440,14 @@ public final class IntrospectionUtils {
         return mth;
     }
 
-    public static Set<Method> searchMethods(final Class<?> clazz,
-                                            final IMatcher<Method> matcher) {
+    public static Set<Method> searchMethods(final Class<?> clazz, final Predicate<Method> matcher) {
         final Set<Method> mth = new HashSet<>();
 
         Class<?> parent = clazz;
         while (parent != null) {
             for (final Method m : parent.getDeclaredMethods()) {
                 // FIXME: what to do with bridge methods?
-                if (!matcher.matches(m) || m.isBridge()) {
+                if (!matcher.apply(m) || m.isBridge()) {
                     continue;
                 }
 
@@ -502,13 +483,13 @@ public final class IntrospectionUtils {
      * @return constructor compatible with given signature
      * @throws NoSuchMethodException if no or more than one method found
      *
-     * @see #searchMethod(Object, IMatcher, String, Class[])
+     * @see #searchMethod(Object, Predicate, String, Class[])
      */
     public static Method searchMethod(final Object instance,
                                       final String methodName,
                                       final Class... signature)
             throws NoSuchMethodException {
-        return searchMethod(instance, and(PUBLIC, not(ABSTRACT)), methodName, signature);
+        return searchMethod(instance, Predicates.and(PUBLIC, Predicates.not(ABSTRACT)), methodName, signature);
     }
 
     /**
@@ -530,7 +511,7 @@ public final class IntrospectionUtils {
      * @throws NoSuchMethodException if no or more than one method found
      */
     public static Method searchMethod(final Object instance,
-                                      final IMatcher<Integer> matcher,
+                                      final Predicate<Integer> matcher,
                                       final String methodName,
                                       final Class... signature)
             throws NoSuchMethodException {
@@ -542,11 +523,11 @@ public final class IntrospectionUtils {
             type = instance.getClass();
         }
 
-        final Set<Method> methods = searchMethods(type, new IMatcher<Method>() {
+        final Set<Method> methods = searchMethods(type, new Predicate<Method>() {
             @Override
-            public boolean matches(final Method target) {
+            public boolean apply(final Method target) {
                 return methodName.equals(target.getName())
-                       && matcher.matches(target.getModifiers());
+                        && matcher.apply(target.getModifiers());
             }
         });
 
@@ -1147,10 +1128,10 @@ public final class IntrospectionUtils {
                                                final Class type,
                                                final String methodName,
                                                final Class[] signature,
-                                               final IMatcher<Integer> matcher) {
+                                               final Predicate<Integer> matcher) {
         return new NoSuchMethodException(String.format(message,
                 type.getCanonicalName(), methodName,
-                TStr.join(getClassNames(signature)), matcher));
+                Joiner.on(", ").useForNull("null").join(getClassNames(signature)), matcher));
     }
 
     /**
@@ -1164,7 +1145,7 @@ public final class IntrospectionUtils {
     private static NoSuchMethodException tooMuch(
             final Class type, final String methodName,
             final Class[] signature,
-            final IMatcher<Integer> matcher) {
+            final Predicate<Integer> matcher) {
         return abort("More than one method %s#%s found conforms signature [%s] and matcher %s",
                 type, methodName, signature, matcher);
     }
@@ -1179,7 +1160,7 @@ public final class IntrospectionUtils {
      */
     private static NoSuchMethodException notFound(
             final Class type, final String methodName,
-            final Class[] signature, final IMatcher<Integer> matcher) {
+            final Class[] signature, final Predicate<Integer> matcher) {
         return abort("No methods %s#%s found to conform signature [%s] and matcher %s",
                 type, methodName, signature, matcher);
     }
@@ -1239,8 +1220,8 @@ public final class IntrospectionUtils {
                 "Unable to invoke method %s#%s(%s) with parameters [%s]"
                 , type.getCanonicalName()
                 , methodName
-                , TStr.join(getClassNames(signature))
-                , TStr.join(args)));
+                , Joiner.on(", ").join(getClassNames(signature))
+                , Joiner.on(", ").join(args)));
 
         return (NoSuchMethodException) e.initCause(cause);
     }

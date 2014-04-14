@@ -1,5 +1,6 @@
 package org.nohope.jaxb2.plugin.metadata;
 
+import com.google.common.base.Predicates;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.nohope.jaxb2.plugin.Jaxb2PluginTestSupport;
@@ -12,7 +13,6 @@ import static java.lang.Class.forName;
 import static junit.framework.Assert.assertEquals;
 import static junit.framework.Assert.assertNull;
 import static org.junit.Assert.*;
-import static org.nohope.Matchers.not;
 import static org.nohope.reflection.IntrospectionUtils.instanceOf;
 import static org.nohope.reflection.IntrospectionUtils.invoke;
 import static org.nohope.reflection.ModifierMatcher.ABSTRACT;
@@ -38,7 +38,7 @@ public class MetadataPluginTest extends Jaxb2PluginTestSupport {
         {
             final IDescriptor<?> boolFieldDescriptor =
                     (IDescriptor<?>) invoke(descriptor,
-                            not(ABSTRACT), "isSimple");
+                            Predicates.not(ABSTRACT), "isSimple");
 
             final List<IDescriptor<?>> callChain = new ArrayList<>();
             for (final IDescriptor o : boolFieldDescriptor) {
@@ -57,8 +57,8 @@ public class MetadataPluginTest extends Jaxb2PluginTestSupport {
         {
             final IDescriptor<?> floatFieldDescriptor =
                     (IDescriptor<?>) invoke(invoke(descriptor,
-                            not(ABSTRACT), "getObjectField"),
-                            not(ABSTRACT), "getFloatField");
+                            Predicates.not(ABSTRACT), "getObjectField"),
+                            Predicates.not(ABSTRACT), "getFloatField");
 
             final List<IDescriptor<?>> chain = new ArrayList<>();
             for (final IDescriptor o : floatFieldDescriptor) {
@@ -93,7 +93,7 @@ public class MetadataPluginTest extends Jaxb2PluginTestSupport {
         {
             final IValueDescriptor<?> boolFieldDescriptor =
                     (IValueDescriptor<?>) invoke(descriptor,
-                            not(ABSTRACT), "isSimple");
+                            Predicates.not(ABSTRACT), "isSimple");
 
             final List<IValueDescriptor<?>> chain = new ArrayList<>();
             for (final IDescriptor o : boolFieldDescriptor) {
@@ -108,8 +108,8 @@ public class MetadataPluginTest extends Jaxb2PluginTestSupport {
         {
             final IDescriptor<?> floatFieldDescriptor =
                     (IDescriptor<?>) invoke(invoke(descriptor,
-                            not(ABSTRACT), "getObjectField"),
-                            not(ABSTRACT), "getFloatField");
+                            Predicates.not(ABSTRACT), "getObjectField"),
+                            Predicates.not(ABSTRACT), "getFloatField");
 
             final List<IValueDescriptor<?>> chain = new ArrayList<>();
             for (final IDescriptor o : floatFieldDescriptor) {
