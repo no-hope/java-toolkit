@@ -17,7 +17,7 @@ public enum InvokeStrategy implements ComparatorProvider {
     CLOSEST_BY_INHERITANCE {
         @Override
         public Comparator<Method> getComparator(final Class<?> declaredClass, final Class<?> parameter) {
-            return MethodComparator.byParameter(declaredClass, parameter);
+            return MethodComparator.byDeclaringClassType(declaredClass, parameter);
         }
     }
 }
