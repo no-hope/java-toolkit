@@ -4,7 +4,7 @@ set -e
 set -e pipefail
 
 if [[ -f "pom.xml" ]]; then
-    PROTOC_VERSION="$(xmlstarlet sel -t -v '//_:project//_:properties//_:protobuf.version/text()' pom.xml)"
+    PROTOC_VERSION="$(xmlstarlet sel -t -v '/_:project/_:properties/_:protobuf.version/text()' pom.xml)"
 fi
 
 PROTOC_VERSION="${PROTOC_VERSION:-2.5.0}"
