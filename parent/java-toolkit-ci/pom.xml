@@ -65,7 +65,7 @@
         <maven.failsafe-plugin.version>2.16</maven.failsafe-plugin.version>
         <maven.findbugs-plugin.version>2.3.2</maven.findbugs-plugin.version>
         <maven.jacoco-aggregator-plugin.version>0.0.1-SNAPSHOT</maven.jacoco-aggregator-plugin.version>
-        <maven.jacoco-plugin.version>0.6.5.201403032054</maven.jacoco-plugin.version>
+        <maven.jacoco-plugin.version>0.7.1.201405082137</maven.jacoco-plugin.version>
         <maven.javadoc-plugin.version>2.9.1</maven.javadoc-plugin.version>
         <maven.jdepend-plugin.version>2.0-beta-2</maven.jdepend-plugin.version>
         <maven.pmd-plugin.version>2.5</maven.pmd-plugin.version>
@@ -158,7 +158,7 @@
                         <id>jacoco-prepare-it</id>
                         <phase>pre-integration-test</phase>
                         <goals>
-                            <goal>prepare-agent</goal>
+                            <goal>prepare-agent-integration</goal>
                         </goals>
                         <configuration>
                             <propertyName>jacoco.argline.it</propertyName>

@@ -38,11 +38,11 @@ public abstract class Jaxb2PluginTestSupport implements TestLifecycleListener {
     private static final String TEST_RESOURCES_PATH = "src/test/resources/";
 
 
-    //static {
-    //    System.setProperty("javax.xml.accessExternalStylesheet", "all");
-    //    System.setProperty("javax.xml.accessExternalSchema", "all");
-    //    System.setProperty("javax.xml.accessExternalDTD", "all");
-    //}
+    static {
+        System.setProperty("javax.xml.accessExternalStylesheet", "all");
+        System.setProperty("javax.xml.accessExternalSchema", "all");
+        System.setProperty("javax.xml.accessExternalDTD", "all");
+    }
 
     private final String[] args;
     private final String resources;
