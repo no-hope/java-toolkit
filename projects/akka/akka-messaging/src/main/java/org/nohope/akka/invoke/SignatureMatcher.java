@@ -13,9 +13,9 @@ import static org.nohope.reflection.IntrospectionUtils.areTypesVarargCompatible;
 * @since 2014-04-11 19:36
 */
 final class SignatureMatcher implements Predicate<Method> {
-    private final Class[] classes;
+    private final Class<?>[] classes;
 
-    public SignatureMatcher(final Class[] classes) {
+    SignatureMatcher(final Class<?>[] classes) {
         this.classes = classes == null ? null : classes.clone();
     }
 

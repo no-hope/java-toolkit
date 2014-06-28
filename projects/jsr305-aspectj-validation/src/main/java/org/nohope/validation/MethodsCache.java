@@ -13,7 +13,7 @@ import java.util.concurrent.ConcurrentHashMap;
  * @since 9/26/13 2:43 PM
  */
 public final class MethodsCache {
-    private final Map<Constructor, CachedMethod> constructorCache = new ConcurrentHashMap<>();
+    private final Map<Constructor<?>, CachedMethod> constructorCache = new ConcurrentHashMap<>();
     private final Map<Method, CachedMethod> methodCache = new ConcurrentHashMap<>();
 
     public CachedMethod get(final Method method) {
@@ -26,7 +26,7 @@ public final class MethodsCache {
         return result;
     }
 
-    public CachedMethod get(final Constructor constructor) {
+    public CachedMethod get(final Constructor<?> constructor) {
         CachedMethod result = constructorCache.get(constructor);
         if (result == null) {
             result = new CachedMethod(toString(constructor),
@@ -36,14 +36,14 @@ public final class MethodsCache {
         return result;
     }
 
-    public static String toString(final Constructor method) {
-        final Class[] args = method.getParameterTypes();
+    public static String toString(final Constructor<?> method) {
+        final Class<?>[] args = method.getParameterTypes();
         String builder = '\''
                          + method.getName()
                          + '('
                          ;
         boolean started = true;
-        for (final Class arg : args) {
+        for (final Class<?> arg : args) {
             if (!started) {
                 builder += ", ";
             } else {
@@ -56,17 +56,17 @@ public final class MethodsCache {
     }
 
     public static String toString(final Method method) {
-        final Class[] args = method.getParameterTypes();
+        final Class<?>[] args = method.getParameterTypes();
         String builder = '\''
                          + method.getReturnType().getSimpleName()
-                         +  " "
+                         + ' '
                          + method.getDeclaringClass().getCanonicalName()
                          + '.'
                          + method.getName()
                          + '('
                 ;
         boolean started = true;
-        for (final Class arg : args) {
+        for (final Class<?> arg : args) {
             if (!started) {
                 builder += ", ";
             } else {
@@ -91,10 +91,6 @@ public final class MethodsCache {
             this.params = params;
         }
 
-        public Annotation[][] getParams() {
-            return params;
-        }
-
         @Override
         public String toString() {
             return this.message;
@@ -107,7 +103,7 @@ public final class MethodsCache {
             final int constructorDiff = args.length - params.length;
             for (int j = constructorDiff; j < args.length; j++) {
                 T a = null;
-                for (final Annotation annotation : getParams()[j - constructorDiff]) {
+                for (final Annotation annotation : params[j - constructorDiff]) {
                     if (annotationClass.isAssignableFrom(annotation.getClass())) {
                         a = (T) annotation;
                         break;

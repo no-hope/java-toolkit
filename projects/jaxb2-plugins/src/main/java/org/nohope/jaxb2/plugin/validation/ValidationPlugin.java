@@ -59,7 +59,7 @@ public class ValidationPlugin extends AbstractParameterizablePlugin {
         return "TBD";
     }
 
-    private boolean metadataAvailable = false;
+    private boolean metadataAvailable;
 
     @Override
     protected void init(final Options options) throws Exception {

@@ -129,7 +129,7 @@ public privileged aspect ValidatingAspect {
                 final Class<? extends IValidator<?>> clazz = annotation.value();
                 try {
                     validate(clazz, arg);
-                } catch (ValidatingTypeMismatch e) {
+                } catch (final ValidatingTypeMismatch e) {
                     throw new IllegalArgumentException(
                             "Argument "
                             + index
@@ -139,7 +139,7 @@ public privileged aspect ValidatingAspect {
                             + cache
                             + " cannot be applied to "
                             + arg.getClass().getCanonicalName(), e);
-                } catch (ValidatorInitializationException e) {
+                } catch (final ValidatorInitializationException e) {
                     throw new IllegalStateException(
                             "Unable to validate argument "
                             + index
@@ -147,7 +147,7 @@ public privileged aspect ValidatingAspect {
                             + clazz.getCanonicalName()
                             + ") parameter of "
                             + cache, e);
-                } catch (ValidationException e) {
+                } catch (final ValidationException e) {
                     throw new IllegalArgumentException(
                             "Validation failed for argument "
                             + index

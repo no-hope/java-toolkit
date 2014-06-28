@@ -100,7 +100,7 @@ public final class IntrospectionUtils {
      * @return wrapper for primitive, {@code null} if passed type is not a
      *         primitive
      */
-    public static Class<?> primitiveToWrapper(final Class p) {
+    public static Class<?> primitiveToWrapper(final Class<?> p) {
         return PRIMITIVES_TO_WRAPPERS.get(p);
     }
 
@@ -111,7 +111,7 @@ public final class IntrospectionUtils {
      * @param type type to translate
      * @return boxed primitive class or class itself if not primitive.
      */
-    public static Class<?> tryFromPrimitive(final Class type) {
+    public static Class<?> tryFromPrimitive(final Class<?> type) {
         if (type == null || !type.isPrimitive()) {
             return type;
         }
@@ -139,7 +139,7 @@ public final class IntrospectionUtils {
 
         final Constructor<T> constructor =
                 searchConstructor(type, getClasses(args));
-        final Class[] signature = constructor.getParameterTypes();
+        final Class<?>[] signature = constructor.getParameterTypes();
 
         try {
             final Object[] params = adaptTo(args, signature);
@@ -208,7 +208,7 @@ public final class IntrospectionUtils {
                                 final Object... args)
             throws NoSuchMethodException, InvocationTargetException,
                    IllegalAccessException {
-        final Class[] sig = method.getParameterTypes();
+        final Class<?>[] sig = method.getParameterTypes();
 
         try {
             final Object[] params = adaptTo(args, sig);
@@ -219,7 +219,7 @@ public final class IntrospectionUtils {
             // request privileges for non-public method/instance class/parent class
             if (!PUBLIC.apply(flags)
                 || !PUBLIC.apply(classFlags)
-                || clazz != method.getDeclaringClass()) {
+                || !clazz.equals(method.getDeclaringClass())) {
                 setAccessible(method);
             }
 
@@ -246,7 +246,7 @@ public final class IntrospectionUtils {
      * @param source source class
      * @return {@code true} if target is assignable from source
      */
-    public static boolean isAssignable(final Class target, final Class source) {
+    public static boolean isAssignable(final Class<?> target, final Class<?> source) {
         if (target == null || source == null) {
             throw new IllegalArgumentException("classes");
         }
@@ -294,8 +294,8 @@ public final class IntrospectionUtils {
      * @param sources array of types
      * @return {@code true} if types are compatible
      */
-    public static boolean areTypesCompatible(final Class[] targets,
-                                             final Class[] sources) {
+    public static boolean areTypesCompatible(final Class<?>[] targets,
+                                             final Class<?>[] sources) {
         // check if types are "varargs-compatible"
         if (sources.length != targets.length) {
             return false;
@@ -325,13 +325,13 @@ public final class IntrospectionUtils {
      * @param sources source types
      * @return {@code true} if types are vararg-compatible
      */
-    public static boolean areTypesVarargCompatible(final Class[] targets,
-                                                   final Class[] sources) {
+    public static boolean areTypesVarargCompatible(final Class<?>[] targets,
+                                                   final Class<?>[] sources) {
         if (!isVarargs(targets)) {
             return areTypesCompatible(targets, sources);
         }
 
-        final Class[] flat = flattenVarargs(targets);
+        final Class<?>[] flat = flattenVarargs(targets);
         final int flatSize = flat.length;
         final int srcSize = sources.length;
 
@@ -345,7 +345,7 @@ public final class IntrospectionUtils {
         }
         // vararg should be assembled
         if (srcSize > flatSize) {
-            final Class vararg = flat[flatSize - 1];
+            final Class<?> vararg = flat[flatSize - 1];
             for (int i = flatSize; i < srcSize; i++) {
                 if (!isAssignable(vararg, sources[i])) {
                     return false;
@@ -369,16 +369,16 @@ public final class IntrospectionUtils {
      */
     @SuppressWarnings("unchecked")
     private static <T> Constructor<T> searchConstructor(
-            final Class<T> type, final Class[] signature)
+            final Class<T> type, final Class<?>[] signature)
             throws NoSuchMethodException {
 
-        final Constructor[] constructors = type.getDeclaredConstructors();
-        Constructor found = null;
-        Constructor vararg = null;
+        final Constructor<T>[] constructors = (Constructor<T>[]) type.getDeclaredConstructors();
+        Constructor<T> found = null;
+        Constructor<T> vararg = null;
         int varargsFound = 0;
 
-        for (final Constructor constructor : constructors) {
-            final Class[] types = constructor.getParameterTypes();
+        for (final Constructor<T> constructor : constructors) {
+            final Class<?>[] types = constructor.getParameterTypes();
 
             // Check for signature types compatibility
             if (areTypesCompatible(types, signature)) {
@@ -418,7 +418,7 @@ public final class IntrospectionUtils {
     public static boolean isOverridden(final Method higher, final Method lower) {
         final Class<?> higherClass = higher.getDeclaringClass();
         final Class<?> lowerClass = lower.getDeclaringClass();
-        return higherClass != lowerClass // child
+        return !higherClass.equals(lowerClass) // child
                && higherClass.isAssignableFrom(lowerClass)
                && higher.getName().equals(lower.getName())
                && Arrays.deepEquals(higher.getParameterTypes(), lower.getParameterTypes()) //TODO: Too strict?
@@ -487,7 +487,7 @@ public final class IntrospectionUtils {
      */
     public static Method searchMethod(final Object instance,
                                       final String methodName,
-                                      final Class... signature)
+                                      final Class<?>... signature)
             throws NoSuchMethodException {
         return searchMethod(instance, Predicates.and(PUBLIC, Predicates.not(ABSTRACT)), methodName, signature);
     }
@@ -513,12 +513,12 @@ public final class IntrospectionUtils {
     public static Method searchMethod(final Object instance,
                                       final Predicate<Integer> matcher,
                                       final String methodName,
-                                      final Class... signature)
+                                      final Class<?>... signature)
             throws NoSuchMethodException {
 
         final Class<?> type;
         if (instance instanceof Class) {
-            type = (Class) instance;
+            type = (Class<?>) instance;
         } else {
             type = instance.getClass();
         }
@@ -536,7 +536,7 @@ public final class IntrospectionUtils {
         int varargsFound = 0;
 
         for (final Method method : methods) {
-            final Class[] types = method.getParameterTypes();
+            final Class<?>[] types = method.getParameterTypes();
 
             // Check for signature types compatibility
             if (areTypesCompatible(types, signature)) {
@@ -629,7 +629,7 @@ public final class IntrospectionUtils {
             return c2;
         }
 
-        Class c1Parent = tryFromPrimitive(c1).getSuperclass();
+        Class<?> c1Parent = tryFromPrimitive(c1).getSuperclass();
         while (c1Parent != null && !c2.isInterface()) {
             if (isAssignable(c1Parent, c2)) {
                 return c1Parent;
@@ -662,7 +662,7 @@ public final class IntrospectionUtils {
             throw new IllegalArgumentException("array expected");
         }
 
-        if (source.getClass().getComponentType() == clazz) {
+        if (source.getClass().getComponentType().equals(clazz)) {
             return source;
         }
 
@@ -687,7 +687,7 @@ public final class IntrospectionUtils {
                     origin = shrinkTypeTo(origin, clazz.getComponentType());
                 }
                 Array.set(result, i, origin);
-            } catch (IllegalArgumentException e) {
+            } catch (final IllegalArgumentException e) {
                 throw arrayCastError(origin, clazz, e);
             }
         }
@@ -744,7 +744,7 @@ public final class IntrospectionUtils {
     public static Class<?> reflectCallerClass() {
         try {
             return Class.forName(getCurrentStack(0).getClassName());
-        } catch (ClassNotFoundException e) {
+        } catch (final ClassNotFoundException e) {
             throw new IllegalStateException(e);
         }
     }
@@ -770,11 +770,11 @@ public final class IntrospectionUtils {
      * @param arguments list of classes
      * @return canonical names for given classes
      */
-    public static String[] getClassNames(final Class... arguments) {
+    public static String[] getClassNames(final Class<?>... arguments) {
         final String[] names = new String[arguments.length];
         {
             int i = 0;
-            for (final Class clazz : arguments) {
+            for (final Class<?> clazz : arguments) {
                 names[i++] = (clazz == null) ? null : clazz.getCanonicalName();
             }
         }
@@ -937,7 +937,7 @@ public final class IntrospectionUtils {
     @Nullable
     public static Class<?> getClass(final Type type) {
         if (type instanceof Class) {
-            return (Class) type;
+            return (Class<?>) type;
         }
         if (type instanceof ParameterizedType) {
             return getClass(((ParameterizedType) type).getRawType());
@@ -959,7 +959,7 @@ public final class IntrospectionUtils {
     public static List<Class<?>> getAllBounds(final Type type) {
         final List<Class<?>> result = new ArrayList<>();
         if (type instanceof TypeVariable) {
-            final TypeVariable variable = (TypeVariable) type;
+            final TypeVariable<?> variable = (TypeVariable<?>) type;
             final Type[] bounds = variable.getBounds();
             for (final Type bound : bounds) {
                 result.add(getClass(bound));
@@ -985,7 +985,7 @@ public final class IntrospectionUtils {
      * @param signature signature of types
      * @return vararg component type
      */
-    private static Class getVarargComponentType(final Class[] signature) {
+    private static Class<?> getVarargComponentType(final Class<?>[] signature) {
         return signature[signature.length - 1].getComponentType();
     }
 
@@ -998,14 +998,14 @@ public final class IntrospectionUtils {
      * @param types   corresponding types
      * @return list of objects casted to given list of types
      */
-    static Object[] adaptTo(final Object[] objects, final Class[] types) {
+    static Object[] adaptTo(final Object[] objects, final Class<?>[] types) {
         final int argsLength = objects.length;
         final int typesLength = types.length;
 
         final List<Object> result = new ArrayList<>();
         if (argsLength == typesLength) {
             for (int i = 0; i < argsLength; i++) {
-                final Class type = types[i];
+                final Class<?> type = types[i];
                 final Object object = objects[i];
 
                 if (type.isArray() && object != null) {
@@ -1045,7 +1045,7 @@ public final class IntrospectionUtils {
      * @param <T>   type
      * @return referenced wrapper class for all primitive types passe
      */
-    static <T> Class autoBox(final Class<T> clazz) {
+    static <T> Class<?> autoBox(final Class<T> clazz) {
         return Array.get(Array.newInstance(clazz, 1), 0).getClass();
     }
 
@@ -1058,7 +1058,7 @@ public final class IntrospectionUtils {
      * @return array type of given type with passed dimension
      */
     static <T> Class<?> toArrayType(final Class<T> clazz, final int depth) {
-        Class result = clazz;
+        Class<?> result = clazz;
         for (int i = 0; i < depth; i++) {
             result = Array.newInstance(result, 0).getClass();
         }
@@ -1071,7 +1071,7 @@ public final class IntrospectionUtils {
      * @param signature array of classes
      * @return {@code true} if last element is type of array
      */
-    private static boolean isVarargs(final Class[] signature) {
+    private static boolean isVarargs(final Class<?>[] signature) {
         final int length = signature.length;
         return length > 0 && signature[length - 1].isArray();
     }
@@ -1082,9 +1082,9 @@ public final class IntrospectionUtils {
      * @param signature array of classes
      * @return new signature
      */
-    static Class[] flattenVarargs(final Class[] signature) {
+    static Class<?>[] flattenVarargs(final Class<?>[] signature) {
         if (isVarargs(signature)) {
-            final Class[] result = signature.clone();
+            final Class<?>[] result = signature.clone();
             final int length = signature.length;
             result[length - 1] = signature[length - 1].getComponentType();
             return result;
@@ -1124,9 +1124,9 @@ public final class IntrospectionUtils {
      * @return constructed exception
      */
     private static NoSuchMethodException abort(final String message,
-                                               final Class type,
+                                               final Class<?> type,
                                                final String methodName,
-                                               final Class[] signature,
+                                               final Class<?>[] signature,
                                                final Predicate<Integer> matcher) {
         return new NoSuchMethodException(String.format(message,
                 type.getCanonicalName(), methodName,
@@ -1142,8 +1142,8 @@ public final class IntrospectionUtils {
      * @return constructed exception
      */
     private static NoSuchMethodException tooMuch(
-            final Class type, final String methodName,
-            final Class[] signature,
+            final Class<?> type, final String methodName,
+            final Class<?>[] signature,
             final Predicate<Integer> matcher) {
         return abort("More than one method %s#%s found conforms signature [%s] and matcher %s",
                 type, methodName, signature, matcher);
@@ -1158,8 +1158,8 @@ public final class IntrospectionUtils {
      * @return constructed exception
      */
     private static NoSuchMethodException notFound(
-            final Class type, final String methodName,
-            final Class[] signature, final Predicate<Integer> matcher) {
+            final Class<?> type, final String methodName,
+            final Class<?>[] signature, final Predicate<Integer> matcher) {
         return abort("No methods %s#%s found to conform signature [%s] and matcher %s",
                 type, methodName, signature, matcher);
     }
@@ -1173,7 +1173,7 @@ public final class IntrospectionUtils {
      * @return {@link ClassCastException} instance
      */
     private static ClassCastException arrayCastError(final Object elem,
-                                                     final Class clazz,
+                                                     final Class<?> clazz,
                                                      final Throwable cause) {
         final ClassCastException ex = new ClassCastException(String.format(
                 "Unexpected value %s (%s) for array of type %s"
@@ -1192,7 +1192,7 @@ public final class IntrospectionUtils {
      * @return {@link ClassCastException} instance
      */
     private static ClassCastException arrayCastError(final Object src,
-                                                     final Class clazz) {
+                                                     final Class<?> clazz) {
         throw new ClassCastException(String.format(
                 "Incompatible types found - source %s destination %s[]"
                 , src.getClass().getCanonicalName()
@@ -1210,9 +1210,9 @@ public final class IntrospectionUtils {
      * @param cause      original exception
      * @return {@link NoSuchMethodException} instance
      */
-    private static NoSuchMethodException cantInvoke(final Class type,
+    private static NoSuchMethodException cantInvoke(final Class<?> type,
                                                     final String methodName,
-                                                    final Class[] signature,
+                                                    final Class<?>[] signature,
                                                     final Object[] args,
                                                     final Throwable cause) {
         final NoSuchMethodException e = new NoSuchMethodException(String.format(

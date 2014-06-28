@@ -36,7 +36,7 @@ final class LatchSynchronizer<R> implements IObjectSynchronizer<R> {
     /* ==> object is set and got on different threads
      * should be volatile,to get rid of caching issues
      */
-    private volatile R object = null;
+    private volatile R object;
 
     @Override
     public boolean isAvailable() {

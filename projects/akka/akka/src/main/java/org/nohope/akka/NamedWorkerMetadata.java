@@ -1,5 +1,6 @@
 package org.nohope.akka;
 
+import javax.annotation.Nonnull;
 import javax.annotation.concurrent.Immutable;
 import java.io.Serializable;
 
@@ -25,8 +26,8 @@ public final class NamedWorkerMetadata implements Serializable {
         identifier = null;
     }
 
-    public NamedWorkerMetadata(final String identifier,
-                               final Serializable data) {
+    public NamedWorkerMetadata(@Nonnull final String identifier,
+                               @Nonnull final Serializable data) {
         this.identifier = identifier;
         this.data = data;
     }
@@ -45,7 +46,15 @@ public final class NamedWorkerMetadata implements Serializable {
     }
 
     @Override
-    public boolean equals(final Object obj) {
-        return obj instanceof NamedWorkerMetadata && ((NamedWorkerMetadata) obj).identifier.equals(identifier);
+    public boolean equals(final Object o) {
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
+
+        final NamedWorkerMetadata that = (NamedWorkerMetadata) o;
+        return identifier.equals(that.identifier);
     }
 }

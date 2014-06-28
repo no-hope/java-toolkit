@@ -34,7 +34,7 @@ public class ExpectedServiceException extends ServiceException {
     public static <T> ExpectedServiceException wrap(final Throwable e,
                                                     final GeneratedExtension<Error, T> extension,
                                                     final T value) {
-        return new ExpectedServiceException.Builder(e).addExtension(extension, value).build();
+        return new Builder(e).addExtension(extension, value).build();
     }
 
     public static final class Builder {
@@ -57,7 +57,7 @@ public class ExpectedServiceException extends ServiceException {
         public <T> Builder addListExtension(final GeneratedExtension<Error, List<T>> extension,
                                             final T... values) {
             // kinda black magic here, yep
-            final GeneratedExtension casted = (GeneratedExtension) extension;
+            final GeneratedExtension<?, ?> casted = extension;
             listExtensions.put((GeneratedExtension<Error, List<Object>>) casted, Arrays.asList(values));
             return this;
         }

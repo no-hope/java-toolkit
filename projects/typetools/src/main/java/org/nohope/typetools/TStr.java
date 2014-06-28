@@ -265,7 +265,7 @@ public final class TStr {
     public static byte[] toLatin1(@Nonnull final String str) {
         try {
             return str.getBytes("latin1");
-        } catch (UnsupportedEncodingException e) {
+        } catch (final UnsupportedEncodingException e) {
             throw new IllegalStateException(e);
         }
     }

@@ -4,7 +4,6 @@ import org.apache.commons.lang3.StringUtils;
 
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Set;
 import java.util.TreeSet;
 
 import static java.util.concurrent.TimeUnit.SECONDS;
@@ -92,9 +91,9 @@ public class StressResult {
                .append('\n');
 
         // sorted output
-        final Set<String> keys = new TreeSet<>(results.keySet());
+        final Iterable<String> keys = new TreeSet<>(results.keySet());
         for (final String key : keys) {
-            builder.append(results.get(key).toString());
+            builder.append(results.get(key));
         }
 
         return builder.append(separator)

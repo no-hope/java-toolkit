@@ -14,6 +14,7 @@ import com.fasterxml.jackson.databind.ser.std.StdSerializer;
 
 import java.awt.*;
 import java.io.IOException;
+import java.lang.reflect.Type;
 
 /**
  * Date: 11/8/12
@@ -46,7 +47,7 @@ public class ColorModule extends SimpleModule {
         }
 
         @Override
-        public JsonNode getSchema(final SerializerProvider provider, final java.lang.reflect.Type typeHint) {
+        public JsonNode getSchema(final SerializerProvider provider, final Type typeHint) {
             return createSchemaNode("array", true);
         }
 

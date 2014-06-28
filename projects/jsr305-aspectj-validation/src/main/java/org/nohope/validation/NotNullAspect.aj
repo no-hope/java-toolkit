@@ -13,7 +13,7 @@ import java.lang.reflect.Method;
 import static org.nohope.validation.MethodsCache.CachedMethod;
 
 public final privileged aspect NotNullAspect {
-    private static final MethodsCache methodsCache = new MethodsCache();
+    private static final MethodsCache CACHE = new MethodsCache();
 
     /** Utility constructor. */
     private NotNullAspect() {
@@ -51,7 +51,7 @@ public final privileged aspect NotNullAspect {
     @SuppressAjWarnings
     after() returning(final Object ret): validatedReturnValue() {
         final MethodSignature sig = (MethodSignature) thisJoinPoint.getStaticPart().getSignature();
-        final CachedMethod cache = methodsCache.get(sig.getMethod());
+        final CachedMethod cache = CACHE.get(sig.getMethod());
         if (ret == null) {
             throw new IllegalStateException("@Nonnull method "
                     + cache
@@ -67,11 +67,11 @@ public final privileged aspect NotNullAspect {
         if (signature instanceof MethodSignature) {
             final MethodSignature sig = (MethodSignature) thisJoinPoint.getStaticPart().getSignature();
             final Method method = sig.getMethod();
-            cache = methodsCache.get(method);
+            cache = CACHE.get(method);
         } else if (signature instanceof ConstructorSignature) {
             final ConstructorSignature sig = (ConstructorSignature) signature;
-            final Constructor method = sig.getConstructor();
-            cache = methodsCache.get(method);
+            final Constructor<?> method = sig.getConstructor();
+            cache = CACHE.get(method);
         } else {
             throw new IllegalStateException("Illegal advice for " + signature.getClass());
         }

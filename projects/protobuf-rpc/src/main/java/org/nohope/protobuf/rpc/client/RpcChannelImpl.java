@@ -1,14 +1,6 @@
 package org.nohope.protobuf.rpc.client;
 
-import com.google.protobuf.BlockingRpcChannel;
-import com.google.protobuf.Descriptors;
-import com.google.protobuf.ExtensionRegistry;
-import com.google.protobuf.InvalidProtocolBufferException;
-import com.google.protobuf.Message;
-import com.google.protobuf.RpcCallback;
-import com.google.protobuf.RpcChannel;
-import com.google.protobuf.RpcController;
-import com.google.protobuf.ServiceException;
+import com.google.protobuf.*;
 import org.jboss.netty.bootstrap.ClientBootstrap;
 import org.jboss.netty.channel.Channel;
 import org.jboss.netty.channel.ChannelFuture;
@@ -24,14 +16,7 @@ import org.nohope.rpc.protocol.RPC;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.util.Map;
-import java.util.concurrent.Callable;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.Executors;
-import java.util.concurrent.Future;
-import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.TimeUnit;
-import java.util.concurrent.TimeoutException;
+import java.util.concurrent.*;
 import java.util.concurrent.atomic.AtomicReference;
 
 import static com.google.protobuf.Descriptors.MethodDescriptor;
@@ -54,9 +39,9 @@ class RpcChannelImpl implements RpcChannel, BlockingRpcChannel {
     private final AtomicReference<Channel> channel = new AtomicReference<>();
     private final ClientBootstrap bootstrap;
 
-    public RpcChannelImpl(@Nonnull final ClientBootstrap bootstrap,
-                          final long timeout,
-                          @Nonnull final TimeUnit timeoutUnit) {
+    RpcChannelImpl(@Nonnull final ClientBootstrap bootstrap,
+                   final long timeout,
+                   @Nonnull final TimeUnit timeoutUnit) {
         final Channel unboundChannel = bootstrap.connect().getChannel();
 
         this.bootstrap = bootstrap;
@@ -131,11 +116,11 @@ class RpcChannelImpl implements RpcChannel, BlockingRpcChannel {
 
         write(rpcRequest);
 
-        final Future<Message> handler = executor.submit(new Callable<Message>(){
+        final Future<Message> handler = executor.submit(new Callable<Message>() {
             @Override
             public Message call() throws Exception {
-                synchronized(callback) {
-                    while(!callback.isDone()) {
+                synchronized (callback) {
+                    while (!callback.isDone()) {
                         callback.wait();
                     }
                 }
@@ -172,7 +157,7 @@ class RpcChannelImpl implements RpcChannel, BlockingRpcChannel {
 
     private static RPC.RpcRequest buildRequest(final int seqId,
                                                final MethodDescriptor method,
-                                               final Message request) {
+                                               final MessageLite request) {
         final RPC.RpcRequest.Builder requestBuilder = RPC.RpcRequest.newBuilder();
         return requestBuilder
                 .setId(seqId)
@@ -199,10 +184,10 @@ class RpcChannelImpl implements RpcChannel, BlockingRpcChannel {
 
         private RPC.RpcResponse rpcResponse;
 
-        public ResponsePrototypeRpcCallback(@Nonnull final Controller controller,
-                                            @Nonnull final Message responsePrototype,
-                                            @Nonnull final ExtensionRegistry extensionRegistry,
-                                            @Nonnull final RpcCallback<Message> callback) {
+        ResponsePrototypeRpcCallback(@Nonnull final Controller controller,
+                                     @Nonnull final Message responsePrototype,
+                                     @Nonnull final ExtensionRegistry extensionRegistry,
+                                     @Nonnull final RpcCallback<Message> callback) {
             this.controller = controller;
             this.responsePrototype = responsePrototype;
             this.callback = callback;
@@ -231,8 +216,8 @@ class RpcChannelImpl implements RpcChannel, BlockingRpcChannel {
             try {
                 final Message response =
                         responsePrototype.newBuilderForType()
-                                         .mergeFrom(message.getPayload(), extensionRegistry)
-                                         .build();
+                                .mergeFrom(message.getPayload(), extensionRegistry)
+                                .build();
                 callback.run(response);
             } catch (final InvalidProtocolBufferException e) {
                 LOG.warn("Could not marshall into response", e);
@@ -252,13 +237,13 @@ class RpcChannelImpl implements RpcChannel, BlockingRpcChannel {
     }
 
     private static class BlockingRpcCallback implements RpcCallback<Message> {
-        private boolean done = false;
+        private boolean done;
         private Message message;
 
         @Override
         public void run(final Message message) {
             this.message = message;
-            synchronized(this) {
+            synchronized (this) {
                 done = true;
                 notify();
             }

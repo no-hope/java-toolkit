@@ -24,7 +24,7 @@ public final class TNumb {
 
         try {
             return Integer.parseInt(text);
-        } catch (NumberFormatException e) {
+        } catch (final NumberFormatException e) {
             return def;
         }
     }

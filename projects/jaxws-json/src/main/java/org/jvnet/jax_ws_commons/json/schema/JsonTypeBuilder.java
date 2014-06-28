@@ -46,7 +46,7 @@ public class JsonTypeBuilder {
 
             // fill in properties
             type.asComplexType().visit(new SchemaWalker() {
-                private boolean repeated = false;
+                private boolean repeated;
 
                 @Override
                 public void particle(final XSParticle particle) {

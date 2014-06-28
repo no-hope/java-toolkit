@@ -46,7 +46,7 @@ public abstract class AsyncApp extends App {
         super.start();
         LOG.debug("Startup routine completed");
 
-        if (!(getState().equals(AppState.TERMINATED) || getState().equals(AppState.TERMINATING))) {
+        if (!(getState() == AppState.TERMINATED || getState() == AppState.TERMINATING)) {
             setState(AppState.RUNNING);
             latch.await();
         } else {
@@ -60,7 +60,7 @@ public abstract class AsyncApp extends App {
         super.onVMShutdownWrapper();
         LOG.debug("VM shutdown handled");
 
-        if (getState().equals(AppState.RUNNING) || getState().equals(AppState.INITIALIZING)) {
+        if (getState() == AppState.RUNNING || getState() == AppState.INITIALIZING) {
             LOG.debug("Termination was forced");
             onForcedShutdown();
         } else {
@@ -73,7 +73,7 @@ public abstract class AsyncApp extends App {
     }
 
     public final boolean isStarted() {
-        return state.get().equals(AppState.RUNNING);
+        return state.get() == AppState.RUNNING;
     }
 
     private AppState getState() {

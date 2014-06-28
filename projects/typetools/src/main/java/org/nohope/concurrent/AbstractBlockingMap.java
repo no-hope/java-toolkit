@@ -1,6 +1,7 @@
 package org.nohope.concurrent;
 
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import java.util.Collection;
 import java.util.Map;
 import java.util.Set;
@@ -53,6 +54,7 @@ abstract class AbstractBlockingMap<K, V> implements IBlockingMap<K, V> {
      * @return V always null
      */
     @Override
+    @Nullable
     public final V put(final K key, final V object) {
         IObjectSynchronizer<V> latch = map.get(key);
 
@@ -144,7 +146,7 @@ abstract class AbstractBlockingMap<K, V> implements IBlockingMap<K, V> {
 
     @Override
     public final V poll(final K key, final Timeout t)
-            throws InterruptedException, java.util.concurrent.TimeoutException {
+            throws InterruptedException, TimeoutException {
         final V value = poll(key, t.time(), t.timeUnit());
         if (value == null) {
             throw new TimeoutException("Timeout getting '"
@@ -226,7 +228,7 @@ abstract class AbstractBlockingMap<K, V> implements IBlockingMap<K, V> {
      */
     @Override
     @Nonnull
-    public final Set<Map.Entry<K, V>> entrySet() {
+    public final Set<Entry<K, V>> entrySet() {
         throw new UnsupportedOperationException();
     }
 
