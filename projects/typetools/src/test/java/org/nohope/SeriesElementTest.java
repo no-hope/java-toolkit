@@ -4,8 +4,8 @@ import org.joda.time.DateTime;
 import org.junit.Test;
 import org.nohope.test.SerializationUtils;
 
-import static com.mongodb.util.MyAsserts.assertFalse;
-import static com.mongodb.util.MyAsserts.assertTrue;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.assertEquals;
 
 /**

@@ -10,8 +10,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import static com.mongodb.util.MyAsserts.assertFalse;
-import static com.mongodb.util.MyAsserts.assertTrue;
 import static org.easymock.EasyMock.*;
 import static org.junit.Assert.*;
 import static org.nohope.typetools.TStr.join;
