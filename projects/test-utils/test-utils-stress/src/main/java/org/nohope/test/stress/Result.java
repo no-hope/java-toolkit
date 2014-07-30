@@ -1,14 +1,12 @@
 package org.nohope.test.stress;
 
+import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.apache.commons.lang3.tuple.Pair;
+import org.apache.commons.math.stat.descriptive.rank.Percentile;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
+import java.util.*;
 
 import static java.util.Map.Entry;
 import static java.util.concurrent.TimeUnit.MILLISECONDS;
@@ -22,8 +20,8 @@ import static org.nohope.test.stress.TimeUtils.timeTo;
 */
 public class Result {
     private final Map<Long, List<Entry<Long, Long>>> timestampsPerThread = new HashMap<>();
-    private final Map<Class, List<Exception>> errorStats = new HashMap<>();
-    private final Map<Class, List<Throwable>> rootErrorStats = new HashMap<>();
+    private final Map<Class<?>, List<Exception>> errorStats = new HashMap<>();
+    private final Map<Class<?>, List<Throwable>> rootErrorStats = new HashMap<>();
 
     private final String name;
 
@@ -36,11 +34,13 @@ public class Result {
     private final Map<Long, Pair<Long, Long>> startEndForThread;
     private double avgWastedNanos;
     private double avgRuntimeIncludingWastedNanos;
+    private final Set<Double> percentiles = new TreeSet<>();
+    private final Percentile percentile = new Percentile();
 
     public Result(final String name,
                   final Map<Long, List<Entry<Long, Long>>> timestampsPerThread,
-                  final Map<Class, List<Exception>> errorStats,
-                  final ConcurrentHashMap<Class, List<Throwable>> rootErrorStats,
+                  final Map<Class<?>, List<Exception>> errorStats,
+                  final Map<Class<?>, List<Throwable>> rootErrorStats,
                   final long totalDeltaNanos,
                   final long minTime,
                   final long maxTime) {
@@ -98,6 +98,9 @@ public class Result {
         }
         avgWastedNanos /= numberOfThreads;
         avgRuntimeIncludingWastedNanos /= numberOfThreads;
+        percentiles.add(99.5d);
+        percentiles.add(95d);
+        percentiles.add(50d);
     }
 
     public double getAvgWastedNanos() {
@@ -147,7 +150,7 @@ public class Result {
      * @return op/nanos per thread
      */
     public double getWorkerThroughput() {
-        return  operationsCount / totalDeltaNanos;
+        return operationsCount / totalDeltaNanos;
     }
 
     /**
@@ -186,14 +189,14 @@ public class Result {
     /**
      * @return list of all exceptions split by topmost exception class
      */
-    public Map<Class, List<Exception>> getErrorsPerClass() {
-        return errorStats;
+    public Map<Class<?>, List<Exception>> getErrorsPerClass() {
+        return Collections.unmodifiableMap(errorStats);
     }
 
     /**
      * @return list of all running times of each thread in nanos
      */
-    public final List<Long> getRuntimes() {
+    public final List<Long> getRunTimes() {
         final List<Long> times = new ArrayList<>();
         for (final List<Entry<Long, Long>> perThreadTime : timestampsPerThread.values()) {
             for (final Entry<Long, Long> e : perThreadTime) {
@@ -201,6 +204,18 @@ public class Result {
             }
         }
         return times;
+    }
+
+    public Result withPercentiles(final double... percentiles) {
+        for (final double percentile : percentiles) {
+            if (percentile < 0 || percentile > 100) {
+                throw new IllegalStateException("Percentile " + percentile + " is out of range [0, 100]");
+            }
+        }
+
+        this.percentiles.clear();
+        this.percentiles.addAll(Arrays.asList(ArrayUtils.toObject(percentiles)));
+        return this;
     }
 
     @Override
@@ -211,22 +226,24 @@ public class Result {
                .append(name)
                .append(") -----\n");
 
-
         builder.append(pad("Operations:"))
                .append(operationsCount)
                .append('\n');
 
-        builder.append(pad("Min operation time:"))
+        builder.append(pad("Operation time"))
+                .append('\n');
+
+        builder.append(pad("  Min:"))
                .append(String.format("%.3f", timeTo(minTime, MILLISECONDS)))
                .append(" ms")
                .append('\n');
 
-        builder.append(pad("Max operation time:"))
+        builder.append(pad("  Max:"))
                .append(String.format("%.3f", timeTo(maxTime, MILLISECONDS)))
                .append(" ms")
                .append('\n');
 
-        builder.append(pad("Avg operation time:"))
+        builder.append(pad("  Avg:"))
                .append(String.format("%.3f", timeTo(meanRequestTime, MILLISECONDS)))
                .append(" ms")
                .append('\n');
@@ -234,6 +251,26 @@ public class Result {
         int fails = 0;
         for (final List<Exception> exceptions : errorStats.values()) {
             fails += exceptions.size();
+        }
+
+        if (!percentiles.isEmpty()) {
+            final List<Long> runTimes = getRunTimes();
+            Collections.sort(runTimes);
+
+            final double[] data = new double[runTimes.size()];
+
+            int i = 0;
+            for (final Long runtime : runTimes) {
+                data[i] = runtime;
+                i++;
+            }
+
+            for (final Double p : percentiles) {
+                builder.append(pad(String.format("  %sth percentile:", p)))
+                        .append(String.format("%.3f", timeTo(percentile.evaluate(data, p), MILLISECONDS)))
+                        .append(" ms")
+                        .append('\n');
+            }
         }
 
         builder.append(pad("Objective avg runtime:"))
@@ -270,7 +307,7 @@ public class Result {
                .append(fails)
                .append('\n');
 
-        for (final Entry<Class, List<Exception>> e : errorStats.entrySet()) {
+        for (final Entry<Class<?>, List<Exception>> e : errorStats.entrySet()) {
             builder.append("| ")
                    .append(e.getKey().getName())
                    .append(" happened ")
@@ -281,7 +318,7 @@ public class Result {
 
         if (!errorStats.isEmpty()) {
             builder.append("Roots:\n");
-            for (final Entry<Class, List<Throwable>> e : rootErrorStats.entrySet()) {
+            for (final Entry<Class<?>, List<Throwable>> e : rootErrorStats.entrySet()) {
                 builder.append("| ")
                        .append(e.getKey().getName())
                        .append(" happened ")

@@ -118,7 +118,7 @@ public class StressScenarioTest {
                 assertTrue("Illegal assumptions : " + workerSeconds + " >= 500", workerSeconds >= 500);
             }
 
-            assertEquals(100, testResult.getRuntimes().size());
+            assertEquals(100, testResult.getRunTimes().size());
             assertEquals(2, testResult.getPerThreadRuntimes().size());
             assertTrue(testResult.getMaxTime() >= testResult.getMinTime());
             assertTrue(testResult.getMaxTime() >= testResult.getMeanTime());
@@ -159,7 +159,7 @@ public class StressScenarioTest {
             assertNotNull(testResult);
             assertTrue(testResult.getThroughput() <= 2000);
             assertTrue(testResult.getWorkerThroughput() <= 1000);
-            assertEquals(100, testResult.getRuntimes().size());
+            assertEquals(100, testResult.getRunTimes().size());
             assertEquals(2, testResult.getPerThreadRuntimes().size());
             assertTrue(testResult.getMaxTime() >= testResult.getMinTime());
             assertTrue(testResult.getMaxTime() >= testResult.getMeanTime());
@@ -308,7 +308,7 @@ public class StressScenarioTest {
                                               @Override
                                               public Long get() throws Exception {
                                                   long old;
-                                                  for (; ; ) {
+                                                  while (true) {
                                                       old = atomic.get();
                                                       Thread.sleep(1);
                                                       if (atomic.compareAndSet(old, old + 1)) {

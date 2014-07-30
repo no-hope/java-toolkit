@@ -34,6 +34,12 @@
 
     <dependencies>
         <dependency>
+            <groupId>org.apache.commons</groupId>
+            <artifactId>commons-math</artifactId>
+            <version>${commons-math.version}</version>
+        </dependency>
+
+        <dependency>
             <groupId>org.no-hope</groupId>
             <artifactId>test-utils-common</artifactId>
             <version>${project.version}</version>

@@ -19,8 +19,8 @@ import static java.util.Map.Entry;
 */
 class StatCalculator {
     private final ConcurrentHashMap<Long, List<Entry<Long, Long>>> timesPerThread = new ConcurrentHashMap<>();
-    private final ConcurrentHashMap<Class, List<Exception>> errorStats = new ConcurrentHashMap<>();
-    private final ConcurrentHashMap<Class, List<Throwable>> rootErrorStats = new ConcurrentHashMap<>();
+    private final ConcurrentHashMap<Class<?>, List<Exception>> errorStats = new ConcurrentHashMap<>();
+    private final ConcurrentHashMap<Class<?>, List<Throwable>> rootErrorStats = new ConcurrentHashMap<>();
     private final AtomicReference<Result> result = new AtomicReference<>();
     private final AtomicInteger fails = new AtomicInteger(0);
     private final String name;
@@ -56,11 +56,11 @@ class StatCalculator {
             if (root == null) {
                 root = e;
             }
-            final Class aClass = e.getClass();
+            final Class<?> aClass = e.getClass();
             errorStats.putIfAbsent(aClass, new CopyOnWriteArrayList<Exception>());
             errorStats.get(aClass).add(e);
 
-            final Class rClass = root.getClass();
+            final Class<?> rClass = root.getClass();
             rootErrorStats.putIfAbsent(rClass, new CopyOnWriteArrayList<Throwable>());
             rootErrorStats.get(rClass).add(root);
 

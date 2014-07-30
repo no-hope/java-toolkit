@@ -108,9 +108,10 @@ public class StressResult {
                       .append(String.format("%.3e", throughputTo(getApproxThroughput(), SECONDS)))
                       .append(" op/sec")
                       .append('\n')
-                      .append("Memory usage before test: ")
+                      .append(pad("Memory usage before test: "))
                       .append(memoryStart)
-                      .append("\nMemory usage after test: ")
+                      .append('\n')
+                      .append(pad("Memory usage after test: "))
                       .append(memoryEnd)
                       .append('\n')
                       .toString();
