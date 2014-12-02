@@ -24,4 +24,12 @@
         <!-- standalone glassfish utility -->
         <module>test-utils-glassfish</module>
     </modules>
+
+    <dependencies>
+        <dependency>
+            <groupId>com.google.guava</groupId>
+            <artifactId>guava</artifactId>
+            <version>${guava.version}</version>
+        </dependency>
+    </dependencies>
 </project>
