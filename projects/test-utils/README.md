@@ -20,6 +20,7 @@ This library provides a set of modules:
  * `TRandom` - a wrapper over standard set of random generators with extended features
  * `SocketUtils` - set of utilities for determinig local/remote address availability
  * `SerializationUtils` - assertions for java/jackson (de)serialization cycles
+ * `ContractUtils` - set of utilities for perform strong assertion 
 
 ## Stress-tests framework (test-utils-stress)
 
