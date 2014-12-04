@@ -96,6 +96,8 @@
         <maven.github-site-plugin.version>0.9</maven.github-site-plugin.version>
         <protoc-maven-plugin.version>0.0.1</protoc-maven-plugin.version>
         <coveralls-extensions-maven-plugin.version>0.0.3</coveralls-extensions-maven-plugin.version>
+        <lz4.version>1.3.0</lz4.version>
+        <kryo.version>2.16</kryo.version>
     </properties>
 
     <build>
