@@ -8,6 +8,7 @@ This library provides a set of modules:
  * [`test-utils-glassfish`](test-utils-glassfish) - set of utilities on top of embedded glassfish approach
  * [`test-utils-stress`](test-utils-stress) - simple performance measurement tool for multi-threaded environments
  which is useful for performing stress testing
+ * [`serialization`](serialization) - set of stream serializers
 
 ## Utilities
 
