@@ -132,7 +132,7 @@ public class TypeSafeObjectMapper {
         static final ComplexKeyDeserializer S_OBJECT = new ComplexKeyDeserializer(Object.class);
 
         private ComplexKeyDeserializer(final Class<?> nominalType) {
-            super(nominalType);
+            super(-1, nominalType);
         }
 
         @Override

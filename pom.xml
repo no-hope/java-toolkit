@@ -79,12 +79,12 @@
         <easymock.version>3.2</easymock.version>
         <guava.version>16.0.1</guava.version>
         <hamcrest-core.version>1.3</hamcrest-core.version>
-        <jackson.version>2.3.2</jackson.version>
+        <jackson.version>2.4.4</jackson.version>
         <javax-inject.version>1</javax-inject.version>
         <jaxb-xjc.version>2.2.7</jaxb-xjc.version>
         <jaxb2-basics.version>0.6.5.1</jaxb2-basics.version>
         <jaxb2-testing.version>0.8.3</jaxb2-testing.version>
-        <joda-time.version>2.3</joda-time.version>
+        <joda-time.version>2.5</joda-time.version>
         <jongo.version>1.0</jongo.version>
         <logback.version>1.1.1</logback.version>
         <mongo.version>2.11.4</mongo.version>
