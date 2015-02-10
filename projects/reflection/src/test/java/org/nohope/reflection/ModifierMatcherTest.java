@@ -19,7 +19,7 @@ public class ModifierMatcherTest extends EnumTestSupport<ModifierMatcher> {
     }
 
     @Test
-    public void equals() {
+    public void equality() {
         assertTrue(equalTo(1).apply(1));
         assertTrue(equalTo(null).apply(null));
         assertFalse(equalTo("test").apply(null));
@@ -28,6 +28,6 @@ public class ModifierMatcherTest extends EnumTestSupport<ModifierMatcher> {
 
     @Test
     public void reprTest() {
-        assertEquals("Not(Or(And(PUBLIC,ABSTRACT),FINAL))", not(or(and(PUBLIC, ABSTRACT), FINAL)).toString());
+        assertEquals("Predicates.not(Predicates.or(Predicates.and(PUBLIC,ABSTRACT),FINAL))", not(or(and(PUBLIC, ABSTRACT), FINAL)).toString());
     }
 }

@@ -10,8 +10,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import static java.lang.Class.forName;
-import static junit.framework.Assert.assertEquals;
-import static junit.framework.Assert.assertNull;
 import static org.junit.Assert.*;
 import static org.nohope.reflection.IntrospectionUtils.instanceOf;
 import static org.nohope.reflection.IntrospectionUtils.invoke;
