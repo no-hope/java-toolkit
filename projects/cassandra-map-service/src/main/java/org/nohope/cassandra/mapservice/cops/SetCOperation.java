@@ -2,16 +2,16 @@ package org.nohope.cassandra.mapservice.cops;
 
 import com.datastax.driver.core.querybuilder.Assignment;
 import com.datastax.driver.core.querybuilder.QueryBuilder;
-import org.nohope.cassandra.mapservice.CTypeConverter;
+import org.nohope.cassandra.mapservice.ctypes.Converter;
 
 /**
  * Set operation
  */
-public final class SetCOperation implements Operation {
+public final class SetCOperation<V> implements Operation<V> {
     private final String columnName;
-    private final Object value;
+    private final V value;
 
-    public SetCOperation(final String columnName, final Object value) {
+    public SetCOperation(final String columnName, final V value) {
         this.columnName = columnName;
         this.value = value;
     }
@@ -22,8 +22,8 @@ public final class SetCOperation implements Operation {
     }
 
     @Override
-    public Assignment apply(final CTypeConverter<?, ?> converter) {
-        return QueryBuilder.set(columnName, converter.toCassandra(value));
+    public Assignment apply(final Converter<?, V> converter) {
+        return QueryBuilder.set(columnName, converter.asCassandraValue(value));
     }
 
     @Override

@@ -1,9 +1,7 @@
 package org.nohope.cassandra.mapservice;
 
 import com.datastax.driver.core.querybuilder.QueryBuilder;
-import com.google.common.collect.Sets;
 import org.apache.commons.lang3.StringUtils;
-import org.nohope.cassandra.mapservice.columns.CCollection;
 import org.nohope.cassandra.mapservice.columns.CColumn;
 
 import javax.annotation.Nonnull;
@@ -156,6 +154,7 @@ public final class TableScheme {
         return clusteringKeysString;
     }
 
+    /*
     public boolean containsCollectionColumns() {
         for (final CColumn<?, ?> column : columns.values()) {
             if (column instanceof CCollection) {
@@ -173,5 +172,5 @@ public final class TableScheme {
             }
         }
         return Sets.newHashSet(nonCollectionColumnsSet);
-    }
+    }*/
 }

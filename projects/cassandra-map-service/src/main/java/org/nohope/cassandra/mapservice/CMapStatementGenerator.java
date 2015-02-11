@@ -6,9 +6,9 @@ import com.datastax.driver.core.Statement;
 import com.datastax.driver.core.querybuilder.*;
 import com.google.common.collect.Sets;
 import org.nohope.cassandra.mapservice.cfilter.CFilter;
-import org.nohope.cassandra.mapservice.columns.CCollection;
+import org.nohope.cassandra.mapservice.columns.CColumn;
+import org.nohope.cassandra.mapservice.ctypes.Converter;
 
-import java.lang.reflect.Field;
 import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -148,17 +148,19 @@ final class CMapStatementGenerator {
 
     private Delete.Where applyFiltersToDeleteQuery(final CQuery cQuery) {
         final Delete.Where query = QueryBuilder.delete().from(scheme.getTableNameQuoted()).where();
-        for (final CFilter filter : getPrimaryKeysSet(cQuery)) {
-            query.and(filter.apply(scheme.getColumns().get(filter.getColumnName()).getConverter()));
+        for (final CFilter<?> filter : getPrimaryKeysSet(cQuery)) {
+            final CColumn<?, ?> column = scheme.getColumns().get(filter.getColumnName());
+            final Converter converter = column.getConverter();
+            query.and(filter.apply(converter));
         }
 
         return query;
     }
 
-    private Iterable<CFilter> getPrimaryKeysSet(final CQuery cQuery) {
-        final Collection<CFilter> primaries = new ArrayList<>();
+    private Iterable<CFilter<?>> getPrimaryKeysSet(final CQuery cQuery) {
+        final Collection<CFilter<?>> primaries = new ArrayList<>();
 
-        for (final CFilter filter : cQuery.getFilters()) {
+        for (final CFilter<?> filter : cQuery.getFilters()) {
             final String columnName = filter.getColumnName();
             if (scheme.isPartitionKey(columnName) || scheme.isClusteringKey(columnName)) {
                 primaries.add(filter);
@@ -193,10 +195,6 @@ final class CMapStatementGenerator {
         final Insert query = QueryBuilder.insertInto(scheme.getTableNameQuoted());
         final ValueTuple valueToPut = cPutQuery.getValueTuple().get();
 
-        final Sets.SetView<String> collectionColumnSet = Sets.difference(valueToPut.getColumns().keySet(), scheme.getNonCollectionColumns());
-
-        putNonCollectionValuesToQuery(query, valueToPut, collectionColumnSet);
-
         if (cPutQuery.getTTL().isPresent()) {
             query.using(ttl(cPutQuery.getTTL().get()));
         }
@@ -207,54 +205,22 @@ final class CMapStatementGenerator {
             query.setConsistencyLevel(consistencyLevel);
         }
 
-        if (!collectionColumnSet.isEmpty()) {
-            final String queryAsAString = query.toString(); //ToString return query with values instead of ? markers
-            final int indexOfFirstCloseBrace = queryAsAString.indexOf(')');
-            final StringBuilder newQuery = new StringBuilder(queryAsAString.substring(0, indexOfFirstCloseBrace));
-            for (final String column : collectionColumnSet) {
-                if (valueToPut.getColumns().get(column) instanceof Iterable) {
-                    newQuery.append(',');
-                    newQuery.append(column);
-                } else {
-                    throw new CQueryException("Value for column " + column + " is not iterable: " + valueToPut.getColumns().get(column));
-                }
-            }
-            newQuery.append(queryAsAString.substring(indexOfFirstCloseBrace));
-            newQuery.replace(newQuery.length() - 2, newQuery.length(), ",");
-            for (final String column : collectionColumnSet) {
-                final CCollection collection = (CCollection) scheme.getColumns().get(column);
-                newQuery.append(collection.insertToCollection((Iterable<?>) valueToPut.getColumns().get(column)));
-                newQuery.append(',');
-            }
-            newQuery.replace(newQuery.length() - 1, newQuery.length(), ");");
-            final Class<?> clazz = BuiltStatement.class;
-            try {
-                final Field cache = clazz.getDeclaredField("cache");
-                cache.setAccessible(true);
-                cache.set(query, newQuery.toString());
-                final Field dirty = clazz.getDeclaredField("dirty");
-                dirty.setAccessible(true);
-                dirty.set(query, false);
-            } catch (NoSuchFieldException | IllegalAccessException e) {
-                // FIXME: LOGGING
-            }
+        for (final String column : valueToPut.getColumns().keySet()) {
+            final Object cassandraValue = toCassandraType(valueToPut, column);
+            query.getQueryString();
+            query.value(column, cassandraValue);
         }
+
         return query;
     }
 
-    private void putNonCollectionValuesToQuery(final Insert query,
-                                               final ValueTuple valueToPut,
-                                               final Collection<String> collectionColumn) {
-        for (final String column : valueToPut.getColumns().keySet()) {
-            if (!collectionColumn.contains(column)) {
-                final Object cassandraValue = toCassandraType(valueToPut, column);
-                query.getQueryString();
-                query.value(column, cassandraValue);
-            }
-        }
-    }
-
     private Object toCassandraType(final ValueTuple valueToPut, final String column) {
-        return scheme.getColumns().get(column).getConverter().toCassandra(valueToPut.getColumns().get(column));
+        final Object o = valueToPut.getColumns().get(column);
+        if (o instanceof BindMarker) {
+            return o;
+        }
+        // FIMXE:
+        final Converter converter = scheme.getColumns().get(column).getConverter();
+        return converter.asCassandraValue(o);
     }
 }

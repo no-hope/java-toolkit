@@ -1,6 +1,9 @@
 package org.nohope.cassandra.mapservice;
 
-import com.datastax.driver.core.*;
+import com.datastax.driver.core.BoundStatement;
+import com.datastax.driver.core.ColumnDefinitions;
+import com.datastax.driver.core.PreparedStatement;
+import com.datastax.driver.core.Row;
 import com.datastax.driver.core.querybuilder.BindMarker;
 import com.datastax.driver.core.querybuilder.QueryBuilder;
 import com.google.common.base.Predicates;
@@ -51,7 +54,7 @@ public abstract class AbstractStatement<T> {
 
     protected Map<String, Object> copyKeysFormFilters() {
         final Map<String, Object> orderedFiltersMap = new LinkedHashMap<>();
-        for (final CFilter filter : cQuery.getFilters()) {
+        for (final CFilter<?> filter : cQuery.getFilters()) {
             final String columnName = filter.getColumnName();
             orderedFiltersMap.put(columnName, QueryBuilder.bindMarker(columnName));
         }
@@ -77,9 +80,8 @@ public abstract class AbstractStatement<T> {
             final Set<String> notBound = boundKeys();
             if (!notBound.isEmpty()) {
                 throw new CQueryException(String.format(
-                        "Keys %s were bound for prepared statement. Keys were bounded %s",
-                        notBound,
-                        getBoundedKeys(notBound)));
+                        "Keys %s wasn't bound for prepared statement. Keys were bounded %s",
+                        notBound, getBoundedKeys(notBound)));
             }
 
             final BoundStatement bound = new BoundStatement(preparedStatement);
@@ -87,8 +89,7 @@ public abstract class AbstractStatement<T> {
             for (final Map.Entry<String, Object> e : bindKeysMap.entrySet()) {
                 final String key = e.getKey();
                 if (!bound.isSet(key)) {
-                    final Object converted = scheme.getColumns().get(key).getConverter().toCassandra(e.getValue());
-                    bound.setBytesUnsafe(key, meta.getType(key).serialize(converted, ProtocolVersion.V1));
+                    BindUtils.bind(bound, scheme, meta, key, e.getValue());
                 }
             }
 

@@ -26,13 +26,8 @@
         </dependency>
         <dependency>
             <groupId>org.no-hope</groupId>
-            <artifactId>slf4j-logging</artifactId>
+            <artifactId>reflection</artifactId>
             <version>${project.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>com.google.guava</groupId>
-            <artifactId>guava</artifactId>
-            <version>${guava.version}</version>
         </dependency>
         <dependency>
             <groupId>com.datastax.cassandra</groupId>

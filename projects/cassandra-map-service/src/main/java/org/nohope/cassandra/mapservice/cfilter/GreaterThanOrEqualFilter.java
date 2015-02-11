@@ -2,7 +2,8 @@ package org.nohope.cassandra.mapservice.cfilter;
 
 import com.datastax.driver.core.querybuilder.Clause;
 import com.datastax.driver.core.querybuilder.QueryBuilder;
-import org.nohope.cassandra.mapservice.CTypeConverter;
+import org.nohope.cassandra.mapservice.BindUtils;
+import org.nohope.cassandra.mapservice.ctypes.Converter;
 
 import javax.annotation.Nonnull;
 import javax.annotation.concurrent.Immutable;
@@ -11,11 +12,11 @@ import javax.annotation.concurrent.Immutable;
  * Wrapper to {@link com.datastax.driver.core.querybuilder.QueryBuilder#gte(String, Object)}
  */
 @Immutable
-final class GreaterThanOrEqualFilter implements CFilter {
+final class GreaterThanOrEqualFilter<V> implements CFilter<V> {
     private final String columnName;
-    private final Object value;
+    private final V value;
 
-    GreaterThanOrEqualFilter(@Nonnull final String key, @Nonnull final Object value) {
+    GreaterThanOrEqualFilter(@Nonnull final String key, @Nonnull final V value) {
         this.columnName = key;
         this.value = value;
     }
@@ -26,8 +27,8 @@ final class GreaterThanOrEqualFilter implements CFilter {
     }
 
     @Override
-    public Clause apply(final CTypeConverter<?, ?> converter) {
-        return QueryBuilder.gte(columnName, converter.toCassandra(value));
+    public Clause apply(final Converter<?, V> converter) {
+        return QueryBuilder.gte(columnName, BindUtils.maybeBindable(converter, value));
     }
 
     @Override
@@ -39,7 +40,7 @@ final class GreaterThanOrEqualFilter implements CFilter {
             return false;
         }
 
-        final GreaterThanOrEqualFilter that = (GreaterThanOrEqualFilter) o;
+        final GreaterThanOrEqualFilter<?> that = (GreaterThanOrEqualFilter<?>) o;
         return columnName.equals(that.columnName) && value.equals(that.value);
     }
 

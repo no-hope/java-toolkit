@@ -2,28 +2,38 @@ package org.nohope.cassandra.mapservice.ctypes;
 
 import com.datastax.driver.core.Row;
 import org.joda.time.DateTime;
-import org.nohope.cassandra.mapservice.CTypeConverter;
+import org.nohope.reflection.TypeReference;
 
 /**
  */
-public final class DateTimeType extends CTypeConverter<DateTime, String> {
+public final class DateTimeType implements Converter<String, DateTime> {
     public static final DateTimeType INSTANCE = new DateTimeType();
 
     private DateTimeType() {
     }
 
     @Override
-    public CType getCType() {
-        return CType.TEXT;
+    public String asCassandraValue(final DateTime value) {
+        return value.toString();
+    }
+
+    @Override
+    public DateTime asJavaValue(final String value) {
+        return DateTime.parse(value);
+    }
+
+    @Override
+    public TypeDescriptor<String> getCassandraType() {
+        return CoreConverter.TEXT.getCassandraType();
+    }
+
+    @Override
+    public TypeReference<DateTime> getJavaType() {
+        return TypeReference.erasure(DateTime.class);
     }
 
     @Override
     public DateTime readValue(final Row result, final String name) {
-        return DateTime.parse(result.getString(name));
-    }
-
-    @Override
-    protected String convert(final DateTime value) {
-        return value.toString();
+        return asJavaValue(result.getString(name));
     }
 }

@@ -1,7 +1,7 @@
 package org.nohope.cassandra.mapservice.columns.trivial;
 
 import org.nohope.cassandra.mapservice.columns.CColumn;
-import org.nohope.cassandra.mapservice.ctypes.EnumType;
+import org.nohope.cassandra.mapservice.ctypes.custom.EnumType;
 
 /**
  */

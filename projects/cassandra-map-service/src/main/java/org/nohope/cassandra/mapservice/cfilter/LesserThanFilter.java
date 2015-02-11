@@ -2,7 +2,8 @@ package org.nohope.cassandra.mapservice.cfilter;
 
 import com.datastax.driver.core.querybuilder.Clause;
 import com.datastax.driver.core.querybuilder.QueryBuilder;
-import org.nohope.cassandra.mapservice.CTypeConverter;
+import org.nohope.cassandra.mapservice.BindUtils;
+import org.nohope.cassandra.mapservice.ctypes.Converter;
 
 import javax.annotation.Nonnull;
 import javax.annotation.concurrent.Immutable;
@@ -11,11 +12,11 @@ import javax.annotation.concurrent.Immutable;
  * Wrapper to {@link com.datastax.driver.core.querybuilder.QueryBuilder#lt(String, Object)}
  */
 @Immutable
-final class LesserThanFilter implements CFilter {
+final class LesserThanFilter<V> implements CFilter<V> {
     private final String columnName;
-    private final Object value;
+    private final V value;
 
-    LesserThanFilter(@Nonnull final String key, @Nonnull final Object value) {
+    LesserThanFilter(@Nonnull final String key, @Nonnull final V value) {
         this.columnName = key;
         this.value = value;
     }
@@ -26,8 +27,8 @@ final class LesserThanFilter implements CFilter {
     }
 
     @Override
-    public Clause apply(final CTypeConverter<?, ?> converter) {
-        return QueryBuilder.lt(columnName, converter.toCassandra(value));
+    public Clause apply(final Converter<?, V> converter) {
+        return QueryBuilder.lt(columnName, BindUtils.maybeBindable(converter, value));
     }
 
     @Override
@@ -39,7 +40,7 @@ final class LesserThanFilter implements CFilter {
             return false;
         }
 
-        final LesserThanFilter that = (LesserThanFilter) o;
+        final LesserThanFilter<?> that = (LesserThanFilter<?>) o;
         return columnName.equals(that.columnName) && value.equals(that.value);
     }
 

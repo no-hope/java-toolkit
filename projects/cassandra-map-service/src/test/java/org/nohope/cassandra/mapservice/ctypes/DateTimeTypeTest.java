@@ -4,6 +4,7 @@ import com.datastax.driver.core.Row;
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeZone;
 import org.junit.Test;
+import org.nohope.cassandra.mapservice.ctypes.custom.UTCDateTimeType;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotEquals;
@@ -16,7 +17,7 @@ public class DateTimeTypeTest {
     @Test
     public void testConversion() {
         final DateTime source = DateTime.now(DateTimeZone.UTC);
-        final String serialized = DateTimeType.INSTANCE.convert(source);
+        final String serialized = DateTimeType.INSTANCE.asCassandraValue(source);
 
         final Row mock = mock(Row.class);
         when(mock.getString("test")).thenReturn(serialized);
@@ -30,7 +31,7 @@ public class DateTimeTypeTest {
     public void testForceUTCConversionDateTime() {
         final DateTime notUTCDateTime = DateTime.now();
 
-        final String serialized = UTCDateTimeType.INSTANCE.convert(notUTCDateTime);
+        final String serialized = UTCDateTimeType.INSTANCE.asCassandraValue(notUTCDateTime);
         final Row mock = mock(Row.class);
         when(mock.getString("test")).thenReturn(serialized);
         final DateTime restored = UTCDateTimeType.INSTANCE.readValue(mock, "test");

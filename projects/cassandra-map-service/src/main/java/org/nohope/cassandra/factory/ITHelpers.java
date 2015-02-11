@@ -50,7 +50,7 @@ public final class ITHelpers {
         factory.setReplication("{'class':'SimpleStrategy', 'replication_factor':1}");
         factory.setKeyspace(keySpace);
 
-        // set huge timeout for heavy integrational tests
+        // map huge timeout for heavy integrational tests
         factory.setCustomization(new ClusterCustomization() {
             @Override
             public void customize(final Cluster.Builder builder) {

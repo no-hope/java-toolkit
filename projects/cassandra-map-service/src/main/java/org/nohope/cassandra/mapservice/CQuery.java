@@ -24,7 +24,7 @@ import java.util.*;
 @Immutable
 public final class CQuery {
     private final ColumnsSet columnsToGet;
-    private final List<CFilter> filters = new LinkedList<>();
+    private final List<CFilter<?>> filters = new LinkedList<>();
     private final boolean allowFiltering;
     private final List<COrdering> orderings = new ArrayList<>();
     private final Optional<Integer> limit;
@@ -39,7 +39,7 @@ public final class CQuery {
     }
 
     CQuery(final ColumnsSet expectedColumns,
-           final Collection<CFilter> filters,
+           final Collection<CFilter<?>> filters,
            final boolean allowFiltering,
            final Collection<COrdering> orderBy,
            final boolean isPrepared,
@@ -79,7 +79,7 @@ public final class CQuery {
         return new ColumnsSet().withAll(columnsToGet);
     }
 
-    public List<CFilter> getFilters() {
+    public List<CFilter<?>> getFilters() {
         return Collections.unmodifiableList(filters);
     }
 

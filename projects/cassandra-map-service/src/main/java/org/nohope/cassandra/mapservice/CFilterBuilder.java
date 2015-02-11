@@ -21,7 +21,7 @@ import java.util.List;
  * us several time and has one or more kids.
  * <pre>
  * List<{@link org.nohope.cassandra.mapservice.cfilter.CFilter CFilter}> builderFilters =
- *     CFilterBuilder.getQueryFilters() // Filters set for get query
+ *     CFilterBuilder.getQueryFilters() // Filters map for get query
  *                   .eq("Name", "John Smith")  //value from column "Name" equals to "John Smith"
  *                   .lt("MorningVisitTime", DateTime.now()) //value from column "MorningVisitTime" lesser than current timestamp
  *                   .lte("VisitCount", 2) //value from column name "VisitCount" lesser or equal than 2

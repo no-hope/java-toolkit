@@ -1,6 +1,5 @@
 package org.nohope.cassandra.mapservice;
 
-import com.google.common.collect.Lists;
 import org.apache.commons.lang3.RandomStringUtils;
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeZone;
@@ -9,15 +8,13 @@ import org.junit.Before;
 import org.junit.Test;
 import org.nohope.cassandra.factory.CassandraFactory;
 import org.nohope.cassandra.factory.ITHelpers;
-import org.nohope.cassandra.mapservice.cfilter.CFilter;
 import org.nohope.cassandra.mapservice.cfilter.CFilters;
 import org.nohope.cassandra.mapservice.columns.CColumn;
 import org.nohope.cassandra.mapservice.columns.joda.CDateTimeStringColumn;
 import org.nohope.cassandra.mapservice.columns.trivial.CTextColumn;
 import org.nohope.cassandra.mapservice.columns.trivial.CUUIDColumn;
-import org.nohope.cassandra.mapservice.ctypes.TrivialType;
+import org.nohope.cassandra.mapservice.ctypes.TypeDescriptor;
 
-import java.util.Collection;
 import java.util.UUID;
 
 /**
@@ -106,21 +103,17 @@ public class CMapExceptionsIT {
                 ValueTuple.of(COL_QUOTES, newQuote())
                           .with(COL_TIMESTAMP, DateTime.now())
                           .with(COL_QUOTE_UUID, UUID.randomUUID())
-                          .with("god", TrivialType.UUID);
+                          .with("god", TypeDescriptor.UUID);
 
         testMap.put(new CPutQuery(valueToPut));
     }
 
     @Test(expected = CQueryException.class)
     public void filtersHaveNonPartitionKeyColumn() {
-        final Collection<CFilter> filters =
-                Lists.newArrayList(CFilters.eq(COL_TIMESTAMP.getName(),
-                        DateTime.now(DateTimeZone.UTC)));
-
         final CQuery query = CQueryBuilder
                 .createQuery()
                 .of(COL_QUOTES, COL_TIMESTAMP)
-                .withFilters(filters)
+                .withFilters(CFilters.eq(COL_TIMESTAMP, DateTime.now(DateTimeZone.UTC)))
                 .end();
 
         testMap.get(query);

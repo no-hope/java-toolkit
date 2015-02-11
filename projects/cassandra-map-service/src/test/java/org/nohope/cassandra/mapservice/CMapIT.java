@@ -183,7 +183,7 @@ public class CMapIT {
                 .with(COL_QUOTES.getName())
                 .with(COL_TIMESTAMP.getName());
 
-        final Collection<CFilter> filters = new ArrayList<>();
+        final Collection<CFilter<?>> filters = new ArrayList<>();
 
         filters.add(CFilters.eq(COL_QUOTES.getName(), quoteToPutAndToGet));
         final CQuery query = CQueryBuilder
@@ -251,16 +251,9 @@ public class CMapIT {
         testMap.put(new CPutQuery(valueToPut));
         testMap.put(new CPutQuery(valueToPut2));
 
-        final Collection<CFilter> filters = Lists.newArrayList(
-                CFilters.eq(
-                        COL_QUOTES.getName(),
-                        valueToPut.getColumns().get(COL_QUOTES.getName())
-                )
-        );
-
         final CQuery query = CQueryBuilder
                 .createRemoveQuery()
-                .withFilters(filters)
+                .withFilters(CFilters.eq(COL_QUOTES, (String) valueToPut.getColumns().get(COL_QUOTES.getName())))
                 .end();
 
         testMap.remove(query);
@@ -292,7 +285,7 @@ public class CMapIT {
         final CQuery query = CQueryBuilder
                 .createRemoveQuery()
                 .addFilters()
-                .eq(COL_QUOTES, valueToPut.getColumns().get(COL_QUOTES.getName()))
+                .eq(COL_QUOTES, (String) valueToPut.getColumns().get(COL_QUOTES.getName()))
                 .noMoreFilters()
                 .end();
 
@@ -319,16 +312,9 @@ public class CMapIT {
         testMap.put(new CPutQuery(valueToPut));
         testMap.put(new CPutQuery(valueToPut2));
 
-        final Collection<CFilter> filters = Lists.newArrayList(
-                CFilters.eq(
-                        COL_QUOTES.getName(),
-                        valueToPut.getColumns().get(COL_QUOTES.getName())
-                )
-        );
-
         final CQuery query = CQueryBuilder
                 .createRemoveQuery()
-                .withFilters(filters)
+                .withFilters(CFilters.eq(COL_QUOTES, (String) valueToPut.getColumns().get(COL_QUOTES.getName())))
                 .end();
 
         testMap.remove(query);
@@ -466,13 +452,10 @@ public class CMapIT {
         testMap.put(new CPutQuery(valueToPut));
         testMap.put(new CPutQuery(valueToPut2));
 
-        final Collection<CFilter> filters = Lists.newArrayList(
-                CFilters.eq(COL_QUOTES.getName(), valueToPut.getColumns().get(COL_QUOTES.getName())),
-                CFilters.eq(COL_QUOTE_UUID.getName(), valueToPut.getColumns().get(COL_QUOTE_UUID.getName())));
-
         final CQuery query = CQueryBuilder
                 .createRemoveQuery()
-                .withFilters(filters)
+                .withFilters(CFilters.eq(COL_QUOTES, (String) valueToPut.getColumns().get(COL_QUOTES.getName())),
+                             CFilters.eq(COL_QUOTE_UUID, (UUID) valueToPut.getColumns().get(COL_QUOTE_UUID.getName())))
                 .end();
         testMap.remove(query);
         final List<ValueTuple> returnValue = Lists.newArrayList(testMap.all());

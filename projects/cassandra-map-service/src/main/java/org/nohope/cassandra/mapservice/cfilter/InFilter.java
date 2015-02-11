@@ -2,25 +2,23 @@ package org.nohope.cassandra.mapservice.cfilter;
 
 import com.datastax.driver.core.querybuilder.Clause;
 import com.datastax.driver.core.querybuilder.QueryBuilder;
-import org.nohope.cassandra.mapservice.CTypeConverter;
+import org.nohope.cassandra.mapservice.ctypes.Converter;
 
 import javax.annotation.Nonnull;
 import javax.annotation.concurrent.Immutable;
-import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.List;
 
 /**
  * Wrapper to {@link com.datastax.driver.core.querybuilder.QueryBuilder#in(String, Object...)}
  */
 @Immutable
-final class InFilter implements CFilter {
+final class InFilter<V> implements CFilter<V[]> {
     private final String columnName;
-    private final List<Object> values;
+    private final V[] values;
 
-    InFilter(@Nonnull final String key, @Nonnull final Object... value) {
+    InFilter(@Nonnull final String key, @Nonnull final V... value) {
         this.columnName = key;
-        this.values = new ArrayList<>(Arrays.asList(value));
+        this.values = value.clone();
     }
 
     @Override
@@ -29,8 +27,8 @@ final class InFilter implements CFilter {
     }
 
     @Override
-    public Clause apply(final CTypeConverter<?, ?> converter) {
-        return QueryBuilder.in(columnName, converter.toCassandra(values.toArray()));
+    public Clause apply(final Converter<?, V[]> converter) {
+        return QueryBuilder.in(columnName, converter.asCassandraValue(values));
     }
 
     @Override
@@ -42,14 +40,14 @@ final class InFilter implements CFilter {
             return false;
         }
 
-        final InFilter inFilter = (InFilter) o;
-        return columnName.equals(inFilter.columnName) && values.equals(inFilter.values);
+        final InFilter<?> inFilter = (InFilter<?>) o;
+        return columnName.equals(inFilter.columnName) && Arrays.equals(values, inFilter.values);
     }
 
     @Override
     public int hashCode() {
         int result = columnName.hashCode();
-        result = (31 * result) + values.hashCode();
+        result = (31 * result) + Arrays.hashCode(values);
         return result;
     }
 }

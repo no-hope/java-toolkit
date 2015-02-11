@@ -2,14 +2,14 @@ package org.nohope.cassandra.mapservice.cops;
 
 import com.datastax.driver.core.querybuilder.Assignment;
 import com.datastax.driver.core.querybuilder.QueryBuilder;
-import org.nohope.cassandra.mapservice.CTypeConverter;
+import org.nohope.cassandra.mapservice.ctypes.Converter;
 
 import javax.annotation.Nonnull;
 
 /**
  * Update operation
  */
-public final class CounterUpdate implements Operation {
+public final class CounterUpdate implements Operation<Long> {
     private final String columnName;
     private final long value;
 
@@ -24,8 +24,8 @@ public final class CounterUpdate implements Operation {
     }
 
     @Override
-    public Assignment apply(@Nonnull final CTypeConverter<?, ?> converter) {
-        return QueryBuilder.incr(columnName, (Long) converter.toCassandra(value));
+    public Assignment apply(@Nonnull final Converter<?, Long> converter) {
+        return QueryBuilder.incr(columnName, (Long) converter.asCassandraValue(value));
     }
 
     @Override

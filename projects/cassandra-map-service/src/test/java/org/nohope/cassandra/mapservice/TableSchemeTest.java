@@ -3,6 +3,7 @@ package org.nohope.cassandra.mapservice;
 import org.junit.Test;
 import org.nohope.cassandra.mapservice.columns.CColumn;
 import org.nohope.cassandra.mapservice.columns.trivial.CTextColumn;
+import org.nohope.cassandra.mapservice.ctypes.Converter;
 import org.nohope.cassandra.mapservice.ctypes.NoSuchCTypeException;
 import org.nohope.test.ContractUtils;
 
@@ -67,13 +68,14 @@ public final class TableSchemeTest {
 
     @Test
     public void testGetColumnsSet() {
-        final Map<String, CTypeConverter<?, ?>> expectedColumns = new LinkedHashMap<>();
+        final Map<String, Converter<?, ?>> expectedColumns = new LinkedHashMap<>();
         expectedColumns.put(NAME_COLUMN.getName(), NAME_COLUMN.getConverter());
         expectedColumns.put(SPECIES_COLUMN.getName(), SPECIES_COLUMN.getConverter());
         expectedColumns.put(HOOITA_COLUMN.getName(), HOOITA_COLUMN.getConverter());
         expectedColumns.put(LEPOTA_COLUMN.getName(), LEPOTA_COLUMN.getConverter());
 
         final TableScheme s1 = getTableScheme();
+        // FIXME: values?
         assertEquals(s1.getColumnsSet(), expectedColumns.keySet());
     }
 

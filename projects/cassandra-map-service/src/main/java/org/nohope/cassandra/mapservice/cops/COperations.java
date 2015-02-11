@@ -7,11 +7,11 @@ public final class COperations {
     private COperations() {
     }
 
-    public static Operation set(final String columnName, final Object value) {
-        return new SetCOperation(columnName, value);
+    public static <T> Operation<T> set(final String columnName, final T value) {
+        return new SetCOperation<>(columnName, value);
     }
 
-    public static Operation counterIncr(final String columnName, final long value) {
+    public static Operation<Long> counterIncr(final String columnName, final long value) {
         return new CounterUpdate(columnName, value);
     }
 }

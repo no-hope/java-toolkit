@@ -1,7 +1,7 @@
 package org.nohope.cassandra.mapservice.columns.trivial;
 
 import org.nohope.cassandra.mapservice.columns.CColumn;
-import org.nohope.cassandra.mapservice.ctypes.TrivialType;
+import org.nohope.cassandra.mapservice.ctypes.CoreConverter;
 
 import java.util.Date;
 
@@ -9,7 +9,7 @@ import java.util.Date;
  */
 public final class CTimestampTrivialColumn extends CColumn<Date, Date> {
     private CTimestampTrivialColumn(final String name) {
-        super(name, TrivialType.TIMESTAMP);
+        super(name, CoreConverter.TIMESTAMP);
     }
 
     public static CTimestampTrivialColumn of(final String name) {

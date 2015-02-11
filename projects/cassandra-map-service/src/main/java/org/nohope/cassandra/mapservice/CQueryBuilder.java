@@ -199,7 +199,7 @@ public final class CQueryBuilder {
 
     public static class InnerPreparedQueryBuilder {
 
-        private final List<CFilter> filters = new LinkedList<>();
+        private final List<CFilter<?>> filters = new LinkedList<>();
         private final List<COrdering> orderings = new ArrayList<>();
         private ColumnsSet columnsToGet;
         private boolean isPrepared = true;
@@ -219,7 +219,7 @@ public final class CQueryBuilder {
         /**
          * Of expected columns
          *
-         * @param columnSet the column set
+         * @param columnSet the column map
          * @return the c query filters
          */
         public CPreparedQueryFilters of(final ColumnsSet columnSet) {
@@ -449,7 +449,7 @@ public final class CQueryBuilder {
      */
     public static class InnerQueryBuilder {
 
-        private final List<CFilter> filters = new LinkedList<>();
+        private final List<CFilter<?>> filters = new LinkedList<>();
         private final List<COrdering> orderings = new ArrayList<>();
         private ColumnsSet columnsToGet;
         private boolean isPrepared = true;
@@ -458,7 +458,7 @@ public final class CQueryBuilder {
         /**
          * Of expected columns
          *
-         * @param columnSet the column set
+         * @param columnSet the column map
          * @return the c query filters
          */
         public CQueryFilters of(final ColumnsSet columnSet) {
@@ -482,7 +482,7 @@ public final class CQueryBuilder {
              * @param filtersList the filters list
              * @return the c query end filters adding
              */
-            public CQueryEndFiltersAdding withFilters(final Collection<CFilter> filtersList) {
+            public CQueryEndFiltersAdding withFilters(final Collection<CFilter<?>> filtersList) {
                 filters.addAll(filtersList);
                 isPrepared = false;
                 return new CQueryEndFiltersAdding();
@@ -494,7 +494,7 @@ public final class CQueryBuilder {
              * @param filters the filters list
              * @return the c query end filters adding
              */
-            public CQueryEndFiltersAdding withFilters(final CFilter... filters) {
+            public CQueryEndFiltersAdding withFilters(final CFilter<?>... filters) {
                 isPrepared = false;
                 return withFilters(Arrays.asList(filters));
             }
@@ -552,7 +552,7 @@ public final class CQueryBuilder {
              * @param value  the value
              * @return the get filters
              */
-            public GetFilters eq(@Nonnull final CColumn<?, ?> column, final Object value) {
+            public <V> GetFilters eq(@Nonnull final CColumn<V ,?> column, final V value) {
                 filters.add(CFilters.eq(column.getName(), value));
                 return this;
             }
@@ -564,7 +564,7 @@ public final class CQueryBuilder {
              * @param value  the value
              * @return the get filters
              */
-            public GetFilters gte(@Nonnull final CColumn<?, ?> column, @Nonnull final Object value) {
+            public <V> GetFilters gte(@Nonnull final CColumn<V, ?> column, @Nonnull final V value) {
                 filters.add(CFilters.gte(column.getName(), value));
                 return this;
             }
@@ -576,7 +576,7 @@ public final class CQueryBuilder {
              * @param value  the value
              * @return the get filters
              */
-            public GetFilters gt(@Nonnull final CColumn<?, ?> column, @Nonnull final Object value) {
+            public <V> GetFilters gt(@Nonnull final CColumn<V, ?> column, @Nonnull final V value) {
                 filters.add(CFilters.gt(column.getName(), value));
                 return this;
             }
@@ -588,7 +588,7 @@ public final class CQueryBuilder {
              * @param values the values
              * @return the get filters
              */
-            public GetFilters in(@Nonnull final CColumn<?, ?> column, @Nonnull final Object... values) {
+            public <V> GetFilters in(@Nonnull final CColumn<V, ?> column, @Nonnull final V... values) {
                 filters.add(CFilters.in(column.getName(), values));
                 return this;
             }
@@ -600,7 +600,7 @@ public final class CQueryBuilder {
              * @param value  the value
              * @return the get filters
              */
-            public GetFilters lt(@Nonnull final CColumn<?, ?> column, @Nonnull final Object value) {
+            public <V> GetFilters lt(@Nonnull final CColumn<V, ?> column, @Nonnull final V value) {
                 filters.add(CFilters.lt(column.getName(), value));
                 return this;
             }
@@ -612,7 +612,7 @@ public final class CQueryBuilder {
              * @param value  the value
              * @return the get filters
              */
-            public GetFilters lte(@Nonnull final CColumn<?, ?> column, @Nonnull final Object value) {
+            public <V> GetFilters lte(@Nonnull final CColumn<V, ?> column, @Nonnull final V value) {
                 filters.add(CFilters.lte(column.getName(), value));
                 return this;
             }

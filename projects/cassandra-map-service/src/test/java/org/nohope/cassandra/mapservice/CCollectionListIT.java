@@ -5,8 +5,11 @@ import org.junit.Before;
 import org.junit.Test;
 import org.nohope.cassandra.factory.CassandraFactory;
 import org.nohope.cassandra.factory.ITHelpers;
-import org.nohope.cassandra.mapservice.columns.collections.ListCColumn;
+import org.nohope.cassandra.mapservice.columns.CColumn;
 import org.nohope.cassandra.mapservice.columns.trivial.CTextColumn;
+import org.nohope.cassandra.mapservice.ctypes.CoreConverter;
+
+import java.util.List;
 
 import static org.junit.Assert.assertEquals;
 
@@ -15,7 +18,7 @@ import static org.junit.Assert.assertEquals;
 public class CCollectionListIT {
     private CassandraFactory cassandraFactory;
 
-    private static final ListCColumn<String, Object> COL_PERSON = ListCColumn.ofText("person");
+    private static final CColumn<List<String>, List<String>> COL_PERSON = CColumn.of("person", CoreConverter.list(CoreConverter.TEXT));
     private static final CTextColumn COL_ID = CTextColumn.of("id");
 
     private static final TableScheme SCHEME = new CMapBuilder("RingOfPower")

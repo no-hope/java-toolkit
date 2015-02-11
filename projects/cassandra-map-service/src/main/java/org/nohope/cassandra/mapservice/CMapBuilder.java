@@ -2,7 +2,6 @@ package org.nohope.cassandra.mapservice;
 
 import com.google.common.collect.Sets;
 import org.apache.commons.lang3.StringUtils;
-import org.nohope.cassandra.mapservice.columns.CCollection;
 import org.nohope.cassandra.mapservice.columns.CColumn;
 
 import javax.annotation.Nonnull;
@@ -130,7 +129,7 @@ public final class CMapBuilder {
     public final class PartitionBuilder {
         public ClusteringBuilder setPartition(@Nonnull final CColumn<?, ?>... columns) {
             for (final CColumn<?, ?> column : columns) {
-                if (column instanceof CCollection) {
+                if (column.getConverter().getCassandraType().getDataType().isCollection()) {
                     throw new TableSchemeException("Collection type can't be partion column: " + column.getName());
                 }
             }
@@ -148,7 +147,7 @@ public final class CMapBuilder {
     public final class ClusteringBuilder {
         public StaticBuilder setClustering(final CColumn<?, ?>... columns) {
             for (final CColumn<?, ?> column : columns) {
-                if (column instanceof CCollection) {
+                if (column.getConverter().getCassandraType().getDataType().isCollection()) {
                     throw new TableSchemeException("Collection type can't be clustering column: " + column.getName());
                 }
             }
@@ -176,7 +175,7 @@ public final class CMapBuilder {
     public final class StaticBuilder {
         public SchemeBuilder setStatic(final CColumn<?, ?>... columns) {
             for (final CColumn<?, ?> column : columns) {
-                if (column instanceof CCollection) {
+                if (column.getConverter().getCassandraType().getDataType().isCollection()) {
                     throw new TableSchemeException("Collection type can't be static column: " + column.getName());
                 }
             }

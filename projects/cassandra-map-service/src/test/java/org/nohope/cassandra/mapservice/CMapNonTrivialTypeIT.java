@@ -6,8 +6,7 @@ import org.junit.Test;
 import org.nohope.cassandra.factory.CassandraFactory;
 import org.nohope.cassandra.factory.ITHelpers;
 import org.nohope.cassandra.mapservice.columns.CColumn;
-import org.nohope.cassandra.mapservice.columns.CCustomColumn;
-import org.nohope.cassandra.mapservice.ctypes.KryoSerializableType;
+import org.nohope.cassandra.mapservice.ctypes.custom.SerializableType;
 import org.nohope.cassandra.util.RowNotFoundException;
 
 import java.io.Serializable;
@@ -19,7 +18,7 @@ import static org.junit.Assert.assertEquals;
  */
 public class CMapNonTrivialTypeIT {
     private static final CColumn<Dwarf, ByteBuffer> DWARF_COL =
-            CCustomColumn.of("dwarf", new KryoSerializableType<>(Dwarf.class));
+            CColumn.of("dwarf", SerializableType.kryo(Dwarf.class));
     private static final TableScheme SCHEME = new CMapBuilder("dwarfs")
             .addColumn(DWARF_COL)
             .end()

@@ -1,10 +1,38 @@
 package org.nohope.cassandra.mapservice.cfilter;
 
+import com.datastax.driver.core.querybuilder.QueryBuilder;
+import org.nohope.cassandra.mapservice.columns.CColumn;
+
 /**
  * factory for CFilters
  */
 public final class CFilters {
     private CFilters() {
+    }
+
+    public static <V> CFilter<V> eq(final CColumn<V, ?> key, final V value) {
+        return new Filter<>(key, value, QueryBuilder::eq);
+    }
+
+    public static <V> CFilter<V> lt(final CColumn<V, ?> key, final V value) {
+        return new Filter<>(key, value, QueryBuilder::lt);
+    }
+
+    public static <V> CFilter<V> lte(final CColumn<V, ?> key, final V value) {
+        return new Filter<>(key, value, QueryBuilder::lte);
+    }
+
+    public static <V> CFilter<V> gt(final CColumn<V, ?> key, final V value) {
+        return new Filter<>(key, value, QueryBuilder::gt);
+    }
+
+    public static <V> CFilter<V> gte(final CColumn<V, ?> key, final V value) {
+        return new Filter<>(key, value, QueryBuilder::gte);
+    }
+
+    @SafeVarargs
+    public static <V> CFilter<V[]> in(final CColumn<V, ?> key, final V... value) {
+        return new Filter<>(key, value, QueryBuilder::in);
     }
 
     /**
@@ -14,9 +42,11 @@ public final class CFilters {
      * @param value value
      * @return {@link org.nohope.cassandra.mapservice.cfilter.EqFilter equals filter}
      */
-    public static CFilter eq(final String key, final Object value) {
-        return new EqFilter(key, value);
+    @Deprecated
+    public static <V> CFilter<V> eq(final String key, final V value) {
+        return new EqFilter<>(key, value);
     }
+
 
     /**
      * Wrapper to {@link com.datastax.driver.core.querybuilder.QueryBuilder#in(String, Object...)}
@@ -25,8 +55,9 @@ public final class CFilters {
      * @param value values
      * @return {@link org.nohope.cassandra.mapservice.cfilter.InFilter in filter}
      */
-    public static CFilter in(final String key, final Object... value) {
-        return new InFilter(key, value);
+    @Deprecated
+    public static <V> CFilter<V[]> in(final String key, final V... value) {
+        return new InFilter<>(key, value);
     }
 
     /**
@@ -36,8 +67,9 @@ public final class CFilters {
      * @param value value
      * @return {@link org.nohope.cassandra.mapservice.cfilter.LesserThanOrEqualFilter lesser than or equals filter}
      */
-    public static CFilter lte(final String key, final Object value) {
-        return new LesserThanOrEqualFilter(key, value);
+    @Deprecated
+    public static <V> CFilter<V> lte(final String key, final V value) {
+        return new LesserThanOrEqualFilter<>(key, value);
     }
 
     /**
@@ -47,8 +79,9 @@ public final class CFilters {
      * @param value value
      * @return {@link org.nohope.cassandra.mapservice.cfilter.LesserThanFilter lesser than filter}
      */
-    public static CFilter lt(final String key, final Object value) {
-        return new LesserThanFilter(key, value);
+    @Deprecated
+    public static <V> CFilter<V> lt(final String key, final V value) {
+        return new LesserThanFilter<>(key, value);
     }
 
     /**
@@ -58,8 +91,9 @@ public final class CFilters {
      * @param value value
      * @return {@link org.nohope.cassandra.mapservice.cfilter.GreaterThanOrEqualFilter greater or equal filter}
      */
-    public static CFilter gte(final String key, final Object value) {
-        return new GreaterThanOrEqualFilter(key, value);
+    @Deprecated
+    public static <V> CFilter<V> gte(final String key, final V value) {
+        return new GreaterThanOrEqualFilter<>(key, value);
     }
 
     /**
@@ -69,7 +103,8 @@ public final class CFilters {
      * @param value value
      * @return {@link org.nohope.cassandra.mapservice.cfilter.GreaterThanFilter greater than filter}
      */
-    public static CFilter gt(final String key, final Object value) {
-        return new GreaterThanFilter(key, value);
+    @Deprecated
+    public static <V> CFilter<V> gt(final String key, final V value) {
+        return new GreaterThanFilter<>(key, value);
     }
 }

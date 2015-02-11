@@ -119,22 +119,22 @@ public class CMapBatchIT {
         final CQuery ringOfPowerQuery = CQueryBuilder
                 .createRemoveQuery()
                 .addFilters()
-                .eq(QUOTES_COL, valueToPutInRingOfPower.getColumns().get(QUOTES_COL.getName()))
-                .eq(TIMESTAMP_COL, valueToPutInRingOfPower.getColumns().get(TIMESTAMP_COL.getName()))
+                .eq(QUOTES_COL, (String) valueToPutInRingOfPower.getColumns().get(QUOTES_COL.getName()))
+                .eq(TIMESTAMP_COL, (DateTime) valueToPutInRingOfPower.getColumns().get(TIMESTAMP_COL.getName()))
                 .noMoreFilters()
                 .end();
         final CQuery dwarfsQuery = CQueryBuilder
                 .createRemoveQuery()
                 .addFilters()
-                .eq(NAME_COL, valueToPutInDwarfs.getColumns().get(NAME_COL.getName()))
-                .eq(FATHER_COL, valueToPutInDwarfs.getColumns().get(FATHER_COL.getName()))
+                .eq(NAME_COL, (String) valueToPutInDwarfs.getColumns().get(NAME_COL.getName()))
+                .eq(FATHER_COL, (String) valueToPutInDwarfs.getColumns().get(FATHER_COL.getName()))
                 .noMoreFilters()
                 .end();
         final CQuery kingsQuery = CQueryBuilder
                 .createRemoveQuery()
                 .addFilters()
-                .eq(NAME_COL, valueToPutInKings.getColumns().get(NAME_COL.getName()))
-                .eq(KINGDOM_COL, valueToPutInKings.getColumns().get(KINGDOM_COL.getName()))
+                .eq(NAME_COL, (String) valueToPutInKings.getColumns().get(NAME_COL.getName()))
+                .eq(KINGDOM_COL, (String) valueToPutInKings.getColumns().get(KINGDOM_COL.getName()))
                 .noMoreFilters()
                 .end();
 
@@ -172,8 +172,8 @@ public class CMapBatchIT {
         final CQuery dwarfsQuery = CQueryBuilder
                 .createRemoveQuery()
                 .addFilters()
-                .eq(NAME_COL, valueToPutInDwarfs.getColumns().get(NAME_COL.getName()))
-                .eq(FATHER_COL, valueToPutInDwarfs.getColumns().get(FATHER_COL.getName()))
+                .eq(NAME_COL, (String) valueToPutInDwarfs.getColumns().get(NAME_COL.getName()))
+                .eq(FATHER_COL, (String) valueToPutInDwarfs.getColumns().get(FATHER_COL.getName()))
                 .noMoreFilters()
                 .end();
 
@@ -263,7 +263,7 @@ public class CMapBatchIT {
             final ValueTuple value = all.get(0);
             assertEquals("123", value.get("value1"));
             assertEquals("456", value.get("value2"));
-            assertEquals(1L, value.get("count"));
+            assertEquals(1L, (long) value.get("count"));
         }
 
         service.batch().update("counter_test",
@@ -279,7 +279,7 @@ public class CMapBatchIT {
             final ValueTuple value = all.get(0);
             assertEquals("123", value.get("value1"));
             assertEquals("456", value.get("value2"));
-            assertEquals(2L, value.get("count"));
+            assertEquals(2L, (long) value.get("count"));
         }
     }
 }

@@ -1,12 +1,12 @@
 package org.nohope.cassandra.mapservice.cfilter;
 
 import com.datastax.driver.core.querybuilder.Clause;
-import org.nohope.cassandra.mapservice.CTypeConverter;
+import org.nohope.cassandra.mapservice.ctypes.Converter;
 
 /**
  */
-public interface CFilter {
+public interface CFilter<V> {
     String getColumnName();
 
-    Clause apply(CTypeConverter<?, ?> converter);
+    Clause apply(Converter<?, V> converter);
 }

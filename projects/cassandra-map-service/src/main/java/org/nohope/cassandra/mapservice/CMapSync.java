@@ -10,6 +10,7 @@ import org.nohope.cassandra.factory.CassandraFactory;
 import org.nohope.cassandra.mapservice.cfilter.CFilter;
 import org.nohope.cassandra.mapservice.columns.CColumn;
 import org.nohope.cassandra.mapservice.cops.Operation;
+import org.nohope.cassandra.mapservice.ctypes.Converter;
 import org.nohope.cassandra.mapservice.update.CUpdate;
 import org.nohope.cassandra.util.RowNotFoundException;
 
@@ -233,11 +234,15 @@ public final class CMapSync {
 
         final Map<String, CColumn<?, ?>> columns = scheme.getColumns();
         for (final CFilter filter : update.getFilters()) {
-            where.and(filter.apply(columns.get(filter.getColumnName()).getConverter()));
+            final CColumn<?, ?> column = columns.get(filter.getColumnName());
+            final Converter converter = column.getConverter();
+            where.and(filter.apply(converter));
         }
 
-        for (final Operation operation : update.getOperations()) {
-            where.with(operation.apply(columns.get(operation.getColumnName()).getConverter()));
+        for (final Operation<?> operation : update.getOperations()) {
+            final CColumn<?, ?> column = columns.get(operation.getColumnName());
+            final Converter converter = column.getConverter();
+            where.with(operation.apply(converter));
         }
 
         if (null != consistencyLevel) {

@@ -1,34 +1,36 @@
 package org.nohope.cassandra.mapservice.cfilter;
 
 import com.datastax.driver.core.querybuilder.Clause;
-import com.datastax.driver.core.querybuilder.QueryBuilder;
 import org.nohope.cassandra.mapservice.BindUtils;
 import org.nohope.cassandra.mapservice.ctypes.Converter;
 
 import javax.annotation.Nonnull;
 import javax.annotation.concurrent.Immutable;
+import java.util.function.BiFunction;
 
 /**
- * Wrapper to {@link com.datastax.driver.core.querybuilder.QueryBuilder#gt(String, Object)}
+ * Wrapper to {@link com.datastax.driver.core.querybuilder.QueryBuilder#eq(String, Object)}
  */
 @Immutable
-final class GreaterThanFilter<V> implements CFilter<V> {
+abstract class AbstractFilter<V> implements CFilter<V> {
     private final String columnName;
     private final V value;
 
-    GreaterThanFilter(@Nonnull final String key, @Nonnull final V value) {
+    protected AbstractFilter(@Nonnull final String key, final V value) {
         this.columnName = key;
         this.value = value;
     }
 
     @Override
-    public String getColumnName() {
+    public final String getColumnName() {
         return columnName;
     }
 
+    protected abstract BiFunction<String, Object, Clause> underlyingExpression();
+
     @Override
-    public Clause apply(final Converter<?, V> converter) {
-        return QueryBuilder.gt(columnName, BindUtils.maybeBindable(converter, value));
+    public final Clause apply(final Converter<?, V> converter) {
+        return underlyingExpression().apply(columnName, BindUtils.maybeBindable(converter, value));
     }
 
     @Override
@@ -40,14 +42,15 @@ final class GreaterThanFilter<V> implements CFilter<V> {
             return false;
         }
 
-        final GreaterThanFilter<?> that = (GreaterThanFilter<?>) o;
-        return columnName.equals(that.columnName) && value.equals(that.value);
+        final AbstractFilter<?> eqFilter = (AbstractFilter<?>) o;
+        return columnName.equals(eqFilter.columnName)
+               && ((value == null) ? (eqFilter.value == null) : value.equals(eqFilter.value));
     }
 
     @Override
     public int hashCode() {
         int result = columnName.hashCode();
-        result = (31 * result) + value.hashCode();
+        result = (31 * result) + ((value != null) ? value.hashCode() : 0);
         return result;
     }
 }

@@ -1,34 +1,39 @@
 package org.nohope.cassandra.mapservice.cfilter;
 
 import com.datastax.driver.core.querybuilder.Clause;
-import com.datastax.driver.core.querybuilder.QueryBuilder;
 import org.nohope.cassandra.mapservice.BindUtils;
+import org.nohope.cassandra.mapservice.columns.CColumn;
 import org.nohope.cassandra.mapservice.ctypes.Converter;
 
 import javax.annotation.Nonnull;
 import javax.annotation.concurrent.Immutable;
+import java.util.function.BiFunction;
 
 /**
  * Wrapper to {@link com.datastax.driver.core.querybuilder.QueryBuilder#eq(String, Object)}
  */
 @Immutable
-final class EqFilter<V> implements CFilter<V> {
-    private final String columnName;
+final class Filter<V> implements CFilter<V> {
+    private final CColumn<?, ?> column;
     private final V value;
+    private final BiFunction<String, Object, Clause> underlyingExpression;
 
-    EqFilter(@Nonnull final String key, final V value) {
-        this.columnName = key;
+    Filter(@Nonnull final CColumn<?, ?> column,
+           final V value,
+           final BiFunction<String, Object, Clause> underlyingExpression) {
+        this.column = column;
         this.value = value;
+        this.underlyingExpression = underlyingExpression;
     }
 
     @Override
     public String getColumnName() {
-        return columnName;
+        return column.getName();
     }
 
     @Override
     public Clause apply(final Converter<?, V> converter) {
-        return QueryBuilder.eq(columnName, BindUtils.maybeBindable(converter, value));
+        return underlyingExpression.apply(column.getName(), BindUtils.maybeBindable(converter, value));
     }
 
     @Override
@@ -40,14 +45,14 @@ final class EqFilter<V> implements CFilter<V> {
             return false;
         }
 
-        final EqFilter<?> eqFilter = (EqFilter<?>) o;
-        return columnName.equals(eqFilter.columnName)
+        final Filter<?> eqFilter = (Filter<?>) o;
+        return column.equals(eqFilter.column)
                && ((value == null) ? (eqFilter.value == null) : value.equals(eqFilter.value));
     }
 
     @Override
     public int hashCode() {
-        int result = columnName.hashCode();
+        int result = column.hashCode();
         result = (31 * result) + ((value != null) ? value.hashCode() : 0);
         return result;
     }
