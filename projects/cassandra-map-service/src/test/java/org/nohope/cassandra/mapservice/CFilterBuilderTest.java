@@ -4,6 +4,8 @@ import org.junit.Before;
 import org.junit.Test;
 import org.nohope.cassandra.mapservice.cfilter.CFilter;
 import org.nohope.cassandra.mapservice.cfilter.CFilters;
+import org.nohope.cassandra.mapservice.columns.CColumn;
+import org.nohope.cassandra.mapservice.ctypes.CoreConverter;
 import org.nohope.test.ContractUtils;
 
 import java.util.ArrayList;
@@ -13,13 +15,14 @@ import java.util.List;
 import static org.junit.Assert.assertEquals;
 
 public final class CFilterBuilderTest {
-    private Collection<CFilter> filters;
+    private Collection<CFilter<?>> filters;
+    private static final CColumn<Integer, Integer> INT_COL = CColumn.of("xxx", CoreConverter.INT);
 
     @Test
     public void testContract() {
         ContractUtils.assertStrongEquality(
-                CFilters.eq("aaa", "bbb"),
-                CFilters.eq("aaa", "bbb")
+                CFilters.eq(CColumn.of("aaa", CoreConverter.ASCII), "bbb"),
+                CFilters.eq(CColumn.of("aaa", CoreConverter.ASCII), "bbb")
         );
     }
 
@@ -30,11 +33,11 @@ public final class CFilterBuilderTest {
 
     @Test
     public void testGetQueryEQFilters() {
-        filters.add(CFilters.eq("xxx", 4));
+        filters.add(CFilters.eq(INT_COL, 4));
 
-        final List<CFilter> builderFilters = CFilterBuilder
+        final List<CFilter<?>> builderFilters = CFilterBuilder
                 .getQueryFilters()
-                .eq("xxx", 4)
+                .eq(INT_COL, 4)
                 .getFilters();
 
         assertEquals(filters, builderFilters);
@@ -42,11 +45,11 @@ public final class CFilterBuilderTest {
 
     @Test
     public void testGetQueryGTFilters() {
-        filters.add(CFilters.gt("xxx", 4));
+        filters.add(CFilters.gt(INT_COL, 4));
 
-        final List<CFilter> builderFilters = CFilterBuilder
+        final List<CFilter<?>> builderFilters = CFilterBuilder
                 .getQueryFilters()
-                .gt("xxx", 4)
+                .gt(INT_COL, 4)
                 .getFilters();
 
         assertEquals(filters, builderFilters);
@@ -54,11 +57,11 @@ public final class CFilterBuilderTest {
 
     @Test
     public void testGetQueryGTEFilters() {
-        filters.add(CFilters.gte("xxx", 4));
+        filters.add(CFilters.gte(INT_COL, 4));
 
-        final List<CFilter> builderFilters = CFilterBuilder
+        final List<CFilter<?>> builderFilters = CFilterBuilder
                 .getQueryFilters()
-                .gte("xxx", 4)
+                .gte(INT_COL, 4)
                 .getFilters();
 
         assertEquals(filters, builderFilters);
@@ -66,11 +69,11 @@ public final class CFilterBuilderTest {
 
     @Test
     public void testGetQueryLTFilters() {
-        filters.add(CFilters.lt("xxx", 4));
+        filters.add(CFilters.lt(INT_COL, 4));
 
-        final List<CFilter> builderFilters = CFilterBuilder
+        final List<CFilter<?>> builderFilters = CFilterBuilder
                 .getQueryFilters()
-                .lt("xxx", 4)
+                .lt(INT_COL, 4)
                 .getFilters();
 
         assertEquals(filters, builderFilters);
@@ -78,11 +81,10 @@ public final class CFilterBuilderTest {
 
     @Test
     public void testGetQueryLTEFilters() {
-        filters.add(CFilters.lte("xxx", 4));
-
-        final List<CFilter> builderFilters = CFilterBuilder
+        filters.add(CFilters.lte(INT_COL, 4));
+        final List<CFilter<?>> builderFilters = CFilterBuilder
                 .getQueryFilters()
-                .lte("xxx", 4)
+                .lte(INT_COL, 4)
                 .getFilters();
 
         assertEquals(filters, builderFilters);
@@ -90,11 +92,11 @@ public final class CFilterBuilderTest {
 
     @Test
     public void testGetQueryINFilters() {
-        filters.add(CFilters.in("xxx", "aaa", "bbb", "ccc"));
+        filters.add(CFilters.in(INT_COL, 2, 4, 5));
 
-        final List<CFilter> builderFilters = CFilterBuilder
+        final List<CFilter<?>> builderFilters = CFilterBuilder
                 .getQueryFilters()
-                .in("xxx", "aaa", "bbb", "ccc")
+                .in(INT_COL, 2, 4, 5)
                 .getFilters();
 
         assertEquals(filters, builderFilters);
@@ -102,11 +104,11 @@ public final class CFilterBuilderTest {
 
     @Test
     public void testRemoveQueryINFilters() {
-        filters.add(CFilters.in("xxx", "aaa", "bbb", "ccc"));
+        filters.add(CFilters.in(INT_COL, 2, 4, 5));
 
-        final List<CFilter> builderFilters = CFilterBuilder
+        final List<CFilter<?>> builderFilters = CFilterBuilder
                 .getQueryFilters()
-                .in("xxx", "aaa", "bbb", "ccc")
+                .in(INT_COL, 2, 4, 5)
                 .getFilters();
 
         assertEquals(filters, builderFilters);
@@ -114,11 +116,11 @@ public final class CFilterBuilderTest {
 
     @Test
     public void testRemoveQueryEqFilters() {
-        filters.add(CFilters.eq("xxx", "ccc"));
+        filters.add(CFilters.eq(INT_COL, 2));
 
-        final List<CFilter> builderFilters = CFilterBuilder
+        final List<CFilter<?>> builderFilters = CFilterBuilder
                 .getQueryFilters()
-                .eq("xxx", "ccc")
+                .eq(INT_COL, 2)
                 .getFilters();
 
         assertEquals(filters, builderFilters);

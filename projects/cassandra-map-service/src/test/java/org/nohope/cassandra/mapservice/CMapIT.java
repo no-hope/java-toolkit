@@ -185,7 +185,7 @@ public class CMapIT {
 
         final Collection<CFilter<?>> filters = new ArrayList<>();
 
-        filters.add(CFilters.eq(COL_QUOTES.getName(), quoteToPutAndToGet));
+        filters.add(CFilters.eq(COL_QUOTES, quoteToPutAndToGet));
         final CQuery query = CQueryBuilder
                 .createQuery()
                 .of(set)

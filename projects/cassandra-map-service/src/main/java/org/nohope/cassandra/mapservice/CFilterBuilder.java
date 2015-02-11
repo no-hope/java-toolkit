@@ -2,6 +2,7 @@ package org.nohope.cassandra.mapservice;
 
 import org.nohope.cassandra.mapservice.cfilter.CFilter;
 import org.nohope.cassandra.mapservice.cfilter.CFilters;
+import org.nohope.cassandra.mapservice.columns.CColumn;
 
 import javax.annotation.Nonnull;
 import java.util.ArrayList;
@@ -43,51 +44,52 @@ public final class CFilterBuilder {
     }
 
     public static class GetFilters {
-        private final List<CFilter> filters = new ArrayList<>();
+        private final List<CFilter<?>> filters = new ArrayList<>();
 
-        GetFilters(final Collection<CFilter> newFilters) {
+        GetFilters(final Collection<CFilter<?>> newFilters) {
             filters.addAll(newFilters);
         }
 
         public GetFilters() {
         }
 
-        public GetFilters eq(@Nonnull final String columnName,
-                             final Object value) {
-            return addFilter(CFilters.eq(columnName, value));
+        public <V> GetFilters eq(@Nonnull final CColumn<V, ?> column,
+                                 @Nonnull final V value) {
+            return addFilter(CFilters.eq(column, value));
         }
 
-        public GetFilters gte(@Nonnull final String columnName,
-                              @Nonnull final Object value) {
-            return addFilter(CFilters.gte(columnName, value));
+        public <V> GetFilters gte(@Nonnull final CColumn<V, ?> column,
+                                  @Nonnull final V value) {
+            return addFilter(CFilters.gte(column, value));
         }
 
-        public GetFilters gt(@Nonnull final String columnName,
-                             @Nonnull final Object value) {
-            return addFilter(CFilters.gt(columnName, value));
+        public <V> GetFilters gt(@Nonnull final CColumn<V, ?> column,
+                                 @Nonnull final V value) {
+            return addFilter(CFilters.gt(column, value));
         }
 
-        public GetFilters in(@Nonnull final String columnName,
-                             @Nonnull final Object... values) {
-            return addFilter(CFilters.in(columnName, values));
+        @SafeVarargs
+        public final <V> GetFilters in(@Nonnull final CColumn<V, ?> column,
+                                       @Nonnull final V... values) {
+            return addFilter(CFilters.in(column, values));
         }
 
-        public GetFilters lt(@Nonnull final String columnName,
-                             @Nonnull final Object value) {
-            return addFilter(CFilters.lt(columnName, value));
+        public <V> GetFilters lt(@Nonnull final CColumn<V, ?> column,
+                                 @Nonnull final V value) {
+            return addFilter(CFilters.lt(column, value));
         }
 
-        public GetFilters lte(@Nonnull final String columnName,
-                              @Nonnull final Object value) {
-            return addFilter(CFilters.lte(columnName, value));
+        public <V> GetFilters lte(@Nonnull final CColumn<V, ?> column,
+                                  @Nonnull final V value) {
+            return addFilter(CFilters.lte(column, value));
         }
 
-        public List<CFilter> getFilters() {
+        public List<CFilter<?>> getFilters() {
             return Collections.unmodifiableList(filters);
         }
 
-        private GetFilters addFilter(final CFilter newFilter) {
-            final List<CFilter> newFilters = new ArrayList<>();
+        private GetFilters addFilter(final CFilter<?> newFilter) {
+            final List<CFilter<?>> newFilters = new ArrayList<>();
             newFilters.addAll(filters);
             newFilters.add(newFilter);
             return new GetFilters(newFilters);

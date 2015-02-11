@@ -10,66 +10,15 @@ public final class CFilters {
     private CFilters() {
     }
 
-    public static <V> CFilter<V> eq(final CColumn<V, ?> key, final V value) {
-        return new Filter<>(key, value, QueryBuilder::eq);
-    }
-
-    public static <V> CFilter<V> lt(final CColumn<V, ?> key, final V value) {
-        return new Filter<>(key, value, QueryBuilder::lt);
-    }
-
-    public static <V> CFilter<V> lte(final CColumn<V, ?> key, final V value) {
-        return new Filter<>(key, value, QueryBuilder::lte);
-    }
-
-    public static <V> CFilter<V> gt(final CColumn<V, ?> key, final V value) {
-        return new Filter<>(key, value, QueryBuilder::gt);
-    }
-
-    public static <V> CFilter<V> gte(final CColumn<V, ?> key, final V value) {
-        return new Filter<>(key, value, QueryBuilder::gte);
-    }
-
-    @SafeVarargs
-    public static <V> CFilter<V[]> in(final CColumn<V, ?> key, final V... value) {
-        return new Filter<>(key, value, QueryBuilder::in);
-    }
-
     /**
      * Wrapper to {@link com.datastax.driver.core.querybuilder.QueryBuilder#eq(String, Object)}
      *
      * @param key   column name
      * @param value value
-     * @return {@link org.nohope.cassandra.mapservice.cfilter.EqFilter equals filter}
+     * @return filter bound to {@link QueryBuilder#eq(String, Object)} eq} expression
      */
-    @Deprecated
-    public static <V> CFilter<V> eq(final String key, final V value) {
-        return new EqFilter<>(key, value);
-    }
-
-
-    /**
-     * Wrapper to {@link com.datastax.driver.core.querybuilder.QueryBuilder#in(String, Object...)}
-     *
-     * @param key   column name
-     * @param value values
-     * @return {@link org.nohope.cassandra.mapservice.cfilter.InFilter in filter}
-     */
-    @Deprecated
-    public static <V> CFilter<V[]> in(final String key, final V... value) {
-        return new InFilter<>(key, value);
-    }
-
-    /**
-     * Wrapper to {@link com.datastax.driver.core.querybuilder.QueryBuilder#lte(String, Object)}
-     *
-     * @param key   column name
-     * @param value value
-     * @return {@link org.nohope.cassandra.mapservice.cfilter.LesserThanOrEqualFilter lesser than or equals filter}
-     */
-    @Deprecated
-    public static <V> CFilter<V> lte(final String key, final V value) {
-        return new LesserThanOrEqualFilter<>(key, value);
+    public static <V> CFilter<V> eq(final CColumn<V, ?> key, final V value) {
+        return new Filter<>(key, value, QueryBuilder::eq);
     }
 
     /**
@@ -77,23 +26,21 @@ public final class CFilters {
      *
      * @param key   column name
      * @param value value
-     * @return {@link org.nohope.cassandra.mapservice.cfilter.LesserThanFilter lesser than filter}
+     * @return filter bound to {@link QueryBuilder#lt(String, Object)} eq} expression
      */
-    @Deprecated
-    public static <V> CFilter<V> lt(final String key, final V value) {
-        return new LesserThanFilter<>(key, value);
+    public static <V> CFilter<V> lt(final CColumn<V, ?> key, final V value) {
+        return new Filter<>(key, value, QueryBuilder::lt);
     }
 
     /**
-     * Wrapper to {@link com.datastax.driver.core.querybuilder.QueryBuilder#gte(String, Object)}
+     * Wrapper to {@link com.datastax.driver.core.querybuilder.QueryBuilder#lte(String, Object)}
      *
      * @param key   column name
      * @param value value
-     * @return {@link org.nohope.cassandra.mapservice.cfilter.GreaterThanOrEqualFilter greater or equal filter}
+     * @return filter bound to {@link QueryBuilder#lte(String, Object)} eq} expression
      */
-    @Deprecated
-    public static <V> CFilter<V> gte(final String key, final V value) {
-        return new GreaterThanOrEqualFilter<>(key, value);
+    public static <V> CFilter<V> lte(final CColumn<V, ?> key, final V value) {
+        return new Filter<>(key, value, QueryBuilder::lte);
     }
 
     /**
@@ -101,10 +48,32 @@ public final class CFilters {
      *
      * @param key   column name
      * @param value value
-     * @return {@link org.nohope.cassandra.mapservice.cfilter.GreaterThanFilter greater than filter}
+     * @return filter bound to {@link QueryBuilder#gt(String, Object)} eq} expression
      */
-    @Deprecated
-    public static <V> CFilter<V> gt(final String key, final V value) {
-        return new GreaterThanFilter<>(key, value);
+    public static <V> CFilter<V> gt(final CColumn<V, ?> key, final V value) {
+        return new Filter<>(key, value, QueryBuilder::gt);
+    }
+
+    /**
+     * Wrapper to {@link com.datastax.driver.core.querybuilder.QueryBuilder#gte(String, Object)}
+     *
+     * @param key   column name
+     * @param value value
+     * @return filter bound to {@link QueryBuilder#gte(String, Object)} eq} expression
+     */
+    public static <V> CFilter<V> gte(final CColumn<V, ?> key, final V value) {
+        return new Filter<>(key, value, QueryBuilder::gte);
+    }
+
+    /**
+     * Wrapper to {@link com.datastax.driver.core.querybuilder.QueryBuilder#in(String, Object...)}
+     *
+     * @param key   column name
+     * @param value values
+     * @return filter bound to {@link QueryBuilder#in(String, Object...)} in} expression
+     */
+    @SafeVarargs
+    public static <V> CFilter<V[]> in(final CColumn<V, ?> key, final V... value) {
+        return new Filter<>(key, value, QueryBuilder::in);
     }
 }

@@ -7,6 +7,7 @@ import org.nohope.cassandra.mapservice.ctypes.Converter;
 
 import javax.annotation.Nonnull;
 import javax.annotation.concurrent.Immutable;
+import java.util.Objects;
 import java.util.function.BiFunction;
 
 /**
@@ -19,7 +20,7 @@ final class Filter<V> implements CFilter<V> {
     private final BiFunction<String, Object, Clause> underlyingExpression;
 
     Filter(@Nonnull final CColumn<?, ?> column,
-           final V value,
+           @Nonnull final V value,
            final BiFunction<String, Object, Clause> underlyingExpression) {
         this.column = column;
         this.value = value;
@@ -47,13 +48,16 @@ final class Filter<V> implements CFilter<V> {
 
         final Filter<?> eqFilter = (Filter<?>) o;
         return column.equals(eqFilter.column)
-               && ((value == null) ? (eqFilter.value == null) : value.equals(eqFilter.value));
+            && Objects.deepEquals(value, eqFilter.value)
+            && underlyingExpression.equals(eqFilter.underlyingExpression)
+             ;
     }
 
     @Override
     public int hashCode() {
         int result = column.hashCode();
-        result = (31 * result) + ((value != null) ? value.hashCode() : 0);
+        result = (31 * result) + value.hashCode();
+        result = (31 * result) + underlyingExpression.hashCode();
         return result;
     }
 }

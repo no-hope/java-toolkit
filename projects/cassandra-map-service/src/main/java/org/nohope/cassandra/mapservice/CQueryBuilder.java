@@ -57,8 +57,8 @@ import java.util.concurrent.TimeUnit;
  * CQuery query =
  *     CQueryBuilder.createQuery()
  *                  .of(COLUMNS)
- *                  .withFilters({@link org.nohope.cassandra.mapservice.cfilter.CFilters CFilters}.{@link org.nohope.cassandra.mapservice.cfilter.CFilters#eq(String, Object) eq}("column1", 2),
- *                               {@link org.nohope.cassandra.mapservice.cfilter.CFilters CFilters}.{@link org.nohope.cassandra.mapservice.cfilter.CFilters#gt(String, Object) gt}("column2", 4))
+ *                  .withFilters({@link org.nohope.cassandra.mapservice.cfilter.CFilters CFilters}.{@link org.nohope.cassandra.mapservice.cfilter.CFilters#eq(org.nohope.cassandra.mapservice.columns.CColumn, Object) eq}("column1", 2),
+ *                               {@link org.nohope.cassandra.mapservice.cfilter.CFilters CFilters}.{@link org.nohope.cassandra.mapservice.cfilter.CFilters#gt(org.nohope.cassandra.mapservice.columns.CColumn, Object) gt}("column2", 4))
  *                  .end();
  *     </pre>
  * </li>
@@ -277,72 +277,57 @@ public final class CQueryBuilder {
             /**
              * Eq get filters.
              *
-             * @param columnName the column name
+             * @param column the column
              * @return the get filters
              */
-            public GetPreparedFilters eq(@Nonnull final String columnName) {
-                filters.add(CFilters.eq(columnName, QueryBuilder.bindMarker(columnName)));
+            public GetPreparedFilters eq(@Nonnull final CColumn<?, ?> column) {
+                filters.add(CFilters.eq((CColumn) column, QueryBuilder.bindMarker(column.getName())));
                 return this;
             }
+
 
             /**
-             * Gte get filters.
+             * Gt get filters.
              *
-             * @param columnName the column name
+             * @param column the column name
              * @return the get filters
              */
-            public GetPreparedFilters gte(@Nonnull final String columnName) {
-                filters.add(CFilters.gte(columnName, QueryBuilder.bindMarker(columnName)));
-                return this;
-            }
-
             public GetPreparedFilters gte(@Nonnull final CColumn<?, ?> column) {
-                return gte(column.getName());
+                filters.add(CFilters.gte((CColumn) column, QueryBuilder.bindMarker(column.getName())));
+                return this;
             }
 
             /**
              * Gt get filters.
              *
-             * @param columnName the column name
+             * @param column the column
              * @return the get filters
              */
-            public GetPreparedFilters gt(@Nonnull final String columnName) {
-                filters.add(CFilters.gt(columnName, QueryBuilder.bindMarker(columnName)));
-                return this;
-            }
-
             public GetPreparedFilters gt(@Nonnull final CColumn<?, ?> column) {
-                return gt(column.getName());
+                filters.add(CFilters.gt((CColumn) column, QueryBuilder.bindMarker(column.getName())));
+                return this;
             }
 
             /**
              * Lt get filters.
              *
-             * @param columnName the column name
+             * @param column the column
              * @return the get filters
              */
-            public GetPreparedFilters lt(@Nonnull final String columnName) {
-                filters.add(CFilters.lt(columnName, QueryBuilder.bindMarker(columnName)));
-                return this;
-            }
-
             public GetPreparedFilters lt(@Nonnull final CColumn<?, ?> column) {
-                return lt(column.getName());
+                filters.add(CFilters.lt((CColumn) column, QueryBuilder.bindMarker(column.getName())));
+                return this;
             }
 
             /**
              * Lte get filters.
              *
-             * @param columnName the column name
+             * @param column the column
              * @return the get filters
              */
-            public GetPreparedFilters lte(@Nonnull final String columnName) {
-                filters.add(CFilters.lte(columnName, QueryBuilder.bindMarker(columnName)));
-                return this;
-            }
-
             public GetPreparedFilters lte(@Nonnull final CColumn<?, ?> column) {
-                return lte(column.getName());
+                filters.add(CFilters.lte((CColumn) column, QueryBuilder.bindMarker(column.getName())));
+                return this;
             }
 
             /**
@@ -352,10 +337,6 @@ public final class CQueryBuilder {
              */
             public CQueryEndFiltersAdding noMoreFilters() {
                 return new CQueryEndFiltersAdding();
-            }
-
-            public GetPreparedFilters eq(final CColumn<?, ?> column) {
-                return eq(column.getName());
             }
         }
 
@@ -553,7 +534,7 @@ public final class CQueryBuilder {
              * @return the get filters
              */
             public <V> GetFilters eq(@Nonnull final CColumn<V ,?> column, final V value) {
-                filters.add(CFilters.eq(column.getName(), value));
+                filters.add(CFilters.eq(column, value));
                 return this;
             }
 
@@ -565,7 +546,7 @@ public final class CQueryBuilder {
              * @return the get filters
              */
             public <V> GetFilters gte(@Nonnull final CColumn<V, ?> column, @Nonnull final V value) {
-                filters.add(CFilters.gte(column.getName(), value));
+                filters.add(CFilters.gte(column, value));
                 return this;
             }
 
@@ -577,7 +558,7 @@ public final class CQueryBuilder {
              * @return the get filters
              */
             public <V> GetFilters gt(@Nonnull final CColumn<V, ?> column, @Nonnull final V value) {
-                filters.add(CFilters.gt(column.getName(), value));
+                filters.add(CFilters.gt(column, value));
                 return this;
             }
 
@@ -589,7 +570,7 @@ public final class CQueryBuilder {
              * @return the get filters
              */
             public <V> GetFilters in(@Nonnull final CColumn<V, ?> column, @Nonnull final V... values) {
-                filters.add(CFilters.in(column.getName(), values));
+                filters.add(CFilters.in(column, values));
                 return this;
             }
 
@@ -601,7 +582,7 @@ public final class CQueryBuilder {
              * @return the get filters
              */
             public <V> GetFilters lt(@Nonnull final CColumn<V, ?> column, @Nonnull final V value) {
-                filters.add(CFilters.lt(column.getName(), value));
+                filters.add(CFilters.lt(column, value));
                 return this;
             }
 
@@ -613,7 +594,7 @@ public final class CQueryBuilder {
              * @return the get filters
              */
             public <V> GetFilters lte(@Nonnull final CColumn<V, ?> column, @Nonnull final V value) {
-                filters.add(CFilters.lte(column.getName(), value));
+                filters.add(CFilters.lte(column, value));
                 return this;
             }
 
