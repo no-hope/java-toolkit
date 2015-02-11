@@ -101,6 +101,8 @@
         <coveralls-extensions-maven-plugin.version>0.0.3</coveralls-extensions-maven-plugin.version>
         <lz4.version>1.3.0</lz4.version>
         <kryo.version>2.16</kryo.version>
+
+        <java.major.version>8</java.major.version>
     </properties>
 
     <build>
