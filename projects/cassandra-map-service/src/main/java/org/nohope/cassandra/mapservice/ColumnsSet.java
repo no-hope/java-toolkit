@@ -45,10 +45,6 @@ final class ColumnsSet implements Iterable<CColumn<?, ?>> {
         return new ColumnsSet(newColumns);
     }
 
-    public boolean contains(final String column) {
-        return columns.contains(column);
-    }
-
     public ColumnsSet withAll(@Nonnull final ColumnsSet anotherColumnCollection) {
         final Collection<CColumn<?, ?>> newColumns = new LinkedHashSet<>(columns);
         newColumns.addAll(anotherColumnCollection.getColumns());
@@ -69,7 +65,7 @@ final class ColumnsSet implements Iterable<CColumn<?, ?>> {
             return false;
         }
 
-        ColumnsSet strings = (ColumnsSet) o;
+        final ColumnsSet strings = (ColumnsSet) o;
         return columns.equals(strings.columns);
     }
 

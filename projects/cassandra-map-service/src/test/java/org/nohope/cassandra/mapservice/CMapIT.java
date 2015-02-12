@@ -186,7 +186,7 @@ public class CMapIT {
 
         final Collection<CFilter<?>> filters = new ArrayList<>();
 
-        filters.add(CFilters.eq(COL_QUOTES, quoteToPutAndToGet));
+        filters.add(CFilters.eq(Value.bound(COL_QUOTES, quoteToPutAndToGet)));
         final CQuery query = CQueryBuilder
                 .createQuery()
                 .of(set)
@@ -254,7 +254,7 @@ public class CMapIT {
 
         final CQuery query = CQueryBuilder
                 .createRemoveQuery()
-                .withFilters(CFilters.eq(COL_QUOTES, valueToPut.get(COL_QUOTES)))
+                .withFilters(CFilters.eq(Value.bound(COL_QUOTES, valueToPut.get(COL_QUOTES))))
                 .end();
 
         testMap.remove(query);
@@ -315,7 +315,7 @@ public class CMapIT {
 
         final CQuery query = CQueryBuilder
                 .createRemoveQuery()
-                .withFilters(CFilters.eq(COL_QUOTES, valueToPut.get(COL_QUOTES)))
+                .withFilters(CFilters.eq(Value.bound(COL_QUOTES, valueToPut.get(COL_QUOTES))))
                 .end();
 
         testMap.remove(query);
@@ -455,8 +455,8 @@ public class CMapIT {
 
         final CQuery query = CQueryBuilder
                 .createRemoveQuery()
-                .withFilters(CFilters.eq(COL_QUOTES, valueToPut.get(COL_QUOTES)),
-                             CFilters.eq(COL_QUOTE_UUID, valueToPut.get(COL_QUOTE_UUID)))
+                .withFilters(CFilters.eq(Value.bound(COL_QUOTES, valueToPut.get(COL_QUOTES))),
+                        CFilters.eq(Value.bound(COL_QUOTE_UUID, valueToPut.get(COL_QUOTE_UUID))))
                 .end();
         testMap.remove(query);
         final List<ValueTuple> returnValue = Lists.newArrayList(testMap.all());

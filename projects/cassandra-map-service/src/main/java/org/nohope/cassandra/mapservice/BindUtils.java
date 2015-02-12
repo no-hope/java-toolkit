@@ -4,7 +4,6 @@ import com.datastax.driver.core.BoundStatement;
 import com.datastax.driver.core.ColumnDefinitions;
 import com.datastax.driver.core.DataType;
 import com.datastax.driver.core.ProtocolVersion;
-import com.datastax.driver.core.querybuilder.BindMarker;
 import org.nohope.cassandra.mapservice.ctypes.Converter;
 
 /**
@@ -15,19 +14,19 @@ public final class BindUtils {
     private BindUtils() {
     }
 
-    public static <V> Object maybeBindable(final Converter<?, V> converter, final V value) {
-        if ((value instanceof BindMarker) ||
-            "com.datastax.driver.core.querybuilder.Utils.FCall".equals(value.getClass().getCanonicalName())) {
-            return value;
+    public static <V> Object maybeBindable(final Value<V> value) {
+        if (value.getType() != Value.Type.BOUND) {
+            return value.getValue();
         }
-        return converter.asCassandraValue(value);
+        final Converter converter = value.getColumn().getConverter();
+        return converter.asCassandraValue(value.getValue());
     }
 
     public static void bind(final BoundStatement statement,
                             final TableScheme scheme,
                             final ColumnDefinitions meta,
-                            final String name,
                             final Value<?> value) {
+        final String name = value.getColumn().getName();
         if (statement.isSet(name)) {
             throw new IllegalStateException(); // FIXME: descriptive
         }

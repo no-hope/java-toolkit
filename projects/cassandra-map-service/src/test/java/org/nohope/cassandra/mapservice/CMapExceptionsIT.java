@@ -113,7 +113,7 @@ public class CMapExceptionsIT {
         final CQuery query = CQueryBuilder
                 .createQuery()
                 .of(COL_QUOTES, COL_TIMESTAMP)
-                .withFilters(CFilters.eq(COL_TIMESTAMP, DateTime.now(DateTimeZone.UTC)))
+                .withFilters(CFilters.eq(Value.bound(COL_TIMESTAMP, DateTime.now(DateTimeZone.UTC))))
                 .end();
 
         testMap.get(query);

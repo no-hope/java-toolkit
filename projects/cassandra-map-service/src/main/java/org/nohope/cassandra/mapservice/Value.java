@@ -20,8 +20,29 @@ public final class Value<T> {
         this.type = type;
     }
 
+    /*
+    public static <T> Value<T[]> from(final Value<T>... values) {
+        final List<Value<T>> list = Lists.newArrayList(values);
+        final Set<CColumn<T, ?>> columns =
+                list.stream().map(Value::getColumn).collect(Collectors.toSet());
+
+        if (columns.size() != 1) {
+            throw new IllegalStateException(); // FIXME: description
+        }
+
+
+        for (final Value<T> v : list) {
+
+        }
+    }*/
+
     public static<T> Value<T> bound(final CColumn<T, ?> column, final T value) {
         return new Value<>(Type.BOUND, column, value);
+    }
+
+    @Deprecated
+    public static<T> Value<T[]> boundMany(final CColumn<T, ?> column, final T... value) {
+        return new Value<>(Type.BOUND, (CColumn<T[], ?>) column, value);
     }
 
     public static<T> Value<T> unbound(final CColumn<T, ?> column) {

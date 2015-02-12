@@ -53,35 +53,35 @@ public final class CFilterBuilder {
         public GetFilters() {
         }
 
-        public <V> GetFilters eq(@Nonnull final CColumn<V, ?> column,
-                                 @Nonnull final V value) {
-            return addFilter(CFilters.eq(column, value));
+        public <V> GetFilters eq(@Nonnull final CColumn<V, ?> column, @Nonnull final V value) {
+            return addFilter(CFilters.eq(Value.bound(column, value)));
         }
 
         public <V> GetFilters gte(@Nonnull final CColumn<V, ?> column,
                                   @Nonnull final V value) {
-            return addFilter(CFilters.gte(column, value));
+            return addFilter(CFilters.gte(Value.bound(column, value)));
         }
 
         public <V> GetFilters gt(@Nonnull final CColumn<V, ?> column,
                                  @Nonnull final V value) {
-            return addFilter(CFilters.gt(column, value));
+            return addFilter(CFilters.gt(Value.bound(column, value)));
         }
 
         @SafeVarargs
         public final <V> GetFilters in(@Nonnull final CColumn<V, ?> column,
                                        @Nonnull final V... values) {
-            return addFilter(CFilters.in(column, values));
+            // FIXME: cheat
+            return addFilter(CFilters.in(Value.bound((CColumn<V[], ?>) column, values)));
         }
 
         public <V> GetFilters lt(@Nonnull final CColumn<V, ?> column,
                                  @Nonnull final V value) {
-            return addFilter(CFilters.lt(column, value));
+            return addFilter(CFilters.lt(Value.bound(column, value)));
         }
 
         public <V> GetFilters lte(@Nonnull final CColumn<V, ?> column,
                                   @Nonnull final V value) {
-            return addFilter(CFilters.lte(column, value));
+            return addFilter(CFilters.lte(Value.bound(column, value)));
         }
 
         public List<CFilter<?>> getFilters() {

@@ -53,7 +53,7 @@ public abstract class AbstractStatement<T> {
     protected Map<String, Value<?>> copyKeysFormFilters() {
         final Map<String, Value<?>> orderedFiltersMap = new LinkedHashMap<>();
         for (final CFilter<?> filter : cQuery.getFilters()) {
-            final CColumn<?, ?> column = filter.getColumn();
+            final CColumn<?, ?> column = filter.getValue().getColumn();
             orderedFiltersMap.put(column.getName(), Value.unbound(column));
         }
         return orderedFiltersMap;
@@ -83,7 +83,7 @@ public abstract class AbstractStatement<T> {
             for (final Map.Entry<String, Value<?>> e : bindKeysMap.entrySet()) {
                 final String key = e.getKey();
                 if (!bound.isSet(key)) {
-                    BindUtils.bind(bound, scheme, meta, key, e.getValue());
+                    BindUtils.bind(bound, scheme, meta, e.getValue());
                 }
             }
 

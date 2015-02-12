@@ -30,12 +30,9 @@ public final class CPreparedRemove extends AbstractStatement<CPreparedRemove.Pre
                            final CQuery cQuery,
                            final TableScheme scheme,
                            final ConsistencyLevel consistencyLevel) {
-        super(cQuery, scheme, statement, new StatementExecutorProvider<PreparedRemoveExecutor>() {
-            @Override
-            public PreparedRemoveExecutor getExecutor(final BoundStatement boundStatement) {
-                boundStatement.setConsistencyLevel(consistencyLevel);
-                return new PreparedRemoveExecutor(factory.getSession(), boundStatement);
-            }
+        super(cQuery, scheme, statement, boundStatement -> {
+            boundStatement.setConsistencyLevel(consistencyLevel);
+            return new PreparedRemoveExecutor(factory.getSession(), boundStatement);
         });
     }
 

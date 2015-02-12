@@ -2,12 +2,11 @@ package org.nohope.cassandra.mapservice.cfilter;
 
 import com.datastax.driver.core.querybuilder.Clause;
 import org.nohope.cassandra.mapservice.BindUtils;
-import org.nohope.cassandra.mapservice.columns.CColumn;
+import org.nohope.cassandra.mapservice.Value;
 import org.nohope.cassandra.mapservice.ctypes.Converter;
 
 import javax.annotation.Nonnull;
 import javax.annotation.concurrent.Immutable;
-import java.util.Objects;
 import java.util.function.BiFunction;
 
 /**
@@ -15,26 +14,25 @@ import java.util.function.BiFunction;
  */
 @Immutable
 final class Filter<V> implements CFilter<V> {
-    private final CColumn<?, ?> column;
-    private final V value;
+    private final Value<V> value;
     private final BiFunction<String, Object, Clause> underlyingExpression;
 
-    Filter(@Nonnull final CColumn<?, ?> column,
-           @Nonnull final V value,
+    Filter(@Nonnull final Value<V> value,
            final BiFunction<String, Object, Clause> underlyingExpression) {
-        this.column = column;
         this.value = value;
         this.underlyingExpression = underlyingExpression;
     }
 
     @Override
-    public CColumn<?, ?> getColumn() {
-        return column;
+    public Clause apply(final Converter<?, V> converter) {
+        return underlyingExpression.apply(
+                value.getColumn().getName(),
+                BindUtils.maybeBindable(value));
     }
 
     @Override
-    public Clause apply(final Converter<?, V> converter) {
-        return underlyingExpression.apply(column.getName(), BindUtils.maybeBindable(converter, value));
+    public Value<V> getValue() {
+        return value;
     }
 
     @Override
@@ -46,17 +44,15 @@ final class Filter<V> implements CFilter<V> {
             return false;
         }
 
-        final Filter<?> eqFilter = (Filter<?>) o;
-        return column.equals(eqFilter.column)
-            && Objects.deepEquals(value, eqFilter.value)
-            && underlyingExpression.equals(eqFilter.underlyingExpression)
+        final Filter<?> that = (Filter<?>) o;
+        return value.equals(that.value)
+            && underlyingExpression.equals(that.underlyingExpression)
              ;
     }
 
     @Override
     public int hashCode() {
-        int result = column.hashCode();
-        result = (31 * result) + value.hashCode();
+        int result = value.hashCode();
         result = (31 * result) + underlyingExpression.hashCode();
         return result;
     }

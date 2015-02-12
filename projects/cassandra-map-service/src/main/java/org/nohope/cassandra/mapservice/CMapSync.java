@@ -234,7 +234,7 @@ public final class CMapSync {
 
         final Map<String, CColumn<?, ?>> columns = scheme.getColumns();
         for (final CFilter filter : update.getFilters()) {
-            final CColumn<?, ?> column = columns.get(filter.getColumn().getName());
+            final CColumn<?, ?> column = columns.get(filter.getValue().getColumn().getName());
             final Converter converter = column.getConverter();
             where.and(filter.apply(converter));
         }

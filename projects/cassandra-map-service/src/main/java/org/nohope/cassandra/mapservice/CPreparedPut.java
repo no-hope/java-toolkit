@@ -105,7 +105,7 @@ public final class CPreparedPut {
 
                 try {
                     if (!filter.isEmpty() && !bound.isSet(key)) {
-                        BindUtils.bind(bound, scheme, meta, key, e.getValue());
+                        BindUtils.bind(bound, scheme, meta, e.getValue());
                     }
                 } catch (final RuntimeException exc) {
                     throw new IllegalStateException("Unexpected exception while processing field " + key, exc);

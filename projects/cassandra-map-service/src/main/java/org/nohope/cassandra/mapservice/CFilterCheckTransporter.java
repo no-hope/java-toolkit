@@ -55,7 +55,7 @@ final class CFilterCheckTransporter {
     private static Set<CColumn<?, ?>> getFilteredColumnSet(final CQuery cQuery) {
         final Set<CColumn<?, ?>> filteredColumnSet = new LinkedHashSet<>();
         for (final CFilter filter : cQuery.getFilters()) {
-            filteredColumnSet.add(filter.getColumn());
+            filteredColumnSet.add(filter.getValue().getColumn());
         }
         return filteredColumnSet;
     }

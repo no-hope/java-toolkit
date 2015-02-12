@@ -1,17 +1,16 @@
 package org.nohope.cassandra.mapservice;
 
 import com.datastax.driver.core.querybuilder.QueryBuilder;
-import com.google.common.base.Function;
+import com.google.common.base.Joiner;
 import com.google.common.collect.Collections2;
 import com.google.common.collect.Sets;
-import org.apache.commons.lang3.StringUtils;
 import org.nohope.cassandra.mapservice.columns.CColumn;
 
 import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
 import javax.annotation.concurrent.Immutable;
 import java.text.MessageFormat;
 import java.util.*;
+import java.util.stream.Collectors;
 
 /**
  * Cassandra table scheme for CMap.  <br>
@@ -19,15 +18,14 @@ import java.util.*;
  */
 @Immutable
 public final class TableScheme {
-    private static final String PRIMARY_KEY_TEMPLATE = "%s, "; // FIXME: Joiner.on(..)
     private final String tableName;
     private final String tableDescription;
+
     private final Map<String, CColumn<?, ?>> columns = new LinkedHashMap<>();
     private final Set<CColumn<?, ?>> columnSet = new LinkedHashSet<>();
-
-    private final Collection<CColumn<?, ?>> partitionKeys = new LinkedHashSet<>();
-    private final Collection<CColumn<?, ?>> clusteringKeys = new LinkedHashSet<>();
-    private final Collection<CColumn<?, ?>> staticKeys = new LinkedHashSet<>();
+    private final Set<CColumn<?, ?>> partitionKeys = new LinkedHashSet<>();
+    private final Set<CColumn<?, ?>> clusteringKeys = new LinkedHashSet<>();
+    private final Set<CColumn<?, ?>> staticKeys = new LinkedHashSet<>();
 
     public TableScheme(
             @Nonnull final String name
@@ -42,10 +40,6 @@ public final class TableScheme {
         this.clusteringKeys.addAll(clusteringKeys);
         this.staticKeys.addAll(staticKeys);
         this.tableDescription = buildTableDescription();
-    }
-
-    private static int getLastIndexOfSubstringWithoutLastCommaAndSpace(final int stringLength) {
-        return stringLength - 2;
     }
 
     public String getTableName() {
@@ -68,7 +62,6 @@ public final class TableScheme {
         if ((o == null) || (getClass() != o.getClass())) {
             return false;
         }
-
         final TableScheme that = (TableScheme) o;
         return clusteringKeys.equals(that.clusteringKeys)
                && columnSet.equals(that.columnSet)
@@ -102,12 +95,7 @@ public final class TableScheme {
     }
 
     Set<String> getColumnNames() {
-        return Sets.newHashSet(Collections2.transform(getColumnsSet(), new Function<CColumn<?, ?>, String>() {
-            @Override
-            public String apply(final CColumn<?, ?> input) {
-                return input.getName();
-            }
-        }));
+        return Sets.newHashSet(Collections2.transform(getColumnsSet(), CColumn::getName));
     }
 
     Collection<CColumn<?, ?>> getPartitionKeys() {
@@ -130,47 +118,25 @@ public final class TableScheme {
         return MessageFormat.format(
                 "CREATE TABLE IF NOT EXISTS \"{0}\" " +
                 '(' +
-                "{1}" +
+                "{1}, " +
                 "PRIMARY KEY (({2}){3}));"
                 , tableName
                 , formColumns()
-                , formPartitionKeys()
-                , formClusteringKeys()
+                , fromColumns(partitionKeys)
+                , clusteringKeys.isEmpty() ? "" : (", " + fromColumns(clusteringKeys))
         );
     }
 
     private String formColumns() {
-        final StringBuilder columnsString = new StringBuilder();
-        for (final CColumn<?, ?> column : columns.values()) {
-            columnsString.append(column.getColumnTemplate());
-            if (staticKeys.contains(column)) {
-                columnsString.append(" STATIC");
+        return Joiner.on(", ").join(columns.values().stream().map(c -> {
+            if (staticKeys.contains(c)) {
+                return c.getColumnTemplate() + " STATIC";
             }
-            columnsString.append(", ");
-        }
-        return columnsString.toString();
+            return c.getColumnTemplate();
+        }).collect(Collectors.toList()));
     }
 
-    private String formPartitionKeys() {
-        final StringBuilder primariesString = new StringBuilder();
-        for (final CColumn<?, ?> key : partitionKeys) {
-            primariesString.append(String.format(PRIMARY_KEY_TEMPLATE, key.getName()));
-        }
-        return primariesString.substring(0, getLastIndexOfSubstringWithoutLastCommaAndSpace(primariesString.length()));
-    }
-
-    private String formClusteringKeys() {
-        final String clusteringKeysString = StringUtils.join(Collections2.transform(clusteringKeys, new Function<CColumn<?,?>, String>() {
-            @Nullable
-            @Override
-            public String apply(final CColumn<?, ?> input) {
-                return input.getName();
-            }
-        }), ", ");
-
-        if (!clusteringKeysString.isEmpty()) {
-            return StringUtils.join(", ", clusteringKeysString);
-        }
-        return clusteringKeysString;
+    private static String fromColumns(final Collection<CColumn<?, ?>> columns) {
+        return Joiner.on(", ").join(columns.stream().map(CColumn::getName).collect(Collectors.toList()));
     }
 }

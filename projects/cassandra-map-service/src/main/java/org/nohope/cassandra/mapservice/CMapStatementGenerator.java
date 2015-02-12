@@ -111,7 +111,7 @@ final class CMapStatementGenerator {
     private Select.Where addWhereStatementToQuery(final CQuery cQuery, final Select query) {
         final Select.Where where = query.where();
         for (final CFilter<?> filter : cQuery.getFilters()) {
-            final CColumn<?, ?> column = scheme.getColumns().get(filter.getColumn().getName());
+            final CColumn<?, ?> column = scheme.getColumns().get(filter.getValue().getColumn().getName());
             final Converter converter = column.getConverter();
             where.and(filter.apply(converter));
         }
@@ -153,7 +153,7 @@ final class CMapStatementGenerator {
     private Delete.Where applyFiltersToDeleteQuery(final CQuery cQuery) {
         final Delete.Where query = QueryBuilder.delete().from(scheme.getTableNameQuoted()).where();
         for (final CFilter<?> filter : getPrimaryKeysSet(cQuery)) {
-            final CColumn<?, ?> column = scheme.getColumns().get(filter.getColumn().getName());
+            final CColumn<?, ?> column = scheme.getColumns().get(filter.getValue().getColumn().getName());
             final Converter converter = column.getConverter();
             query.and(filter.apply(converter));
         }
@@ -165,7 +165,7 @@ final class CMapStatementGenerator {
         final Collection<CFilter<?>> primaries = new ArrayList<>();
 
         for (final CFilter<?> filter : cQuery.getFilters()) {
-            final CColumn<?, ?> column = filter.getColumn();
+            final CColumn<?, ?> column = filter.getValue().getColumn();
             if (scheme.isPartitionKey(column) || scheme.isClusteringKey(column)) {
                 primaries.add(filter);
             }
@@ -208,20 +208,12 @@ final class CMapStatementGenerator {
             query.setConsistencyLevel(consistencyLevel);
         }
 
-        for (final String column : valueToPut.getColumns().keySet()) {
-            final Object cassandraValue = toCassandraType(valueToPut, column);
-            query.getQueryString();
-            query.value(column, cassandraValue);
+        for (final Value<?> value : valueToPut.getValues().values()) {
+            final Object cassandraValue = BindUtils.maybeBindable(value);
+            query.getQueryString(); // FIXME: ??
+            query.value(value.getColumn().getName(), cassandraValue);
         }
 
         return query;
-    }
-
-    private Object toCassandraType(final ValueTuple valueToPut, final String columnName) {
-        final CColumn<?, ?> column = scheme.getColumns().get(columnName);
-        final Object o = valueToPut.get(column);
-        // FIMXE:
-        final Converter converter = column.getConverter();
-        return BindUtils.maybeBindable(converter, o);
     }
 }

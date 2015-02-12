@@ -49,8 +49,7 @@ public final class CMapService {
         return Maps.transformEntries(scheme.getColumns(),
                 new Maps.EntryTransformer<String, CColumn<?, ?>, Value<?>>() {
                     @Override
-                    public Value<?> transformEntry(@Nullable final String key, @Nullable CColumn<?, ?>
-                            value) {
+                    public Value<?> transformEntry(final String key, final CColumn<?, ?> value) {
                         return Value.unbound(value);
                     }
                 });

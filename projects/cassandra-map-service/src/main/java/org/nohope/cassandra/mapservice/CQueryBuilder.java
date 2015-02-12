@@ -277,7 +277,7 @@ public final class CQueryBuilder {
              * @return the get filters
              */
             public GetPreparedFilters eq(@Nonnull final CColumn<?, ?> column) {
-                filters.add(CFilters.eq((CColumn) column, QueryBuilder.bindMarker(column.getName())));
+                filters.add(CFilters.eq(Value.unbound(column)));
                 return this;
             }
 
@@ -289,7 +289,7 @@ public final class CQueryBuilder {
              * @return the get filters
              */
             public GetPreparedFilters gte(@Nonnull final CColumn<?, ?> column) {
-                filters.add(CFilters.gte((CColumn) column, QueryBuilder.bindMarker(column.getName())));
+                filters.add(CFilters.gte(Value.unbound(column)));
                 return this;
             }
 
@@ -300,7 +300,7 @@ public final class CQueryBuilder {
              * @return the get filters
              */
             public GetPreparedFilters gt(@Nonnull final CColumn<?, ?> column) {
-                filters.add(CFilters.gt((CColumn) column, QueryBuilder.bindMarker(column.getName())));
+                filters.add(CFilters.gt(Value.unbound(column)));
                 return this;
             }
 
@@ -311,7 +311,7 @@ public final class CQueryBuilder {
              * @return the get filters
              */
             public GetPreparedFilters lt(@Nonnull final CColumn<?, ?> column) {
-                filters.add(CFilters.lt((CColumn) column, QueryBuilder.bindMarker(column.getName())));
+                filters.add(CFilters.lt(Value.unbound(column)));
                 return this;
             }
 
@@ -322,7 +322,7 @@ public final class CQueryBuilder {
              * @return the get filters
              */
             public GetPreparedFilters lte(@Nonnull final CColumn<?, ?> column) {
-                filters.add(CFilters.lte((CColumn) column, QueryBuilder.bindMarker(column.getName())));
+                filters.add(CFilters.lte(Value.unbound(column)));
                 return this;
             }
 
@@ -530,7 +530,7 @@ public final class CQueryBuilder {
              * @return the get filters
              */
             public <V> GetFilters eq(@Nonnull final CColumn<V ,?> column, final V value) {
-                filters.add(CFilters.eq(column, value));
+                filters.add(CFilters.eq(Value.bound(column, value)));
                 return this;
             }
 
@@ -542,7 +542,7 @@ public final class CQueryBuilder {
              * @return the get filters
              */
             public <V> GetFilters gte(@Nonnull final CColumn<V, ?> column, @Nonnull final V value) {
-                filters.add(CFilters.gte(column, value));
+                filters.add(CFilters.gte(Value.bound(column, value)));
                 return this;
             }
 
@@ -554,7 +554,7 @@ public final class CQueryBuilder {
              * @return the get filters
              */
             public <V> GetFilters gt(@Nonnull final CColumn<V, ?> column, @Nonnull final V value) {
-                filters.add(CFilters.gt(column, value));
+                filters.add(CFilters.gt(Value.bound(column, value)));
                 return this;
             }
 
@@ -566,7 +566,8 @@ public final class CQueryBuilder {
              * @return the get filters
              */
             public <V> GetFilters in(@Nonnull final CColumn<V, ?> column, @Nonnull final V... values) {
-                filters.add(CFilters.in(column, values));
+                // FIXME: we are cheating here!
+                filters.add(CFilters.in(Value.bound((CColumn<V[], ?>) column, values)));
                 return this;
             }
 
@@ -578,7 +579,7 @@ public final class CQueryBuilder {
              * @return the get filters
              */
             public <V> GetFilters lt(@Nonnull final CColumn<V, ?> column, @Nonnull final V value) {
-                filters.add(CFilters.lt(column, value));
+                filters.add(CFilters.lt(Value.bound(column, value)));
                 return this;
             }
 
@@ -590,7 +591,7 @@ public final class CQueryBuilder {
              * @return the get filters
              */
             public <V> GetFilters lte(@Nonnull final CColumn<V, ?> column, @Nonnull final V value) {
-                filters.add(CFilters.lte(column, value));
+                filters.add(CFilters.lte(Value.bound(column, value)));
                 return this;
             }
 

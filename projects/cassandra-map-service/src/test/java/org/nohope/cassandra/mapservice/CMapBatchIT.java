@@ -252,7 +252,8 @@ public class CMapBatchIT {
         }
 
         service.batch().update("counter_test",
-                CUpdate.withFilters(CFilters.eq(c1, "123"), CFilters.eq(c2, "456"))
+                CUpdate.withFilters(CFilters.eq(Value.bound(c1, "123")),
+                        CFilters.eq(Value.bound(c2, "456")))
                        .apply(COperations.counterIncr("count", 1)))
                .apply();
 
@@ -268,7 +269,8 @@ public class CMapBatchIT {
         }
 
         service.batch().update("counter_test",
-                CUpdate.withFilters(CFilters.eq(c1, "123"), CFilters.eq(c2, "456"))
+                CUpdate.withFilters(CFilters.eq(Value.bound(c1, "123")),
+                                    CFilters.eq(Value.bound(c2, "456")))
                        .apply(COperations.counterIncr("count", 1)))
                .apply();
 

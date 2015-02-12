@@ -21,8 +21,8 @@ public final class CFilterBuilderTest {
     @Test
     public void testContract() {
         ContractUtils.assertStrongEquality(
-                CFilters.eq(CColumn.of("aaa", CoreConverter.ASCII), "bbb"),
-                CFilters.eq(CColumn.of("aaa", CoreConverter.ASCII), "bbb")
+                CFilters.eq(Value.bound(CColumn.of("aaa", CoreConverter.ASCII), "bbb")),
+                CFilters.eq(Value.bound(CColumn.of("aaa", CoreConverter.ASCII), "bbb"))
         );
     }
 
@@ -33,7 +33,7 @@ public final class CFilterBuilderTest {
 
     @Test
     public void testGetQueryEQFilters() {
-        filters.add(CFilters.eq(INT_COL, 4));
+        filters.add(CFilters.eq(Value.bound(INT_COL, 4)));
 
         final List<CFilter<?>> builderFilters = CFilterBuilder
                 .getQueryFilters()
@@ -45,7 +45,7 @@ public final class CFilterBuilderTest {
 
     @Test
     public void testGetQueryGTFilters() {
-        filters.add(CFilters.gt(INT_COL, 4));
+        filters.add(CFilters.gt(Value.bound(INT_COL, 4)));
 
         final List<CFilter<?>> builderFilters = CFilterBuilder
                 .getQueryFilters()
@@ -57,7 +57,7 @@ public final class CFilterBuilderTest {
 
     @Test
     public void testGetQueryGTEFilters() {
-        filters.add(CFilters.gte(INT_COL, 4));
+        filters.add(CFilters.gte(Value.bound(INT_COL, 4)));
 
         final List<CFilter<?>> builderFilters = CFilterBuilder
                 .getQueryFilters()
@@ -69,7 +69,7 @@ public final class CFilterBuilderTest {
 
     @Test
     public void testGetQueryLTFilters() {
-        filters.add(CFilters.lt(INT_COL, 4));
+        filters.add(CFilters.lt(Value.bound(INT_COL, 4)));
 
         final List<CFilter<?>> builderFilters = CFilterBuilder
                 .getQueryFilters()
@@ -81,7 +81,7 @@ public final class CFilterBuilderTest {
 
     @Test
     public void testGetQueryLTEFilters() {
-        filters.add(CFilters.lte(INT_COL, 4));
+        filters.add(CFilters.lte(Value.bound(INT_COL, 4)));
         final List<CFilter<?>> builderFilters = CFilterBuilder
                 .getQueryFilters()
                 .lte(INT_COL, 4)
@@ -92,7 +92,7 @@ public final class CFilterBuilderTest {
 
     @Test
     public void testGetQueryINFilters() {
-        filters.add(CFilters.in(INT_COL, 2, 4, 5));
+        filters.add(CFilters.in(Value.boundMany(INT_COL, 2, 4, 5)));
 
         final List<CFilter<?>> builderFilters = CFilterBuilder
                 .getQueryFilters()
@@ -104,7 +104,7 @@ public final class CFilterBuilderTest {
 
     @Test
     public void testRemoveQueryINFilters() {
-        filters.add(CFilters.in(INT_COL, 2, 4, 5));
+        filters.add(CFilters.in(Value.boundMany(INT_COL, 2, 4, 5)));
 
         final List<CFilter<?>> builderFilters = CFilterBuilder
                 .getQueryFilters()
@@ -116,7 +116,7 @@ public final class CFilterBuilderTest {
 
     @Test
     public void testRemoveQueryEqFilters() {
-        filters.add(CFilters.eq(INT_COL, 2));
+        filters.add(CFilters.eq(Value.bound(INT_COL, 2)));
 
         final List<CFilter<?>> builderFilters = CFilterBuilder
                 .getQueryFilters()

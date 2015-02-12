@@ -121,6 +121,10 @@ public final class ValueTuple {
         return columns.hashCode();
     }
 
+    Map<String, Value<?>> getValues() {
+        return Collections.unmodifiableMap(columns);
+    }
+
     Map<String, CColumn<?, ?>> getColumns() {
         return Collections.unmodifiableMap(Maps.transformValues(columns,
                 new Function<Value<?>, CColumn<?, ?>>() {
