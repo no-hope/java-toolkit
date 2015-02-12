@@ -1,11 +1,11 @@
 package org.nohope.cassandra.mapservice;
 
 import com.datastax.driver.core.ConsistencyLevel;
-import com.datastax.driver.core.querybuilder.QueryBuilder;
 import com.google.common.base.Optional;
 import com.google.common.collect.Maps;
 import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.nohope.cassandra.factory.CassandraFactory;
+import org.nohope.cassandra.mapservice.columns.CColumn;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -45,12 +45,13 @@ public final class CMapService {
         buildMaps(schemes);
     }
 
-    private static Map<String, Object> copyKeysFromSchemeColumnsMap(final TableScheme scheme) {
+    private static Map<String, Value<?>> copyKeysFromSchemeColumnsMap(final TableScheme scheme) {
         return Maps.transformEntries(scheme.getColumns(),
-                new Maps.EntryTransformer<String, Object, Object>() {
+                new Maps.EntryTransformer<String, CColumn<?, ?>, Value<?>>() {
                     @Override
-                    public Object transformEntry(@Nullable String key, @Nullable Object value) {
-                        return QueryBuilder.bindMarker(key);
+                    public Value<?> transformEntry(@Nullable final String key, @Nullable CColumn<?, ?>
+                            value) {
+                        return Value.unbound(value);
                     }
                 });
     }

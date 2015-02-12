@@ -46,9 +46,9 @@ public final class CMapBuilder {
     private static final Pattern TABLE_NAME_PATTERN = Pattern.compile("\\A[a-zA-Z][\\w|_]+");
 
     private final Map<String, CColumn<?, ?>> columns = new LinkedHashMap<>();
-    private final Set<String> partitionKeys = new LinkedHashSet<>();
-    private final Set<String> clusteringKeys = new LinkedHashSet<>();
-    private final Set<String> staticKeys = new LinkedHashSet<>();
+    private final Set<CColumn<?, ?>> partitionKeys = new LinkedHashSet<>();
+    private final Set<CColumn<?, ?>> clusteringKeys = new LinkedHashSet<>();
+    private final Set<CColumn<?, ?>> staticKeys = new LinkedHashSet<>();
 
     private final String tableName;
 
@@ -71,25 +71,25 @@ public final class CMapBuilder {
         return new ColumnsBuilder(columns);
     }
 
-    private void verifyColumnDefinitions(final Collection<String> keys) {
-        final Set<String> prohibitedNames = columns.keySet();
+    private void verifyColumnDefinitions(final Collection<CColumn<?, ?>> keys) {
+        final Set<CColumn<?, ?>> prohibitedNames = Sets.newHashSet(columns.values());
         final String message = "The following columns was not defined: ";
         verifyColumnsAreNotProhibited(keys, prohibitedNames, message, true);
     }
 
-    private void verifyColumnsNotPartition(final Collection<String> keys) {
+    private void verifyColumnsNotPartition(final Collection<CColumn<?, ?>> keys) {
         verifyColumnsAreNotProhibited(keys, partitionKeys, "The following columns is already defined as partition: ", false);
     }
 
-    private void verifyColumnsNotClustering(final Collection<String> keys) {
+    private void verifyColumnsNotClustering(final Collection<CColumn<?, ?>> keys) {
         verifyColumnsAreNotProhibited(keys, clusteringKeys, "The following columns is already defined as clustering: ", false);
     }
 
-    private static void verifyColumnsAreNotProhibited(final Collection<String> keys,
-                                                      final Set<String> prohibitedNames,
+    private static void verifyColumnsAreNotProhibited(final Iterable<CColumn<?, ?>> keys,
+                                                      final Set<CColumn<?, ?>> prohibitedNames,
                                                       final String message,
                                                       final boolean negate) {
-        final Sets.SetView<String> diff = Sets.difference(new HashSet<>(keys), prohibitedNames);
+        final Sets.SetView<CColumn<?, ?>> diff = Sets.difference(Sets.newHashSet(keys), prohibitedNames);
         if ((negate && !diff.isEmpty()) || (!negate && diff.isEmpty())) {
             throw new TableSchemeException(message + StringUtils.join(diff.toArray(), "; "));
         }
@@ -133,12 +133,7 @@ public final class CMapBuilder {
                     throw new TableSchemeException("Collection type can't be partion column: " + column.getName());
                 }
             }
-            final String[] columnNames = getNames(columns);
-            return setPartitionColumnsNames(columnNames);
-        }
-
-        private ClusteringBuilder setPartitionColumnsNames(@Nonnull final String... partitionColumns) {
-            partitionKeys.addAll(Arrays.asList(partitionColumns));
+            partitionKeys.addAll(Arrays.asList(columns));
             verifyColumnDefinitions(partitionKeys);
             return new ClusteringBuilder();
         }
@@ -151,8 +146,11 @@ public final class CMapBuilder {
                     throw new TableSchemeException("Collection type can't be clustering column: " + column.getName());
                 }
             }
-            final String[] columnNames = getNames(columns);
-            return setClusteringColumnsNames(columnNames);
+            clusteringKeys.addAll(Arrays.asList(columns));
+            verifyColumnDefinitions(clusteringKeys);
+            verifyColumnsNotPartition(clusteringKeys);
+
+            return new StaticBuilder();
         }
 
         public StaticBuilder withoutClustering() {
@@ -161,14 +159,6 @@ public final class CMapBuilder {
 
         public TableScheme buildScheme() throws TableSchemeException {
             return new TableScheme(tableName, columns, partitionKeys, clusteringKeys, staticKeys);
-        }
-
-        private StaticBuilder setClusteringColumnsNames(@Nonnull final String... columns) {
-            clusteringKeys.addAll(Arrays.asList(columns));
-            verifyColumnDefinitions(clusteringKeys);
-            verifyColumnsNotPartition(clusteringKeys);
-
-            return new StaticBuilder();
         }
     }
 
@@ -179,8 +169,12 @@ public final class CMapBuilder {
                     throw new TableSchemeException("Collection type can't be static column: " + column.getName());
                 }
             }
-            final String[] columnNames = getNames(columns);
-            return setStaticColumnsNames(columnNames);
+            staticKeys.addAll(Arrays.asList(columns));
+            verifyColumnDefinitions(staticKeys);
+            verifyColumnsNotPartition(staticKeys);
+            verifyColumnsNotClustering(staticKeys);
+
+            return new SchemeBuilder();
         }
 
         public SchemeBuilder withoutStatic() {
@@ -191,7 +185,7 @@ public final class CMapBuilder {
             return new TableScheme(tableName, columns, partitionKeys, clusteringKeys, staticKeys);
         }
 
-        private SchemeBuilder setStaticColumnsNames(@Nonnull final String... columns) {
+        private SchemeBuilder setStaticColumnsNames(@Nonnull final CColumn<?, ?>... columns) {
             staticKeys.addAll(Arrays.asList(columns));
             verifyColumnDefinitions(staticKeys);
             verifyColumnsNotPartition(staticKeys);
@@ -199,15 +193,6 @@ public final class CMapBuilder {
 
             return new SchemeBuilder();
         }
-    }
-
-    static String[] getNames(final CColumn<?, ?>[] columns) {
-        final List<String> ret = new ArrayList<>();
-        for (final CColumn<?, ?> column : columns) {
-            ret.add(column.getName());
-        }
-
-        return ret.toArray(new String[ret.size()]);
     }
 
     public class SchemeBuilder {

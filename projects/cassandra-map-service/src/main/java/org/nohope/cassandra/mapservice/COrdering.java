@@ -1,13 +1,15 @@
 package org.nohope.cassandra.mapservice;
 
+import org.nohope.cassandra.mapservice.columns.CColumn;
+
 /**
  */
 public final class COrdering {
-    private final String columnName;
+    private final CColumn<?, ?> column;
     private final boolean asc;
 
-    public COrdering(final String columnName, final Orderings ordering) {
-        this.columnName = columnName;
+    public COrdering(final CColumn<?, ?> column, final Orderings ordering) {
+        this.column = column;
         this.asc = ordering.getOrdering();
     }
 
@@ -21,18 +23,18 @@ public final class COrdering {
         }
         final COrdering cOrdering = (COrdering) o;
         return (asc == cOrdering.asc)
-               && columnName.equals(cOrdering.columnName);
+               && column.equals(cOrdering.column);
     }
 
     @Override
     public int hashCode() {
-        int result = columnName.hashCode();
+        int result = column.hashCode();
         result = (31 * result) + (asc ? 1 : 0);
         return result;
     }
 
-    String getColumnName() {
-        return columnName;
+    CColumn<?, ?> getColumn() {
+        return column;
     }
 
     boolean isDesc() {

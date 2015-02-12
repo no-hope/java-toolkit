@@ -25,7 +25,7 @@ public class CMapNonTrivialTypeIT {
             .setPartition(DWARF_COL)
             .withoutClustering().buildScheme();
 
-    private static final CQuery QUERY = new CQuery(DWARF_COL.getName());
+    private static final CQuery QUERY = new CQuery(DWARF_COL);
 
     private CMapSync testMap;
     private CassandraFactory cassandraFactory;

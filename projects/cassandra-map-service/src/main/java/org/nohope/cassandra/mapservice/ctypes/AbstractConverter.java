@@ -1,6 +1,7 @@
 package org.nohope.cassandra.mapservice.ctypes;
 
 import com.datastax.driver.core.Row;
+import org.nohope.cassandra.mapservice.columns.CColumn;
 import org.nohope.reflection.TypeReference;
 
 /**
@@ -33,7 +34,7 @@ public abstract class AbstractConverter<CassandraType, JavaType> implements Conv
     }
 
     @Override
-    public final JavaType readValue(final Row result, final String name) {
-        return asJavaValue(coreType.readValue(result, name));
+    public final JavaType readValue(final Row result, final CColumn<JavaType, CassandraType> column) {
+        return asJavaValue(coreType.readValue(result, (CColumn<CassandraType, CassandraType>) column));
     }
 }

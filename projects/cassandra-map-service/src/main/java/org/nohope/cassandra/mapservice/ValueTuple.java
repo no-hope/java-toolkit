@@ -1,9 +1,10 @@
 package org.nohope.cassandra.mapservice;
 
+import com.google.common.base.Function;
+import com.google.common.collect.Maps;
 import org.nohope.cassandra.mapservice.columns.CColumn;
 
 import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
 import javax.annotation.concurrent.Immutable;
 import java.text.MessageFormat;
 import java.util.Collections;
@@ -42,34 +43,37 @@ import java.util.Map;
  */
 @Immutable
 public final class ValueTuple {
-    private final Map<String, Object> columns = new HashMap<>();
+    private final Map<String, Value<?>> columns = new HashMap<>();
 
-    ValueTuple(Map<String, Object> mapToPut) {
+    ValueTuple(final Map<String, Value<?>> mapToPut) {
         columns.putAll(mapToPut);
     }
 
-    public static ValueTuple of(@Nonnull String keyName, @Nullable Object value) {
-        return new ValueTuple(Collections.singletonMap(keyName, value));
+    public static <T> ValueTuple of(@Nonnull final CColumn<T, ?> column,
+                                    @Nonnull final T value) {
+        // FIXME: check if it function call or bind marker
+
+        return new ValueTuple(Collections.singletonMap(column.getName(), Value.bound(column, value)));
     }
 
-    public static <T> ValueTuple of(@Nonnull CColumn<T, ?> column, @Nullable T value) {
-        return new ValueTuple(Collections.singletonMap(column.getName(), (Object) value));
+    public static <T> ValueTuple of(@Nonnull final Value<T> value) {
+        return new ValueTuple(Collections.singletonMap(value.getColumn().getName(), value));
     }
 
-    public ValueTuple with(@Nonnull String key, @Nullable Object value) {
-        Map<String, Object> newMap = new HashMap<>(columns);
-        newMap.put(key, value);
+    public <T> ValueTuple with(@Nonnull final CColumn<T, ?> column, @Nonnull final T value) {
+        final Map<String, Value<?>> newMap = new HashMap<>(columns);
+        newMap.put(column.getName(), Value.bound(column, value));
         return new ValueTuple(newMap);
     }
 
-    public <T> ValueTuple with(@Nonnull CColumn<T, ?> column, @Nullable T value) {
-        Map<String, Object> newMap = new HashMap<>(columns);
-        newMap.put(column.getName(), value);
+    public <T> ValueTuple with(@Nonnull final Value<T> value) {
+        final Map<String, Value<?>> newMap = new HashMap<>(columns);
+        newMap.put(value.getColumn().getName(), value);
         return new ValueTuple(newMap);
     }
 
-    public ValueTuple with(@Nonnull ValueTuple tuple) {
-        Map<String, Object> newMap = new HashMap<>(columns);
+    public ValueTuple with(@Nonnull final ValueTuple tuple) {
+        final Map<String, Value<?>> newMap = new HashMap<>(columns);
         newMap.putAll(tuple.columns);
         return new ValueTuple(newMap);
     }
@@ -77,28 +81,22 @@ public final class ValueTuple {
     /**
      * Typed get if you know what to get.
      *
-     * @param <T>  the type parameter
-     * @param name the name
+     * @param <V>  the type parameter
+     * @param column the column
      * @return the t
      */
     @SuppressWarnings("unchecked")
-    public <T> T get(String name) {
+    public <V> V get(final CColumn<V, ?> column) {
+        final String name = column.getName();
         if (columns.containsKey(name)) {
-            return (T) columns.get(name);
+            return (V) columns.get(name).getValue();
         }
-        throw new IllegalArgumentException(
-                MessageFormat.format("No such column as {0}. Has columns: {1}",
-                        name, columns)
-        );
-    }
-
-    @SuppressWarnings("unchecked")
-    public <V> V get(CColumn<V, ?> column) {
-        return get(column.getName());
+        throw new IllegalArgumentException(MessageFormat.format(
+                "No such column as {0}. Has columns: {1}", name, columns));
     }
 
     @Override
-    public boolean equals(Object o) {
+    public boolean equals(final Object o) {
         if (this == o) {
             return true;
         }
@@ -107,7 +105,7 @@ public final class ValueTuple {
             return false;
         }
 
-        ValueTuple that = (ValueTuple) o;
+        final ValueTuple that = (ValueTuple) o;
         return columns.equals(that.columns);
     }
 
@@ -123,7 +121,13 @@ public final class ValueTuple {
         return columns.hashCode();
     }
 
-    Map<String, Object> getColumns() {
-        return Collections.unmodifiableMap(columns);
+    Map<String, CColumn<?, ?>> getColumns() {
+        return Collections.unmodifiableMap(Maps.transformValues(columns,
+                new Function<Value<?>, CColumn<?, ?>>() {
+                    @Override
+                    public CColumn<?, ?> apply(final Value<?> input) {
+                        return input.getColumn();
+                    }
+                }));
     }
 }

@@ -28,8 +28,8 @@ final class Filter<V> implements CFilter<V> {
     }
 
     @Override
-    public String getColumnName() {
-        return column.getName();
+    public CColumn<?, ?> getColumn() {
+        return column;
     }
 
     @Override

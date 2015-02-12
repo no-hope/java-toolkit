@@ -3,7 +3,10 @@ package org.nohope.cassandra.mapservice;
 import com.datastax.driver.core.ConsistencyLevel;
 import com.datastax.driver.core.RegularStatement;
 import com.datastax.driver.core.Statement;
-import com.datastax.driver.core.querybuilder.*;
+import com.datastax.driver.core.querybuilder.Delete;
+import com.datastax.driver.core.querybuilder.Insert;
+import com.datastax.driver.core.querybuilder.QueryBuilder;
+import com.datastax.driver.core.querybuilder.Select;
 import com.google.common.collect.Sets;
 import org.nohope.cassandra.mapservice.cfilter.CFilter;
 import org.nohope.cassandra.mapservice.columns.CColumn;
@@ -12,7 +15,6 @@ import org.nohope.cassandra.mapservice.ctypes.Converter;
 import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Set;
 
 import static com.datastax.driver.core.querybuilder.QueryBuilder.timestamp;
 import static com.datastax.driver.core.querybuilder.QueryBuilder.ttl;
@@ -108,16 +110,18 @@ final class CMapStatementGenerator {
 
     private Select.Where addWhereStatementToQuery(final CQuery cQuery, final Select query) {
         final Select.Where where = query.where();
-        for (final CFilter filter : cQuery.getFilters()) {
-            where.and(filter.apply(scheme.getColumns().get(filter.getColumnName()).getConverter()));
+        for (final CFilter<?> filter : cQuery.getFilters()) {
+            final CColumn<?, ?> column = scheme.getColumns().get(filter.getColumn().getName());
+            final Converter converter = column.getConverter();
+            where.and(filter.apply(converter));
         }
         return where;
     }
 
     private Select addExpectedColumnsToQuery(final CQuery cQuery) {
         final Select.Selection query = QueryBuilder.select();
-        for (final String column : cQuery.getExpectedColumnsCollection()) {
-            query.column(column);
+        for (final CColumn<?, ?> column : cQuery.getExpectedColumnsCollection()) {
+            query.column(column.getName());
         }
         return query.from(scheme.getTableNameQuoted());
     }
@@ -149,7 +153,7 @@ final class CMapStatementGenerator {
     private Delete.Where applyFiltersToDeleteQuery(final CQuery cQuery) {
         final Delete.Where query = QueryBuilder.delete().from(scheme.getTableNameQuoted()).where();
         for (final CFilter<?> filter : getPrimaryKeysSet(cQuery)) {
-            final CColumn<?, ?> column = scheme.getColumns().get(filter.getColumnName());
+            final CColumn<?, ?> column = scheme.getColumns().get(filter.getColumn().getName());
             final Converter converter = column.getConverter();
             query.and(filter.apply(converter));
         }
@@ -161,8 +165,8 @@ final class CMapStatementGenerator {
         final Collection<CFilter<?>> primaries = new ArrayList<>();
 
         for (final CFilter<?> filter : cQuery.getFilters()) {
-            final String columnName = filter.getColumnName();
-            if (scheme.isPartitionKey(columnName) || scheme.isClusteringKey(columnName)) {
+            final CColumn<?, ?> column = filter.getColumn();
+            if (scheme.isPartitionKey(column) || scheme.isClusteringKey(column)) {
                 primaries.add(filter);
             }
         }
@@ -170,7 +174,7 @@ final class CMapStatementGenerator {
         return primaries;
     }
 
-    private void verifyColumns(final Set<String> columns) {
+    private void verifyColumns(final Collection<CColumn<?, ?>> columns) {
         if (columns.size() != scheme.getColumnsSet().size()) {
             throw new CQueryException(MessageFormat.format(
                     EXPECTED_COLUMNS_ERROR_MESSAGE,
@@ -182,15 +186,14 @@ final class CMapStatementGenerator {
         if (!scheme.getColumnsSet().containsAll(columns)) {
             throw new CQueryException(MessageFormat.format(
                     UNEXPECTED_COLUMNS_ERROR_MESSAGE,
-                    Sets.difference(columns, scheme.getColumnsSet()),
+                    Sets.difference(Sets.newHashSet(columns), scheme.getColumnsSet()),
                     scheme.getColumnsSet()
-            )
-            );
+            ));
         }
     }
 
     private Insert createPutStatement(final CPutQuery cPutQuery, final ConsistencyLevel consistencyLevel) {
-        verifyColumns(cPutQuery.getValueTuple().get().getColumns().keySet());
+        verifyColumns(cPutQuery.getValueTuple().get().getColumns().values());
 
         final Insert query = QueryBuilder.insertInto(scheme.getTableNameQuoted());
         final ValueTuple valueToPut = cPutQuery.getValueTuple().get();
@@ -214,13 +217,11 @@ final class CMapStatementGenerator {
         return query;
     }
 
-    private Object toCassandraType(final ValueTuple valueToPut, final String column) {
-        final Object o = valueToPut.getColumns().get(column);
-        if (o instanceof BindMarker) {
-            return o;
-        }
+    private Object toCassandraType(final ValueTuple valueToPut, final String columnName) {
+        final CColumn<?, ?> column = scheme.getColumns().get(columnName);
+        final Object o = valueToPut.get(column);
         // FIMXE:
-        final Converter converter = scheme.getColumns().get(column).getConverter();
-        return converter.asCassandraValue(o);
+        final Converter converter = column.getConverter();
+        return BindUtils.maybeBindable(converter, o);
     }
 }

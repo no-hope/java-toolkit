@@ -75,9 +75,9 @@ public final class CMapSync {
             throws RowNotFoundException {
 
         final Row row = getRowFromResult(cQuery, mapStatement.get(cQuery, consistency));
-        Map<String, Object> map = new HashMap<>();
-        for (final String columnName : cQuery.getExpectedColumnsCollection()) {
-            map.put(columnName, getObjectFromResult(columnName, row));
+        final Map<String, Value<?>> map = new HashMap<>();
+        for (final CColumn<?, ?> column : cQuery.getExpectedColumnsCollection()) {
+            map.put(column.getName(), getObjectFromResult(column, row));
         }
         return new ValueTuple(map);
     }
@@ -112,9 +112,9 @@ public final class CMapSync {
             public ValueTuple apply(@Nullable Row input) {
                 assert input != null;
 
-                final Map<String, Object> keyColumns = new HashMap<>();
-                for (final String columnName : columnsToFetch) {
-                    keyColumns.put(columnName, getObjectFromResult(columnName, input));
+                final Map<String, Value<?>> keyColumns = new HashMap<>();
+                for (final CColumn<?, ?> column : columnsToFetch) {
+                    keyColumns.put(column.getName(), getObjectFromResult(column, input));
                 }
                 return new ValueTuple(keyColumns);
             }
@@ -137,9 +137,9 @@ public final class CMapSync {
                     @Override
                     public ValueTuple apply(@Nullable final Row input) {
                         assert input != null;
-                        Map<String, Object> keyColumns = new HashMap<>();
-                        for (final String columnName : scheme.getColumnsSet()) {
-                            keyColumns.put(columnName, getObjectFromResult(columnName, input));
+                        Map<String, Value<?>> keyColumns = new HashMap<>();
+                        for (final CColumn<?, ?> column : scheme.getColumnsSet()) {
+                            keyColumns.put(column.getName(), getObjectFromResult(column, input));
                         }
                         return new ValueTuple(keyColumns);
                     }
@@ -234,7 +234,7 @@ public final class CMapSync {
 
         final Map<String, CColumn<?, ?>> columns = scheme.getColumns();
         for (final CFilter filter : update.getFilters()) {
-            final CColumn<?, ?> column = columns.get(filter.getColumnName());
+            final CColumn<?, ?> column = columns.get(filter.getColumn().getName());
             final Converter converter = column.getConverter();
             where.and(filter.apply(converter));
         }
@@ -274,11 +274,13 @@ public final class CMapSync {
         return mapStatement.createDeleteQuery(cQuery, consistencyLevel);
     }
 
-    private Object getObjectFromResult(final String columnName, final Row row) {
-        return scheme.getColumns()
-                     .get(columnName)
-                     .getConverter()
-                     .readValue(row, columnName);
+    private Value<?> getObjectFromResult(final CColumn<?, ?> columnName, final Row row) {
+        final CColumn erasure = (CColumn) columnName;
+        return Value.bound(erasure,
+                scheme.getColumns()
+                      .get(columnName.getName())
+                      .getConverter()
+                      .readValue(row, erasure));
     }
 
     private Row getRowFromResult(final CQuery cQuery, final Select.Where query) throws RowNotFoundException {

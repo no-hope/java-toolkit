@@ -3,10 +3,11 @@ package org.nohope.cassandra.mapservice.ctypes;
 import com.datastax.driver.core.Row;
 import com.google.common.base.Function;
 import com.google.common.collect.Lists;
+import org.nohope.cassandra.mapservice.columns.CColumn;
 import org.nohope.reflection.TypeReference;
 
-import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  */
@@ -52,12 +53,11 @@ class ListType<T, C> implements Converter<List<T>, List<C>> {
     }
 
     @Override
-    public List<C> readValue(final Row result, final String name) {
-        final List<C> converted = new ArrayList<>();
-        for (final T source : result.getList(name, converter.getCassandraType().getReference().getTypeClass())) {
-            converted.add(converter.asJavaValue(source));
-        }
-
-        return converted;
+    public List<C> readValue(final Row result, final CColumn<List<C>, List<T>> column) {
+        final Class<T> clazz = converter.getCassandraType().getReference().getTypeClass();
+        return result.getList(column.getName(), clazz)
+                     .stream()
+                     .map(converter::asJavaValue)
+                     .collect(Collectors.toList());
     }
 }

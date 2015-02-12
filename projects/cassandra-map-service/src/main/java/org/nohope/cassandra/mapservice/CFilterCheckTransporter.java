@@ -3,6 +3,7 @@ package org.nohope.cassandra.mapservice;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 import org.nohope.cassandra.mapservice.cfilter.CFilter;
+import org.nohope.cassandra.mapservice.columns.CColumn;
 
 import java.text.MessageFormat;
 import java.util.Collection;
@@ -32,7 +33,7 @@ final class CFilterCheckTransporter {
     }
 
     private static void performFiltersCheck(final TableScheme scheme, final CQuery cQuery) {
-        final Set<String> filteredColumns = getFilteredColumnSet(cQuery);
+        final Set<CColumn<?, ?>> filteredColumns = getFilteredColumnSet(cQuery);
         if (notAllMandatoryPrimaryKeysDefinedInFilters(filteredColumns, scheme, cQuery)) {
             throw new CQueryException(
                     MessageFormat.format(
@@ -51,19 +52,19 @@ final class CFilterCheckTransporter {
         }
     }
 
-    private static Set<String> getFilteredColumnSet(final CQuery cQuery) {
-        final Set<String> filteredColumnSet = new LinkedHashSet<>();
+    private static Set<CColumn<?, ?>> getFilteredColumnSet(final CQuery cQuery) {
+        final Set<CColumn<?, ?>> filteredColumnSet = new LinkedHashSet<>();
         for (final CFilter filter : cQuery.getFilters()) {
-            filteredColumnSet.add(filter.getColumnName());
+            filteredColumnSet.add(filter.getColumn());
         }
         return filteredColumnSet;
     }
 
     private static boolean notAllFiltersColumnsFromQueryExistInCurrentTableScheme(
-            final Iterable<String> filteredColumns,
+            final Iterable<CColumn<?, ?>> filteredColumns,
             final TableScheme scheme) {
 
-        for (final String filter : filteredColumns) {
+        for (final CColumn<?, ?> filter : filteredColumns) {
             if (!scheme.containsColumn(filter)) {
                 return true;
             }
@@ -74,18 +75,18 @@ final class CFilterCheckTransporter {
     private static void performOrderingsCheck(final CQuery cQuery, final TableScheme scheme)
             throws CMapServiceException {
         for (final COrdering ordering : cQuery.getCOrderingCollection()) {
-            final String columnName = ordering.getColumnName();
-            if (!scheme.containsColumn(columnName)) {
+            final CColumn<?, ?> column = ordering.getColumn();
+            if (!scheme.containsColumn(column)) {
                 throw new CQueryException(
                         MessageFormat.format(NO_SUCH_COLUMN_ERROR_MESSAGE,
-                                columnName,
+                                column,
                                 scheme.getColumnsSet())
                 );
             }
-            if (!scheme.isClusteringKey(columnName) && !scheme.isPartitionKey(columnName)) {
+            if (!scheme.isClusteringKey(column) && !scheme.isPartitionKey(column)) {
                 throw new CQueryException(
                         MessageFormat.format(NOT_A_CLUSTERING_KEY_ERROR_MESSAGE,
-                                columnName,
+                                column,
                                 scheme.getClusteringKeys(),
                                 scheme.getPartitionKeys())
                 );
@@ -94,10 +95,10 @@ final class CFilterCheckTransporter {
     }
 
     private static boolean notAllMandatoryPrimaryKeysDefinedInFilters(
-            final Iterable<String> filteredColumns,
+            final Iterable<CColumn<?, ?>> filteredColumns,
             final TableScheme scheme, final CQuery cQuery) {
-        final Collection<String> primaries = Lists.newArrayList(scheme.getPartitionKeys());
-        for (final String filter : filteredColumns) {
+        final Collection<CColumn<?, ?>> primaries = Lists.newArrayList(scheme.getPartitionKeys());
+        for (final CColumn<?, ?> filter : filteredColumns) {
             if (primaries.contains(filter)) {
                 primaries.remove(filter);
             }
@@ -107,11 +108,11 @@ final class CFilterCheckTransporter {
     }
 
     private static void verifyKeysDefinesOneRow(final CQuery cQuery, final TableScheme scheme) {
-        final Set<String> columns = cQuery.getExpectedColumnsCollection().getColumns();
+        final Set<CColumn<?, ?>> columns = cQuery.getExpectedColumnsCollection().getColumns();
         verifyColumns(columns, scheme);
     }
 
-    private static void verifyColumns(final Set<String> columns, final TableScheme scheme) {
+    private static void verifyColumns(final Set<CColumn<?, ?>> columns, final TableScheme scheme) {
         if (!scheme.getColumnsSet().containsAll(columns)) {
             throw new CQueryException(
                     MessageFormat.format(

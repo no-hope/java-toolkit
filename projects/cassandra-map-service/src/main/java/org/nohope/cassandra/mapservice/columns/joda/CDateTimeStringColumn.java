@@ -2,7 +2,7 @@ package org.nohope.cassandra.mapservice.columns.joda;
 
 import org.joda.time.DateTime;
 import org.nohope.cassandra.mapservice.columns.CColumn;
-import org.nohope.cassandra.mapservice.ctypes.DateTimeType;
+import org.nohope.cassandra.mapservice.ctypes.custom.DateTimeType;
 
 /**
  */

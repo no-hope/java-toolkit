@@ -4,9 +4,6 @@ import com.datastax.driver.core.BoundStatement;
 import com.datastax.driver.core.ColumnDefinitions;
 import com.datastax.driver.core.PreparedStatement;
 import com.datastax.driver.core.Row;
-import com.datastax.driver.core.querybuilder.BindMarker;
-import com.datastax.driver.core.querybuilder.QueryBuilder;
-import com.google.common.base.Predicates;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 import org.nohope.cassandra.mapservice.cfilter.CFilter;
@@ -39,41 +36,38 @@ public abstract class AbstractStatement<T> {
      * Gets object from results' row.
      *
      * @param scheme     {@link org.nohope.cassandra.mapservice.TableScheme table scheme}
-     * @param columnName column name to get result
+     * @param column     column to get result
      * @param row        {@link com.datastax.driver.core.Row datastax driver row}
      * @return the object from result
      */
-    protected static Object getObjectFromResult(final TableScheme scheme,
-                                                final String columnName,
-                                                final Row row) {
-        return scheme.getColumns()
-                     .get(columnName)
-                     .getConverter()
-                     .readValue(row, columnName);
+    protected static Value<?> getObjectFromResult(final TableScheme scheme,
+                                                  final CColumn<?, ?> column,
+                                                  final Row row) {
+        final CColumn erasure = (CColumn) column;
+        return Value.bound(erasure, scheme.getColumns()
+                                          .get(column.getName())
+                                          .getConverter()
+                                          .readValue(row, erasure));
     }
 
-    protected Map<String, Object> copyKeysFormFilters() {
-        final Map<String, Object> orderedFiltersMap = new LinkedHashMap<>();
+    protected Map<String, Value<?>> copyKeysFormFilters() {
+        final Map<String, Value<?>> orderedFiltersMap = new LinkedHashMap<>();
         for (final CFilter<?> filter : cQuery.getFilters()) {
-            final String columnName = filter.getColumnName();
-            orderedFiltersMap.put(columnName, QueryBuilder.bindMarker(columnName));
+            final CColumn<?, ?> column = filter.getColumn();
+            orderedFiltersMap.put(column.getName(), Value.unbound(column));
         }
         return orderedFiltersMap;
     }
 
     public class PreparedBinder {
-        private final Map<String, Object> bindKeysMap = copyKeysFormFilters();
+        private final Map<String, Value<?>> bindKeysMap = copyKeysFormFilters();
 
-        private PreparedBinder bindTo(@Nonnull final String key, @Nonnull final Object object) {
-            if (!bindKeysMap.containsKey(key)) {
+        public <V> PreparedBinder bindTo(@Nonnull final CColumn<V, ?> key, @Nonnull final V object) {
+            if (!bindKeysMap.containsKey(key.getName())) {
                 throw new CQueryException(String.format("No such key as %s. Has keys %s.", key, bindKeysMap.keySet()));
             }
-            bindKeysMap.put(key, object);
+            bindKeysMap.put(key.getName(), Value.bound(key, object));
             return this;
-        }
-
-        public <V> PreparedBinder bindTo(final CColumn<?, ?> column, final V value) {
-            return bindTo(column.getName(), value);
         }
 
         public T stopBinding() {
@@ -86,7 +80,7 @@ public abstract class AbstractStatement<T> {
 
             final BoundStatement bound = new BoundStatement(preparedStatement);
             final ColumnDefinitions meta = preparedStatement.getVariables();
-            for (final Map.Entry<String, Object> e : bindKeysMap.entrySet()) {
+            for (final Map.Entry<String, Value<?>> e : bindKeysMap.entrySet()) {
                 final String key = e.getKey();
                 if (!bound.isSet(key)) {
                     BindUtils.bind(bound, scheme, meta, key, e.getValue());
@@ -101,7 +95,7 @@ public abstract class AbstractStatement<T> {
         }
 
         private Set<String> boundKeys() {
-            return Maps.filterValues(bindKeysMap, Predicates.instanceOf(BindMarker.class)).keySet();
+            return Maps.filterValues(bindKeysMap, input -> input.getType() == Value.Type.UNBOUND).keySet();
         }
     }
 }

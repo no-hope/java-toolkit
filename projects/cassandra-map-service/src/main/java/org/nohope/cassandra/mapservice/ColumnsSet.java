@@ -1,6 +1,7 @@
 package org.nohope.cassandra.mapservice;
 
 import com.google.common.collect.Lists;
+import org.nohope.cassandra.mapservice.columns.CColumn;
 
 import javax.annotation.Nonnull;
 import javax.annotation.concurrent.Immutable;
@@ -9,14 +10,14 @@ import java.util.*;
 /**
  */
 @Immutable
-final class ColumnsSet implements Iterable<String> {
-    private final Set<String> columns = new LinkedHashSet<>();
+final class ColumnsSet implements Iterable<CColumn<?, ?>> {
+    private final Set<CColumn<?, ?>> columns = new LinkedHashSet<>();
 
-    ColumnsSet(@Nonnull final String... columns) {
+    ColumnsSet(@Nonnull final CColumn<?, ?>... columns) {
         this.columns.addAll(Lists.newArrayList(columns));
     }
 
-    ColumnsSet(@Nonnull final Collection<String> newColumns) {
+    ColumnsSet(@Nonnull final Collection<CColumn<?, ?>> newColumns) {
         this.columns.addAll(newColumns);
     }
 
@@ -24,22 +25,22 @@ final class ColumnsSet implements Iterable<String> {
         this.columns.addAll(other.columns);
     }
 
-    static ColumnsSet of(@Nonnull final String... columns) {
+    static ColumnsSet of(@Nonnull final CColumn<?, ?>... columns) {
         return new ColumnsSet(columns);
     }
 
-    public Set<String> getColumns() {
+    public Set<CColumn<?, ?>> getColumns() {
         return Collections.unmodifiableSet(columns);
     }
 
-    public ColumnsSet with(@Nonnull final String newColumn) {
-        final Collection<String> newColumns = new LinkedHashSet<>(columns);
+    public ColumnsSet with(@Nonnull final CColumn<?, ?> newColumn) {
+        final Collection<CColumn<?, ?>> newColumns = new LinkedHashSet<>(columns);
         newColumns.add(newColumn);
         return new ColumnsSet(newColumns);
     }
 
-    public ColumnsSet without(@Nonnull final String column) {
-        final Collection<String> newColumns = new LinkedHashSet<>(columns);
+    public ColumnsSet without(@Nonnull final CColumn<?, ?> column) {
+        final Collection<CColumn<?, ?>> newColumns = new LinkedHashSet<>(columns);
         newColumns.remove(column);
         return new ColumnsSet(newColumns);
     }
@@ -49,13 +50,13 @@ final class ColumnsSet implements Iterable<String> {
     }
 
     public ColumnsSet withAll(@Nonnull final ColumnsSet anotherColumnCollection) {
-        final Collection<String> newColumns = new LinkedHashSet<>(columns);
+        final Collection<CColumn<?, ?>> newColumns = new LinkedHashSet<>(columns);
         newColumns.addAll(anotherColumnCollection.getColumns());
         return new ColumnsSet(newColumns);
     }
 
     @Override
-    public Iterator<String> iterator() {
+    public Iterator<CColumn<?, ?>> iterator() {
         return columns.iterator();
     }
 

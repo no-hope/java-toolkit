@@ -65,7 +65,7 @@ public final class CPutQuery {
 
     public Optional<ValueTuple> getValueTuple() {
         if (valueTuple.isPresent()) {
-            return Optional.of(new ValueTuple(valueTuple.get().getColumns()));
+            return Optional.of(valueTuple.get());
         } else {
             return Optional.absent();
         }

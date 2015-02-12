@@ -1,6 +1,7 @@
 package org.nohope.cassandra.mapservice.ctypes;
 
 import com.datastax.driver.core.Row;
+import org.nohope.cassandra.mapservice.columns.CColumn;
 import org.nohope.reflection.TypeReference;
 
 import java.util.LinkedHashSet;
@@ -50,7 +51,7 @@ class SetType<C, J> implements Converter<Set<C>, Set<J>> {
     }
 
     @Override
-    public Set<J> readValue(final Row result, final String name) {
-        return asJavaValue(result.getSet(name, converter.getCassandraType().getReference().getTypeClass()));
+    public Set<J> readValue(final Row result, final CColumn<Set<J>, Set<C>> column) {
+        return asJavaValue(result.getSet(column.getName(), converter.getCassandraType().getReference().getTypeClass()));
     }
 }

@@ -4,6 +4,7 @@ import com.datastax.driver.core.querybuilder.Ordering;
 import com.datastax.driver.core.querybuilder.QueryBuilder;
 import com.google.common.base.Optional;
 import org.nohope.cassandra.mapservice.cfilter.CFilter;
+import org.nohope.cassandra.mapservice.columns.CColumn;
 
 import javax.annotation.concurrent.Immutable;
 import java.util.*;
@@ -31,7 +32,7 @@ public final class CQuery {
 
     private final boolean isPrepared;
 
-    CQuery(final String... expectedColumns) {
+    CQuery(final CColumn<?, ?>... expectedColumns) {
         this.isPrepared = false;
         this.columnsToGet = new ColumnsSet(expectedColumns);
         this.allowFiltering = false;
@@ -62,9 +63,9 @@ public final class CQuery {
 
     private static Ordering getProperCassandraOrdering(COrdering ordering) {
         if (ordering.isDesc()) {
-            return QueryBuilder.desc(ordering.getColumnName());
+            return QueryBuilder.desc(ordering.getColumn().getName());
         }
-        return QueryBuilder.asc(ordering.getColumnName());
+        return QueryBuilder.asc(ordering.getColumn().getName());
     }
 
     public Optional<Integer> getLimit() {

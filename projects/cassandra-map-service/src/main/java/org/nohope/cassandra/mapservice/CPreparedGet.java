@@ -7,6 +7,7 @@ import com.datastax.driver.core.Row;
 import com.google.common.base.Function;
 import com.google.common.collect.Iterables;
 import org.nohope.cassandra.factory.CassandraFactory;
+import org.nohope.cassandra.mapservice.columns.CColumn;
 import org.nohope.cassandra.util.RowNotFoundException;
 
 import java.util.HashMap;
@@ -43,12 +44,7 @@ public final class CPreparedGet extends AbstractStatement<CPreparedGet.PreparedG
                  final CassandraFactory factory,
                  final CQuery cQuery,
                  final TableScheme scheme) {
-        super(cQuery, scheme, statement, new StatementExecutorProvider<PreparedGetExecutor>() {
-            @Override
-            public PreparedGetExecutor getExecutor(final BoundStatement bound) {
-                return new PreparedGetExecutor(factory, bound, cQuery, scheme);
-            }
-        });
+        super(cQuery, scheme, statement, bound -> new PreparedGetExecutor(factory, bound, cQuery, scheme));
     }
 
     /**
@@ -78,16 +74,13 @@ public final class CPreparedGet extends AbstractStatement<CPreparedGet.PreparedG
             this.factory = factory;
             this.cQuery = cQuery;
 
-            this.converter = new Function<Row, ValueTuple>() {
-                @Override
-                public ValueTuple apply(final Row input) {
-                    final Map<String, Object> keyColumns = new HashMap<>();
-                    for (final String columnName : cQuery.getExpectedColumnsCollection()) {
-                        keyColumns.put(columnName, getObjectFromResult(scheme, columnName, input));
-                    }
-
-                    return new ValueTuple(keyColumns);
+            this.converter = input -> {
+                final Map<String, Value<?>> keyColumns = new HashMap<>();
+                for (final CColumn<?, ?> column : cQuery.getExpectedColumnsCollection()) {
+                    keyColumns.put(column.getName(), getObjectFromResult(scheme, column, input));
                 }
+
+                return new ValueTuple(keyColumns);
             };
         }
 

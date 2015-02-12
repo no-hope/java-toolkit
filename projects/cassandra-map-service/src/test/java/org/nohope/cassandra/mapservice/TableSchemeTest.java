@@ -76,19 +76,19 @@ public final class TableSchemeTest {
 
         final TableScheme s1 = getTableScheme();
         // FIXME: values?
-        assertEquals(s1.getColumnsSet(), expectedColumns.keySet());
+        assertEquals(s1.getColumnNames(), expectedColumns.keySet());
     }
 
     @Test
     public void testIsPrimaryKey() {
         final TableScheme s1 = getTableScheme();
-        assertTrue(s1.isPartitionKey(NAME_COLUMN.getName()));
+        assertTrue(s1.isPartitionKey(NAME_COLUMN));
     }
 
     @Test
     public void testPrimaryKeyGetter() {
         final TableScheme s1 = getTableScheme();
         assertEquals(1, s1.getPartitionKeys().size());
-        assertTrue(s1.getPartitionKeys().contains("name"));
+        assertTrue(s1.getPartitionKeys().contains(CTextColumn.of("name")));
     }
 }

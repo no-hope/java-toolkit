@@ -164,8 +164,8 @@ public final class CQueryBuilder {
     public static class PutInnerQueryBuilder {
         private Optional<ValueTuple> valueTuple;
 
-        public PutQueryOptions addValueTuple(@Nonnull ValueTuple valueTuple) {
-            this.valueTuple = Optional.of(new ValueTuple(valueTuple.getColumns()));
+        public PutQueryOptions addValueTuple(@Nonnull final ValueTuple valueTuple) {
+            this.valueTuple = Optional.of(valueTuple);
             return new PutQueryOptions();
         }
 
@@ -211,7 +211,7 @@ public final class CQueryBuilder {
          * @param expectedColumns the expected columns
          * @return the c query filters
          */
-        public CPreparedQueryFilters of(final String... expectedColumns) {
+        public CPreparedQueryFilters of(final CColumn<?, ?>... expectedColumns) {
             columnsToGet = new ColumnsSet(expectedColumns);
             return new CPreparedQueryFilters();
         }
@@ -225,10 +225,6 @@ public final class CQueryBuilder {
         public CPreparedQueryFilters of(final ColumnsSet columnSet) {
             columnsToGet = new ColumnsSet().withAll(columnSet);
             return new CPreparedQueryFilters();
-        }
-
-        public CPreparedQueryFilters of(final CColumn<?, ?>... cColumns) {
-            return of(CMapBuilder.getNames(cColumns));
         }
 
         CPreparedQueryFilters empty() {
@@ -366,7 +362,7 @@ public final class CQueryBuilder {
              * @param order      the order
              * @return the c query ordering by
              */
-            public CQueryOrderingBy orderingBy(@Nonnull final String columnName, final Orderings order) {
+            public CQueryOrderingBy orderingBy(@Nonnull final CColumn<?, ?> columnName, final Orderings order) {
                 orderings.add(new COrdering(columnName, order));
                 return new CQueryOrderingBy();
             }
@@ -448,7 +444,7 @@ public final class CQueryBuilder {
         }
 
         public CQueryFilters of(final CColumn<?, ?>... columns) {
-            columnsToGet = new ColumnsSet(CMapBuilder.getNames(columns));
+            columnsToGet = new ColumnsSet(columns);
             return new CQueryFilters();
         }
 
@@ -507,7 +503,7 @@ public final class CQueryBuilder {
              * @return the c query ordering by
              */
             public CQueryOrderingBy orderingBy(@Nonnull final CColumn<?, ?> column, final Orderings order) {
-                orderings.add(new COrdering(column.getName(), order));
+                orderings.add(new COrdering(column, order));
                 return new CQueryOrderingBy();
             }
 
@@ -630,7 +626,7 @@ public final class CQueryBuilder {
              * @return the c query ordering by
              */
             public CQueryOrderingBy orderingBy(@Nonnull final CColumn<?, ?> column, final Orderings order) {
-                orderings.add(new COrdering(column.getName(), order));
+                orderings.add(new COrdering(column, order));
                 return new CQueryOrderingBy();
             }
 

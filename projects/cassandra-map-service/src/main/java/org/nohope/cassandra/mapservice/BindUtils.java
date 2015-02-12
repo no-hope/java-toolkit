@@ -16,7 +16,8 @@ public final class BindUtils {
     }
 
     public static <V> Object maybeBindable(final Converter<?, V> converter, final V value) {
-        if (value instanceof BindMarker) {
+        if ((value instanceof BindMarker) ||
+            "com.datastax.driver.core.querybuilder.Utils.FCall".equals(value.getClass().getCanonicalName())) {
             return value;
         }
         return converter.asCassandraValue(value);
@@ -26,8 +27,12 @@ public final class BindUtils {
                             final TableScheme scheme,
                             final ColumnDefinitions meta,
                             final String name,
-                            final Object value) {
+                            final Value<?> value) {
         if (statement.isSet(name)) {
+            throw new IllegalStateException(); // FIXME: descriptive
+        }
+
+        if (value.getType() != Value.Type.BOUND) {
             throw new IllegalStateException(); // FIXME: descriptive
         }
 
@@ -35,11 +40,10 @@ public final class BindUtils {
         final DataType columnDataType = converter.getCassandraType().getDataType();
         final DataType tableType = meta.getType(name);
         if (!columnDataType.equals(tableType)) {
-            throw new IllegalArgumentException();
+            throw new IllegalArgumentException(); // FIXME: descriptive
         }
 
-        final Object converted = converter.asCassandraValue(value); // FIXME: descriptive
+        final Object converted = converter.asCassandraValue(value.getValue()); // FIXME: descriptive
         statement.setBytesUnsafe(name, columnDataType.serialize(converted, ProtocolVersion.NEWEST_SUPPORTED));
-
     }
 }

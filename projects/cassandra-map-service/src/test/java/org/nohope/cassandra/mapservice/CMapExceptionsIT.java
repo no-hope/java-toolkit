@@ -13,7 +13,7 @@ import org.nohope.cassandra.mapservice.columns.CColumn;
 import org.nohope.cassandra.mapservice.columns.joda.CDateTimeStringColumn;
 import org.nohope.cassandra.mapservice.columns.trivial.CTextColumn;
 import org.nohope.cassandra.mapservice.columns.trivial.CUUIDColumn;
-import org.nohope.cassandra.mapservice.ctypes.TypeDescriptor;
+import org.nohope.cassandra.mapservice.ctypes.CoreConverter;
 
 import java.util.UUID;
 
@@ -103,7 +103,7 @@ public class CMapExceptionsIT {
                 ValueTuple.of(COL_QUOTES, newQuote())
                           .with(COL_TIMESTAMP, DateTime.now())
                           .with(COL_QUOTE_UUID, UUID.randomUUID())
-                          .with("god", TypeDescriptor.UUID);
+                          .with(CColumn.of("god", CoreConverter.UUID), UUID.randomUUID());
 
         testMap.put(new CPutQuery(valueToPut));
     }

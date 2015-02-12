@@ -14,6 +14,7 @@ import org.nohope.cassandra.mapservice.columns.joda.CDateTimeStringColumn;
 import org.nohope.cassandra.mapservice.columns.trivial.CCounterColumn;
 import org.nohope.cassandra.mapservice.columns.trivial.CTextColumn;
 import org.nohope.cassandra.mapservice.cops.COperations;
+import org.nohope.cassandra.mapservice.ctypes.CoreConverter;
 import org.nohope.cassandra.mapservice.update.CUpdate;
 import org.nohope.cassandra.util.RowNotFoundException;
 
@@ -84,15 +85,15 @@ public class CMapBatchIT {
 
         final CMapSync ringOfPower = service.getMap(RING_OF_POWER_TABLE);
         final ValueTuple resultRingOfPower =
-                ringOfPower.getOne(new CQuery(QUOTES_COL.getName(), TIMESTAMP_COL.getName()));
+                ringOfPower.getOne(new CQuery(QUOTES_COL, TIMESTAMP_COL));
         assertEquals(resultRingOfPower, valueToPutInRingOfPower);
 
         final CMapSync gnomes = service.getMap(DWARFS);
-        final ValueTuple resultGnomes = gnomes.getOne(new CQuery(NAME_COL.getName(), FATHER_COL.getName()));
+        final ValueTuple resultGnomes = gnomes.getOne(new CQuery(NAME_COL, FATHER_COL));
         assertEquals(resultGnomes, valueToPutInGnomes);
 
         final CMapSync kings = service.getMap(KINGS_TABLE);
-        final ValueTuple resultKings = kings.getOne(new CQuery(NAME_COL.getName(), KINGDOM_COL.getName()));
+        final ValueTuple resultKings = kings.getOne(new CQuery(NAME_COL, KINGDOM_COL));
         assertEquals(resultKings, valueToPutInKings);
     }
 
@@ -119,22 +120,22 @@ public class CMapBatchIT {
         final CQuery ringOfPowerQuery = CQueryBuilder
                 .createRemoveQuery()
                 .addFilters()
-                .eq(QUOTES_COL, (String) valueToPutInRingOfPower.getColumns().get(QUOTES_COL.getName()))
-                .eq(TIMESTAMP_COL, (DateTime) valueToPutInRingOfPower.getColumns().get(TIMESTAMP_COL.getName()))
+                .eq(QUOTES_COL, valueToPutInRingOfPower.get(QUOTES_COL))
+                .eq(TIMESTAMP_COL, valueToPutInRingOfPower.get(TIMESTAMP_COL))
                 .noMoreFilters()
                 .end();
         final CQuery dwarfsQuery = CQueryBuilder
                 .createRemoveQuery()
                 .addFilters()
-                .eq(NAME_COL, (String) valueToPutInDwarfs.getColumns().get(NAME_COL.getName()))
-                .eq(FATHER_COL, (String) valueToPutInDwarfs.getColumns().get(FATHER_COL.getName()))
+                .eq(NAME_COL, valueToPutInDwarfs.get(NAME_COL))
+                .eq(FATHER_COL, valueToPutInDwarfs.get(FATHER_COL))
                 .noMoreFilters()
                 .end();
         final CQuery kingsQuery = CQueryBuilder
                 .createRemoveQuery()
                 .addFilters()
-                .eq(NAME_COL, (String) valueToPutInKings.getColumns().get(NAME_COL.getName()))
-                .eq(KINGDOM_COL, (String) valueToPutInKings.getColumns().get(KINGDOM_COL.getName()))
+                .eq(NAME_COL, valueToPutInKings.get(NAME_COL))
+                .eq(KINGDOM_COL, valueToPutInKings.get(KINGDOM_COL))
                 .noMoreFilters()
                 .end();
 
@@ -172,8 +173,8 @@ public class CMapBatchIT {
         final CQuery dwarfsQuery = CQueryBuilder
                 .createRemoveQuery()
                 .addFilters()
-                .eq(NAME_COL, (String) valueToPutInDwarfs.getColumns().get(NAME_COL.getName()))
-                .eq(FATHER_COL, (String) valueToPutInDwarfs.getColumns().get(FATHER_COL.getName()))
+                .eq(NAME_COL, valueToPutInDwarfs.get(NAME_COL))
+                .eq(FATHER_COL, valueToPutInDwarfs.get(FATHER_COL))
                 .noMoreFilters()
                 .end();
 
@@ -185,7 +186,7 @@ public class CMapBatchIT {
 
         final CMapSync ringOfPower = service.getMap(RING_OF_POWER_TABLE);
         final ValueTuple resultRingOfPower =
-                ringOfPower.getOne(new CQuery(QUOTES_COL.getName(), TIMESTAMP_COL.getName()));
+                ringOfPower.getOne(new CQuery(QUOTES_COL, TIMESTAMP_COL));
         assertEquals(resultRingOfPower, valueToPutInRingOfPower);
 
         final Iterable<ValueTuple> removeGnomesResults = dwarfs.all();
@@ -193,14 +194,14 @@ public class CMapBatchIT {
 
         final CMapSync kings = service.getMap(KINGS_TABLE);
         final ValueTuple resultKings =
-                kings.getOne(new CQuery(NAME_COL.getName(), KINGDOM_COL.getName()));
+                kings.getOne(new CQuery(NAME_COL, KINGDOM_COL));
         assertEquals(resultKings, valueToPutInKings);
     }
 
     @Test(expected = CMapServiceException.class)
     public void no_such_map_test() {
         final CBatch batch = service.batch();
-        batch.put("ghostMap", new CPutQuery(ValueTuple.of("GhostKey", "GhostValue")));
+        batch.put("ghostMap", new CPutQuery(ValueTuple.of(CColumn.of("GhostKey", CoreConverter.TEXT), "GhostValue")));
     }
 
     @Test(expected = CMapServiceException.class)
@@ -261,9 +262,9 @@ public class CMapBatchIT {
             assertEquals(1, all.size());
 
             final ValueTuple value = all.get(0);
-            assertEquals("123", value.get("value1"));
-            assertEquals("456", value.get("value2"));
-            assertEquals(1L, (long) value.get("count"));
+            assertEquals("123", value.get(c1));
+            assertEquals("456", value.get(c2));
+            assertEquals(1L, (long) value.get(c3));
         }
 
         service.batch().update("counter_test",
@@ -277,9 +278,9 @@ public class CMapBatchIT {
             assertEquals(1, all.size());
 
             final ValueTuple value = all.get(0);
-            assertEquals("123", value.get("value1"));
-            assertEquals("456", value.get("value2"));
-            assertEquals(2L, (long) value.get("count"));
+            assertEquals("123", value.get(c1));
+            assertEquals("456", value.get(c2));
+            assertEquals(2L, (long) value.get(c3));
         }
     }
 }

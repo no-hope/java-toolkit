@@ -35,7 +35,7 @@ public final class CQueryBuilderTest {
 //
 //        assertNotEquals(o1.isDesc(), Orderings.ASC.getOrdering());
 //
-//        assertEquals(o1.getColumnName(), "xxx");
+//        assertEquals(o1.getColumn(), "xxx");
 //    }
 //
 //    @Test

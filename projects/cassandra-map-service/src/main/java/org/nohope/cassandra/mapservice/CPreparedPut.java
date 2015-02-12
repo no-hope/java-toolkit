@@ -1,7 +1,6 @@
 package org.nohope.cassandra.mapservice;
 
 import com.datastax.driver.core.*;
-import com.datastax.driver.core.querybuilder.QueryBuilder;
 import com.google.common.base.Predicate;
 import com.google.common.collect.Collections2;
 import com.google.common.collect.Maps;
@@ -45,23 +44,23 @@ public final class CPreparedPut {
         return new PreparedPutBinder();
     }
 
-    private Map<String, Object> copyKeysFromSchemeColumnsMap() {
+    private Map<String, Value<?>> copyKeysFromSchemeColumnsMap() {
         return Maps.transformEntries(
                 scheme.getColumns(),
-                new Maps.EntryTransformer<String, Object, Object>() {
+                new Maps.EntryTransformer<String, CColumn<?, ?>, Value<?>>() {
                     @Override
-                    public Object transformEntry(final String key, final Object value) {
-                        return QueryBuilder.bindMarker(key);
+                    public Value<?> transformEntry(final String key, final CColumn<?, ?> value) {
+                        return Value.unbound(value);
                     }
                 }
         );
     }
 
     public class PreparedPutBinder {
-        private final Map<String, Object> bindKeysMap = new HashMap<>(copyKeysFromSchemeColumnsMap());
+        private final Map<String, Value<?>> bindKeysMap = new HashMap<>(copyKeysFromSchemeColumnsMap());
         private ConsistencyLevel consistencyLevel;
 
-        private PreparedPutBinder bindTo(final String key, final Object object) {
+        public <T> PreparedPutBinder bindTo(final CColumn<T, ?> key, final T object) {
             if (!scheme.containsColumn(key)) {
                 throw new CQueryException(
                         MessageFormat.format("No such column as {0}. Columns: {1}",
@@ -69,7 +68,7 @@ public final class CPreparedPut {
                                 scheme.getColumnsSet())
                 );
             }
-            bindKeysMap.put(key, object);
+            bindKeysMap.put(key.getName(), Value.bound(key, object));
             return this;
         }
 
@@ -82,8 +81,8 @@ public final class CPreparedPut {
             if (bindingsDontContainAllColumns()) {
                 throw new CQueryException(
                         MessageFormat.format(NOT_BOUND_MESSAGE,
-                                Sets.intersection(bindKeysMap.keySet(), scheme.getColumnsSet()),
-                                Sets.difference(bindKeysMap.keySet(), scheme.getColumnsSet()))
+                                Sets.intersection(bindKeysMap.keySet(), scheme.getColumnNames()),
+                                Sets.difference(bindKeysMap.keySet(), scheme.getColumnNames()))
                 );
             }
 
@@ -93,7 +92,7 @@ public final class CPreparedPut {
             }
 
             final ColumnDefinitions meta = statement.getVariables();
-            for (final Map.Entry<String, Object> e : bindKeysMap.entrySet()) {
+            for (final Map.Entry<String, Value<?>> e : bindKeysMap.entrySet()) {
                 final String key = e.getKey();
                 final Collection<ColumnDefinitions.Definition> filter = Collections2.filter(
                         bound.preparedStatement().getVariables().asList(),
@@ -116,11 +115,7 @@ public final class CPreparedPut {
         }
 
         private boolean bindingsDontContainAllColumns() {
-            return !bindKeysMap.keySet().containsAll(scheme.getColumnsSet());
-        }
-
-        public <V, C> PreparedPutBinder bindTo(final CColumn<V, C> column, final V value) {
-            return bindTo(column.getName(), value);
+            return !bindKeysMap.keySet().containsAll(scheme.getColumnNames());
         }
     }
 

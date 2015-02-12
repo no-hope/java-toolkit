@@ -15,6 +15,7 @@ import org.nohope.cassandra.mapservice.columns.CColumn;
 import org.nohope.cassandra.mapservice.columns.joda.CDateTimeUTCStringColumn;
 import org.nohope.cassandra.mapservice.columns.trivial.CTextColumn;
 import org.nohope.cassandra.mapservice.columns.trivial.CUUIDColumn;
+import org.nohope.cassandra.mapservice.ctypes.CoreConverter;
 import org.nohope.cassandra.util.RowNotFoundException;
 import org.nohope.test.ContractUtils;
 
@@ -100,7 +101,7 @@ public class CMapIT {
                 ValueTuple.of(COL_QUOTES, newQuote())
                           .with(COL_TIMESTAMP, DateTime.now(DateTimeZone.UTC));
         final CPutQuery putQuery = new CPutQuery(valueToPut);
-        final CQuery query = new CQuery(COL_QUOTES.getName(), COL_TIMESTAMP.getName());
+        final CQuery query = new CQuery(COL_QUOTES, COL_TIMESTAMP);
 
         testMap.put(putQuery);
 
@@ -110,7 +111,7 @@ public class CMapIT {
 
     @Test(expected = CQueryException.class)
     public void getOneWrongColumnTest() throws RowNotFoundException {
-        final CQuery query = new CQuery(COL_QUOTES.getName(), "someColumn");
+        final CQuery query = new CQuery(COL_QUOTES, CColumn.of("someColumn", CoreConverter.TEXT));
         testMap.getOne(query);
     }
 
@@ -180,8 +181,8 @@ public class CMapIT {
         testMap.put(new CPutQuery(valueToPut));
         testMap.put(new CPutQuery(valueToPut2));
         final ColumnsSet set = new ColumnsSet()
-                .with(COL_QUOTES.getName())
-                .with(COL_TIMESTAMP.getName());
+                .with(COL_QUOTES)
+                .with(COL_TIMESTAMP);
 
         final Collection<CFilter<?>> filters = new ArrayList<>();
 
@@ -195,8 +196,8 @@ public class CMapIT {
         assertEquals(1, returnValue.size());
 
         final ValueTuple value = returnValue.get(0);
-        assertEquals(value.getColumns().get(COL_QUOTES.getName()), quoteToPutAndToGet);
-        assertEquals(value.getColumns().get(COL_TIMESTAMP.getName()), dateToPutAndToGet);
+        assertEquals(value.get(COL_QUOTES), quoteToPutAndToGet);
+        assertEquals(value.get(COL_TIMESTAMP), dateToPutAndToGet);
     }
 
     @Test
@@ -253,7 +254,7 @@ public class CMapIT {
 
         final CQuery query = CQueryBuilder
                 .createRemoveQuery()
-                .withFilters(CFilters.eq(COL_QUOTES, (String) valueToPut.getColumns().get(COL_QUOTES.getName())))
+                .withFilters(CFilters.eq(COL_QUOTES, valueToPut.get(COL_QUOTES)))
                 .end();
 
         testMap.remove(query);
@@ -285,7 +286,7 @@ public class CMapIT {
         final CQuery query = CQueryBuilder
                 .createRemoveQuery()
                 .addFilters()
-                .eq(COL_QUOTES, (String) valueToPut.getColumns().get(COL_QUOTES.getName()))
+                .eq(COL_QUOTES, valueToPut.get(COL_QUOTES))
                 .noMoreFilters()
                 .end();
 
@@ -314,7 +315,7 @@ public class CMapIT {
 
         final CQuery query = CQueryBuilder
                 .createRemoveQuery()
-                .withFilters(CFilters.eq(COL_QUOTES, (String) valueToPut.getColumns().get(COL_QUOTES.getName())))
+                .withFilters(CFilters.eq(COL_QUOTES, valueToPut.get(COL_QUOTES)))
                 .end();
 
         testMap.remove(query);
@@ -454,8 +455,8 @@ public class CMapIT {
 
         final CQuery query = CQueryBuilder
                 .createRemoveQuery()
-                .withFilters(CFilters.eq(COL_QUOTES, (String) valueToPut.getColumns().get(COL_QUOTES.getName())),
-                             CFilters.eq(COL_QUOTE_UUID, (UUID) valueToPut.getColumns().get(COL_QUOTE_UUID.getName())))
+                .withFilters(CFilters.eq(COL_QUOTES, valueToPut.get(COL_QUOTES)),
+                             CFilters.eq(COL_QUOTE_UUID, valueToPut.get(COL_QUOTE_UUID)))
                 .end();
         testMap.remove(query);
         final List<ValueTuple> returnValue = Lists.newArrayList(testMap.all());
