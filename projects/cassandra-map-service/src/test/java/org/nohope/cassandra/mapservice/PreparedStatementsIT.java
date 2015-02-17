@@ -8,22 +8,23 @@ import org.junit.Before;
 import org.junit.Test;
 import org.nohope.cassandra.factory.CassandraFactory;
 import org.nohope.cassandra.factory.ITHelpers;
-import org.nohope.cassandra.mapservice.columns.joda.CDateTimeUTCStringColumn;
-import org.nohope.cassandra.mapservice.columns.trivial.CTextColumn;
+import org.nohope.cassandra.mapservice.columns.CColumn;
+import org.nohope.cassandra.mapservice.ctypes.custom.UTCDateTimeType;
 import org.nohope.cassandra.util.RowNotFoundException;
 
 import java.util.List;
 
 import static org.junit.Assert.*;
 import static org.nohope.cassandra.mapservice.QuoteTestGenerator.newQuote;
+import static org.nohope.cassandra.mapservice.ctypes.CoreConverter.TEXT;
 
 /**
  */
 public class PreparedStatementsIT {
 
     private static final String RING_OF_POWER_TABLE = "RingOfPower";
-    private static final CTextColumn COL_QUOTES = CTextColumn.of("quotes");
-    private static final CDateTimeUTCStringColumn COL_TIMESTAMP = CDateTimeUTCStringColumn.of("timestamp");
+    private static final CColumn<String, String> COL_QUOTES = CColumn.of("quotes", TEXT);
+    private static final CColumn<DateTime, String> COL_TIMESTAMP = CColumn.of("timestamp", UTCDateTimeType.INSTANCE);
     private static final TableScheme SCHEME = new CMapBuilder(RING_OF_POWER_TABLE)
             .addColumn(COL_QUOTES)
             .addColumn(COL_TIMESTAMP)
@@ -173,7 +174,7 @@ public class PreparedStatementsIT {
 
         final CPreparedGet preparedQuery =
                 mapService.prepareGet(RING_OF_POWER_TABLE, query);
-        preparedQuery.bind().bindTo(CTextColumn.of("god"), null).stopBinding().all();
+        preparedQuery.bind().bindTo(CColumn.of("god", TEXT), null).stopBinding().all();
     }
 
     @Test
@@ -302,7 +303,7 @@ public class PreparedStatementsIT {
                              .noMoreFilters().noFiltering();
 
         final CPreparedGet preparedQuery = mapService.prepareGet(RING_OF_POWER_TABLE, query);
-        preparedQuery.bind().bindTo(CTextColumn.of("god"), null).stopBinding().one();
+        preparedQuery.bind().bindTo(CColumn.of("god", TEXT), null).stopBinding().one();
     }
 
     @Test

@@ -10,19 +10,19 @@ import org.nohope.cassandra.factory.CassandraFactory;
 import org.nohope.cassandra.factory.ITHelpers;
 import org.nohope.cassandra.mapservice.cfilter.CFilters;
 import org.nohope.cassandra.mapservice.columns.CColumn;
-import org.nohope.cassandra.mapservice.columns.joda.CDateTimeStringColumn;
-import org.nohope.cassandra.mapservice.columns.trivial.CTextColumn;
-import org.nohope.cassandra.mapservice.columns.trivial.CUUIDColumn;
 import org.nohope.cassandra.mapservice.ctypes.CoreConverter;
+import org.nohope.cassandra.mapservice.ctypes.custom.DateTimeType;
 
 import java.util.UUID;
+
+import static org.nohope.cassandra.mapservice.ctypes.CoreConverter.TEXT;
 
 /**
  */
 public class CMapExceptionsIT {
-    private static final CColumn<String, String> COL_QUOTES = CTextColumn.of("quotes");
-    private static final CColumn<DateTime, String> COL_TIMESTAMP = CDateTimeStringColumn.of("timestamp");
-    private static final CColumn<UUID, UUID> COL_QUOTE_UUID = CUUIDColumn.of("quoteUUID");
+    private static final CColumn<String, String> COL_QUOTES = CColumn.of("quotes", TEXT);
+    private static final CColumn<DateTime, String> COL_TIMESTAMP = CColumn.of("timestamp", DateTimeType.INSTANCE);
+    private static final CColumn<UUID, UUID> COL_QUOTE_UUID = CColumn.of("quoteUUID", CoreConverter.UUID);
     private static final TableScheme SCHEME = new CMapBuilder("RingOfPower")
             .addColumn(COL_QUOTES)
             .addColumn(COL_TIMESTAMP)
@@ -60,7 +60,7 @@ public class CMapExceptionsIT {
 
     @Test(expected = CQueryException.class)
     public void tryToOderByLackColumn() {
-        final CTextColumn lackColumn = CTextColumn.of("xxx");
+        final CColumn<String, String> lackColumn = CColumn.of("xxx", TEXT);
         final CQuery query = CQueryBuilder
                 .createQuery()
                 .of(COL_QUOTES, COL_TIMESTAMP)
@@ -83,9 +83,9 @@ public class CMapExceptionsIT {
 
     @Test(expected = CQueryException.class)
     public void allowOrderingByWithABadColumnName() throws CQueryException {
-        final CTextColumn lackColumn1 = CTextColumn.of("xxx");
-        final CTextColumn lackColumn2 = CTextColumn.of("yyy");
-        final CTextColumn lackColumn3 = CTextColumn.of("god");
+        final CColumn<String, String> lackColumn1 = CColumn.of("xxx", TEXT);
+        final CColumn<String, String> lackColumn2 = CColumn.of("yyy", TEXT);
+        final CColumn<String, String> lackColumn3 = CColumn.of("god", TEXT);
         final CQuery query = CQueryBuilder
                 .createQuery()
                 .of(lackColumn1, lackColumn2)

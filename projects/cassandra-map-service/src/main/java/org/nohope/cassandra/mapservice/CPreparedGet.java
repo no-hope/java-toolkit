@@ -74,10 +74,12 @@ public final class CPreparedGet extends AbstractStatement<CPreparedGet.PreparedG
             this.factory = factory;
             this.cQuery = cQuery;
 
+            // FIXME: validate column by scheme!
+
             this.converter = input -> {
                 final Map<String, Value<?>> keyColumns = new HashMap<>();
                 for (final CColumn<?, ?> column : cQuery.getExpectedColumnsCollection()) {
-                    keyColumns.put(column.getName(), getObjectFromResult(scheme, column, input));
+                    keyColumns.put(column.getName(), column.getValue(input));
                 }
 
                 return new ValueTuple(keyColumns);

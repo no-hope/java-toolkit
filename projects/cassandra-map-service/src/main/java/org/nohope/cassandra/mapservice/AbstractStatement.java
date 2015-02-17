@@ -3,7 +3,6 @@ package org.nohope.cassandra.mapservice;
 import com.datastax.driver.core.BoundStatement;
 import com.datastax.driver.core.ColumnDefinitions;
 import com.datastax.driver.core.PreparedStatement;
-import com.datastax.driver.core.Row;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 import org.nohope.cassandra.mapservice.cfilter.CFilter;
@@ -30,24 +29,6 @@ public abstract class AbstractStatement<T> {
         this.cQuery = cQuery;
         this.preparedStatement = preparedStatement;
         this.statementExecutorProvider = statementExecutorProvider;
-    }
-
-    /**
-     * Gets object from results' row.
-     *
-     * @param scheme     {@link org.nohope.cassandra.mapservice.TableScheme table scheme}
-     * @param column     column to get result
-     * @param row        {@link com.datastax.driver.core.Row datastax driver row}
-     * @return the object from result
-     */
-    protected static Value<?> getObjectFromResult(final TableScheme scheme,
-                                                  final CColumn<?, ?> column,
-                                                  final Row row) {
-        final CColumn erasure = (CColumn) column;
-        return Value.bound(erasure, scheme.getColumns()
-                                          .get(column.getName())
-                                          .getConverter()
-                                          .readValue(row, erasure));
     }
 
     protected Map<String, Value<?>> copyKeysFormFilters() {

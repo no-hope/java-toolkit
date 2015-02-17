@@ -1,16 +1,18 @@
 package org.nohope.cassandra.mapservice;
 
+import com.datastax.driver.core.querybuilder.Ordering;
 import org.nohope.cassandra.mapservice.columns.CColumn;
 
 /**
  */
 public final class COrdering {
     private final CColumn<?, ?> column;
-    private final boolean asc;
+    private final Orderings asc;
 
-    public COrdering(final CColumn<?, ?> column, final Orderings ordering) {
+    public COrdering(final CColumn<?, ?> column,
+                     final Orderings ordering) {
         this.column = column;
-        this.asc = ordering.getOrdering();
+        this.asc = ordering;
     }
 
     @Override
@@ -29,15 +31,15 @@ public final class COrdering {
     @Override
     public int hashCode() {
         int result = column.hashCode();
-        result = (31 * result) + (asc ? 1 : 0);
+        result = (31 * result) + asc.hashCode();
         return result;
+    }
+
+    public Ordering ordering() {
+        return asc.forColumn(column);
     }
 
     CColumn<?, ?> getColumn() {
         return column;
-    }
-
-    boolean isDesc() {
-        return !asc;
     }
 }

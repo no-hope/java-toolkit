@@ -13,7 +13,6 @@ import java.util.Set;
 /**
  */
 final class CFilterCheckTransporter {
-
     private static final String VERIFY_COLUMNS_EXCEPTION_MESSAGE = "{2}: Not all columns passed in Query.\n Were passed: {0}.\n Were missed: {1}";
     private static final String NO_SUCH_COLUMN_ERROR_MESSAGE = "No such column {0}. Has columns {1}";
     private static final String NOT_A_CLUSTERING_KEY_ERROR_MESSAGE = "Column {0} is not a clustering/partition key. Clustering keys is {1}, partition keys is {2}";
@@ -112,7 +111,8 @@ final class CFilterCheckTransporter {
         verifyColumns(columns, scheme);
     }
 
-    private static void verifyColumns(final Set<CColumn<?, ?>> columns, final TableScheme scheme) {
+    private static void verifyColumns(final Set<CColumn<?, ?>> columns,
+                                      final TableScheme scheme) {
         if (!scheme.getColumnsSet().containsAll(columns)) {
             throw new CQueryException(
                     MessageFormat.format(

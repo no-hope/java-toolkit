@@ -1,7 +1,6 @@
 package org.nohope.cassandra.mapservice.ctypes;
 
 import com.datastax.driver.core.Row;
-import org.nohope.cassandra.mapservice.columns.CColumn;
 import org.nohope.reflection.TypeReference;
 
 import java.util.LinkedHashMap;
@@ -40,8 +39,8 @@ class MapType<CK, CV, JK, JV> implements Converter<Map<CK, CV>, Map<JK, JV>> {
     }
 
     @Override
-    public Map<JK, JV> readValue(final Row result, final CColumn<Map<JK, JV>, Map<CK, CV>> name) {
-        final Map<CK, CV> map = result.getMap(name.getName(),
+    public Map<JK, JV> readValue(final Row result, String name) {
+        final Map<CK, CV> map = result.getMap(name,
                 keyConverter.getCassandraType().getReference().getTypeClass(),
                 valueConverter.getCassandraType().getReference().getTypeClass()
         );

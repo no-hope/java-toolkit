@@ -4,19 +4,19 @@ import org.joda.time.DateTime;
 import org.junit.Before;
 import org.junit.Test;
 import org.nohope.cassandra.mapservice.columns.CColumn;
-import org.nohope.cassandra.mapservice.columns.joda.CDateTimeStringColumn;
-import org.nohope.cassandra.mapservice.columns.trivial.CTextColumn;
+import org.nohope.cassandra.mapservice.ctypes.custom.DateTimeType;
 
 import java.util.UUID;
 
 import static org.junit.Assert.assertEquals;
+import static org.nohope.cassandra.mapservice.ctypes.CoreConverter.TEXT;
 
 /**
  */
 public class CMapBuilderTest {
     private CMapBuilder tableBuilder;
-    private static final CColumn<String, String> FIRST = CTextColumn.of("First");
-    private static final CColumn<DateTime, String> SECOND = CDateTimeStringColumn.of("Second");
+    private static final CColumn<String, String> FIRST = CColumn.of("First", TEXT);
+    private static final CColumn<DateTime, String> SECOND = CColumn.of("Second", DateTimeType.INSTANCE);
 
     @Before
     public void setUpBuilder() {
@@ -68,7 +68,7 @@ public class CMapBuilderTest {
                 .addColumn(FIRST)
                 .addColumn(SECOND)
                 .end()
-                .setPartition(FIRST, CTextColumn.of("god"))
+                .setPartition(FIRST, CColumn.of("god", TEXT))
                 .withoutClustering()
                 .buildScheme();
     }
@@ -80,7 +80,7 @@ public class CMapBuilderTest {
                 .addColumn(SECOND)
                 .end()
                 .setPartition(FIRST)
-                .setClustering(SECOND, CTextColumn.of("god"))
+                .setClustering(SECOND, CColumn.of("god", TEXT))
                 .buildScheme();
     }
 
@@ -98,9 +98,9 @@ public class CMapBuilderTest {
 
     @Test
     public void add_several_existing_partition_keys() {
-        final CColumn<String, String> good = CTextColumn.of("Good");
-        final CColumn<String, String> bad = CTextColumn.of("Bad");
-        final CColumn<String, String> ugly = CTextColumn.of("Ugly");
+        final CColumn<String, String> good = CColumn.of("Good", TEXT);
+        final CColumn<String, String> bad = CColumn.of("Bad", TEXT);
+        final CColumn<String, String> ugly = CColumn.of("Ugly", TEXT);
         final String expectedTableDescription =
                 "CREATE TABLE IF NOT EXISTS \"table\" ("
                 + "Good text, Bad text, Ugly text, PRIMARY KEY ((Good, Ugly)));";
@@ -116,9 +116,9 @@ public class CMapBuilderTest {
 
     @Test
     public void add_several_existing_clustering_keys() {
-        final CColumn<String, String> good = CTextColumn.of("Good");
-        final CColumn<String, String> bad = CTextColumn.of("Bad");
-        final CColumn<String, String> ugly = CTextColumn.of("Ugly");
+        final CColumn<String, String> good = CColumn.of("Good", TEXT);
+        final CColumn<String, String> bad = CColumn.of("Bad", TEXT);
+        final CColumn<String, String> ugly = CColumn.of("Ugly", TEXT);
         final String expectedTableDescription =
                 "CREATE TABLE IF NOT EXISTS \"table\" ("
                 + "Good text, Bad text, Ugly text, PRIMARY KEY ((Good), Bad, Ugly));";
@@ -136,9 +136,9 @@ public class CMapBuilderTest {
     @Test(expected = TableSchemeException.class)
     public void quotedTableName() {
         new CMapBuilder("\"quotedTable\"")
-                .addColumn(CTextColumn.of("first"))
+                .addColumn(CColumn.of("first", TEXT))
                 .end()
-                .setPartition(CTextColumn.of("first"))
+                .setPartition(CColumn.of("first", TEXT))
                 .withoutClustering()
                 .buildScheme();
     }

@@ -10,29 +10,28 @@ import org.nohope.cassandra.factory.CassandraFactory;
 import org.nohope.cassandra.factory.ITHelpers;
 import org.nohope.cassandra.mapservice.cfilter.CFilters;
 import org.nohope.cassandra.mapservice.columns.CColumn;
-import org.nohope.cassandra.mapservice.columns.joda.CDateTimeStringColumn;
-import org.nohope.cassandra.mapservice.columns.trivial.CCounterColumn;
-import org.nohope.cassandra.mapservice.columns.trivial.CTextColumn;
 import org.nohope.cassandra.mapservice.cops.COperations;
-import org.nohope.cassandra.mapservice.ctypes.CoreConverter;
+import org.nohope.cassandra.mapservice.ctypes.custom.DateTimeType;
 import org.nohope.cassandra.mapservice.update.CUpdate;
 import org.nohope.cassandra.util.RowNotFoundException;
 
 import java.util.List;
 
 import static org.junit.Assert.assertEquals;
+import static org.nohope.cassandra.mapservice.ctypes.CoreConverter.COUNTER;
+import static org.nohope.cassandra.mapservice.ctypes.CoreConverter.TEXT;
 
 /**
  */
 public class CMapBatchIT {
-    private static final CColumn<String, String> QUOTES_COL = CTextColumn.of("quotes");
-    private static final CColumn<DateTime, String> TIMESTAMP_COL = CDateTimeStringColumn.of("timestamp");
+    private static final CColumn<String, String> QUOTES_COL = CColumn.of("quotes", TEXT);
+    private static final CColumn<DateTime, String> TIMESTAMP_COL = CColumn.of("timestamp", DateTimeType.INSTANCE);
     private static final String RING_OF_POWER_TABLE = "RingOfPower";
     private static final String DWARFS = "Dwarfs";
-    private static final CColumn<String, String> NAME_COL = CTextColumn.of("name");
-    private static final CColumn<String, String> FATHER_COL = CTextColumn.of("father");
+    private static final CColumn<String, String> NAME_COL = CColumn.of("name", TEXT);
+    private static final CColumn<String, String> FATHER_COL = CColumn.of("father", TEXT);
     private static final String KINGS_TABLE = "Kings";
-    private static final CColumn<String, String> KINGDOM_COL = CTextColumn.of("kingdom");
+    private static final CColumn<String, String> KINGDOM_COL = CColumn.of("kingdom", TEXT);
 
     private CassandraFactory cassandraFactory;
     private CMapService service;
@@ -201,7 +200,7 @@ public class CMapBatchIT {
     @Test(expected = CMapServiceException.class)
     public void no_such_map_test() {
         final CBatch batch = service.batch();
-        batch.put("ghostMap", new CPutQuery(ValueTuple.of(CColumn.of("GhostKey", CoreConverter.TEXT), "GhostValue")));
+        batch.put("ghostMap", new CPutQuery(ValueTuple.of(CColumn.of("GhostKey", TEXT), "GhostValue")));
     }
 
     @Test(expected = CMapServiceException.class)
@@ -230,9 +229,9 @@ public class CMapBatchIT {
 
     @Test
     public void countersTest() {
-        final CTextColumn c1 = CTextColumn.of("value1");
-        final CTextColumn c2 = CTextColumn.of("value2");
-        final CCounterColumn c3 = CCounterColumn.of("count");
+        final CColumn<String, String> c1 = CColumn.of("value1", TEXT);
+        final CColumn<String, String> c2 = CColumn.of("value2", TEXT);
+        final CColumn<Long, Long> c3 = CColumn.of("count", COUNTER);
         final TableScheme tableWithCounter = new CMapBuilder("counter_test")
                 .addColumn(c1)
                 .addColumn(c2)
@@ -254,7 +253,7 @@ public class CMapBatchIT {
         service.batch().update("counter_test",
                 CUpdate.withFilters(CFilters.eq(Value.bound(c1, "123")),
                         CFilters.eq(Value.bound(c2, "456")))
-                       .apply(COperations.counterIncr("count", 1)))
+                       .apply(COperations.counterIncr(Value.bound(c3, 1L))))
                .apply();
 
         // after:
@@ -270,8 +269,8 @@ public class CMapBatchIT {
 
         service.batch().update("counter_test",
                 CUpdate.withFilters(CFilters.eq(Value.bound(c1, "123")),
-                                    CFilters.eq(Value.bound(c2, "456")))
-                       .apply(COperations.counterIncr("count", 1)))
+                        CFilters.eq(Value.bound(c2, "456")))
+                       .apply(COperations.counterIncr(Value.bound(c3, 1L))))
                .apply();
 
         // after_update:

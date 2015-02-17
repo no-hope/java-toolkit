@@ -1,13 +1,13 @@
 package org.nohope.cassandra.mapservice;
 
 import com.datastax.driver.core.querybuilder.Ordering;
-import com.datastax.driver.core.querybuilder.QueryBuilder;
 import com.google.common.base.Optional;
 import org.nohope.cassandra.mapservice.cfilter.CFilter;
 import org.nohope.cassandra.mapservice.columns.CColumn;
 
 import javax.annotation.concurrent.Immutable;
 import java.util.*;
+import java.util.stream.Collectors;
 
 /**
  * Immutable query object.
@@ -61,11 +61,8 @@ public final class CQuery {
         this.limit = Optional.absent();
     }
 
-    private static Ordering getProperCassandraOrdering(COrdering ordering) {
-        if (ordering.isDesc()) {
-            return QueryBuilder.desc(ordering.getColumn().getName());
-        }
-        return QueryBuilder.asc(ordering.getColumn().getName());
+    private static Ordering getProperCassandraOrdering(final COrdering ordering) {
+        return ordering.ordering();
     }
 
     public Optional<Integer> getLimit() {
@@ -134,10 +131,8 @@ public final class CQuery {
 
     Ordering[] getOrderingAsCassandraOrderings() {
         final Ordering[] arrayToReturn = new Ordering[orderings.size()];
-        final List<Ordering> cassandraOrderings = new ArrayList<>();
-        for (final COrdering ordering : orderings) {
-            cassandraOrderings.add(getProperCassandraOrdering(ordering));
-        }
+        final List<Ordering> cassandraOrderings =
+                orderings.stream().map(COrdering::ordering).collect(Collectors.toList());
         return cassandraOrderings.toArray(arrayToReturn);
     }
 

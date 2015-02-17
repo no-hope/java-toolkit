@@ -129,7 +129,7 @@ public final class CMapBuilder {
     public final class PartitionBuilder {
         public ClusteringBuilder setPartition(@Nonnull final CColumn<?, ?>... columns) {
             for (final CColumn<?, ?> column : columns) {
-                if (column.getConverter().getCassandraType().getDataType().isCollection()) {
+                if (column.getCassandraType().getDataType().isCollection()) {
                     throw new TableSchemeException("Collection type can't be partion column: " + column.getName());
                 }
             }
@@ -142,7 +142,7 @@ public final class CMapBuilder {
     public final class ClusteringBuilder {
         public StaticBuilder setClustering(final CColumn<?, ?>... columns) {
             for (final CColumn<?, ?> column : columns) {
-                if (column.getConverter().getCassandraType().getDataType().isCollection()) {
+                if (column.getCassandraType().getDataType().isCollection()) {
                     throw new TableSchemeException("Collection type can't be clustering column: " + column.getName());
                 }
             }
@@ -165,7 +165,7 @@ public final class CMapBuilder {
     public final class StaticBuilder {
         public SchemeBuilder setStatic(final CColumn<?, ?>... columns) {
             for (final CColumn<?, ?> column : columns) {
-                if (column.getConverter().getCassandraType().getDataType().isCollection()) {
+                if (column.getCassandraType().getDataType().isCollection()) {
                     throw new TableSchemeException("Collection type can't be static column: " + column.getName());
                 }
             }

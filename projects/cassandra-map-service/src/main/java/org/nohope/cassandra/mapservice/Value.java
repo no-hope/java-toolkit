@@ -4,6 +4,7 @@ import com.datastax.driver.core.querybuilder.QueryBuilder;
 import org.nohope.cassandra.mapservice.columns.CColumn;
 
 import java.util.Objects;
+import java.util.Optional;
 
 /**
  * @author <a href="mailto:ketoth.xupack@gmail.com">Ketoth Xupack</a>
@@ -18,6 +19,10 @@ public final class Value<T> {
         this.column = column;
         this.value = value;
         this.type = type;
+    }
+
+    public Object asCassandraValue() {
+        return column.asCassandraValue(this);
     }
 
     /*
@@ -61,6 +66,13 @@ public final class Value<T> {
         return value;
     }
 
+    @SuppressWarnings("unchecked")
+    public Optional<T> getBoundValue() {
+        return (type == Type.BOUND)
+             ? Optional.of((T) value)
+             : Optional.<T> empty();
+    }
+
     public Type getType() {
         return type;
     }
@@ -96,7 +108,7 @@ public final class Value<T> {
                '}';
     }
 
-    enum Type {
+    public enum Type {
         BOUND, UNBOUND, FCALL
     }
 }

@@ -1,32 +1,52 @@
 package org.nohope.cassandra.mapservice.columns;
 
+import com.datastax.driver.core.Row;
+import org.nohope.cassandra.mapservice.Value;
 import org.nohope.cassandra.mapservice.ctypes.Converter;
+import org.nohope.cassandra.mapservice.ctypes.TypeDescriptor;
+import org.nohope.reflection.TypeReference;
 
 /**
  */
-public class CColumn<V, C> {
+public class CColumn<JavaType, CassandraType> {
     private final String name;
-    private final Converter<C, V> converter;
+    private final Converter<CassandraType, JavaType> converter;
 
-    public CColumn(final String name, final Converter<C, V> converter) {
+    public CColumn(final String name, final Converter<CassandraType, JavaType> converter) {
         this.name = name;
         this.converter = converter;
     }
 
-    public static <V, C> CColumn<C, V> of(final String name, final Converter<V, C> converter) {
+    public static <V, C> CColumn<C, V> of(final String name,
+                                          final Converter<V, C> converter) {
         return new CColumn<>(name, converter);
+    }
+
+    public TypeDescriptor<CassandraType> getCassandraType() {
+        return converter.getCassandraType();
+    }
+
+    public TypeReference<JavaType> getJavaType() {
+        return converter.getJavaType();
     }
 
     public String getName() {
         return name;
     }
 
-    public Converter<C, V> getConverter() {
-        return converter;
-    }
-
     public String getColumnTemplate() {
         return name + ' ' + converter.getCassandraType().getTypeName();
+    }
+
+    public Value<JavaType> getValue(final Row row) {
+        return Value.bound(this, converter.readValue(row, name));
+    }
+
+    public Object asCassandraValue(final Value<JavaType> value) {
+        return value.getBoundValue()
+                    .map(converter::asCassandraValue)
+                    .map(Object.class::cast)
+                    .orElse(value.getValue());
     }
 
     @Override

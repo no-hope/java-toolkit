@@ -10,7 +10,6 @@ import com.datastax.driver.core.querybuilder.Select;
 import com.google.common.collect.Sets;
 import org.nohope.cassandra.mapservice.cfilter.CFilter;
 import org.nohope.cassandra.mapservice.columns.CColumn;
-import org.nohope.cassandra.mapservice.ctypes.Converter;
 
 import java.text.MessageFormat;
 import java.util.ArrayList;
@@ -111,9 +110,11 @@ final class CMapStatementGenerator {
     private Select.Where addWhereStatementToQuery(final CQuery cQuery, final Select query) {
         final Select.Where where = query.where();
         for (final CFilter<?> filter : cQuery.getFilters()) {
-            final CColumn<?, ?> column = scheme.getColumns().get(filter.getValue().getColumn().getName());
-            final Converter converter = column.getConverter();
-            where.and(filter.apply(converter));
+            final CColumn<?, ?> filterCol = filter.getValue().getColumn();
+            if (!scheme.getColumns().get(filterCol.getName()).equals(filterCol)) {
+                throw new IllegalStateException(); // FIXME!
+            }
+            where.and(filter.apply());
         }
         return where;
     }
@@ -153,9 +154,11 @@ final class CMapStatementGenerator {
     private Delete.Where applyFiltersToDeleteQuery(final CQuery cQuery) {
         final Delete.Where query = QueryBuilder.delete().from(scheme.getTableNameQuoted()).where();
         for (final CFilter<?> filter : getPrimaryKeysSet(cQuery)) {
-            final CColumn<?, ?> column = scheme.getColumns().get(filter.getValue().getColumn().getName());
-            final Converter converter = column.getConverter();
-            query.and(filter.apply(converter));
+            final CColumn<?, ?> filterCol = filter.getValue().getColumn();
+            if (!scheme.getColumns().get(filterCol.getName()).equals(filterCol)) {
+                throw new IllegalStateException(); // FIXME!
+            }
+            query.and(filter.apply());
         }
 
         return query;

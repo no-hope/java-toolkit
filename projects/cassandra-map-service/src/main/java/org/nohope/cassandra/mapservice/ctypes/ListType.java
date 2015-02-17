@@ -3,7 +3,6 @@ package org.nohope.cassandra.mapservice.ctypes;
 import com.datastax.driver.core.Row;
 import com.google.common.base.Function;
 import com.google.common.collect.Lists;
-import org.nohope.cassandra.mapservice.columns.CColumn;
 import org.nohope.reflection.TypeReference;
 
 import java.util.List;
@@ -53,9 +52,9 @@ class ListType<T, C> implements Converter<List<T>, List<C>> {
     }
 
     @Override
-    public List<C> readValue(final Row result, final CColumn<List<C>, List<T>> column) {
+    public List<C> readValue(final Row result, final String name) {
         final Class<T> clazz = converter.getCassandraType().getReference().getTypeClass();
-        return result.getList(column.getName(), clazz)
+        return result.getList(name, clazz)
                      .stream()
                      .map(converter::asJavaValue)
                      .collect(Collectors.toList());

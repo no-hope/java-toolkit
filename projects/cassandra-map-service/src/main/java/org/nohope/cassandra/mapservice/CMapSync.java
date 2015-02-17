@@ -10,7 +10,6 @@ import org.nohope.cassandra.factory.CassandraFactory;
 import org.nohope.cassandra.mapservice.cfilter.CFilter;
 import org.nohope.cassandra.mapservice.columns.CColumn;
 import org.nohope.cassandra.mapservice.cops.Operation;
-import org.nohope.cassandra.mapservice.ctypes.Converter;
 import org.nohope.cassandra.mapservice.update.CUpdate;
 import org.nohope.cassandra.util.RowNotFoundException;
 
@@ -233,16 +232,12 @@ public final class CMapSync {
         final Update.Where where = query.where();
 
         final Map<String, CColumn<?, ?>> columns = scheme.getColumns();
-        for (final CFilter filter : update.getFilters()) {
-            final CColumn<?, ?> column = columns.get(filter.getValue().getColumn().getName());
-            final Converter converter = column.getConverter();
-            where.and(filter.apply(converter));
+        for (final CFilter<?> filter : update.getFilters()) {
+            where.and(filter.apply());
         }
 
         for (final Operation<?> operation : update.getOperations()) {
-            final CColumn<?, ?> column = columns.get(operation.getColumnName());
-            final Converter converter = column.getConverter();
-            where.with(operation.apply(converter));
+            where.with(operation.apply());
         }
 
         if (null != consistencyLevel) {
@@ -274,13 +269,11 @@ public final class CMapSync {
         return mapStatement.createDeleteQuery(cQuery, consistencyLevel);
     }
 
-    private Value<?> getObjectFromResult(final CColumn<?, ?> columnName, final Row row) {
-        final CColumn erasure = (CColumn) columnName;
-        return Value.bound(erasure,
-                scheme.getColumns()
-                      .get(columnName.getName())
-                      .getConverter()
-                      .readValue(row, erasure));
+    private Value<?> getObjectFromResult(final CColumn<?, ?> column, final Row row) {
+        if (!scheme.getColumns().get(column.getName()).equals(column)) {
+            throw new IllegalStateException(); // FIXME
+        }
+        return column.getValue(row);
     }
 
     private Row getRowFromResult(final CQuery cQuery, final Select.Where query) throws RowNotFoundException {

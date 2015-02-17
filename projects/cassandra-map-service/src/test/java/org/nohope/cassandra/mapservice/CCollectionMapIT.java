@@ -6,7 +6,7 @@ import org.junit.Test;
 import org.nohope.cassandra.factory.CassandraFactory;
 import org.nohope.cassandra.factory.ITHelpers;
 import org.nohope.cassandra.mapservice.columns.CColumn;
-import org.nohope.cassandra.mapservice.columns.trivial.CTextColumn;
+import org.nohope.cassandra.mapservice.ctypes.CoreConverter;
 
 import java.util.Map;
 
@@ -18,7 +18,7 @@ import static org.nohope.cassandra.mapservice.ctypes.CoreConverter.*;
 public class CCollectionMapIT {
     private CassandraFactory cassandraFactory;
     private static final CColumn<Map<String, String>, Map<String, String>> COL_PERSON = CColumn.of("mapping", map(TEXT, ASCII));
-    private static final CTextColumn COL_ID = CTextColumn.of("id");
+    private static final CColumn<String, String> COL_ID = CColumn.of("id", CoreConverter.TEXT);
 
     private static final TableScheme SCHEME = new CMapBuilder("RingOfPower")
             .addColumn(COL_ID)

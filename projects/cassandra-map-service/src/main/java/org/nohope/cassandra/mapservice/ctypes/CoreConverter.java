@@ -2,7 +2,6 @@ package org.nohope.cassandra.mapservice.ctypes;
 
 import com.datastax.driver.core.Row;
 import com.google.common.collect.ImmutableSet;
-import org.nohope.cassandra.mapservice.columns.CColumn;
 import org.nohope.reflection.TypeReference;
 
 import java.math.BigDecimal;
@@ -10,108 +9,28 @@ import java.math.BigInteger;
 import java.net.InetAddress;
 import java.nio.ByteBuffer;
 import java.util.*;
-
+import java.util.function.BiFunction;
 
 /**
  * Cassandra data types
  */
-public abstract class CoreConverter<InternalType> implements Converter<InternalType, InternalType> {
-    public static final CoreConverter<String> ASCII = new CoreConverter<String>(TypeDescriptor.ASCII) {
-        @Override
-        public String readValue(final Row result, final CColumn<String, String> column) {
-            return result.getString(column.getName());
-        }
-    };
-    public static final CoreConverter<Long> BIGINT = new CoreConverter<Long>(TypeDescriptor.BIGINT) {
-        @Override
-        public Long readValue(final Row result, final CColumn<Long, Long> column) {
-            return result.getLong(column.getName());
-        }
-    };
-    public static final CoreConverter<ByteBuffer> BLOB = new CoreConverter<ByteBuffer>(TypeDescriptor.BLOB) {
-        @Override
-        public ByteBuffer readValue(final Row result, final CColumn<ByteBuffer, ByteBuffer> column) {
-            return result.getBytes(column.getName());
-        }
-    };
-    public static final CoreConverter<Boolean> BOOLEAN = new CoreConverter<Boolean>(TypeDescriptor.BOOLEAN) {
-        @Override
-        public Boolean readValue(final Row result, final CColumn<Boolean, Boolean> column) {
-            return result.getBool(column.getName());
-        }
-    };
-    public static final CoreConverter<Long> COUNTER = new CoreConverter<Long>(TypeDescriptor.COUNTER) {
-        @Override
-        public Long readValue(final Row result, final CColumn<Long, Long> column) {
-            return result.getLong(column.getName());
-        }
-    };
-    public static final CoreConverter<BigDecimal> DECIMAL = new CoreConverter<BigDecimal>(TypeDescriptor.DECIMAL) {
-        @Override
-        public BigDecimal readValue(final Row result, final CColumn<BigDecimal, BigDecimal> column) {
-            return result.getDecimal(column.getName());
-        }
-    };
-    public static final CoreConverter<Double> DOUBLE = new CoreConverter<Double>(TypeDescriptor.DOUBLE) {
-        @Override
-        public Double readValue(final Row result, final CColumn<Double, Double> column) {
-            return result.getDouble(column.getName());
-        }
-    };
-    public static final CoreConverter<Float> FLOAT = new CoreConverter<Float>(TypeDescriptor.FLOAT) {
-        @Override
-        public Float readValue(final Row result, final CColumn<Float, Float> column) {
-            return result.getFloat(column.getName());
-        }
-    };
-    public static final CoreConverter<InetAddress> INET = new CoreConverter<InetAddress>(TypeDescriptor.INET) {
-        @Override
-        public InetAddress readValue(final Row result, final CColumn<InetAddress, InetAddress> column) {
-            return result.getInet(column.getName());
-        }
-    };
-    public static final CoreConverter<Integer> INT = new CoreConverter<Integer>(TypeDescriptor.INT) {
-        @Override
-        public Integer readValue(final Row result, final CColumn<Integer, Integer> column) {
-            return result.getInt(column.getName());
-        }
-    };
-    public static final CoreConverter<String> TEXT = new CoreConverter<String>(TypeDescriptor.TEXT) {
-        @Override
-        public String readValue(final Row result, final CColumn<String, String> column) {
-            return result.getString(column.getName());
-        }
-    };
-    public static final CoreConverter<Date> TIMESTAMP = new CoreConverter<Date>(TypeDescriptor.TIMESTAMP) {
-        @Override
-        public Date readValue(final Row result, final CColumn<Date, Date> column) {
-            return result.getDate(column.getName());
-        }
-    };
-    public static final CoreConverter<UUID> UUID = new CoreConverter<UUID>(TypeDescriptor.UUID) {
-        @Override
-        public UUID readValue(final Row result, final CColumn<UUID, UUID> column) {
-            return result.getUUID(column.getName());
-        }
-    };
-    public static final CoreConverter<String> VARCHAR = new CoreConverter<String>(TypeDescriptor.VARCHAR) {
-        @Override
-        public String readValue(final Row result, final CColumn<String, String> column) {
-            return result.getString(column.getName());
-        }
-    };
-    public static final CoreConverter<BigInteger> VARINT = new CoreConverter<BigInteger>(TypeDescriptor.VARINT) {
-        @Override
-        public BigInteger readValue(final Row result, final CColumn<BigInteger, BigInteger> column) {
-            return result.getVarint(column.getName());
-        }
-    };
-    public static final CoreConverter<UUID> TIMEUUID = new CoreConverter<UUID>(TypeDescriptor.TIMEUUID) {
-        @Override
-        public UUID readValue(final Row result, final CColumn<UUID, UUID> column) {
-            return result.getUUID(column.getName());
-        }
-    };
+public final class CoreConverter<InternalType> implements Converter<InternalType, InternalType> {
+    public static final CoreConverter<String> ASCII = of(TypeDescriptor.ASCII, Row::getString);
+    public static final CoreConverter<Long> BIGINT = of(TypeDescriptor.BIGINT, Row::getLong);
+    public static final CoreConverter<ByteBuffer> BLOB = of(TypeDescriptor.BLOB, Row::getBytes);
+    public static final CoreConverter<Boolean> BOOLEAN = of(TypeDescriptor.BOOLEAN, Row::getBool);
+    public static final CoreConverter<Long> COUNTER = of(TypeDescriptor.COUNTER, Row::getLong);
+    public static final CoreConverter<BigDecimal> DECIMAL = of(TypeDescriptor.DECIMAL, Row::getDecimal);
+    public static final CoreConverter<Double> DOUBLE = of(TypeDescriptor.DOUBLE, Row::getDouble);
+    public static final CoreConverter<Float> FLOAT = of(TypeDescriptor.FLOAT, Row::getFloat);
+    public static final CoreConverter<InetAddress> INET = of(TypeDescriptor.INET, Row::getInet);
+    public static final CoreConverter<Integer> INT = of(TypeDescriptor.INT, Row::getInt);
+    public static final CoreConverter<String> TEXT = of(TypeDescriptor.TEXT, Row::getString);
+    public static final CoreConverter<Date> TIMESTAMP = of(TypeDescriptor.TIMESTAMP, Row::getDate);
+    public static final CoreConverter<UUID> UUID = of(TypeDescriptor.UUID, Row::getUUID);
+    public static final CoreConverter<String> VARCHAR = of(TypeDescriptor.VARCHAR, Row::getString);
+    public static final CoreConverter<BigInteger> VARINT = of(TypeDescriptor.VARINT, Row::getVarint);
+    public static final CoreConverter<UUID> TIMEUUID = of(TypeDescriptor.TIMEUUID, Row::getUUID);
 
     public static <C, J> Converter<List<C>, List<J>> list(final Converter<C, J> elementConverter) {
         return new ListType<>(elementConverter);
@@ -127,9 +46,17 @@ public abstract class CoreConverter<InternalType> implements Converter<InternalT
     }
 
     private final TypeDescriptor<InternalType> descriptor;
+    private final BiFunction<Row, String, InternalType> function;
 
-    CoreConverter(final TypeDescriptor<InternalType> descriptor) {
+    CoreConverter(final TypeDescriptor<InternalType> descriptor,
+                  final BiFunction<Row, String, InternalType> function) {
         this.descriptor = descriptor;
+        this.function = function;
+    }
+
+    private static <T> CoreConverter<T> of(final TypeDescriptor<T> descriptor,
+                                           final BiFunction<Row, String, T> function) {
+        return new CoreConverter<>(descriptor, function);
     }
 
     public static Set<CoreConverter<?>> getSupportedTypes() {
@@ -159,5 +86,10 @@ public abstract class CoreConverter<InternalType> implements Converter<InternalT
     @Override
     public TypeReference<InternalType> getJavaType() {
         return descriptor.getReference();
+    }
+
+    @Override
+    public InternalType readValue(final Row result, final String name) {
+        return function.apply(result, name);
     }
 }

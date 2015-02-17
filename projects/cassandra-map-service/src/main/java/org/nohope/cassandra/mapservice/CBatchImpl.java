@@ -78,7 +78,7 @@ public final class CBatchImpl implements CBatch {
 
     @Override
     public CBatch put(final String mapId, final CPutQuery cPutQuery) {
-        CMapSync map = cMapService.getMap(mapId);
+        final CMapSync map = cMapService.getMap(mapId);
         final RegularStatement putOperation = map.createPutOperation(cPutQuery, consistencyLevel);
         statements.add(putOperation);
         return this;
@@ -88,10 +88,7 @@ public final class CBatchImpl implements CBatch {
     public void apply() {
         performCheckBatchBeforeApplying();
         final BatchStatement batch = formProperBatch(BatchStatement.Type.LOGGED);
-        for (final Statement statement : batch.getStatements()) {
-            statement.enableTracing();
-        }
-
+        batch.getStatements().forEach(Statement::enableTracing);
         appliedBatch(batch);
     }
 

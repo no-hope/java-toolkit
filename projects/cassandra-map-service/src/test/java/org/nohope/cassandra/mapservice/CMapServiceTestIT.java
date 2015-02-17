@@ -1,13 +1,16 @@
 package org.nohope.cassandra.mapservice;
 
 import com.google.common.collect.Lists;
+import org.joda.time.DateTime;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.nohope.cassandra.factory.CassandraFactory;
 import org.nohope.cassandra.factory.ITHelpers;
-import org.nohope.cassandra.mapservice.columns.joda.CDateTimeStringColumn;
-import org.nohope.cassandra.mapservice.columns.trivial.CTextColumn;
+import org.nohope.cassandra.mapservice.columns.CColumn;
+import org.nohope.cassandra.mapservice.ctypes.custom.DateTimeType;
+
+import static org.nohope.cassandra.mapservice.ctypes.CoreConverter.TEXT;
 
 /**
  */
@@ -19,8 +22,8 @@ public class CMapServiceTestIT {
 
     @Before
     public void setUp() throws TableSchemeException {
-        final CTextColumn c1 = CTextColumn.of("First");
-        final CDateTimeStringColumn c2 = CDateTimeStringColumn.of("Second");
+        final CColumn<String, String> c1 = CColumn.of("First", TEXT);
+        final CColumn<DateTime, String> c2 = CColumn.of("Second", DateTimeType.INSTANCE);
         final TableScheme scheme = new CMapBuilder(TABLE_NAME)
                 .addColumn(c1)
                 .addColumn(c2)

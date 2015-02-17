@@ -12,10 +12,8 @@ import org.nohope.cassandra.factory.ITHelpers;
 import org.nohope.cassandra.mapservice.cfilter.CFilter;
 import org.nohope.cassandra.mapservice.cfilter.CFilters;
 import org.nohope.cassandra.mapservice.columns.CColumn;
-import org.nohope.cassandra.mapservice.columns.joda.CDateTimeUTCStringColumn;
-import org.nohope.cassandra.mapservice.columns.trivial.CTextColumn;
-import org.nohope.cassandra.mapservice.columns.trivial.CUUIDColumn;
 import org.nohope.cassandra.mapservice.ctypes.CoreConverter;
+import org.nohope.cassandra.mapservice.ctypes.custom.UTCDateTimeType;
 import org.nohope.cassandra.util.RowNotFoundException;
 import org.nohope.test.ContractUtils;
 
@@ -27,13 +25,14 @@ import java.util.UUID;
 import static java.lang.Thread.sleep;
 import static org.junit.Assert.*;
 import static org.nohope.cassandra.mapservice.QuoteTestGenerator.newQuote;
+import static org.nohope.cassandra.mapservice.ctypes.CoreConverter.TEXT;
 
 /**
  */
 public class CMapIT {
-    private static final CColumn<String, String> COL_QUOTES = CTextColumn.of("quotes");
-    private static final CColumn<DateTime, String> COL_TIMESTAMP = CDateTimeUTCStringColumn.of("timestamp");
-    private static final CColumn<UUID, UUID> COL_QUOTE_UUID = CUUIDColumn.of("quoteuuid");
+    private static final CColumn<String, String> COL_QUOTES = CColumn.of("quotes", TEXT);
+    private static final CColumn<DateTime, String> COL_TIMESTAMP = CColumn.of("timestamp", UTCDateTimeType.INSTANCE);
+    private static final CColumn<UUID, UUID> COL_QUOTE_UUID = CColumn.of("quoteuuid", CoreConverter.UUID);
 
     private static final TableScheme SCHEME = new CMapBuilder("RingOfPower")
             .addColumn(COL_QUOTES)
@@ -79,9 +78,9 @@ public class CMapIT {
 
     @Test
     public void severalPartitionKeysTest() {
-        final CColumn<String, String> good = CTextColumn.of("Good");
-        final CColumn<String, String> bad = CTextColumn.of("Bad");
-        final CColumn<String, String> ugly = CTextColumn.of("Ugly");
+        final CColumn<String, String> good = CColumn.of("Good", TEXT);
+        final CColumn<String, String> bad = CColumn.of("Bad", TEXT);
+        final CColumn<String, String> ugly = CColumn.of("Ugly", TEXT);
 
         final TableScheme scheme = new CMapBuilder("testmap")
                 .addColumn(good)

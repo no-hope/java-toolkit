@@ -10,6 +10,7 @@ import java.util.*;
 /**
  */
 @Immutable
+@Deprecated
 final class ColumnsSet implements Iterable<CColumn<?, ?>> {
     private final Set<CColumn<?, ?>> columns = new LinkedHashSet<>();
 

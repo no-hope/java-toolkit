@@ -2,7 +2,6 @@ package org.nohope.cassandra.mapservice;
 
 import com.datastax.driver.core.ConsistencyLevel;
 import com.google.common.base.Optional;
-import com.google.common.collect.Maps;
 import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.nohope.cassandra.factory.CassandraFactory;
 import org.nohope.cassandra.mapservice.columns.CColumn;
@@ -10,6 +9,7 @@ import org.nohope.cassandra.mapservice.columns.CColumn;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -46,13 +46,11 @@ public final class CMapService {
     }
 
     private static Map<String, Value<?>> copyKeysFromSchemeColumnsMap(final TableScheme scheme) {
-        return Maps.transformEntries(scheme.getColumns(),
-                new Maps.EntryTransformer<String, CColumn<?, ?>, Value<?>>() {
-                    @Override
-                    public Value<?> transformEntry(final String key, final CColumn<?, ?> value) {
-                        return Value.unbound(value);
-                    }
-                });
+        final Map<String, Value<?>> res = new HashMap<>();
+        for (final Map.Entry<String, CColumn<?, ?>> entry : scheme.getColumns().entrySet()) {
+            res.put(entry.getKey(), Value.unbound(entry.getValue()));
+        }
+        return res;
     }
 
     public CMapSync getMap(final String id) {
@@ -113,8 +111,7 @@ public final class CMapService {
         return new CPreparedRemove(factory.getSession().prepare(stringQuery), factory, cQuery, scheme, consistency);
     }
 
-    public CPreparedPut preparePut(@Nonnull final String id,
-                                   @Nonnull final CPutQuery query) {
+    public CPreparedPut preparePut(@Nonnull final String id, @Nonnull final CPutQuery query) {
         return preparePut(id, query, null);
     }
 

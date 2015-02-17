@@ -1,11 +1,11 @@
 package org.nohope.cassandra.mapservice.ctypes;
 
 import com.datastax.driver.core.Row;
-import org.nohope.cassandra.mapservice.columns.CColumn;
 import org.nohope.reflection.TypeReference;
 
 import java.util.LinkedHashSet;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 /**
  */
@@ -22,22 +22,14 @@ class SetType<C, J> implements Converter<Set<C>, Set<J>> {
 
     @Override
     public Set<C> asCassandraValue(final Set<J> value) {
-        final Set<C> result = new LinkedHashSet<>();
-        for (final J elem : value) {
-            result.add(converter.asCassandraValue(elem));
-        }
-
-        return result;
+        return value.stream().map(converter::asCassandraValue)
+                    .collect(Collectors.toCollection(LinkedHashSet::new));
     }
 
     @Override
     public Set<J> asJavaValue(final Set<C> value) {
-        final Set<J> result = new LinkedHashSet<>();
-        for (final C elem : value) {
-            result.add(converter.asJavaValue(elem));
-        }
-
-        return result;
+        return value.stream().map(converter::asJavaValue)
+                    .collect(Collectors.toCollection(LinkedHashSet::new));
     }
 
     @Override
@@ -51,7 +43,7 @@ class SetType<C, J> implements Converter<Set<C>, Set<J>> {
     }
 
     @Override
-    public Set<J> readValue(final Row result, final CColumn<Set<J>, Set<C>> column) {
-        return asJavaValue(result.getSet(column.getName(), converter.getCassandraType().getReference().getTypeClass()));
+    public Set<J> readValue(final Row result, final String name) {
+        return asJavaValue(result.getSet(name, converter.getCassandraType().getReference().getTypeClass()));
     }
 }

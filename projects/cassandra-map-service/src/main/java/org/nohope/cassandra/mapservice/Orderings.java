@@ -1,18 +1,25 @@
 package org.nohope.cassandra.mapservice;
 
+import com.datastax.driver.core.querybuilder.Ordering;
+import com.datastax.driver.core.querybuilder.QueryBuilder;
+import org.nohope.cassandra.mapservice.columns.CColumn;
+
+import java.util.function.Function;
+
 /**
  * Wrapper over original datastax ordering.
  */
 public enum Orderings {
-    ASC(false), DESC(true);
+    ASC(QueryBuilder::asc),
+    DESC(QueryBuilder::desc);
 
-    private final boolean ordering;
+    private final Function<String, Ordering> function;
 
-    Orderings(final boolean ordering) {
-        this.ordering = ordering;
+    Orderings(final Function<String, Ordering> function) {
+        this.function = function;
     }
 
-    boolean getOrdering() {
-        return ordering;
+    public Ordering forColumn(final CColumn<?, ?> col) {
+        return function.apply(col.getName());
     }
 }

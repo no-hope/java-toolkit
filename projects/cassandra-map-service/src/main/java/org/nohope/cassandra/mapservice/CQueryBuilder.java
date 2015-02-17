@@ -198,7 +198,6 @@ public final class CQueryBuilder {
     }
 
     public static class InnerPreparedQueryBuilder {
-
         private final List<CFilter<?>> filters = new LinkedList<>();
         private final List<COrdering> orderings = new ArrayList<>();
         private ColumnsSet columnsToGet;
@@ -626,7 +625,8 @@ public final class CQueryBuilder {
              * @param order  the order
              * @return the c query ordering by
              */
-            public CQueryOrderingBy orderingBy(@Nonnull final CColumn<?, ?> column, final Orderings order) {
+            public CQueryOrderingBy orderingBy(@Nonnull final CColumn<?, ?> column,
+                                               final Orderings order) {
                 orderings.add(new COrdering(column, order));
                 return new CQueryOrderingBy();
             }
