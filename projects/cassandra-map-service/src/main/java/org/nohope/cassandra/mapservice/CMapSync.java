@@ -89,7 +89,7 @@ public final class CMapSync {
      * @throws CMapServiceException the c map service exception
      * @throws CQueryException      query doesn't pass checks for some reason
      */
-    public Iterable<ValueTuple> get(CQuery query) {
+    public Iterable<ValueTuple> get(final CQuery query) {
         return get(query, null);
     }
 
@@ -102,7 +102,7 @@ public final class CMapSync {
      * @throws CMapServiceException the c map service exception
      * @throws CQueryException      query doesn't pass checks for some reason
      */
-    public Iterable<ValueTuple> get(CQuery cQuery, ConsistencyLevel consistency) {
+    public Iterable<ValueTuple> get(final CQuery cQuery, final ConsistencyLevel consistency) {
         final ResultSet result = cassandraFactory.getSession().execute(mapStatement.get(cQuery, consistency));
         final ColumnsSet columnsToFetch = cQuery.getExpectedColumnsCollection();
         return new OnceTraversableCIterable<>(Iterables.transform(result, new Function<Row, ValueTuple>() {
@@ -231,7 +231,6 @@ public final class CMapSync {
         final Update query = QueryBuilder.update(scheme.getTableNameQuoted());
         final Update.Where where = query.where();
 
-        final Map<String, CColumn<?, ?>> columns = scheme.getColumns();
         for (final CFilter<?> filter : update.getFilters()) {
             where.and(filter.apply());
         }
