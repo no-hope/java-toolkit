@@ -16,6 +16,8 @@
     <properties>
         <groovy.version>2.3.7</groovy.version>
         <mockito.version>1.10.8</mockito.version>
+
+        <java.major.version>8</java.major.version>
     </properties>
 
     <dependencies>
