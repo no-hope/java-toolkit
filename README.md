@@ -23,6 +23,7 @@
  * [akka-spring](projects/akka-spring)
  * [jaxb2-plugins](projects/jaxb2-plugins)
  * [protobuf-rpc](projects/protobuf-rpc)
+ * [cassandra-map-service](projects/cassandra-map-service)
 
 ### Additional documentation
 
