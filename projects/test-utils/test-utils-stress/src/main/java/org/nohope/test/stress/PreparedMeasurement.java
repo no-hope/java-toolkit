@@ -15,13 +15,13 @@ public final class PreparedMeasurement {
     private final int threadsNumber;
     private final int cycleCount;
     private final Iterable<ExecutorService> executors;
-    private final Iterable<? extends StatAccumulator> statAccumulators;
+    private final Iterable<StatAccumulator> statAccumulators;
     private final List<Thread> threads;
 
     PreparedMeasurement(final int threadsNumber,
                         final int cycleCount,
                         final Iterable<ExecutorService> executors,
-                        final Iterable<? extends StatAccumulator> statAccumulators,
+                        final Iterable<StatAccumulator> statAccumulators,
                         final List<Thread> threads) {
         this.threadsNumber = threadsNumber;
         this.cycleCount = cycleCount;
@@ -42,7 +42,7 @@ public final class PreparedMeasurement {
         return executors;
     }
 
-    public Iterable<? extends StatAccumulator> getStatAccumulators() {
+    public Iterable<StatAccumulator> getStatAccumulators() {
         return statAccumulators;
     }
 

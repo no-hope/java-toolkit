@@ -2,7 +2,7 @@ package org.nohope.test.stress;
 
 import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.nohope.test.stress.functors.Get;
-import org.nohope.test.stress.functors.Invoke;
+import org.nohope.test.stress.functors.Call;
 import org.nohope.test.stress.result.ActionResult;
 
 import javax.annotation.Nonnull;
@@ -41,7 +41,7 @@ final class StatAccumulator {
         return result.get();
     }
 
-    <T> T invoke(final long threadId, final Get<T> invoke) throws InvocationException {
+    <T> T measure(final long threadId, final Get<T> invoke) throws InvocationException {
         Optional<Entry<Long, Long>> times = Optional.empty();
         try {
             final long start = System.nanoTime();
@@ -58,11 +58,11 @@ final class StatAccumulator {
         }
     }
 
-    void invoke(final long threadId, final Invoke invoke) throws InvocationException {
+    void measure(final long threadId, final Call call) throws InvocationException {
         Optional<Entry<Long, Long>> times = Optional.empty();
         try {
             final long start = System.nanoTime();
-            invoke.invoke();
+            call.call();
             final long end = System.nanoTime();
             times = Optional.of(ImmutablePair.of(start, end));
         } catch (final Exception e) {

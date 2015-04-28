@@ -5,6 +5,6 @@ package org.nohope.test.stress.functors;
 * @since 2013-12-29 18:39
 */
 @FunctionalInterface
-public interface Invoke {
-    void invoke() throws Exception;
+public interface Call {
+    void call() throws Exception;
 }

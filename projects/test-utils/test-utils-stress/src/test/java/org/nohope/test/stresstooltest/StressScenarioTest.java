@@ -179,7 +179,7 @@ public class StressScenarioTest {
         {
             final StressResult m2 =
                     StressScenario.prepare(2, 100, 2, p -> {
-                        p.invoke("test", () -> Thread.sleep(10));
+                        p.call("test", () -> Thread.sleep(10));
                     }).perform();
             assertNotNull(m2.toString());
             assertTrue(m2.getRuntime() >= 1);
@@ -188,7 +188,7 @@ public class StressScenarioTest {
 
             final StressResult m3 =
                     StressScenario.prepare(2, 100, 2, p -> {
-                        p.invoke("test", () -> Thread.sleep(10));
+                        p.call("test", () -> Thread.sleep(10));
                     }).perform();
             assertNotNull(m3.toString());
             assertTrue(m3.getRuntime() >= 1);
@@ -226,7 +226,7 @@ public class StressScenarioTest {
             final AtomicLong atomic = new AtomicLong();
             final StressResult result =
                     StressScenario.prepare(50, 100, 10, p -> {
-                        p.invoke("test1", () -> {
+                        p.get("test1", () -> {
                             long old;
                             while (true) {
                                 old = atomic.get();

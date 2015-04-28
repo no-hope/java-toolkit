@@ -1,7 +1,7 @@
 package org.nohope.test.stress;
 
 import org.nohope.test.stress.functors.Get;
-import org.nohope.test.stress.functors.Invoke;
+import org.nohope.test.stress.functors.Call;
 
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Future;
@@ -29,16 +29,16 @@ public final class PooledMeasureProvider extends MeasureData {
         return Thread.currentThread().getId();
     }
 
-    public <T> Future<T> invoke(final String name, final Get<T> getter) throws Exception {
+    public <T> Future<T> get(final String name, final Get<T> getter) throws Exception {
         final StatAccumulator calc = statLoader.apply(name);
-        return poolLoader.apply(name).submit(() -> calc.invoke(getThreadId(), getter));
+        return poolLoader.apply(name).submit(() -> calc.measure(getThreadId(), getter));
     }
 
-    public Future<?> invoke(final String name, final Invoke invoke) throws Exception {
+    public Future<?> call(final String name, final Call call) throws Exception {
         final StatAccumulator calc = statLoader.apply(name);
         return poolLoader.apply(name).submit(() -> {
             try {
-                calc.invoke(getThreadId(), invoke);
+                calc.measure(getThreadId(), call);
             } catch (final InvocationException ignored) { // already accounted
             }
         });
