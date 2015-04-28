@@ -35,7 +35,8 @@ public class RpcChannelImplTest {
         final Channel channel = createMock(Channel.class);
         final ChannelPipeline pipeline = createMock(ChannelPipeline.class);
         expect(channel.getPipeline()).andReturn(pipeline);
-        final ChannelHandler channelHandler = pipeline.get(capture(type));
+        final Class<? extends ChannelHandler> capture = capture(type);
+        final ChannelHandler channelHandler = pipeline.get(capture);
         expect(channelHandler).andReturn(handler);
         return new ImmutablePair<>(channel, pipeline);
     }

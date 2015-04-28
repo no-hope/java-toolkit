@@ -63,7 +63,7 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
 
-        <java.major.version>7</java.major.version>
+        <java.major.version>8</java.major.version>
         <java.lang.level>1.${java.major.version}</java.lang.level>
 
         <java.source.level>${java.lang.level}</java.source.level>
@@ -73,7 +73,7 @@
         <skip.site-deploy>true</skip.site-deploy>
 
         <!-- Maven plugins -->
-        <maven.aspectj-plugin.version>1.6</maven.aspectj-plugin.version>
+        <maven.aspectj-plugin.version>1.7</maven.aspectj-plugin.version>
         <maven.compiler-plugin.version>3.1</maven.compiler-plugin.version>
         <maven.jar-plugin.version>2.4</maven.jar-plugin.version>
         <maven.project-info-reports-plugin.version>2.7</maven.project-info-reports-plugin.version>
@@ -82,7 +82,7 @@
         <maven.site-plugin.version>3.3</maven.site-plugin.version>
 
         <!-- libs -->
-        <aspectjrt.version>1.8.1</aspectjrt.version>
+        <aspectjrt.version>1.8.5</aspectjrt.version>
         <findbugs-annotations.version>2.0.3</findbugs-annotations.version>
         <jcip-annotations.version>1.0</jcip-annotations.version>
         <jsr305.version>2.0.3</jsr305.version>

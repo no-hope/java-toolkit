@@ -43,23 +43,20 @@ public class StressScenario {
         final Map<String, SingleInvocationStatCalculator> stats = new HashMap<>();
         for (final NamedAction action : actions) {
             stats.put(action.getName(),
-                    new SingleInvocationStatCalculator(resolution, action));
+                    new SingleInvocationStatCalculator(resolution, action, threadsNumber));
         }
 
         final List<Thread> threads = new ArrayList<>();
         for (int i = 0; i < threadsNumber; i++) {
             final int k = i;
-            threads.add(new Thread(new Runnable() {
-                @Override
-                public void run() {
-                    for (int j = k * cycleCount; j < (k + 1) * cycleCount; j++) {
-                        try {
-                            for (final SingleInvocationStatCalculator stat : stats.values()) {
-                                stat.invoke(k, j);
-                            }
-                        } catch (final InvocationException e) {
-                            // TODO
+            threads.add(new Thread(() -> {
+                for (int j = k * cycleCount; j < (k + 1) * cycleCount; j++) {
+                    try {
+                        for (final SingleInvocationStatCalculator stat : stats.values()) {
+                            stat.invoke(k, j);
                         }
+                    } catch (final InvocationException e) {
+                        // TODO
                     }
                 }
             }, "stress-worker-" + k));
@@ -67,9 +64,7 @@ public class StressScenario {
 
         final Memory memoryStart = Memory.getCurrent();
         final long overallStart = resolution.currentTime();
-        for (final Thread thread : threads) {
-            thread.start();
-        }
+        threads.forEach(java.lang.Thread::start);
 
         for (final Thread thread : threads) {
             thread.join();
@@ -99,27 +94,24 @@ public class StressScenario {
             throws InterruptedException {
 
         final ConcurrentMap<String, MultiInvocationStatCalculator> result =
-                new ConcurrentHashMap<>();
+                new ConcurrentHashMap<>(16, 0.75f, threadsNumber);
 
         final List<MeasureProvider> providers = new ArrayList<>();
         for (int i = 0; i < threadsNumber; i++) {
             for (int j = i * cycleCount; j < (i + 1) * cycleCount; j++) {
-                providers.add(new MeasureProvider(this, i, j, result));
+                providers.add(new MeasureProvider(this, i, j, threadsNumber, result));
             }
         }
 
         final List<Thread> threads = new ArrayList<>();
         for (int i = 0; i < threadsNumber; i++) {
             final int k = i;
-            threads.add(new Thread(new Runnable() {
-                @Override
-                public void run() {
-                    for (int j = k * cycleCount; j < (k + 1) * cycleCount; j++) {
-                        try {
-                            action.doAction(providers.get(j));
-                        } catch (final Exception e) {
-                            // TODO: print skipped
-                        }
+            threads.add(new Thread(() -> {
+                for (int j = k * cycleCount; j < (k + 1) * cycleCount; j++) {
+                    try {
+                        action.doAction(providers.get(j));
+                    } catch (final Exception e) {
+                        // TODO: print skipped
                     }
                 }
             }, "stress-worker-" + k));
@@ -127,9 +119,7 @@ public class StressScenario {
 
         final Memory memoryStart = Memory.getCurrent();
         final long overallStart = resolution.currentTime();
-        for (final Thread thread : threads) {
-            thread.start();
-        }
+        threads.forEach(java.lang.Thread::start);
         for (final Thread thread : threads) {
             thread.join();
         }
@@ -161,20 +151,23 @@ public class StressScenario {
                             .concurrencyLevel(threadsNumber)
                             .build(new PoolLoader(threadsNumber));
 
+        final int concurrency = threadsNumber * coordinateThreadsCount;
+
         final LoadingCache<String, MultiInvocationStatCalculator> calcPool =
                 CacheBuilder.newBuilder()
                             .concurrencyLevel(threadsNumber)
                             .build(new CacheLoader<String, MultiInvocationStatCalculator>() {
                                 @Override
                                 public MultiInvocationStatCalculator load(final String key) throws Exception {
-                                    return new MultiInvocationStatCalculator(getResolution(), key);
+                                    return new MultiInvocationStatCalculator(getResolution(), key,
+                                                                             concurrency);
                                 }
                             });
 
         final List<PooledMeasureProvider> providers = new ArrayList<>();
         for (int i = 0; i < threadsNumber; i++) {
             for (int j = i * cycleCount; j < (i + 1) * cycleCount; j++) {
-                providers.add(new PooledMeasureProvider(i, j, calcPool, threadPools));
+                providers.add(new PooledMeasureProvider(i, j, concurrency, calcPool, threadPools));
             }
         }
 
@@ -182,15 +175,12 @@ public class StressScenario {
         final List<Thread> threads = new ArrayList<>();
         for (int i = 0; i < coordinateThreadsCount; i++) {
             final int k = i;
-            threads.add(new Thread(new Runnable() {
-                @Override
-                public void run() {
-                    for (int j = k * mul * cycleCount; j < (k + 1) * cycleCount * mul; j++) {
-                        try {
-                            action.doAction(providers.get(j));
-                        } catch (final Exception e) {
-                            // TODO: print skipped
-                        }
+            threads.add(new Thread(() -> {
+                for (int j = k * mul * cycleCount; j < (k + 1) * cycleCount * mul; j++) {
+                    try {
+                        action.doAction(providers.get(j));
+                    } catch (final Exception e) {
+                        // TODO: print skipped
                     }
                 }
             }, "stress-worker-" + k));
@@ -198,9 +188,7 @@ public class StressScenario {
 
         final Memory memoryStart = Memory.getCurrent();
         final long overallStart = resolution.currentTime();
-        for (final Thread thread : threads) {
-            thread.start();
-        }
+        threads.forEach(java.lang.Thread::start);
         for (final Thread thread : threads) {
             thread.join();
         }

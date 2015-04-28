@@ -8,20 +8,18 @@ class SingleInvocationStatCalculator extends StatCalculator {
     private final NamedAction action;
 
     public SingleInvocationStatCalculator(final TimerResolution resolution,
-                                          final NamedAction action) {
-        super(resolution, action.getName());
+                                          final NamedAction action,
+                                          final int concurrency) {
+        super(resolution, action.getName(), concurrency);
         this.action = action;
     }
 
     protected void invoke(final int threadId,
                           final int operationNumber) throws InvocationException {
-        final MeasureData p = new MeasureData(threadId, operationNumber);
-        this.invoke(threadId, new InvocationHandler<Object>() {
-            @Override
-            public Object invoke() throws Exception {
-                action.doAction(p);
-                return null;
-            }
+        final MeasureData p = new MeasureData(threadId, operationNumber, getConcurrency());
+        this.invoke(threadId, () -> {
+            action.doAction(p);
+            return null;
         });
     }
 }

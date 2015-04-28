@@ -4,6 +4,7 @@ import org.nohope.test.stress.action.Get;
 import org.nohope.test.stress.action.Invoke;
 
 import java.util.concurrent.ConcurrentMap;
+import java.util.function.Function;
 
 /**
  * @author <a href="mailto:ketoth.xupack@gmail.com">Ketoth Xupack</a>
@@ -12,26 +13,31 @@ import java.util.concurrent.ConcurrentMap;
 public final class MeasureProvider extends MeasureData {
     private final StressScenario scenario;
     private final ConcurrentMap<String, MultiInvocationStatCalculator> map;
+    private final Function<String, MultiInvocationStatCalculator> calculatorFunction;
 
     protected MeasureProvider(final StressScenario scenario,
                               final int threadId,
                               final int operationNumber,
+                              final int concurrency,
                               final ConcurrentMap<String, MultiInvocationStatCalculator> map) {
-        super(threadId, operationNumber);
+        super(threadId, operationNumber, concurrency);
         this.scenario = scenario;
         this.map = map;
+        this.calculatorFunction = newName -> new MultiInvocationStatCalculator(
+                this.scenario.getResolution(), newName,
+                concurrency);
     }
 
-    public <T> T invoke(final String name, final Get<T> getter) throws Exception {
+    public <T> T get(final String name, final Get<T> getter) throws Exception {
         return getStat(name).invoke(getThreadId(), getter);
     }
 
-    public void invoke(final String name, final Invoke invoke) throws Exception {
+    public void call(final String name, final Invoke invoke) throws Exception {
         getStat(name).invoke(getThreadId(), invoke);
     }
 
     private MultiInvocationStatCalculator getStat(final String name) {
-        map.putIfAbsent(name, new MultiInvocationStatCalculator(this.scenario.getResolution(), name));
-        return map.get(name);
+        return map.computeIfAbsent(name, calculatorFunction);
     }
+
 }

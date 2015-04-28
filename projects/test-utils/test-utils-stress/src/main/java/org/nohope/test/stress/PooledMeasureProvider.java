@@ -4,7 +4,6 @@ import com.google.common.cache.LoadingCache;
 import org.nohope.test.stress.action.Get;
 import org.nohope.test.stress.action.Invoke;
 
-import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Future;
 
@@ -18,9 +17,10 @@ public final class PooledMeasureProvider extends MeasureData {
 
     protected PooledMeasureProvider(final int threadId,
                                     final int operationNumber,
+                                    final int concurrency,
                                     final LoadingCache<String, MultiInvocationStatCalculator> statCache,
                                     final LoadingCache<String, ExecutorService> poolCache) {
-        super(threadId, operationNumber);
+        super(threadId, operationNumber, concurrency);
         this.poolCache = poolCache;
         this.statCache = statCache;
     }
@@ -32,23 +32,15 @@ public final class PooledMeasureProvider extends MeasureData {
 
     public <T> Future<T> invoke(final String name, final Get<T> getter) throws Exception {
         final MultiInvocationStatCalculator calc = statCache.get(name);
-        return poolCache.get(name).submit(new Callable<T>() {
-            @Override
-            public T call() throws Exception {
-                return calc.invoke(getThreadId(), getter);
-            }
-        });
+        return poolCache.get(name).submit(() -> calc.invoke(getThreadId(), getter));
     }
 
     public void invoke(final String name, final Invoke invoke) throws Exception {
         final MultiInvocationStatCalculator calc = statCache.get(name);
-        poolCache.get(name).submit(new Runnable() {
-            @Override
-            public void run() {
-                try {
-                    calc.invoke(getThreadId(), invoke);
-                } catch (final InvocationException ignored) { // already accounted
-                }
+        poolCache.get(name).submit(() -> {
+            try {
+                calc.invoke(getThreadId(), invoke);
+            } catch (final InvocationException ignored) { // already accounted
             }
         });
     }

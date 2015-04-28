@@ -2,8 +2,6 @@ package org.nohope.test.stress;
 
 import org.junit.Ignore;
 import org.junit.Test;
-import org.nohope.test.stress.action.Get;
-import org.nohope.test.stress.action.Invoke;
 
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicLong;
@@ -51,12 +49,7 @@ public class StressScenarioTest {
                                   @Override
                                   protected void doAction(final MeasureProvider p)
                                           throws Exception {
-                                      p.invoke("test1", new Invoke() {
-                                          @Override
-                                          public void invoke() throws Exception {
-                                              Thread.sleep(10);
-                                          }
-                                      });
+                                      p.call("test1", () -> Thread.sleep(10));
                                   }
                               });
         final StressResult m4 =
@@ -65,12 +58,7 @@ public class StressScenarioTest {
                                   @Override
                                   protected void doAction(final MeasureProvider p)
                                           throws Exception {
-                                      p.invoke("test1", new Invoke() {
-                                          @Override
-                                          public void invoke() throws Exception {
-                                              Thread.sleep(10);
-                                          }
-                                      });
+                                      p.call("test1", () -> Thread.sleep(10));
                                   }
                               });
 
@@ -139,15 +127,11 @@ public class StressScenarioTest {
                                       @Override
                                       protected void doAction(final MeasureProvider p)
                                               throws Exception {
-                                          p.invoke("test", new Invoke() {
-                                              @Override
-                                              public void invoke()
-                                                      throws Exception {
-                                                  if (p.getOperationNumber() >= 100) {
-                                                      throw new IllegalStateException();
-                                                  }
-                                                  Thread.sleep(1);
+                                          p.call("test", () -> {
+                                              if (p.getOperationNumber() >= 100) {
+                                                  throw new IllegalStateException();
                                               }
+                                              Thread.sleep(1);
                                           });
                                       }
                                   });
@@ -194,12 +178,7 @@ public class StressScenarioTest {
                                   .measure(2, 100, new Action() {
                                       @Override
                                       protected void doAction(final MeasureProvider p) throws Exception {
-                                          p.invoke("test", new Invoke() {
-                                              @Override
-                                              public void invoke() throws Exception {
-                                                  Thread.sleep(10);
-                                              }
-                                          });
+                                          p.call("test", () -> Thread.sleep(10));
                                       }
                                   });
             assertNotNull(m3.toString());
@@ -211,12 +190,9 @@ public class StressScenarioTest {
                                   .measure(2, 100, new Action() {
                                       @Override
                                       protected void doAction(final MeasureProvider p) throws Exception {
-                                          p.invoke("test", new Get<Object>() {
-                                              @Override
-                                              public Object get() throws Exception {
-                                                  Thread.sleep(10);
-                                                  return null;
-                                              }
+                                          p.get("test", () -> {
+                                              Thread.sleep(10);
+                                              return null;
                                           });
                                       }
                                   });
@@ -231,12 +207,7 @@ public class StressScenarioTest {
                                   .measurePooled(2, 100, 2, new PooledAction() {
                                       @Override
                                       protected void doAction(final PooledMeasureProvider p) throws Exception {
-                                          p.invoke("test", new Invoke() {
-                                              @Override
-                                              public void invoke() throws Exception {
-                                                  Thread.sleep(10);
-                                              }
-                                          });
+                                          p.invoke("test", () -> Thread.sleep(10));
                                       }
                                   });
             assertNotNull(m2.toString());
@@ -249,12 +220,9 @@ public class StressScenarioTest {
                                   .measurePooled(2, 100, 2, new PooledAction() {
                                       @Override
                                       protected void doAction(final PooledMeasureProvider p) throws Exception {
-                                          p.invoke("test", new Get<Object>() {
-                                              @Override
-                                              public Object get() throws Exception {
-                                                  Thread.sleep(10);
-                                                  return null;
-                                              }
+                                          p.invoke("test", () -> {
+                                              Thread.sleep(10);
+                                              return null;
                                           });
                                       }
                                   });
@@ -275,19 +243,16 @@ public class StressScenarioTest {
                                   .measure(500, 100, new Action() {
                                       @Override
                                       protected void doAction(final MeasureProvider p) throws Exception {
-                                          p.invoke("test1", new Get<Long>() {
-                                              @Override
-                                              public Long get() throws Exception {
-                                                  long old;
-                                                  for (;;) {
-                                                      old = atomic.get();
-                                                      Thread.sleep(1);
-                                                      if (atomic.compareAndSet(old, old + 1)) {
-                                                          break;
-                                                      }
+                                          p.get("test1", () -> {
+                                              long old;
+                                              for (; ; ) {
+                                                  old = atomic.get();
+                                                  Thread.sleep(1);
+                                                  if (atomic.compareAndSet(old, old + 1)) {
+                                                      break;
                                                   }
-                                                  return old;
                                               }
+                                              return old;
                                           });
                                       }
                                   });
@@ -304,19 +269,16 @@ public class StressScenarioTest {
                                   .measurePooled(500, 100, 10, new PooledAction() {
                                       @Override
                                       protected void doAction(final PooledMeasureProvider p) throws Exception {
-                                          p.invoke("test1", new Get<Long>() {
-                                              @Override
-                                              public Long get() throws Exception {
-                                                  long old;
-                                                  while (true) {
-                                                      old = atomic.get();
-                                                      Thread.sleep(1);
-                                                      if (atomic.compareAndSet(old, old + 1)) {
-                                                          break;
-                                                      }
+                                          p.invoke("test1", () -> {
+                                              long old;
+                                              while (true) {
+                                                  old = atomic.get();
+                                                  Thread.sleep(1);
+                                                  if (atomic.compareAndSet(old, old + 1)) {
+                                                      break;
                                                   }
-                                                  return old;
                                               }
+                                              return old;
                                           });
                                       }
                                   });
@@ -332,25 +294,13 @@ public class StressScenarioTest {
                 StressScenario.of(TimerResolution.MILLISECONDS).measure(10, 1, new Action() {
                     @Override
                     protected void doAction(final MeasureProvider p) throws Exception {
-                        p.invoke("action4", new Invoke() {
-                            @Override
-                            public void invoke() throws Exception {
-                            }
+                        p.call("action4", () -> {
                         });
-                        p.invoke("action1", new Invoke() {
-                            @Override
-                            public void invoke() throws Exception {
-                            }
+                        p.call("action1", () -> {
                         });
-                        p.invoke("action2", new Invoke() {
-                            @Override
-                            public void invoke() throws Exception {
-                            }
+                        p.call("action2", () -> {
                         });
-                        p.invoke("action3", new Invoke() {
-                            @Override
-                            public void invoke() throws Exception {
-                            }
+                        p.call("action3", () -> {
                         });
                     }
                 });

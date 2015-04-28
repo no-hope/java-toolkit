@@ -2,17 +2,24 @@ package org.nohope.test.stress;
 
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.commons.math.stat.descriptive.rank.Percentile;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.TreeSet;
+import java.util.stream.Collectors;
 
 import static java.util.Map.Entry;
-import static java.util.concurrent.TimeUnit.MILLISECONDS;
-import static java.util.concurrent.TimeUnit.SECONDS;
-import static org.nohope.test.stress.TimeUtils.throughputTo;
-import static org.nohope.test.stress.TimeUtils.timeTo;
+import static java.util.concurrent.TimeUnit.*;
+import static org.nohope.test.stress.TimeUtils.*;
 
 /**
 * @author <a href="mailto:ketoth.xupack@gmail.com">ketoth xupack</a>
@@ -40,7 +47,6 @@ public class Result {
     public Result(final String name,
                   final Map<Long, List<Entry<Long, Long>>> timestampsPerThread,
                   final Map<Class<?>, List<Exception>> errorStats,
-                  final Map<Class<?>, List<Throwable>> rootErrorStats,
                   final long totalDeltaNanos,
                   final long minTime,
                   final long maxTime) {
@@ -55,8 +61,11 @@ public class Result {
         }
         this.operationsCount = result;
         this.meanRequestTime = 1.0 * totalDeltaNanos / operationsCount;
+
         this.errorStats.putAll(errorStats);
-        this.rootErrorStats.putAll(rootErrorStats);
+        this.rootErrorStats.putAll(computeRootStats(this.errorStats));
+
+
         this.timestampsPerThread.putAll(timestampsPerThread);
 
         this.numberOfThreads = timestampsPerThread.size();
@@ -102,6 +111,28 @@ public class Result {
         percentiles.add(95d);
         percentiles.add(50d);
     }
+
+
+    private static Map<? extends Class<?>, ? extends List<Throwable>> computeRootStats(final Map<Class<?>, List<Exception>> errorStats) {
+        final Map<Class<?>, List<Throwable>> rStats = new HashMap<>(errorStats.size());
+
+        for (final List<Exception> exceptions : errorStats.values()) {
+            for (final Exception e: exceptions) {
+                Throwable root = ExceptionUtils.getRootCause(e);
+                if (root == null) {
+                    root = e;
+                }
+                final Class<?> rClass = root.getClass();
+                rStats.computeIfAbsent(rClass, clazz -> new ArrayList<>()).add(root);
+
+            }
+
+        }
+
+
+        return rStats;
+    }
+
 
     public double getAvgWastedNanos() {
         return avgWastedNanos;
@@ -166,10 +197,8 @@ public class Result {
     public Map<Long, List<Long>> getPerThreadRuntimes() {
         final Map<Long, List<Long>> times = new HashMap<>();
         for (final Entry<Long, List<Entry<Long, Long>>> perThreadTime : timestampsPerThread.entrySet()) {
-            final List<Long> perThread = new ArrayList<>();
-            for (final Entry<Long, Long> e : perThreadTime.getValue()) {
-                perThread.add(e.getValue() - e.getKey());
-            }
+            final List<Long> perThread = perThreadTime.getValue().stream().map(e -> e.getValue() - e.getKey())
+                                                      .collect(Collectors.toList());
             times.put(perThreadTime.getKey(), perThread);
         }
         return times;
@@ -180,9 +209,7 @@ public class Result {
      */
     public List<Exception> getErrors() {
         final List<Exception> result = new ArrayList<>();
-        for (final List<Exception> exceptions : errorStats.values()) {
-            result.addAll(exceptions);
-        }
+        errorStats.values().forEach(result::addAll);
         return result;
     }
 
@@ -199,9 +226,7 @@ public class Result {
     public final List<Long> getRunTimes() {
         final List<Long> times = new ArrayList<>();
         for (final List<Entry<Long, Long>> perThreadTime : timestampsPerThread.values()) {
-            for (final Entry<Long, Long> e : perThreadTime) {
-                times.add(e.getValue() - e.getKey());
-            }
+            times.addAll(perThreadTime.stream().map(e -> e.getValue() - e.getKey()).collect(Collectors.toList()));
         }
         return times;
     }
