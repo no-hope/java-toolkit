@@ -5,15 +5,10 @@ package org.nohope.test.stress;
  * @since 2013-12-29 18:19
  */
 public class MeasureData {
-    private final int concurrency;
-
     private final int threadId;
     private final int operationNumber;
 
-    protected MeasureData(final int threadId,
-                          final int operationNumber,
-                          final int concurrency) {
-        this.concurrency = concurrency;
+    protected MeasureData(final int threadId, final int operationNumber) {
         this.threadId = threadId;
         this.operationNumber = operationNumber;
     }
@@ -24,10 +19,5 @@ public class MeasureData {
 
     public final int getOperationNumber() {
         return operationNumber;
-    }
-
-
-    public int getConcurrency() {
-        return concurrency;
     }
 }

@@ -6,13 +6,11 @@ import org.nohope.test.stress.functors.Invoke;
 import org.nohope.test.stress.result.ActionResult;
 
 import javax.annotation.Nonnull;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.atomic.AtomicReference;
+import java.util.function.Function;
 
 import static java.util.Map.Entry;
 
@@ -21,24 +19,18 @@ import static java.util.Map.Entry;
 * @since 2013-12-27 16:18
 */
 final class StatAccumulator {
+    private static final Function<Long, List<Entry<Long, Long>>> NEW_LIST =
+            x -> new ArrayList<>();
+    private static final Function<Class<?>, ConcurrentLinkedQueue<Exception>> NEW_QUEUE =
+            c -> new ConcurrentLinkedQueue<>();
+
     private final ConcurrentHashMap<Long, List<Entry<Long, Long>>> timesPerThread = new ConcurrentHashMap<>();
-    private final ConcurrentHashMap<Class<?>, ConcurrentLinkedQueue<Exception>> errorStats = new ConcurrentHashMap<>();
+    private final Map<Class<?>, ConcurrentLinkedQueue<Exception>> errorStats = new ConcurrentHashMap<>();
     private final AtomicReference<ActionResult> result = new AtomicReference<>();
     private final String name;
-    private final TimerResolution resolution;
-    private final int concurrency;
 
-
-    protected StatAccumulator(final TimerResolution resolution,
-                              final String name, final int concurrency) {
-        this.resolution = resolution;
+    StatAccumulator(final String name) {
         this.name = name;
-        this.concurrency = concurrency;
-
-        for (long threadId = 0L; threadId < concurrency; ++threadId) {
-            // it's safe to use ArrayList here, they are always modified by same thread!
-            timesPerThread.put(threadId, new ArrayList<>());
-        }
     }
 
     @Nonnull
@@ -49,41 +41,43 @@ final class StatAccumulator {
         return result.get();
     }
 
-    protected final <T> T invoke(final long threadId,
-                                 final Get<T> invoke)
-            throws InvocationException {
+    <T> T invoke(final long threadId, final Get<T> invoke) throws InvocationException {
+        Optional<Entry<Long, Long>> times = Optional.empty();
         try {
-            final long start = resolution.currentTime();
+            final long start = System.nanoTime();
             final T result = invoke.get();
-            final long end = resolution.currentTime();
-            timesPerThread.get(threadId).add(new ImmutablePair<>(start, end));
+            final long end = System.nanoTime();
+            times = Optional.of(ImmutablePair.of(start, end));
             return result;
         } catch (final Exception e) {
             handleException(e);
             throw new InvocationException();
+        } finally {
+            // it's safe to use ArrayList here, they are always modified by same thread!
+            times.ifPresent(timesPerThread.computeIfAbsent(threadId, NEW_LIST)::add);
         }
     }
 
-    protected final void invoke(final long threadId,
-                                 final Invoke invoke)
-            throws InvocationException {
+    void invoke(final long threadId, final Invoke invoke) throws InvocationException {
+        Optional<Entry<Long, Long>> times = Optional.empty();
         try {
-            final long start = resolution.currentTime();
+            final long start = System.nanoTime();
             invoke.invoke();
-            final long end = resolution.currentTime();
-            timesPerThread.get(threadId).add(new ImmutablePair<>(start, end));
+            final long end = System.nanoTime();
+            times = Optional.of(ImmutablePair.of(start, end));
         } catch (final Exception e) {
             handleException(e);
             throw new InvocationException();
+        } finally {
+            // it's safe to use ArrayList here, they are always modified by same thread!
+            times.ifPresent(timesPerThread.computeIfAbsent(threadId, NEW_LIST)::add);
         }
     }
 
-
     private void handleException(final Exception e) {
         final Class<?> aClass = e.getClass();
-        errorStats.computeIfAbsent(aClass, clazz -> new ConcurrentLinkedQueue<>()).add(e);
+        errorStats.computeIfAbsent(aClass, NEW_QUEUE).add(e);
     }
-
 
     private void calculate() {
         long maxTimeNanos = 0;
@@ -105,11 +99,9 @@ final class StatAccumulator {
 
         final Map<Class<?>, List<Exception>> eStats = new HashMap<>(errorStats.size());
 
-        for (final Entry<Class<?>, ConcurrentLinkedQueue<Exception>> entry: errorStats
-                .entrySet()) {
+        for (final Entry<Class<?>, ConcurrentLinkedQueue<Exception>> entry: errorStats.entrySet()) {
             eStats.put(entry.getKey(), new ArrayList<>(entry.getValue()));
         }
-
 
         result.set(new ActionResult(
                 name,
@@ -118,10 +110,5 @@ final class StatAccumulator {
                 totalDeltaNanos,
                 minTimeNanos,
                 maxTimeNanos));
-    }
-
-
-    protected int getConcurrency() {
-        return concurrency;
     }
 }

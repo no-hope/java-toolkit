@@ -11,7 +11,6 @@ public class Memory {
     private final long totalMemory;
     private final long freeMemory;
 
-
     private Memory(final long maxMemory, final long totalMemory, final long freeMemory) {
         this.maxMemory = maxMemory;
         this.totalMemory = totalMemory;

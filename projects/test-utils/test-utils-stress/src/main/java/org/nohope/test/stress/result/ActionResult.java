@@ -7,19 +7,15 @@ import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.commons.math.stat.descriptive.rank.Percentile;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.TreeSet;
+import java.util.*;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import static java.util.Map.Entry;
-import static java.util.concurrent.TimeUnit.*;
-import static org.nohope.test.stress.util.TimeUtils.*;
+import static java.util.concurrent.TimeUnit.MILLISECONDS;
+import static java.util.concurrent.TimeUnit.SECONDS;
+import static org.nohope.test.stress.util.TimeUtils.throughputTo;
+import static org.nohope.test.stress.util.TimeUtils.timeTo;
 
 /**
 * @author <a href="mailto:ketoth.xupack@gmail.com">ketoth xupack</a>
@@ -64,10 +60,7 @@ public class ActionResult {
 
         this.errorStats.putAll(errorStats);
         this.rootErrorStats.putAll(computeRootStats(this.errorStats));
-
-
         this.timestampsPerThread.putAll(timestampsPerThread);
-
         this.numberOfThreads = timestampsPerThread.size();
 
         startEndForThread = new HashMap<>();
@@ -112,10 +105,7 @@ public class ActionResult {
         percentiles.add(50d);
     }
 
-
-
-
-    private static Map<? extends Class<?>, ? extends List<Throwable>> computeRootStats(final Map<Class<?>, List<Exception>> errorStats) {
+    private static Map<Class<?>, ? extends List<Throwable>> computeRootStats(final Map<Class<?>, List<Exception>> errorStats) {
         final Map<Class<?>, List<Throwable>> rStats = new HashMap<>(errorStats.size());
 
         for (final List<Exception> exceptions : errorStats.values()) {
@@ -126,16 +116,11 @@ public class ActionResult {
                 }
                 final Class<?> rClass = root.getClass();
                 rStats.computeIfAbsent(rClass, clazz -> new ArrayList<>()).add(root);
-
             }
-
         }
-
 
         return rStats;
     }
-
-
 
     public double getAvgWastedNanos() {
         return avgWastedNanos;
@@ -194,7 +179,6 @@ public class ActionResult {
         return totalDeltaNanos;
     }
 
-
     /**
      * Per thread timestamps of operation start and end
      * @return in nanoseconds
@@ -203,20 +187,16 @@ public class ActionResult {
         return Collections.unmodifiableMap(timestampsPerThread);
     }
 
-
     /**
      * Operation times per thread
      * @return in nanoseconds
      */
     public Map<Long, List<Long>> getPerThreadRuntimes() {
-        final Map<Long, List<Long>> times = new HashMap<>();
-        for (final Entry<Long, List<Entry<Long, Long>>> perThreadTime : timestampsPerThread.entrySet()) {
-            final List<Long> perThread = perThreadTime.getValue().stream()
-                                                      .map(e -> e.getValue() - e.getKey())
-                                                      .collect(Collectors.toList());
-            times.put(perThreadTime.getKey(), perThread);
-        }
-        return times;
+        return timestampsPerThread.entrySet().stream().collect(
+                Collectors.toMap(Entry::getKey,
+                        e -> e.getValue().stream().map(le -> le.getValue() - le.getKey())
+                              .collect(Collectors.toList())
+                ));
     }
 
     /**
@@ -239,11 +219,9 @@ public class ActionResult {
      * @return list of all running times of each thread in nanos
      */
     public final List<Long> getRunTimes() {
-        final List<Long> times = new ArrayList<>();
-        for (final List<Entry<Long, Long>> perThreadTime : timestampsPerThread.values()) {
-            times.addAll(perThreadTime.stream().map(e -> e.getValue() - e.getKey()).collect(Collectors.toList()));
-        }
-        return times;
+        return timestampsPerThread.values().parallelStream()
+                                  .flatMap(t -> (Stream<Long>) t.stream().map(e -> e.getValue() - e.getKey()))
+                                  .collect(Collectors.toList());
     }
 
     public ActionResult withPercentiles(final double... percentiles) {

@@ -3,12 +3,7 @@ package org.nohope.test.stress.result;
 import org.apache.commons.lang3.StringUtils;
 import org.nohope.test.stress.util.Memory;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.TreeSet;
+import java.util.*;
 import java.util.stream.Collectors;
 
 import static java.util.concurrent.TimeUnit.SECONDS;
@@ -34,7 +29,7 @@ public class StressResult {
                         final int threadsCount,
                         final int cycleCount,
                         final double runtime,
-                        final List<StressMetrics> metrics,
+                        final Collection<StressMetrics> metrics,
                         final Memory memoryStart,
                         final Memory memoryEnd) {
         this.runtime = runtime;
@@ -95,21 +90,17 @@ public class StressResult {
         return memoryEnd;
     }
 
-
     public int getThreadsCount() {
         return threadsCount;
     }
-
 
     public int getCycleCount() {
         return cycleCount;
     }
 
-
     public List<Exception> getAllExceptions() {
         return Collections.unmodifiableList(allExceptions);
     }
-
 
     @Override
     public String toString() {

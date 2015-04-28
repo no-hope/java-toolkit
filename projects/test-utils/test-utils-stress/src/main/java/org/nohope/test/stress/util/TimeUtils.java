@@ -3,7 +3,7 @@ package org.nohope.test.stress.util;
 import javax.annotation.Nonnull;
 import java.util.concurrent.TimeUnit;
 
-import static java.lang.Math.pow;
+import static java.lang.StrictMath.pow;
 
 /**
  * @author <a href="mailto:ketoth.xupack@gmail.com">Ketoth Xupack</a>

@@ -1,10 +1,12 @@
 package org.nohope.test.stress.actions;
 
-import org.nohope.test.stress.MeasureProvider;
+import org.nohope.test.stress.MeasureData;
 
 /**
- * @author <a href="mailto:ketoth.xupack@gmail.com">ketoth xupack</a>
- * @since 2013-12-27 16:21
+ * @author <a href="mailto:ketoth.xupack@gmail.com">Ketoth Xupack</a>
+ * @since 2013-12-27 23:55
  */
-public abstract class Action extends AbstractAction<MeasureProvider> {
+@FunctionalInterface
+public interface Action<P extends MeasureData> {
+    void doAction(final P p) throws Exception;
 }
