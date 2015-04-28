@@ -1,14 +1,24 @@
-package org.nohope.test.stress;
+package org.nohope.test.stresstooltest;
 
 import org.junit.Ignore;
 import org.junit.Test;
+import org.nohope.test.stress.MeasureData;
+import org.nohope.test.stress.MeasureProvider;
+import org.nohope.test.stress.PooledMeasureProvider;
+import org.nohope.test.stress.Result;
+import org.nohope.test.stress.StressResult;
+import org.nohope.test.stress.StressScenario;
+import org.nohope.test.stress.TimerResolution;
+import org.nohope.test.stress.actions.Action;
+import org.nohope.test.stress.actions.NamedAction;
+import org.nohope.test.stress.actions.PooledAction;
 
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicLong;
 
 import static java.util.concurrent.TimeUnit.SECONDS;
 import static org.junit.Assert.*;
-import static org.nohope.test.stress.TimeUtils.throughputTo;
+import static org.nohope.test.stress.util.TimeUtils.throughputTo;
 
 /**
  * @author <a href="mailto:ketoth.xupack@gmail.com">Ketoth Xupack</a>
@@ -23,7 +33,7 @@ public class StressScenarioTest {
                 StressScenario.of(TimerResolution.MILLISECONDS)
                               .measure(50, 1000, new NamedAction("test1") {
                                   @Override
-                                  protected void doAction(final MeasureData p)
+                                  public void doAction(final MeasureData p)
                                           throws Exception {
                                       Thread.sleep(10);
                                   }
@@ -32,7 +42,7 @@ public class StressScenarioTest {
                 StressScenario.of(TimerResolution.NANOSECONDS)
                               .measure(50, 1000, new NamedAction("test2") {
                                   @Override
-                                  protected void doAction(final MeasureData p)
+                                  public void doAction(final MeasureData p)
                                           throws Exception {
                                       Thread.sleep(10);
                                   }
@@ -47,7 +57,7 @@ public class StressScenarioTest {
                 StressScenario.of(TimerResolution.MILLISECONDS)
                               .measure(50, 1000, new Action() {
                                   @Override
-                                  protected void doAction(final MeasureProvider p)
+                                  public void doAction(final MeasureProvider p)
                                           throws Exception {
                                       p.call("test1", () -> Thread.sleep(10));
                                   }
@@ -56,7 +66,7 @@ public class StressScenarioTest {
                 StressScenario.of(TimerResolution.NANOSECONDS)
                               .measure(50, 1000, new Action() {
                                   @Override
-                                  protected void doAction(final MeasureProvider p)
+                                  public void doAction(final MeasureProvider p)
                                           throws Exception {
                                       p.call("test1", () -> Thread.sleep(10));
                                   }
@@ -74,7 +84,7 @@ public class StressScenarioTest {
                     StressScenario.of(TimerResolution.NANOSECONDS)
                                   .measure(2, 100, new NamedAction("test") {
                                       @Override
-                                      protected void doAction(final MeasureData p)
+                                      public void doAction(final MeasureData p)
                                               throws Exception {
                                           if (p.getOperationNumber() >= 100) {
                                               //System.err.println(p.getOperationNumber());
@@ -125,7 +135,7 @@ public class StressScenarioTest {
                     StressScenario.of(TimerResolution.NANOSECONDS)
                                   .measure(2, 100, new Action() {
                                       @Override
-                                      protected void doAction(final MeasureProvider p)
+                                      public void doAction(final MeasureProvider p)
                                               throws Exception {
                                           p.call("test", () -> {
                                               if (p.getOperationNumber() >= 100) {
@@ -165,7 +175,7 @@ public class StressScenarioTest {
                     StressScenario.of(TimerResolution.MILLISECONDS)
                                   .measure(2, 100, new NamedAction("test") {
                                       @Override
-                                      protected void doAction(final MeasureData p) throws Exception {
+                                      public void doAction(final MeasureData p) throws Exception {
                                           Thread.sleep(10);
                                       }
                                   });
@@ -177,7 +187,7 @@ public class StressScenarioTest {
                     StressScenario.of(TimerResolution.MILLISECONDS)
                                   .measure(2, 100, new Action() {
                                       @Override
-                                      protected void doAction(final MeasureProvider p) throws Exception {
+                                      public void doAction(final MeasureProvider p) throws Exception {
                                           p.call("test", () -> Thread.sleep(10));
                                       }
                                   });
@@ -189,7 +199,7 @@ public class StressScenarioTest {
                     StressScenario.of(TimerResolution.MILLISECONDS)
                                   .measure(2, 100, new Action() {
                                       @Override
-                                      protected void doAction(final MeasureProvider p) throws Exception {
+                                      public void doAction(final MeasureProvider p) throws Exception {
                                           p.get("test", () -> {
                                               Thread.sleep(10);
                                               return null;
@@ -206,7 +216,7 @@ public class StressScenarioTest {
                     StressScenario.of(TimerResolution.MILLISECONDS)
                                   .measurePooled(2, 100, 2, new PooledAction() {
                                       @Override
-                                      protected void doAction(final PooledMeasureProvider p) throws Exception {
+                                      public void doAction(final PooledMeasureProvider p) throws Exception {
                                           p.invoke("test", () -> Thread.sleep(10));
                                       }
                                   });
@@ -219,7 +229,7 @@ public class StressScenarioTest {
                     StressScenario.of(TimerResolution.MILLISECONDS)
                                   .measurePooled(2, 100, 2, new PooledAction() {
                                       @Override
-                                      protected void doAction(final PooledMeasureProvider p) throws Exception {
+                                      public void doAction(final PooledMeasureProvider p) throws Exception {
                                           p.invoke("test", () -> {
                                               Thread.sleep(10);
                                               return null;
@@ -242,7 +252,7 @@ public class StressScenarioTest {
                     StressScenario.of(TimerResolution.NANOSECONDS)
                                   .measure(500, 100, new Action() {
                                       @Override
-                                      protected void doAction(final MeasureProvider p) throws Exception {
+                                      public void doAction(final MeasureProvider p) throws Exception {
                                           p.get("test1", () -> {
                                               long old;
                                               for (; ; ) {
@@ -268,7 +278,7 @@ public class StressScenarioTest {
                     StressScenario.of(TimerResolution.MILLISECONDS)
                                   .measurePooled(500, 100, 10, new PooledAction() {
                                       @Override
-                                      protected void doAction(final PooledMeasureProvider p) throws Exception {
+                                      public void doAction(final PooledMeasureProvider p) throws Exception {
                                           p.invoke("test1", () -> {
                                               long old;
                                               while (true) {
@@ -293,7 +303,7 @@ public class StressScenarioTest {
         final StressResult result =
                 StressScenario.of(TimerResolution.MILLISECONDS).measure(10, 1, new Action() {
                     @Override
-                    protected void doAction(final MeasureProvider p) throws Exception {
+                    public void doAction(final MeasureProvider p) throws Exception {
                         p.call("action4", () -> {
                         });
                         p.call("action1", () -> {

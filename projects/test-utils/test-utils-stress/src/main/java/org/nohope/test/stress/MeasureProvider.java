@@ -1,7 +1,7 @@
 package org.nohope.test.stress;
 
-import org.nohope.test.stress.action.Get;
-import org.nohope.test.stress.action.Invoke;
+import org.nohope.test.stress.functors.Get;
+import org.nohope.test.stress.functors.Invoke;
 
 import java.util.concurrent.ConcurrentMap;
 import java.util.function.Function;

@@ -1,4 +1,6 @@
-package org.nohope.test.stress;
+package org.nohope.test.stress.actions;
+
+import org.nohope.test.stress.MeasureData;
 
 /**
 * @author <a href="mailto:ketoth.xupack@gmail.com">ketoth xupack</a>

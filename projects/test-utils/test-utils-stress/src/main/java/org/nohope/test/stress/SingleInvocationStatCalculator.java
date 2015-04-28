@@ -1,5 +1,7 @@
 package org.nohope.test.stress;
 
+import org.nohope.test.stress.actions.NamedAction;
+
 /**
 * @author <a href="mailto:ketoth.xupack@gmail.com">ketoth xupack</a>
 * @since 2013-12-27 16:18
@@ -19,7 +21,6 @@ class SingleInvocationStatCalculator extends StatCalculator {
         final MeasureData p = new MeasureData(threadId, operationNumber, getConcurrency());
         this.invoke(threadId, () -> {
             action.doAction(p);
-            return null;
         });
     }
 }

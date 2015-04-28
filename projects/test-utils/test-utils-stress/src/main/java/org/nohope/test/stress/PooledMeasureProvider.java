@@ -1,8 +1,8 @@
 package org.nohope.test.stress;
 
 import com.google.common.cache.LoadingCache;
-import org.nohope.test.stress.action.Get;
-import org.nohope.test.stress.action.Invoke;
+import org.nohope.test.stress.functors.Get;
+import org.nohope.test.stress.functors.Invoke;
 
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Future;

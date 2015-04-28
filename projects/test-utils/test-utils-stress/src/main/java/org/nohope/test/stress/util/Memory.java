@@ -1,4 +1,4 @@
-package org.nohope.test.stress;
+package org.nohope.test.stress.util;
 
 import static org.apache.commons.io.FileUtils.byteCountToDisplaySize;
 
@@ -6,7 +6,7 @@ import static org.apache.commons.io.FileUtils.byteCountToDisplaySize;
  * @author <a href="mailto:ketoth.xupack@gmail.com">Ketoth Xupack</a>
  * @since 2014-03-18 12:15
  */
-class Memory {
+public class Memory {
     private final long maxMemory;
     private final long totalMemory;
     private final long freeMemory;

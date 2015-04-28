@@ -1,14 +1,15 @@
 package org.nohope.test.stress;
 
 import org.apache.commons.lang3.StringUtils;
+import org.nohope.test.stress.util.Memory;
 
 import java.util.HashMap;
 import java.util.Map;
 import java.util.TreeSet;
 
 import static java.util.concurrent.TimeUnit.SECONDS;
-import static org.nohope.test.stress.TimeUtils.throughputTo;
-import static org.nohope.test.stress.TimeUtils.timeTo;
+import static org.nohope.test.stress.util.TimeUtils.throughputTo;
+import static org.nohope.test.stress.util.TimeUtils.timeTo;
 
 /**
 * @author <a href="mailto:ketoth.xupack@gmail.com">ketoth xupack</a>

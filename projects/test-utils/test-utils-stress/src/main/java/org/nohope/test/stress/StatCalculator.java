@@ -1,8 +1,8 @@
 package org.nohope.test.stress;
 
 import org.apache.commons.lang3.tuple.ImmutablePair;
-import org.nohope.test.stress.action.Get;
-import org.nohope.test.stress.action.Invoke;
+import org.nohope.test.stress.functors.Get;
+import org.nohope.test.stress.functors.Invoke;
 
 import javax.annotation.Nonnull;
 import java.util.ArrayList;

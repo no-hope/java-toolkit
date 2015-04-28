@@ -1,13 +1,14 @@
-package org.nohope.test.stress;
+package org.nohope.test.stresstooltest;
 
 import org.junit.Test;
 import org.nohope.test.UtilityClassUtils;
+import org.nohope.test.stress.util.TimeUtils;
 
 import java.util.concurrent.TimeUnit;
 
 import static org.junit.Assert.assertEquals;
-import static org.nohope.test.stress.TimeUtils.throughputTo;
-import static org.nohope.test.stress.TimeUtils.timeTo;
+import static org.nohope.test.stress.util.TimeUtils.throughputTo;
+import static org.nohope.test.stress.util.TimeUtils.timeTo;
 
 /**
  * @author <a href="mailto:ketoth.xupack@gmail.com">Ketoth Xupack</a>

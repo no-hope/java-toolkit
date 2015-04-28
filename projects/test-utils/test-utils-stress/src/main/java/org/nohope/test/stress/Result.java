@@ -19,7 +19,7 @@ import java.util.stream.Collectors;
 
 import static java.util.Map.Entry;
 import static java.util.concurrent.TimeUnit.*;
-import static org.nohope.test.stress.TimeUtils.*;
+import static org.nohope.test.stress.util.TimeUtils.*;
 
 /**
 * @author <a href="mailto:ketoth.xupack@gmail.com">ketoth xupack</a>

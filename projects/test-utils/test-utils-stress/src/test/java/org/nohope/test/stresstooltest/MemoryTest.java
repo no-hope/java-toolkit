@@ -1,9 +1,9 @@
-package org.nohope.test.stress;
+package org.nohope.test.stresstooltest;
 
 import org.junit.Test;
+import org.nohope.test.stress.util.Memory;
 
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.*;
 
 /**
  * @author <a href="mailto:ketoth.xupack@gmail.com">Ketoth Xupack</a>

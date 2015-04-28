@@ -60,7 +60,7 @@ This can be done by following code:
     StressScenario scenario = StressScenario.of(TimerResolution.NANOSECONDS);
     StressResult result = scenario.measure(10, 400, new Action() {
         @Override
-        protected void doAction(MeasureProvider p) throws Exception {
+        public void doAction(MeasureProvider p) throws Exception {
             final Long value = p.invoke("code-block1", new Get<Long>() {
                 @Override
                 public Long get() throws Exception {

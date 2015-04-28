@@ -1,7 +1,8 @@
-package org.nohope.test.stress;
+package org.nohope.test.stresstooltest;
 
 import org.junit.Test;
 import org.nohope.test.EnumUtils;
+import org.nohope.test.stress.TimerResolution;
 
 /**
  * @author <a href="mailto:ketoth.xupack@gmail.com">Ketoth Xupack</a>

@@ -4,7 +4,7 @@ package org.nohope.test.stress;
  * @author <a href="mailto:ketoth.xupack@gmail.com">Ketoth Xupack</a>
  * @since 2013-12-29 18:19
  */
-class MeasureData {
+public class MeasureData {
     private final int concurrency;
 
     private final int threadId;

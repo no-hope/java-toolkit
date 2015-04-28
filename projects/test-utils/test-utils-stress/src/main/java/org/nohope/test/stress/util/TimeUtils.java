@@ -1,4 +1,4 @@
-package org.nohope.test.stress;
+package org.nohope.test.stress.util;
 
 import javax.annotation.Nonnull;
 import java.util.concurrent.TimeUnit;
