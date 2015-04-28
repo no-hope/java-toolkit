@@ -1,4 +1,4 @@
-package org.nohope.test.stress;
+package org.nohope.test.stress.result;
 
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -25,10 +25,11 @@ import static org.nohope.test.stress.util.TimeUtils.*;
 * @author <a href="mailto:ketoth.xupack@gmail.com">ketoth xupack</a>
 * @since 2013-12-27 16:19
 */
-public class Result {
+public class ActionResult {
     private final Map<Long, List<Entry<Long, Long>>> timestampsPerThread = new HashMap<>();
     private final Map<Class<?>, List<Exception>> errorStats = new HashMap<>();
     private final Map<Class<?>, List<Throwable>> rootErrorStats = new HashMap<>();
+    private final Map<Long, Pair<Long, Long>> startEndForThread;
 
     private final String name;
 
@@ -38,18 +39,17 @@ public class Result {
     private final double totalDeltaNanos;
     private final long operationsCount;
     private final int numberOfThreads;
-    private final Map<Long, Pair<Long, Long>> startEndForThread;
     private double avgWastedNanos;
     private double avgRuntimeIncludingWastedNanos;
     private final Set<Double> percentiles = new TreeSet<>();
     private final Percentile percentile = new Percentile();
 
-    public Result(final String name,
-                  final Map<Long, List<Entry<Long, Long>>> timestampsPerThread,
-                  final Map<Class<?>, List<Exception>> errorStats,
-                  final long totalDeltaNanos,
-                  final long minTime,
-                  final long maxTime) {
+    public ActionResult(final String name,
+                        final Map<Long, List<Entry<Long, Long>>> timestampsPerThread,
+                        final Map<Class<?>, List<Exception>> errorStats,
+                        final long totalDeltaNanos,
+                        final long minTime,
+                        final long maxTime) {
         this.name = name;
         this.totalDeltaNanos = totalDeltaNanos;
         this.minTime = minTime;
@@ -113,6 +113,8 @@ public class Result {
     }
 
 
+
+
     private static Map<? extends Class<?>, ? extends List<Throwable>> computeRootStats(final Map<Class<?>, List<Exception>> errorStats) {
         final Map<Class<?>, List<Throwable>> rStats = new HashMap<>(errorStats.size());
 
@@ -132,6 +134,7 @@ public class Result {
 
         return rStats;
     }
+
 
 
     public double getAvgWastedNanos() {
@@ -191,13 +194,25 @@ public class Result {
         return totalDeltaNanos;
     }
 
+
     /**
+     * Per thread timestamps of operation start and end
+     * @return in nanoseconds
+     */
+    public Map<Long, List<Entry<Long, Long>>> getTimestampsPerThread() {
+        return Collections.unmodifiableMap(timestampsPerThread);
+    }
+
+
+    /**
+     * Operation times per thread
      * @return in nanoseconds
      */
     public Map<Long, List<Long>> getPerThreadRuntimes() {
         final Map<Long, List<Long>> times = new HashMap<>();
         for (final Entry<Long, List<Entry<Long, Long>>> perThreadTime : timestampsPerThread.entrySet()) {
-            final List<Long> perThread = perThreadTime.getValue().stream().map(e -> e.getValue() - e.getKey())
+            final List<Long> perThread = perThreadTime.getValue().stream()
+                                                      .map(e -> e.getValue() - e.getKey())
                                                       .collect(Collectors.toList());
             times.put(perThreadTime.getKey(), perThread);
         }
@@ -231,7 +246,7 @@ public class Result {
         return times;
     }
 
-    public Result withPercentiles(final double... percentiles) {
+    public ActionResult withPercentiles(final double... percentiles) {
         for (final double percentile : percentiles) {
             if (percentile < 0 || percentile > 100) {
                 throw new IllegalStateException("Percentile " + percentile + " is out of range [0, 100]");

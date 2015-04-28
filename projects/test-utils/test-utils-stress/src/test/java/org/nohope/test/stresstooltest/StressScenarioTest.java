@@ -5,8 +5,8 @@ import org.junit.Test;
 import org.nohope.test.stress.MeasureData;
 import org.nohope.test.stress.MeasureProvider;
 import org.nohope.test.stress.PooledMeasureProvider;
-import org.nohope.test.stress.Result;
-import org.nohope.test.stress.StressResult;
+import org.nohope.test.stress.result.ActionResult;
+import org.nohope.test.stress.result.StressResult;
 import org.nohope.test.stress.StressScenario;
 import org.nohope.test.stress.TimerResolution;
 import org.nohope.test.stress.actions.Action;
@@ -31,22 +31,22 @@ public class StressScenarioTest {
     public void roughTest() throws InterruptedException {
         final StressResult m1 =
                 StressScenario.of(TimerResolution.MILLISECONDS)
-                              .measure(50, 1000, new NamedAction("test1") {
+                              .prepare(50, 1000, new NamedAction("test1") {
                                   @Override
                                   public void doAction(final MeasureData p)
                                           throws Exception {
                                       Thread.sleep(10);
                                   }
-                              });
+                              }).perform();
         final StressResult m2 =
                 StressScenario.of(TimerResolution.NANOSECONDS)
-                              .measure(50, 1000, new NamedAction("test2") {
+                              .prepare(50, 1000, new NamedAction("test2") {
                                   @Override
                                   public void doAction(final MeasureData p)
                                           throws Exception {
                                       Thread.sleep(10);
                                   }
-                              });
+                              }).perform();
 
         System.err.println(m1);
         System.err.println();
@@ -55,22 +55,22 @@ public class StressScenarioTest {
 
         final StressResult m3 =
                 StressScenario.of(TimerResolution.MILLISECONDS)
-                              .measure(50, 1000, new Action() {
+                              .prepare(50, 1000, new Action() {
                                   @Override
                                   public void doAction(final MeasureProvider p)
                                           throws Exception {
                                       p.call("test1", () -> Thread.sleep(10));
                                   }
-                              });
+                              }).perform();
         final StressResult m4 =
                 StressScenario.of(TimerResolution.NANOSECONDS)
-                              .measure(50, 1000, new Action() {
+                              .prepare(50, 1000, new Action() {
                                   @Override
                                   public void doAction(final MeasureProvider p)
                                           throws Exception {
                                       p.call("test1", () -> Thread.sleep(10));
                                   }
-                              });
+                              }).perform();
 
         System.err.println(m3);
         System.err.println();
@@ -82,7 +82,7 @@ public class StressScenarioTest {
         {
             final StressResult m =
                     StressScenario.of(TimerResolution.NANOSECONDS)
-                                  .measure(2, 100, new NamedAction("test") {
+                                  .prepare(2, 100, new NamedAction("test") {
                                       @Override
                                       public void doAction(final MeasureData p)
                                               throws Exception {
@@ -92,13 +92,13 @@ public class StressScenarioTest {
                                           }
                                           Thread.sleep(1);
                                       }
-                                  });
+                                  }).perform();
 
-            final Map<String, Result> results = m.getResults();
+            final Map<String, ActionResult> results = m.getResults();
             assertNotNull(m.toString());
             assertEquals(1, results.size());
 
-            final Result testResult = results.get("test");
+            final ActionResult testResult = results.get("test");
             //System.err.println(testResult);
             assertNotNull(testResult);
             final double throughput = testResult.getThroughput();
@@ -123,7 +123,7 @@ public class StressScenarioTest {
             assertTrue(testResult.getMeanTime() >= testResult.getMinTime());
             assertTrue(m.getRuntime() > 0);
             assertTrue(testResult.getRuntime() > 0);
-            assertEquals(100, m.getFails());
+            assertEquals(100, m.getTotalExceptionsCount());
             assertEquals(100, testResult.getErrorsPerClass()
                                         .get(IllegalStateException.class)
                                         .size()
@@ -133,7 +133,7 @@ public class StressScenarioTest {
         {
             final StressResult m =
                     StressScenario.of(TimerResolution.NANOSECONDS)
-                                  .measure(2, 100, new Action() {
+                                  .prepare(2, 100, new Action() {
                                       @Override
                                       public void doAction(final MeasureProvider p)
                                               throws Exception {
@@ -144,12 +144,12 @@ public class StressScenarioTest {
                                               Thread.sleep(1);
                                           });
                                       }
-                                  });
+                                  }).perform();
 
-            final Map<String, Result> results = m.getResults();
+            final Map<String, ActionResult> results = m.getResults();
             assertNotNull(m.toString());
             assertEquals(1, results.size());
-            final Result testResult = results.get("test");
+            final ActionResult testResult = results.get("test");
             assertNotNull(testResult);
             assertTrue(testResult.getThroughput() <= 2000);
             assertTrue(testResult.getWorkerThroughput() <= 1000);
@@ -163,7 +163,7 @@ public class StressScenarioTest {
             assertTrue(testResult.getAvgRuntimeIncludingWastedNanos() > 0);
             assertTrue(testResult.getAvgWastedNanos() > 0);
             assertTrue(testResult.getAvgWastedNanos() < testResult.getAvgRuntimeIncludingWastedNanos());
-            assertEquals(100, m.getFails());
+            assertEquals(100, m.getTotalExceptionsCount());
             assertEquals(100, testResult.getErrorsPerClass()
                                         .get(IllegalStateException.class)
                                         .size()
@@ -173,31 +173,31 @@ public class StressScenarioTest {
         {
             final StressResult m2 =
                     StressScenario.of(TimerResolution.MILLISECONDS)
-                                  .measure(2, 100, new NamedAction("test") {
+                                  .prepare(2, 100, new NamedAction("test") {
                                       @Override
                                       public void doAction(final MeasureData p) throws Exception {
                                           Thread.sleep(10);
                                       }
-                                  });
+                                  }).perform();
             assertNotNull(m2.toString());
             assertTrue(m2.getRuntime() >= 1);
             assertTrue(m2.getApproxThroughput() <= 200);
 
             final StressResult m3 =
                     StressScenario.of(TimerResolution.MILLISECONDS)
-                                  .measure(2, 100, new Action() {
+                                  .prepare(2, 100, new Action() {
                                       @Override
                                       public void doAction(final MeasureProvider p) throws Exception {
                                           p.call("test", () -> Thread.sleep(10));
                                       }
-                                  });
+                                  }).perform();
             assertNotNull(m3.toString());
             assertTrue(m3.getRuntime() >= 1);
             assertTrue(m3.getApproxThroughput() <= 200);
 
             final StressResult m4 =
                     StressScenario.of(TimerResolution.MILLISECONDS)
-                                  .measure(2, 100, new Action() {
+                                  .prepare(2, 100, new Action() {
                                       @Override
                                       public void doAction(final MeasureProvider p) throws Exception {
                                           p.get("test", () -> {
@@ -205,7 +205,7 @@ public class StressScenarioTest {
                                               return null;
                                           });
                                       }
-                                  });
+                                  }).perform();
             assertNotNull(m4.toString());
             assertTrue(m4.getRuntime() >= 1);
             assertTrue(m4.getApproxThroughput() <= 200);
@@ -214,12 +214,12 @@ public class StressScenarioTest {
         {
             final StressResult m2 =
                     StressScenario.of(TimerResolution.MILLISECONDS)
-                                  .measurePooled(2, 100, 2, new PooledAction() {
+                                  .prepare(2, 100, 2, new PooledAction() {
                                       @Override
                                       public void doAction(final PooledMeasureProvider p) throws Exception {
                                           p.invoke("test", () -> Thread.sleep(10));
                                       }
-                                  });
+                                  }).perform();
             assertNotNull(m2.toString());
             assertTrue(m2.getRuntime() >= 1);
             assertTrue(m2.getApproxThroughput() <= 200);
@@ -227,7 +227,7 @@ public class StressScenarioTest {
 
             final StressResult m3 =
                     StressScenario.of(TimerResolution.MILLISECONDS)
-                                  .measurePooled(2, 100, 2, new PooledAction() {
+                                  .prepare(2, 100, 2, new PooledAction() {
                                       @Override
                                       public void doAction(final PooledMeasureProvider p) throws Exception {
                                           p.invoke("test", () -> {
@@ -235,7 +235,7 @@ public class StressScenarioTest {
                                               return null;
                                           });
                                       }
-                                  });
+                                  }).perform();
             assertNotNull(m3.toString());
             assertTrue(m3.getRuntime() >= 1);
             assertTrue(m3.getApproxThroughput() <= 200);
@@ -250,7 +250,7 @@ public class StressScenarioTest {
             final AtomicLong atomic = new AtomicLong();
             final StressResult result =
                     StressScenario.of(TimerResolution.NANOSECONDS)
-                                  .measure(500, 100, new Action() {
+                                  .prepare(500, 100, new Action() {
                                       @Override
                                       public void doAction(final MeasureProvider p) throws Exception {
                                           p.get("test1", () -> {
@@ -265,7 +265,7 @@ public class StressScenarioTest {
                                               return old;
                                           });
                                       }
-                                  });
+                                  }).perform();
 
             System.err.println(result);
         }
@@ -276,7 +276,7 @@ public class StressScenarioTest {
             final AtomicLong atomic = new AtomicLong();
             final StressResult result =
                     StressScenario.of(TimerResolution.MILLISECONDS)
-                                  .measurePooled(500, 100, 10, new PooledAction() {
+                                  .prepare(500, 100, 10, new PooledAction() {
                                       @Override
                                       public void doAction(final PooledMeasureProvider p) throws Exception {
                                           p.invoke("test1", () -> {
@@ -291,7 +291,7 @@ public class StressScenarioTest {
                                               return old;
                                           });
                                       }
-                                  });
+                                  }).perform();
 
             System.err.println(result);
         }
@@ -301,7 +301,7 @@ public class StressScenarioTest {
     @Test
     public void sortedOutput() throws InterruptedException {
         final StressResult result =
-                StressScenario.of(TimerResolution.MILLISECONDS).measure(10, 1, new Action() {
+                StressScenario.of(TimerResolution.MILLISECONDS).prepare(10, 1, new Action() {
                     @Override
                     public void doAction(final MeasureProvider p) throws Exception {
                         p.call("action4", () -> {
@@ -313,7 +313,7 @@ public class StressScenarioTest {
                         p.call("action3", () -> {
                         });
                     }
-                });
+                }).perform();
 
         final int action1 = result.toString().indexOf("action1");
         final int action2 = result.toString().indexOf("action2");

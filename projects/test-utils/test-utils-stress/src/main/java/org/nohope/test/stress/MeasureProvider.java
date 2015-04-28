@@ -12,18 +12,18 @@ import java.util.function.Function;
  */
 public final class MeasureProvider extends MeasureData {
     private final StressScenario scenario;
-    private final ConcurrentMap<String, MultiInvocationStatCalculator> map;
-    private final Function<String, MultiInvocationStatCalculator> calculatorFunction;
+    private final ConcurrentMap<String, StatAccumulator> map;
+    private final Function<String, StatAccumulator> calculatorFunction;
 
     protected MeasureProvider(final StressScenario scenario,
                               final int threadId,
                               final int operationNumber,
                               final int concurrency,
-                              final ConcurrentMap<String, MultiInvocationStatCalculator> map) {
+                              final ConcurrentMap<String, StatAccumulator> map) {
         super(threadId, operationNumber, concurrency);
         this.scenario = scenario;
         this.map = map;
-        this.calculatorFunction = newName -> new MultiInvocationStatCalculator(
+        this.calculatorFunction = newName -> new StatAccumulator(
                 this.scenario.getResolution(), newName,
                 concurrency);
     }
@@ -36,7 +36,7 @@ public final class MeasureProvider extends MeasureData {
         getStat(name).invoke(getThreadId(), invoke);
     }
 
-    private MultiInvocationStatCalculator getStat(final String name) {
+    private StatAccumulator getStat(final String name) {
         return map.computeIfAbsent(name, calculatorFunction);
     }
 

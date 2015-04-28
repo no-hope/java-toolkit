@@ -13,12 +13,12 @@ import java.util.concurrent.Future;
  */
 public final class PooledMeasureProvider extends MeasureData {
     private final LoadingCache<String, ExecutorService> poolCache;
-    private final LoadingCache<String, MultiInvocationStatCalculator> statCache;
+    private final LoadingCache<String, StatAccumulator> statCache;
 
     protected PooledMeasureProvider(final int threadId,
                                     final int operationNumber,
                                     final int concurrency,
-                                    final LoadingCache<String, MultiInvocationStatCalculator> statCache,
+                                    final LoadingCache<String, StatAccumulator> statCache,
                                     final LoadingCache<String, ExecutorService> poolCache) {
         super(threadId, operationNumber, concurrency);
         this.poolCache = poolCache;
@@ -31,12 +31,12 @@ public final class PooledMeasureProvider extends MeasureData {
     }
 
     public <T> Future<T> invoke(final String name, final Get<T> getter) throws Exception {
-        final MultiInvocationStatCalculator calc = statCache.get(name);
+        final StatAccumulator calc = statCache.get(name);
         return poolCache.get(name).submit(() -> calc.invoke(getThreadId(), getter));
     }
 
     public void invoke(final String name, final Invoke invoke) throws Exception {
-        final MultiInvocationStatCalculator calc = statCache.get(name);
+        final StatAccumulator calc = statCache.get(name);
         poolCache.get(name).submit(() -> {
             try {
                 calc.invoke(getThreadId(), invoke);

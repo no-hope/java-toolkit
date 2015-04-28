@@ -7,9 +7,13 @@ import com.google.common.util.concurrent.ThreadFactoryBuilder;
 import org.nohope.test.stress.actions.Action;
 import org.nohope.test.stress.actions.NamedAction;
 import org.nohope.test.stress.actions.PooledAction;
+import org.nohope.test.stress.result.ActionResult;
+import org.nohope.test.stress.result.StressResult;
 import org.nohope.test.stress.util.Memory;
+import org.nohope.test.stress.util.MetricsAccumulator;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -39,15 +43,15 @@ public class StressScenario {
         return new StressScenario(resolution);
     }
 
-    public StressResult measure(final int threadsNumber,
-                               final int cycleCount,
-                               final NamedAction... actions)
+    public PreparedMeasurement prepare(final int threadsNumber,
+                                final int cycleCount,
+                                final NamedAction... actions)
             throws InterruptedException {
 
-        final Map<String, SingleInvocationStatCalculator> stats = new HashMap<>();
+        final Map<String, SingleInvocationStatAccumulator> stats = new HashMap<>(actions.length);
         for (final NamedAction action : actions) {
             stats.put(action.getName(),
-                    new SingleInvocationStatCalculator(resolution, action, threadsNumber));
+                    new SingleInvocationStatAccumulator(resolution, action, threadsNumber));
         }
 
         final List<Thread> threads = new ArrayList<>();
@@ -56,7 +60,7 @@ public class StressScenario {
             threads.add(new Thread(() -> {
                 for (int j = k * cycleCount; j < (k + 1) * cycleCount; j++) {
                     try {
-                        for (final SingleInvocationStatCalculator stat : stats.values()) {
+                        for (final SingleInvocationStatAccumulator stat : stats.values()) {
                             stat.invoke(k, j);
                         }
                     } catch (final InvocationException e) {
@@ -66,46 +70,24 @@ public class StressScenario {
             }, "stress-worker-" + k));
         }
 
-        final Memory memoryStart = Memory.getCurrent();
-        final long overallStart = resolution.currentTime();
-        threads.forEach(java.lang.Thread::start);
-
-        for (final Thread thread : threads) {
-            thread.join();
-        }
-        final long overallEnd = resolution.currentTime();
-
-        final Memory memoryEnd = Memory.getCurrent();
-
-
-        final double runningTime = overallEnd - overallStart;
-
-        final Map<String, Result> results = new HashMap<>();
-        int fails = 0;
-        for (final SingleInvocationStatCalculator stat : stats.values()) {
-            final Result r = stat.getResult();
-            fails += r.getErrors().size();
-            results.put(r.getName(), r);
-        }
-
-        return new StressResult(results, threadsNumber, cycleCount,
-                fails, runningTime, memoryStart, memoryEnd);
+        return new PreparedMeasurement(resolution, threadsNumber, cycleCount, Collections.emptyList(), stats.values(), threads);
     }
 
-    public StressResult measure(final int threadsNumber,
+    public PreparedMeasurement prepare(final int threadsNumber,
                                 final int cycleCount,
                                 final Action action)
             throws InterruptedException {
 
-        final ConcurrentMap<String, MultiInvocationStatCalculator> result =
+        final ConcurrentMap<String, StatAccumulator> result =
                 new ConcurrentHashMap<>(16, 0.75f, threadsNumber);
 
-        final List<MeasureProvider> providers = new ArrayList<>();
+        final List<MeasureProvider> providers = new ArrayList<>(threadsNumber * cycleCount);
         for (int i = 0; i < threadsNumber; i++) {
             for (int j = i * cycleCount; j < (i + 1) * cycleCount; j++) {
                 providers.add(new MeasureProvider(this, i, j, threadsNumber, result));
             }
         }
+
 
         final List<Thread> threads = new ArrayList<>();
         for (int i = 0; i < threadsNumber; i++) {
@@ -120,34 +102,14 @@ public class StressScenario {
                 }
             }, "stress-worker-" + k));
         }
+        return new PreparedMeasurement(resolution, threadsNumber, cycleCount, Collections.emptyList(), result.values(), threads);
 
-        final Memory memoryStart = Memory.getCurrent();
-        final long overallStart = resolution.currentTime();
-        threads.forEach(java.lang.Thread::start);
-        for (final Thread thread : threads) {
-            thread.join();
-        }
-        final long overallEnd = resolution.currentTime();
-        final Memory memoryEnd = Memory.getCurrent();
-
-        final double runtime = overallEnd - overallStart;
-
-        int fails = 0;
-        final Map<String, Result> results = new HashMap<>();
-        for (final MultiInvocationStatCalculator stats : result.values()) {
-            final Result r = stats.getResult();
-            fails += r.getErrors().size();
-            results.put(r.getName(), r);
-        }
-
-        return new StressResult(results, threadsNumber, cycleCount,
-                fails, runtime, memoryStart, memoryEnd);
     }
 
-    public StressResult measurePooled(final int threadsNumber,
-                                      final int cycleCount,
-                                      final int coordinateThreadsCount,
-                                      final PooledAction action)
+    public PreparedMeasurement prepare(final int threadsNumber,
+                                final int cycleCount,
+                                final int coordinateThreadsCount,
+                                final PooledAction action)
             throws InterruptedException {
 
         final LoadingCache<String, ExecutorService> threadPools =
@@ -157,18 +119,18 @@ public class StressScenario {
 
         final int concurrency = threadsNumber * coordinateThreadsCount;
 
-        final LoadingCache<String, MultiInvocationStatCalculator> calcPool =
+        final LoadingCache<String, StatAccumulator> calcPool =
                 CacheBuilder.newBuilder()
                             .concurrencyLevel(threadsNumber)
-                            .build(new CacheLoader<String, MultiInvocationStatCalculator>() {
+                            .build(new CacheLoader<String, StatAccumulator>() {
                                 @Override
-                                public MultiInvocationStatCalculator load(final String key) throws Exception {
-                                    return new MultiInvocationStatCalculator(getResolution(), key,
-                                                                             concurrency);
+                                public StatAccumulator load(final String key) throws Exception {
+                                    return new StatAccumulator(getResolution(), key,
+                                                               concurrency);
                                 }
                             });
 
-        final List<PooledMeasureProvider> providers = new ArrayList<>();
+        final List<PooledMeasureProvider> providers = new ArrayList<>(threadsNumber * cycleCount);
         for (int i = 0; i < threadsNumber; i++) {
             for (int j = i * cycleCount; j < (i + 1) * cycleCount; j++) {
                 providers.add(new PooledMeasureProvider(i, j, concurrency, calcPool, threadPools));
@@ -190,35 +152,13 @@ public class StressScenario {
             }, "stress-worker-" + k));
         }
 
-        final Memory memoryStart = Memory.getCurrent();
-        final long overallStart = resolution.currentTime();
-        threads.forEach(java.lang.Thread::start);
-        for (final Thread thread : threads) {
-            thread.join();
-        }
-        for (final ExecutorService service : threadPools.asMap().values()) {
-            try {
-                service.shutdown();
-                service.awaitTermination(Long.MAX_VALUE, TimeUnit.HOURS);
-            } catch (final InterruptedException ignored) {
-            }
-        }
-        final long overallEnd = resolution.currentTime();
-        final Memory memoryEnd = Memory.getCurrent();
-
-        final double runtime = overallEnd - overallStart;
-
-        int fails = 0;
-        final Map<String, Result> results = new HashMap<>();
-        for (final MultiInvocationStatCalculator stats : calcPool.asMap().values()) {
-            final Result r = stats.getResult();
-            fails += r.getErrors().size();
-            results.put(r.getName(), r);
-        }
-
-        return new StressResult(results, threadsNumber, cycleCount,
-                fails, runtime, memoryStart, memoryEnd);
+        return new PreparedMeasurement(resolution, threadsNumber, cycleCount, threadPools.asMap().values(),
+                                                   calcPool.asMap().values(), threads);
     }
+
+
+
+
 
     private static class PoolLoader extends CacheLoader<String, ExecutorService> {
         private final int threadsNumber;
@@ -229,7 +169,7 @@ public class StressScenario {
 
         @Override
         public ExecutorService load(final String key) throws Exception {
-            final String nameFormat = "measure-pool-" + key + "-%d";
+            final String nameFormat = "prepare-pool-" + key + "-%d";
             final ThreadFactory threadFactory =
                     new ThreadFactoryBuilder().setNameFormat(nameFormat).build();
             return Executors.newFixedThreadPool(threadsNumber,
