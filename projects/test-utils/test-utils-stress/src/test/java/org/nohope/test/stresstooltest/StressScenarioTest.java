@@ -276,7 +276,7 @@ public class StressScenarioTest {
             final AtomicLong atomic = new AtomicLong();
             final StressResult result =
                     StressScenario.of(TimerResolution.MILLISECONDS)
-                                  .prepare(500, 100, 10, new PooledAction() {
+                                  .prepare(50, 100, 10, new PooledAction() {
                                       @Override
                                       public void doAction(final PooledMeasureProvider p) throws Exception {
                                           p.invoke("test1", () -> {

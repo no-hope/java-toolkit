@@ -20,7 +20,7 @@ import static java.util.Map.Entry;
 * @author <a href="mailto:ketoth.xupack@gmail.com">ketoth xupack</a>
 * @since 2013-12-27 16:18
 */
-class StatAccumulator {
+final class StatAccumulator {
     private final ConcurrentHashMap<Long, List<Entry<Long, Long>>> timesPerThread = new ConcurrentHashMap<>();
     private final ConcurrentHashMap<Class<?>, ConcurrentLinkedQueue<Exception>> errorStats = new ConcurrentHashMap<>();
     private final AtomicReference<ActionResult> result = new AtomicReference<>();
