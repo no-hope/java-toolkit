@@ -13,7 +13,7 @@ import java.util.function.Function;
 * @author <a href="mailto:ketoth.xupack@gmail.com">ketoth xupack</a>
 * @since 2013-12-27 16:18
 */
-final class StatAccumulator {
+final class ActionStatsAccumulator {
     private static final Function<Long, Queue<Measurement>> NEW_LIST =
             x -> new ConcurrentLinkedQueue<>();
     private static final Function<Long, Queue<InvocationException>> NEW_QUEUE =
@@ -23,7 +23,7 @@ final class StatAccumulator {
     private final Map<Long, Collection<InvocationException>> errorStats = new ConcurrentHashMap<>();
     private final String name;
 
-    StatAccumulator(final String name) {
+    ActionStatsAccumulator(final String name) {
         this.name = name;
     }
 
@@ -52,10 +52,8 @@ final class StatAccumulator {
             handleException(threadId, ex);
             throw ex;
         } finally {
-            // it's safe to use ArrayList here, they are always modified by same thread!
-            final Collection<Measurement> list = timesPerThread.computeIfAbsent(threadId, NEW_LIST);
             if (times != null) {
-                list.add(times);
+                timesPerThread.computeIfAbsent(threadId, NEW_LIST).add(times);
             }
         }
     }
@@ -72,10 +70,8 @@ final class StatAccumulator {
             handleException(threadId, ex);
             throw ex;
         } finally {
-            // it's safe to use ArrayList here, they are always modified by same thread!
-            final Collection<Measurement> list = timesPerThread.computeIfAbsent(threadId, NEW_LIST);
             if (times != null) {
-                list.add(times);
+                timesPerThread.computeIfAbsent(threadId, NEW_LIST).add(times);
             }
         }
     }

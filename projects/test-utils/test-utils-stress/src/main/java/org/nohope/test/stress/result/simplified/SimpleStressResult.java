@@ -1,12 +1,14 @@
-package org.nohope.test.stress.result;
+package org.nohope.test.stress.result.simplified;
 
 import org.apache.commons.lang3.StringUtils;
+import org.nohope.test.stress.result.StressMetrics;
 import org.nohope.test.stress.util.Memory;
 
 import java.util.*;
 import java.util.stream.Collectors;
 
 import static java.util.concurrent.TimeUnit.SECONDS;
+import static org.apache.commons.io.FileUtils.byteCountToDisplaySize;
 import static org.nohope.test.stress.util.TimeUtils.throughputTo;
 import static org.nohope.test.stress.util.TimeUtils.timeTo;
 
@@ -14,25 +16,24 @@ import static org.nohope.test.stress.util.TimeUtils.timeTo;
 * @author <a href="mailto:ketoth.xupack@gmail.com">ketoth xupack</a>
 * @since 2013-12-27 16:19
 */
-@Deprecated
-public class StressResult {
-    private final Map<String, ActionResult> results;
+public class SimpleStressResult {
+    private final Map<String, SimpleActionResult> results;
     private final double runtime;
     private final int totalExceptionsCount;
     private final int threadsCount;
     private final int cycleCount;
     private final Memory memoryStart;
     private final Memory memoryEnd;
-    private final List<Exception> allExceptions;
+    private final List<Throwable> allExceptions;
     private final List<StressMetrics> metrics;
 
-    public StressResult(final Map<String, ActionResult> stats,
-                        final int threadsCount,
-                        final int cycleCount,
-                        final double runtime,
-                        final Collection<StressMetrics> metrics,
-                        final Memory memoryStart,
-                        final Memory memoryEnd) {
+    public SimpleStressResult(final Map<String, SimpleActionResult> stats,
+                              final int threadsCount,
+                              final int cycleCount,
+                              final double runtime,
+                              final Collection<StressMetrics> metrics,
+                              final Memory memoryStart,
+                              final Memory memoryEnd) {
         this.runtime = runtime;
         this.allExceptions = stats.entrySet().stream()
                              .flatMap(entry -> entry.getValue().getErrors().stream())
@@ -58,7 +59,7 @@ public class StressResult {
     /**
      * @return per test results
      */
-    public Map<String, ActionResult> getResults() {
+    public Map<String, SimpleActionResult> getResults() {
         return results;
     }
 
@@ -99,7 +100,7 @@ public class StressResult {
         return cycleCount;
     }
 
-    public List<Exception> getAllExceptions() {
+    public List<Throwable> getAllExceptions() {
         return Collections.unmodifiableList(allExceptions);
     }
 
@@ -124,25 +125,39 @@ public class StressResult {
             builder.append(results.get(key));
         }
 
-        return builder.append(separator)
-                      .append('\n')
-                      .append(pad("Total error count:"))
-                      .append(totalExceptionsCount)
-                      .append('\n')
-                      .append(pad("Total running time:"))
-                      .append(String.format("%.3f", timeTo(runtime, SECONDS)))
-                      .append(" sec\n")
-                      .append(pad("Approximate throughput:"))
-                      .append(String.format("%.3e", throughputTo(getApproxThroughput(), SECONDS)))
-                      .append(" op/sec")
-                      .append('\n')
-                      .append(pad("Memory usage before test:"))
-                      .append(memoryStart)
-                      .append('\n')
-                      .append(pad("Memory usage after test:"))
-                      .append(memoryEnd)
-                      .append('\n')
-                      .toString();
+        builder.append(separator)
+               .append('\n')
+               .append(pad("Total error count:"))
+               .append(totalExceptionsCount)
+               .append('\n')
+               .append(pad("Total running time:"))
+               .append(String.format("%.3f", timeTo(runtime, SECONDS)))
+               .append(" sec\n")
+               .append(pad("Approximate throughput:"))
+               .append(String.format("%.3e", throughputTo(getApproxThroughput(), SECONDS)))
+               .append(" op/sec")
+               .append('\n')
+               .append(pad("Memory usage before test:"))
+               .append(memoryStart)
+               .append('\n')
+               .append(pad("Memory usage after test:"))
+               .append(memoryEnd)
+               .append('\n');
+
+        final long memoryDelta = memoryEnd.getTotalMemory() - memoryStart.getTotalMemory();
+        final long memoryDeltaThreshold = 1024 * 1024 * 1024; // TODO: get rid of hardcoded 1GB
+        if (memoryDelta > memoryDeltaThreshold) {
+            builder.append("*** Possible memory leak: heap size delta = ");
+            builder.append(byteCountToDisplaySize(memoryDelta));
+            builder.append(" > ");
+            builder.append(byteCountToDisplaySize(memoryDeltaThreshold));
+            builder.append(" ***\n");
+
+        }
+
+
+
+        return builder.toString();
     }
 
     private static String pad(final String str) {

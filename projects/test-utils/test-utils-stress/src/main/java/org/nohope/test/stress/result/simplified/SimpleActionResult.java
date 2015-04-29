@@ -1,4 +1,4 @@
-package org.nohope.test.stress.result;
+package org.nohope.test.stress.result.simplified;
 
 import com.google.common.base.Objects;
 import org.apache.commons.lang3.ArrayUtils;
@@ -7,28 +7,33 @@ import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.apache.commons.math.stat.descriptive.rank.Percentile;
 import org.nohope.test.stress.util.Measurement;
 
-import java.util.*;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.OptionalLong;
+import java.util.Set;
+import java.util.TreeSet;
 import java.util.function.Function;
 import java.util.function.ToLongFunction;
 import java.util.stream.Collectors;
 import java.util.stream.LongStream;
 
 import static java.util.Map.Entry;
-import static java.util.concurrent.TimeUnit.MILLISECONDS;
-import static java.util.concurrent.TimeUnit.SECONDS;
-import static org.nohope.test.stress.util.TimeUtils.throughputTo;
-import static org.nohope.test.stress.util.TimeUtils.timeTo;
+import static java.util.concurrent.TimeUnit.*;
+import static org.nohope.test.stress.util.TimeUtils.*;
 
 /**
  * @author <a href="mailto:ketoth.xupack@gmail.com">ketoth xupack</a>
  * @since 2013-12-27 16:19
  */
-@Deprecated
-public class ActionResult {
+public class SimpleActionResult {
     private static final Function<Measurement, Long> DIFF = e -> e.getEndNanos() - e.getStartNanos();
 
     private final Map<Long, Collection<Measurement>> timestampsPerThread = new HashMap<>();
-    private final Map<Class<?>, Collection<Exception>> errorStats = new HashMap<>();
+    private final Map<Class<?>, Collection<Throwable>> errorStats = new HashMap<>();
     private final Map<Class<?>, Collection<Throwable>> rootErrorStats = new HashMap<>();
     private final Map<Long, Measurement> startEndForThread;
 
@@ -45,12 +50,13 @@ public class ActionResult {
     private final Set<Double> percentiles = new TreeSet<>();
     private final Percentile percentile = new Percentile();
 
-    public ActionResult(final String name,
-                        final Map<Long, Collection<Measurement>> timestampsPerThread,
-                        final Map<Class<?>, Collection<Exception>> errorStats,
-                        final long totalDeltaNanos,
-                        final long minTime,
-                        final long maxTime) {
+    public SimpleActionResult(final String name,
+                              final Map<Long, Collection<Measurement>> timestampsPerThread,
+                              final Map<Class<?>, Collection<Throwable>> errorStats,
+                              final int numberOfThreads,
+                              final long totalDeltaNanos,
+                              final long minTime,
+                              final long maxTime) {
         this.name = name;
         this.totalDeltaNanos = totalDeltaNanos;
         this.minTime = minTime;
@@ -62,7 +68,7 @@ public class ActionResult {
         this.errorStats.putAll(errorStats);
         this.rootErrorStats.putAll(computeRootStats(this.errorStats));
         this.timestampsPerThread.putAll(timestampsPerThread);
-        this.numberOfThreads = timestampsPerThread.size();
+        this.numberOfThreads = numberOfThreads;
 
         startEndForThread = timestampsPerThread
                 .entrySet().stream().filter(entries -> !entries.getValue().isEmpty())
@@ -88,7 +94,7 @@ public class ActionResult {
         percentiles.add(50d);
     }
 
-    private static Map<Class<?>, List<Throwable>> computeRootStats(final Map<Class<?>, Collection<Exception>> errorStats) {
+    private static Map<Class<?>, List<Throwable>> computeRootStats(final Map<Class<?>, Collection<Throwable>> errorStats) {
         //noinspection ThrowableResultOfMethodCallIgnored
         return errorStats.values().parallelStream().flatMap(Collection::stream)
                          .map(e -> Objects.firstNonNull(ExceptionUtils.getRootCause(e), e))
@@ -174,14 +180,14 @@ public class ActionResult {
     /**
      * @return list of all exceptions thrown during test scenario
      */
-    public List<Exception> getErrors() {
+    public List<Throwable> getErrors() {
         return errorStats.values().stream().flatMap(Collection::stream).collect(Collectors.toList());
     }
 
     /**
      * @return list of all exceptions split by topmost exception class
      */
-    public Map<Class<?>, Collection<Exception>> getErrorsPerClass() {
+    public Map<Class<?>, Collection<Throwable>> getErrorsPerClass() {
         return Collections.unmodifiableMap(errorStats);
     }
 
@@ -194,7 +200,7 @@ public class ActionResult {
                                   .collect(Collectors.toList());
     }
 
-    public ActionResult withPercentiles(final double... percentiles) {
+    public SimpleActionResult withPercentiles(final double... percentiles) {
         for (final double percentile : percentiles) {
             if (percentile < 0 || percentile > 100) {
                 throw new IllegalStateException("Percentile " + percentile + " is out of range [0, 100]");
@@ -280,7 +286,7 @@ public class ActionResult {
                .append(" op/sec")
                .append('\n');
 
-        builder.append(pad("Avg throughput:"))
+        builder.append(pad("Avg throughput (inaccurate):"))
                .append(String.format("%.3e", throughputTo(getThroughput(), SECONDS)))
                .append(" op/sec")
                .append('\n');
