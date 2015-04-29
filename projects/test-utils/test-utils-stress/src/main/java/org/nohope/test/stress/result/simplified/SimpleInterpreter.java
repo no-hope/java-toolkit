@@ -22,7 +22,7 @@ public class SimpleInterpreter implements Interpreter<SimpleStressResult> {
             result.visitResult(minmax);
 
             final Errors errors = new Errors();
-            result.visitError(errors);
+            result.visitErrors(errors);
 
             final int numberOfThreads = Sets.union(minmax.getThreadIds(), errors.getThreadIds()).size();
             results.put(accumulator.getActionName(), new SimpleActionResult(

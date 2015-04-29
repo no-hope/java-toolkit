@@ -3,6 +3,7 @@ package org.nohope.test.stresstooltest;
 import org.junit.Ignore;
 import org.junit.Test;
 import org.nohope.test.stress.StressTest;
+import org.nohope.test.stress.result.StressScenarioResult;
 import org.nohope.test.stress.result.simplified.SimpleActionResult;
 import org.nohope.test.stress.result.simplified.SimpleInterpreter;
 import org.nohope.test.stress.result.simplified.SimpleStressResult;
@@ -52,16 +53,18 @@ public class StressTestTest {
     @Test
     public void counts() throws InterruptedException {
         {
-            final SimpleStressResult m =
-                    StressTest.prepare(2, 100, p -> {
-                        p.call("test", () -> {
-                            if (p.getOperationNumber() >= 100) {
-                                //System.err.println(p.getOperationNumber());
-                                throw new IllegalStateException();
-                            }
-                            Thread.sleep(1);
-                        });
-                    }).perform().interpret(new SimpleInterpreter());
+            StressScenarioResult scenarioResult = StressTest.prepare(2, 100, p -> {
+                p.call("test", () -> {
+                    if (p.getOperationNumber() >= 100) {
+                        //System.err.println(p.getOperationNumber());
+                        throw new IllegalStateException();
+                    }
+                    Thread.sleep(1);
+                });
+            }).perform();
+
+            final SimpleStressResult m = scenarioResult.interpret(new SimpleInterpreter());
+            //System.err.println(scenarioResult.interpret(new ExportingInterpreter(Paths.get("/tmp"))));
 
             final Map<String, SimpleActionResult> results = m.getResults();
             assertNotNull(m.toString());
@@ -69,7 +72,6 @@ public class StressTestTest {
 
             final SimpleActionResult testResult = results.get("test");
             //System.err.println(testResult);
-            testResult.getErrors().get(0).printStackTrace();
             assertNotNull(testResult);
             final double throughput = testResult.getThroughput();
             final double workerThroughput = testResult.getWorkerThroughput();

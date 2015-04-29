@@ -8,6 +8,7 @@ import org.nohope.test.stress.util.Memory;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
@@ -23,9 +24,9 @@ public class StressScenarioResult {
         private final Map<Long, Collection<InvocationException>> errorStats;
         private final String actionName;
 
-        public ActionStats(Map<Long, Collection<Measurement>> timesPerThread,
-                           Map<Long, Collection<InvocationException>> errorStats,
-                           String actionName) {
+        public ActionStats(final Map<Long, Collection<Measurement>> timesPerThread,
+                           final Map<Long, Collection<InvocationException>> errorStats,
+                           final String actionName) {
             this.timesPerThread = timesPerThread;
             this.errorStats = errorStats;
             this.actionName = actionName;
@@ -77,7 +78,15 @@ public class StressScenarioResult {
         return interpreter.interpret(this);
     }
 
-    public void visitError(final ErrorProcessor processor) {
+    public List<Object> interpret(final Interpreter<?>... interpreters) {
+        final List<Object> ret = new ArrayList<>(interpreters.length);
+        for (final Interpreter<?> interpreter : interpreters) {
+            ret.add(interpreter.interpret(this));
+        }
+        return ret;
+    }
+
+    public void visitErrors(final ErrorProcessor processor) {
         for (final ActionStats accumulator : accumulators) {
             final String name = accumulator.getActionName();
             for (final Entry<Long, Collection<InvocationException>> e: accumulator.getErrorStats().entrySet()) {
