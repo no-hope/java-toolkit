@@ -1,15 +1,17 @@
 package org.nohope.test.stress.result;
 
+import com.google.common.base.Objects;
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.exception.ExceptionUtils;
-import org.apache.commons.lang3.tuple.ImmutablePair;
-import org.apache.commons.lang3.tuple.Pair;
 import org.apache.commons.math.stat.descriptive.rank.Percentile;
+import org.nohope.test.stress.util.Measurement;
 
 import java.util.*;
+import java.util.function.Function;
+import java.util.function.ToLongFunction;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
+import java.util.stream.LongStream;
 
 import static java.util.Map.Entry;
 import static java.util.concurrent.TimeUnit.MILLISECONDS;
@@ -18,14 +20,16 @@ import static org.nohope.test.stress.util.TimeUtils.throughputTo;
 import static org.nohope.test.stress.util.TimeUtils.timeTo;
 
 /**
-* @author <a href="mailto:ketoth.xupack@gmail.com">ketoth xupack</a>
-* @since 2013-12-27 16:19
-*/
+ * @author <a href="mailto:ketoth.xupack@gmail.com">ketoth xupack</a>
+ * @since 2013-12-27 16:19
+ */
 public class ActionResult {
-    private final Map<Long, List<Entry<Long, Long>>> timestampsPerThread = new HashMap<>();
+    private static final Function<Measurement, Long> DIFF = e -> e.getEndNanos() - e.getStartNanos();
+
+    private final Map<Long, List<Measurement>> timestampsPerThread = new HashMap<>();
     private final Map<Class<?>, List<Exception>> errorStats = new HashMap<>();
     private final Map<Class<?>, List<Throwable>> rootErrorStats = new HashMap<>();
-    private final Map<Long, Pair<Long, Long>> startEndForThread;
+    private final Map<Long, Measurement> startEndForThread;
 
     private final String name;
 
@@ -41,7 +45,7 @@ public class ActionResult {
     private final Percentile percentile = new Percentile();
 
     public ActionResult(final String name,
-                        final Map<Long, List<Entry<Long, Long>>> timestampsPerThread,
+                        final Map<Long, List<Measurement>> timestampsPerThread,
                         final Map<Class<?>, List<Exception>> errorStats,
                         final long totalDeltaNanos,
                         final long minTime,
@@ -51,11 +55,7 @@ public class ActionResult {
         this.minTime = minTime;
         this.maxTime = maxTime;
 
-        long result = 0;
-        for (final List<Entry<Long, Long>> entries : timestampsPerThread.values()) {
-            result += entries.size();
-        }
-        this.operationsCount = result;
+        this.operationsCount = timestampsPerThread.values().stream().flatMap(Collection::stream).count();
         this.meanRequestTime = 1.0 * totalDeltaNanos / operationsCount;
 
         this.errorStats.putAll(errorStats);
@@ -63,41 +63,23 @@ public class ActionResult {
         this.timestampsPerThread.putAll(timestampsPerThread);
         this.numberOfThreads = timestampsPerThread.size();
 
-        startEndForThread = new HashMap<>();
-        for (final Entry<Long, List<Entry<Long, Long>>> entries : timestampsPerThread.entrySet()) {
-            if (!entries.getValue().isEmpty()) {
-                long minStart = Long.MAX_VALUE;
-                long maxEnd = 0;
-                for (final Entry<Long, Long> e : entries.getValue()) {
-                    final Long start = e.getKey();
-                    final Long end = e.getValue();
-                    if (start < minStart) {
-                        minStart = start;
-                    }
-                    if (end > maxEnd) {
-                        maxEnd = end;
-                    }
-                }
-
-                startEndForThread.put(entries.getKey(), new ImmutablePair<>(minStart, maxEnd));
-            }
-        }
+        startEndForThread = timestampsPerThread
+                .entrySet().stream().filter(entries -> !entries.getValue().isEmpty())
+                .collect(Collectors.toMap(Entry::getKey, e -> Measurement.of(
+                        calc(LongStream::min, e.getValue(), Measurement::getStartNanos),
+                        calc(LongStream::max, e.getValue(), Measurement::getEndNanos))));
 
         avgWastedNanos = 0;
         avgRuntimeIncludingWastedNanos = 0;
-        for (final Entry<Long, Pair<Long, Long>> entry : startEndForThread.entrySet()) {
-            final Long threadId = entry.getKey();
-            final Long minStart = entry.getValue().getKey();
-            final Long maxEnd = entry.getValue().getValue();
-            double threadDelta = 0;
-            for (final Entry<Long, Long> delta : timestampsPerThread.get(threadId)) {
-                threadDelta += (delta.getValue() - delta.getKey());
-            }
+        startEndForThread.entrySet().forEach(entry -> {
+            final double threadDelta = timestampsPerThread
+                    .get(entry.getKey()).stream().map(DIFF).reduce(0L, Long::sum);
 
-            final double delta = maxEnd - minStart;
+            final double delta = DIFF.apply(entry.getValue());
             avgRuntimeIncludingWastedNanos += delta;
             avgWastedNanos += (delta - threadDelta);
-        }
+        });
+
         avgWastedNanos /= numberOfThreads;
         avgRuntimeIncludingWastedNanos /= numberOfThreads;
         percentiles.add(99.5d);
@@ -105,21 +87,11 @@ public class ActionResult {
         percentiles.add(50d);
     }
 
-    private static Map<Class<?>, ? extends List<Throwable>> computeRootStats(final Map<Class<?>, List<Exception>> errorStats) {
-        final Map<Class<?>, List<Throwable>> rStats = new HashMap<>(errorStats.size());
-
-        for (final List<Exception> exceptions : errorStats.values()) {
-            for (final Exception e: exceptions) {
-                Throwable root = ExceptionUtils.getRootCause(e);
-                if (root == null) {
-                    root = e;
-                }
-                final Class<?> rClass = root.getClass();
-                rStats.computeIfAbsent(rClass, clazz -> new ArrayList<>()).add(root);
-            }
-        }
-
-        return rStats;
+    private static Map<Class<?>, List<Throwable>> computeRootStats(final Map<Class<?>, List<Exception>> errorStats) {
+        //noinspection ThrowableResultOfMethodCallIgnored
+        return errorStats.values().parallelStream().flatMap(Collection::stream)
+                         .map(e -> Objects.firstNonNull(ExceptionUtils.getRootCause(e), e))
+                         .collect(Collectors.groupingBy(Object::getClass));
     }
 
     public double getAvgWastedNanos() {
@@ -181,31 +153,28 @@ public class ActionResult {
 
     /**
      * Per thread timestamps of operation start and end
+     *
      * @return in nanoseconds
      */
-    public Map<Long, List<Entry<Long, Long>>> getTimestampsPerThread() {
+    public Map<Long, List<Measurement>> getTimestampsPerThread() {
         return Collections.unmodifiableMap(timestampsPerThread);
     }
 
     /**
      * Operation times per thread
+     *
      * @return in nanoseconds
      */
     public Map<Long, List<Long>> getPerThreadRuntimes() {
-        return timestampsPerThread.entrySet().stream().collect(
-                Collectors.toMap(Entry::getKey,
-                        e -> e.getValue().stream().map(le -> le.getValue() - le.getKey())
-                              .collect(Collectors.toList())
-                ));
+        return timestampsPerThread.entrySet().stream().collect(Collectors.toMap(Entry::getKey, e ->
+                e.getValue().stream().map(DIFF).collect(Collectors.toList())));
     }
 
     /**
      * @return list of all exceptions thrown during test scenario
      */
     public List<Exception> getErrors() {
-        final List<Exception> result = new ArrayList<>();
-        errorStats.values().forEach(result::addAll);
-        return result;
+        return errorStats.values().stream().flatMap(Collection::stream).collect(Collectors.toList());
     }
 
     /**
@@ -220,7 +189,7 @@ public class ActionResult {
      */
     public final List<Long> getRunTimes() {
         return timestampsPerThread.values().parallelStream()
-                                  .flatMap(t -> (Stream<Long>) t.stream().map(e -> e.getValue() - e.getKey()))
+                                  .flatMap(t -> t.stream().map(DIFF))
                                   .collect(Collectors.toList());
     }
 
@@ -249,7 +218,7 @@ public class ActionResult {
                .append('\n');
 
         builder.append(pad("Operation time"))
-                .append('\n');
+               .append('\n');
 
         builder.append(pad("  Min:"))
                .append(String.format("%.3f", timeTo(minTime, MILLISECONDS)))
@@ -266,34 +235,28 @@ public class ActionResult {
                .append(" ms")
                .append('\n');
 
-        int fails = 0;
-        for (final List<Exception> exceptions : errorStats.values()) {
-            fails += exceptions.size();
-        }
-
+        long fails = errorStats.values().stream().flatMap(Collection::stream).count();
         if (!percentiles.isEmpty()) {
             final List<Long> runTimes = getRunTimes();
             Collections.sort(runTimes);
 
             final double[] data = new double[runTimes.size()];
-
             int i = 0;
             for (final Long runtime : runTimes) {
                 data[i] = runtime;
                 i++;
             }
 
-            for (final Double p : percentiles) {
-                builder.append(pad(String.format("  %sth percentile:", p)))
-                        .append(String.format("%.3f", timeTo(percentile.evaluate(data, p), MILLISECONDS)))
-                        .append(" ms")
-                        .append('\n');
-            }
+            percentiles.forEach(p ->
+                    builder.append(pad(String.format("  %sth percentile:", p)))
+                           .append(String.format("%.3f", timeTo(percentile.evaluate(data, p), MILLISECONDS)))
+                           .append(" ms")
+                           .append('\n'));
         }
 
         builder.append(pad("Objective avg runtime:"))
-                .append(String.format("%.3f", timeTo(totalDeltaNanos / numberOfThreads, SECONDS)))
-                .append(" sec\n");
+               .append(String.format("%.3f", timeTo(totalDeltaNanos / numberOfThreads, SECONDS)))
+               .append(" sec\n");
 
         builder.append(pad(String.format("Total running time (%d workers):", numberOfThreads)))
                .append(String.format("%.3f", timeTo(totalDeltaNanos, SECONDS)))
@@ -325,25 +288,23 @@ public class ActionResult {
                .append(fails)
                .append('\n');
 
-        for (final Entry<Class<?>, List<Exception>> e : errorStats.entrySet()) {
-            builder.append("| ")
-                   .append(e.getKey().getName())
-                   .append(" happened ")
-                   .append(e.getValue().size())
-                   .append(" times")
-                   .append('\n');
-        }
-
-        if (!errorStats.isEmpty()) {
-            builder.append("Roots:\n");
-            for (final Entry<Class<?>, List<Throwable>> e : rootErrorStats.entrySet()) {
+        errorStats.entrySet().forEach(e ->
                 builder.append("| ")
                        .append(e.getKey().getName())
                        .append(" happened ")
                        .append(e.getValue().size())
                        .append(" times")
-                       .append('\n');
-            }
+                       .append('\n'));
+
+        if (!errorStats.isEmpty()) {
+            builder.append("Roots:\n");
+            rootErrorStats.entrySet().forEach(e ->
+                    builder.append("| ")
+                           .append(e.getKey().getName())
+                           .append(" happened ")
+                           .append(e.getValue().size())
+                           .append(" times")
+                           .append('\n'));
         }
 
         return builder.toString();
@@ -352,5 +313,11 @@ public class ActionResult {
     private static String pad(final String str) {
         final int padSize = 40;
         return StringUtils.rightPad(str, padSize, '.');
+    }
+
+    private static <T> long calc(final Function<LongStream, OptionalLong> param,
+                                 final Collection<T> measurements,
+                                 final ToLongFunction<T> getter) {
+        return param.apply(measurements.stream().mapToLong(getter)).getAsLong();
     }
 }

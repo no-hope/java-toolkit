@@ -1,9 +1,9 @@
 package org.nohope.test.stress;
 
-import org.apache.commons.lang3.tuple.ImmutablePair;
-import org.nohope.test.stress.functors.Get;
 import org.nohope.test.stress.functors.Call;
+import org.nohope.test.stress.functors.Get;
 import org.nohope.test.stress.result.ActionResult;
+import org.nohope.test.stress.util.Measurement;
 
 import javax.annotation.Nonnull;
 import java.util.*;
@@ -19,12 +19,12 @@ import static java.util.Map.Entry;
 * @since 2013-12-27 16:18
 */
 final class StatAccumulator {
-    private static final Function<Long, List<Entry<Long, Long>>> NEW_LIST =
+    private static final Function<Long, List<Measurement>> NEW_LIST =
             x -> new ArrayList<>();
     private static final Function<Class<?>, ConcurrentLinkedQueue<Exception>> NEW_QUEUE =
             c -> new ConcurrentLinkedQueue<>();
 
-    private final ConcurrentHashMap<Long, List<Entry<Long, Long>>> timesPerThread = new ConcurrentHashMap<>();
+    private final ConcurrentHashMap<Long, List<Measurement>> timesPerThread = new ConcurrentHashMap<>();
     private final Map<Class<?>, ConcurrentLinkedQueue<Exception>> errorStats = new ConcurrentHashMap<>();
     private final AtomicReference<ActionResult> result = new AtomicReference<>();
     private final String name;
@@ -42,12 +42,12 @@ final class StatAccumulator {
     }
 
     <T> T measure(final long threadId, final Get<T> invoke) throws InvocationException {
-        Optional<Entry<Long, Long>> times = Optional.empty();
+        Optional<Measurement> times = Optional.empty();
         try {
             final long start = System.nanoTime();
             final T result = invoke.get();
             final long end = System.nanoTime();
-            times = Optional.of(ImmutablePair.of(start, end));
+            times = Optional.of(Measurement.of(start, end));
             return result;
         } catch (final Exception e) {
             handleException(e);
@@ -59,12 +59,12 @@ final class StatAccumulator {
     }
 
     void measure(final long threadId, final Call call) throws InvocationException {
-        Optional<Entry<Long, Long>> times = Optional.empty();
+        Optional<Measurement> times = Optional.empty();
         try {
             final long start = System.nanoTime();
             call.call();
             final long end = System.nanoTime();
-            times = Optional.of(ImmutablePair.of(start, end));
+            times = Optional.of(Measurement.of(start, end));
         } catch (final Exception e) {
             handleException(e);
             throw new InvocationException();
@@ -84,9 +84,9 @@ final class StatAccumulator {
         long minTimeNanos = Long.MAX_VALUE;
         long totalDeltaNanos = 0L;
 
-        for (final List<Entry<Long, Long>> perThread : timesPerThread.values()) {
-            for (final Entry<Long, Long> e : perThread) {
-                final long runtimeNanos = e.getValue() - e.getKey(); // end - start
+        for (final List<Measurement> perThread : timesPerThread.values()) {
+            for (final Measurement e : perThread) {
+                final long runtimeNanos = e.getEndNanos() - e.getStartNanos();
                 totalDeltaNanos += runtimeNanos;
                 if (maxTimeNanos < runtimeNanos) {
                     maxTimeNanos = runtimeNanos;
