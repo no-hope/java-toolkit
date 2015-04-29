@@ -23,12 +23,13 @@ import static org.nohope.test.stress.util.TimeUtils.timeTo;
  * @author <a href="mailto:ketoth.xupack@gmail.com">ketoth xupack</a>
  * @since 2013-12-27 16:19
  */
+@Deprecated
 public class ActionResult {
     private static final Function<Measurement, Long> DIFF = e -> e.getEndNanos() - e.getStartNanos();
 
-    private final Map<Long, List<Measurement>> timestampsPerThread = new HashMap<>();
-    private final Map<Class<?>, List<Exception>> errorStats = new HashMap<>();
-    private final Map<Class<?>, List<Throwable>> rootErrorStats = new HashMap<>();
+    private final Map<Long, Collection<Measurement>> timestampsPerThread = new HashMap<>();
+    private final Map<Class<?>, Collection<Exception>> errorStats = new HashMap<>();
+    private final Map<Class<?>, Collection<Throwable>> rootErrorStats = new HashMap<>();
     private final Map<Long, Measurement> startEndForThread;
 
     private final String name;
@@ -45,8 +46,8 @@ public class ActionResult {
     private final Percentile percentile = new Percentile();
 
     public ActionResult(final String name,
-                        final Map<Long, List<Measurement>> timestampsPerThread,
-                        final Map<Class<?>, List<Exception>> errorStats,
+                        final Map<Long, Collection<Measurement>> timestampsPerThread,
+                        final Map<Class<?>, Collection<Exception>> errorStats,
                         final long totalDeltaNanos,
                         final long minTime,
                         final long maxTime) {
@@ -87,7 +88,7 @@ public class ActionResult {
         percentiles.add(50d);
     }
 
-    private static Map<Class<?>, List<Throwable>> computeRootStats(final Map<Class<?>, List<Exception>> errorStats) {
+    private static Map<Class<?>, List<Throwable>> computeRootStats(final Map<Class<?>, Collection<Exception>> errorStats) {
         //noinspection ThrowableResultOfMethodCallIgnored
         return errorStats.values().parallelStream().flatMap(Collection::stream)
                          .map(e -> Objects.firstNonNull(ExceptionUtils.getRootCause(e), e))
@@ -156,7 +157,7 @@ public class ActionResult {
      *
      * @return in nanoseconds
      */
-    public Map<Long, List<Measurement>> getTimestampsPerThread() {
+    public Map<Long, Collection<Measurement>> getTimestampsPerThread() {
         return Collections.unmodifiableMap(timestampsPerThread);
     }
 
@@ -180,7 +181,7 @@ public class ActionResult {
     /**
      * @return list of all exceptions split by topmost exception class
      */
-    public Map<Class<?>, List<Exception>> getErrorsPerClass() {
+    public Map<Class<?>, Collection<Exception>> getErrorsPerClass() {
         return Collections.unmodifiableMap(errorStats);
     }
 

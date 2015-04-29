@@ -2,9 +2,7 @@ package org.nohope.test.stresstooltest;
 
 import org.junit.Ignore;
 import org.junit.Test;
-import org.nohope.test.stress.MeasureData;
 import org.nohope.test.stress.StressScenario;
-import org.nohope.test.stress.actions.NamedAction;
 import org.nohope.test.stress.result.ActionResult;
 import org.nohope.test.stress.result.StressResult;
 
@@ -25,21 +23,11 @@ public class StressScenarioTest {
     @Ignore("for manual tests only")
     public void roughTest() throws InterruptedException {
         final StressResult m1 =
-                StressScenario.prepare(50, 1000, new NamedAction("test1") {
-                    @Override
-                    public void doAction(final MeasureData p)
-                            throws Exception {
-                        Thread.sleep(10);
-                    }
-                }).perform();
+                StressScenario.prepare(50, 1000, p -> p.call("test1", () -> Thread.sleep(10)))
+                              .perform().asResult();
         final StressResult m2 =
-                StressScenario.prepare(50, 1000, new NamedAction("test2") {
-                    @Override
-                    public void doAction(final MeasureData p)
-                            throws Exception {
-                        Thread.sleep(10);
-                    }
-                }).perform();
+                StressScenario.prepare(50, 1000, p -> p.call("test2", () -> Thread.sleep(10)))
+                              .perform().asResult();
 
         System.err.println(m1);
         System.err.println();
@@ -49,11 +37,11 @@ public class StressScenarioTest {
         final StressResult m3 =
                 StressScenario.prepare(50, 1000, p -> {
                     p.call("test1", () -> Thread.sleep(10));
-                }).perform();
+                }).perform().asResult();
         final StressResult m4 =
                 StressScenario.prepare(50, 1000, p -> {
                     p.call("test1", () -> Thread.sleep(10));
-                }).perform();
+                }).perform().asResult();
 
         System.err.println(m3);
         System.err.println();
@@ -64,17 +52,15 @@ public class StressScenarioTest {
     public void counts() throws InterruptedException {
         {
             final StressResult m =
-                    StressScenario.prepare(2, 100, new NamedAction("test") {
-                        @Override
-                        public void doAction(final MeasureData p)
-                                throws Exception {
+                    StressScenario.prepare(2, 100, p -> {
+                        p.call("test", () -> {
                             if (p.getOperationNumber() >= 100) {
                                 //System.err.println(p.getOperationNumber());
                                 throw new IllegalStateException();
                             }
                             Thread.sleep(1);
-                        }
-                    }).perform();
+                        });
+                    }).perform().asResult();
 
             final Map<String, ActionResult> results = m.getResults();
             assertNotNull(m.toString());
@@ -121,7 +107,7 @@ public class StressScenarioTest {
                             }
                             Thread.sleep(1);
                         });
-                    }).perform();
+                    }).perform().asResult();
 
             final Map<String, ActionResult> results = m.getResults();
             assertNotNull(m.toString());
@@ -149,19 +135,15 @@ public class StressScenarioTest {
 
         {
             final StressResult m2 =
-                    StressScenario.prepare(2, 100, new NamedAction("test") {
-                        @Override
-                        public void doAction(final MeasureData p) throws Exception {
-                            Thread.sleep(10);
-                        }
-                    }).perform();
+                    StressScenario.prepare(2, 100, p -> p.call("test", () -> Thread.sleep(10)))
+                                  .perform().asResult();
             assertNotNull(m2.toString());
             assertTrue(m2.getRuntime() >= 1);
             assertTrue(m2.getApproxThroughput() <= 200);
 
             final StressResult m3 =
                     StressScenario.prepare(2, 100, p -> p.call("test", () -> Thread.sleep(10)))
-                                  .perform();
+                                  .perform().asResult();
             assertNotNull(m3.toString());
             assertTrue(m3.getRuntime() >= 1);
             assertTrue(m3.getApproxThroughput() <= 200);
@@ -170,7 +152,7 @@ public class StressScenarioTest {
                     StressScenario.prepare(2, 100, p -> p.get("test", () -> {
                         Thread.sleep(10);
                         return null;
-                    })).perform();
+                    })).perform().asResult();
             assertNotNull(m4.toString());
             assertTrue(m4.getRuntime() >= 1);
             assertTrue(m4.getApproxThroughput() <= 200);
@@ -180,7 +162,7 @@ public class StressScenarioTest {
             final StressResult m2 =
                     StressScenario.prepare(2, 100, 2, p -> {
                         p.call("test", () -> Thread.sleep(10));
-                    }).perform();
+                    }).perform().asResult();
             assertNotNull(m2.toString());
             assertTrue(m2.getRuntime() >= 1);
             assertTrue(m2.getApproxThroughput() <= 200);
@@ -189,7 +171,7 @@ public class StressScenarioTest {
             final StressResult m3 =
                     StressScenario.prepare(2, 100, 2, p -> {
                         p.call("test", () -> Thread.sleep(10));
-                    }).perform();
+                    }).perform().asResult();
             assertNotNull(m3.toString());
             assertTrue(m3.getRuntime() >= 1);
             assertTrue(m3.getApproxThroughput() <= 200);
@@ -215,7 +197,7 @@ public class StressScenarioTest {
                             }
                             return old;
                         });
-                    }).perform();
+                    }).perform().asResult();
 
             System.err.println(result);
         }
@@ -237,7 +219,7 @@ public class StressScenarioTest {
                             }
                             return old;
                         });
-                    }).perform();
+                    }).perform().asResult();
             System.err.println(result);
         }
     }
@@ -250,7 +232,7 @@ public class StressScenarioTest {
                     p.call("action1", () -> Thread.sleep(10));
                     p.call("action2", () -> Thread.sleep(10));
                     p.call("action3", () -> Thread.sleep(10));
-                }).perform();
+                }).perform().asResult();
 
         final int action1 = result.toString().indexOf("action1");
         final int action2 = result.toString().indexOf("action2");

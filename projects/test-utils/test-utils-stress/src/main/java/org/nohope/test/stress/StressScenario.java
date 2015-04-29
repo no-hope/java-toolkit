@@ -2,7 +2,6 @@ package org.nohope.test.stress;
 
 import com.google.common.util.concurrent.ThreadFactoryBuilder;
 import org.nohope.test.stress.actions.Action;
-import org.nohope.test.stress.actions.NamedAction;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -20,42 +19,6 @@ import java.util.function.Function;
  */
 public final class StressScenario {
     private StressScenario() {
-    }
-
-    public static PreparedMeasurement prepare(final int threadsNumber,
-                                              final int cycleCount,
-                                              final NamedAction... actions) {
-        final Map<String, StatAccumulator> accumulators = new ConcurrentHashMap<>(16, 0.75f, threadsNumber);
-        final Function<String, StatAccumulator> accumulatorLoader = StatAccumulator::new;
-        final Function<String, StatAccumulator> accumulatorGetter =
-                name -> accumulators.computeIfAbsent(name, accumulatorLoader);
-
-        final List<MeasureProvider> providers = new ArrayList<>(threadsNumber * cycleCount);
-        for (int i = 0; i < threadsNumber; i++) {
-            for (int j = i * cycleCount; j < (i + 1) * cycleCount; j++) {
-                providers.add(new MeasureProvider(i, j, accumulatorGetter));
-            }
-        }
-
-        final List<Thread> threads = new ArrayList<>();
-        for (int i = 0; i < threadsNumber; i++) {
-            final int k = i;
-            threads.add(new Thread(() -> {
-                for (int j = k * cycleCount; j < (k + 1) * cycleCount; j++) {
-                    for (NamedAction action : actions) {
-                        try {
-                            final MeasureProvider provider = providers.get(j);
-                            provider.call(action.getName(), () -> action.doAction(provider));
-                        } catch (final Exception e) {
-                            // TODO: print skipped
-                        }
-                    }
-                }
-            }, "stress-worker-" + k));
-        }
-
-        return new PreparedMeasurement(threadsNumber, cycleCount, Collections.emptyList(),
-                accumulators.values(), threads);
     }
 
     public static PreparedMeasurement prepare(final int threadsNumber, final int cycleCount,

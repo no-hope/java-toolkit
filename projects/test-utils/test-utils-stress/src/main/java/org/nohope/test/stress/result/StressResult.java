@@ -7,12 +7,14 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 import static java.util.concurrent.TimeUnit.SECONDS;
-import static org.nohope.test.stress.util.TimeUtils.*;
+import static org.nohope.test.stress.util.TimeUtils.throughputTo;
+import static org.nohope.test.stress.util.TimeUtils.timeTo;
 
 /**
 * @author <a href="mailto:ketoth.xupack@gmail.com">ketoth xupack</a>
 * @since 2013-12-27 16:19
 */
+@Deprecated
 public class StressResult {
     private final Map<String, ActionResult> results;
     private final double runtime;
@@ -23,7 +25,6 @@ public class StressResult {
     private final Memory memoryEnd;
     private final List<Exception> allExceptions;
     private final List<StressMetrics> metrics;
-
 
     public StressResult(final Map<String, ActionResult> stats,
                         final int threadsCount,
