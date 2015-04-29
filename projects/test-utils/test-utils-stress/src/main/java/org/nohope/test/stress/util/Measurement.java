@@ -37,8 +37,8 @@ public final class Measurement {
 
     @Override
     public int hashCode() {
-        int result = (int) (startNanos ^ (startNanos >>> 32));
-        result = 31 * result + (int) (endNanos ^ (endNanos >>> 32));
+        int result = Long.hashCode(startNanos);
+        result = 31 * result + Long.hashCode(endNanos);
         return result;
     }
 

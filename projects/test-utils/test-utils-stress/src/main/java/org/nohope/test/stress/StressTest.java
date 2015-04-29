@@ -23,13 +23,12 @@ public final class StressTest {
     private StressTest() {
     }
 
-
     /**
      * This method runs {@code threadsNumber}, each performing {@code cycleCount}
-     * invokations of {@code scenario}
+     * invocations of {@code scenario}
      */
     public static PreparedStressTest prepare(final int threadsNumber, final int cycleCount,
-                                              final Scenario<MeasureProvider> scenario) {
+                                             final Scenario<MeasureProvider> scenario) {
         final Map<String, ActionStatsAccumulator> accumulators = new ConcurrentHashMap<>(16, 0.75f, threadsNumber);
         final Function<String, ActionStatsAccumulator> accumulatorLoader = ActionStatsAccumulator::new;
         final Function<String, ActionStatsAccumulator> accumulatorGetter =
@@ -60,23 +59,19 @@ public final class StressTest {
                 Collections.emptyList(), accumulators.values(), threads);
     }
 
-
     /**
-     * <p>
-     *     This method runs {@code coordinatorThreadsCount} threads, performing
-     *     {@code cyclesPerCoordinatorCount} invokations of {@code scenario}
-     * </p>
+     * This method runs {@code coordinatorThreadsCount} threads, performing
+     * {@code cyclesPerCoordinatorCount} invocations of {@code scenario}
+     * <p />
      *
-     * <p>
-     *     Coordinator invokes each kind {@link MeasureProvider#get(String, Get)} or {@link MeasureProvider#call(String, Call)}
-     *     in separate threadpools sized to {@code actionThreadPoolSize}.
-     * </p>
-     *
+     * Coordinator invokes each kind {@link MeasureProvider#get(String, Get)} or
+     * {@link MeasureProvider#call(String, Call)} in separate thread pools sized to
+     * {@code actionThreadPoolSize}.
      */
     public static PreparedStressTest prepare(final int coordinatorThreadsCount,
-                                              final int cyclesPerCoordinatorCount,
-                                              final int actionThreadPoolSize,
-                                              final Scenario<PooledMeasureProvider> scenario) {
+                                             final int cyclesPerCoordinatorCount,
+                                             final int actionThreadPoolSize,
+                                             final Scenario<PooledMeasureProvider> scenario) {
         final Map<String, ExecutorService> executors = new ConcurrentHashMap<>(16, 0.75f, coordinatorThreadsCount);
 
         final Function<String, ExecutorService> executorLoader = name -> {

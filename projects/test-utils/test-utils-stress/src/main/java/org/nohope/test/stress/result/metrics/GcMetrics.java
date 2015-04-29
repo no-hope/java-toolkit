@@ -47,8 +47,8 @@ public final class GcMetrics {
     @Override
     public int hashCode() {
         int result = gcInfo.hashCode();
-        result = 31 * result + (int) (collectionCount ^ (collectionCount >>> 32));
-        result = 31 * result + (int) (collectionTime ^ (collectionTime >>> 32));
+        result = 31 * result + Long.hashCode(collectionCount);
+        result = 31 * result + Long.hashCode(collectionTime);
         return result;
     }
 }

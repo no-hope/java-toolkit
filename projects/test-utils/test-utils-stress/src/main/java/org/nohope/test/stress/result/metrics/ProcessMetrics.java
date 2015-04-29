@@ -37,11 +37,8 @@ public final class ProcessMetrics {
 
     @Override
     public int hashCode() {
-        int result;
-        long temp;
-        temp = Double.doubleToLongBits(processCpuLoad);
-        result = (int) (temp ^ (temp >>> 32));
-        result = 31 * result + (int) (processCpuTime ^ (processCpuTime >>> 32));
+        int result = Long.hashCode(Double.doubleToLongBits(processCpuLoad));
+        result = 31 * result + Long.hashCode(processCpuTime);
         return result;
     }
 }

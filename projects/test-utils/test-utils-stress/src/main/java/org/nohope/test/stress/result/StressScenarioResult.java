@@ -16,28 +16,28 @@ import java.util.Map.Entry;
  * @since 2015-04-29 15:05
  */
 public class StressScenarioResult {
+
+    @SuppressWarnings({"AssignmentToCollectionOrArrayFieldFromParameter", "ReturnOfCollectionOrArrayField"})
     public static class ActionStats {
         private final Map<Long, Collection<Measurement>> timesPerThread;
         private final Map<Long, Collection<InvocationException>> errorStats;
         private final String actionName;
 
         public ActionStats(Map<Long, Collection<Measurement>> timesPerThread,
-                    Map<Long, Collection<InvocationException>> errorStats, String actionName) {
+                           Map<Long, Collection<InvocationException>> errorStats,
+                           String actionName) {
             this.timesPerThread = timesPerThread;
             this.errorStats = errorStats;
             this.actionName = actionName;
         }
 
-
         public Map<Long, Collection<Measurement>> getTimesPerThread() {
             return timesPerThread;
         }
 
-
         public Map<Long, Collection<InvocationException>> getErrorStats() {
             return errorStats;
         }
-
 
         public String getActionName() {
             return actionName;
@@ -100,50 +100,40 @@ public class StressScenarioResult {
     }
 
     public void visitMetrics(final MetricsProcessor processor) {
-        for (final StressMetrics metric: metrics) {
-            processor.process(metric);
-        }
+        metrics.forEach(processor::process);
     }
 
     public long getStartNanos() {
         return startNanos;
     }
 
-
     public long getEndNanos() {
         return endNanos;
     }
-
 
     public int getThreadsNumber() {
         return threadsNumber;
     }
 
-
     public int getCycleCount() {
         return cycleCount;
     }
-
 
     public Memory getMemoryStart() {
         return memoryStart;
     }
 
-
     public Memory getMemoryEnd() {
         return memoryEnd;
     }
-
 
     public Collection<StressMetrics> getMetrics() {
         return Collections.unmodifiableCollection(metrics);
     }
 
-
     public Collection<ActionStats> getActionStats() {
         return Collections.unmodifiableCollection(accumulators);
     }
-
 
     @FunctionalInterface
     public interface ResultProcessor {

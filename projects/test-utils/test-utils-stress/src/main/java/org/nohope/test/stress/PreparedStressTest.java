@@ -1,6 +1,7 @@
 package org.nohope.test.stress;
 
 import org.nohope.test.stress.result.StressScenarioResult;
+import org.nohope.test.stress.result.StressScenarioResult.ActionStats;
 import org.nohope.test.stress.util.Memory;
 import org.nohope.test.stress.util.MetricsAccumulator;
 
@@ -9,7 +10,6 @@ import java.util.Collection;
 import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.TimeUnit;
-import java.util.function.Supplier;
 import java.util.stream.Collector;
 
 public final class PreparedStressTest {
@@ -77,12 +77,9 @@ public final class PreparedStressTest {
         final long overallEnd = System.nanoTime();
         final Memory memoryEnd = Memory.getCurrent();
 
-        final Collection<StressScenarioResult.ActionStats> actionResults = actionStatsAccumulators
-                .parallelStream()
-                .map((accumulator) ->
-                             new StressScenarioResult.ActionStats(accumulator.getTimesPerThread(),
-                                                                  accumulator.getErrorStats(), accumulator.getName()))
-                        .collect(toList(actionStatsAccumulators.size()));
+        final Collection<ActionStats> actionResults = actionStatsAccumulators.parallelStream()
+               .map(acc -> new ActionStats(acc.getTimesPerThread(), acc.getErrorStats(), acc.getName()))
+               .collect(toList(actionStatsAccumulators.size()));
 
         return new StressScenarioResult(
                 threadsNumber,
@@ -96,13 +93,11 @@ public final class PreparedStressTest {
             );
     }
 
-    private static <T>
-    Collector<T, ?, List<T>> toList(int size) {
-        return Collector.of((Supplier<List<T>>) () -> new ArrayList(size),
-                            List::add,
-                            (left, right) -> {
-                                left.addAll(right);
-                                return left;
-                            });
+    private static <T> Collector<T, ?, List<T>> toList(int size) {
+        return Collector.of(() -> new ArrayList(size), List::add,
+                (left, right) -> {
+                    left.addAll(right);
+                    return left;
+                });
     }
 }

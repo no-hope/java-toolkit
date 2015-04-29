@@ -2,39 +2,37 @@ package org.nohope.test.stress.result.simplified;
 
 import com.google.common.collect.Sets;
 import org.nohope.test.stress.result.StressScenarioResult;
+import org.nohope.test.stress.result.StressScenarioResult.ActionStats;
+import org.nohope.test.stress.result.StressScenarioResult.ErrorProcessor;
+import org.nohope.test.stress.result.StressScenarioResult.Interpreter;
+import org.nohope.test.stress.result.StressScenarioResult.ResultProcessor;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 /**
  */
-public class SimpleInterpreter implements StressScenarioResult.Interpreter<SimpleStressResult> {
+public class SimpleInterpreter implements Interpreter<SimpleStressResult> {
     @Override
     public SimpleStressResult interpret(final StressScenarioResult result) {
         final double runtime = result.getEndNanos()- result.getStartNanos();
 
         final Map<String, SimpleActionResult> results = new HashMap<>();
-        for (final StressScenarioResult.ActionStats accumulator : result.getActionStats()) {
-
+        for (final ActionStats accumulator : result.getActionStats()) {
             final MinMaxTotal minmax = new MinMaxTotal();
             result.visitResult(minmax);
 
             final Errors errors = new Errors();
             result.visitError(errors);
 
-            final int numberOfThreads = Sets.union(minmax.threadIds, errors.threadIds).size();
+            final int numberOfThreads = Sets.union(minmax.getThreadIds(), errors.getThreadIds()).size();
             results.put(accumulator.getActionName(), new SimpleActionResult(
                     accumulator.getActionName(),
                     accumulator.getTimesPerThread(),
-                    errors.eStats,
+                    errors.getErrorStats(),
                     numberOfThreads,
-                    minmax.totalDeltaNanos,
-                    minmax.minTimeNanos,
-                    minmax.maxTimeNanos));
+                    minmax.getTotalDeltaNanos(),
+                    minmax.getMinTimeNanos(),
+                    minmax.getMaxTimeNanos()));
         }
 
         return new SimpleStressResult(results,
@@ -46,36 +44,58 @@ public class SimpleInterpreter implements StressScenarioResult.Interpreter<Simpl
                                 result.getMemoryEnd());
     }
 
-
-    private static class MinMaxTotal implements StressScenarioResult.ResultProcessor {
-        long maxTimeNanos = 0;
-        long minTimeNanos = Long.MAX_VALUE;
-        long totalDeltaNanos = 0L;
-        Set<Long> threadIds = new HashSet<>();
+    private static class MinMaxTotal implements ResultProcessor {
+        private long maxTimeNanos;
+        private long totalDeltaNanos;
+        private long minTimeNanos = Long.MAX_VALUE;
+        private final Set<Long> threadIds = new HashSet<>();
 
         @Override
         public void process(final String name, final long threadId, final long startNanos, final long endNanos) {
             final long runtimeNanos = endNanos - startNanos;
-            totalDeltaNanos += runtimeNanos;
+            this.totalDeltaNanos = totalDeltaNanos + runtimeNanos;
             if (maxTimeNanos < runtimeNanos) {
-                maxTimeNanos = runtimeNanos;
+                this.maxTimeNanos = runtimeNanos;
             }
             if (minTimeNanos > runtimeNanos) {
-                minTimeNanos = runtimeNanos;
+                this.minTimeNanos = runtimeNanos;
             }
             threadIds.add(threadId);
         }
+
+        public long getMaxTimeNanos() {
+            return maxTimeNanos;
+        }
+
+        public long getTotalDeltaNanos() {
+            return totalDeltaNanos;
+        }
+
+        public long getMinTimeNanos() {
+            return minTimeNanos;
+        }
+
+        public Set<Long> getThreadIds() {
+            return Collections.unmodifiableSet(threadIds);
+        }
     }
 
-
-    private static class Errors implements StressScenarioResult.ErrorProcessor {
-        final Map<Class<?>, Collection<Throwable>> eStats = new HashMap<>();
-        Set<Long> threadIds = new HashSet<>();
+    private static class Errors implements ErrorProcessor {
+        private final Map<Class<?>, Collection<Throwable>> eStats = new HashMap<>();
+        private final Set<Long> threadIds = new HashSet<>();
 
         @Override
         public void process(final String name, final long threadId, final Throwable e, final long startNanos, final long endNanos) {
             eStats.computeIfAbsent(e.getClass(), x -> new ArrayList<>()).add(e);
             threadIds.add(threadId);
+        }
+
+        public Map<Class<?>, Collection<Throwable>> getErrorStats() {
+            return Collections.unmodifiableMap(eStats);
+        }
+
+        public Set<Long> getThreadIds() {
+            return Collections.unmodifiableSet(threadIds);
         }
     }
 }

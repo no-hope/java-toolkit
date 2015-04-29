@@ -39,7 +39,7 @@ public final class PooledMeasureProvider extends AbstractMeasureData {
         return poolLoader.apply(name).submit(() -> {
             try {
                 calc.measure(getThreadId(), call);
-            } catch (final InvocationException ignored) { // already accounted
+            } catch (final InvocationException ignored) { // FIXME: already accounted?
             }
         });
     }
