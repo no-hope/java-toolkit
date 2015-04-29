@@ -1,7 +1,7 @@
 package org.nohope.test.stress.result.simplified;
 
 import org.apache.commons.lang3.StringUtils;
-import org.nohope.test.stress.result.StressMetrics;
+import org.nohope.test.stress.result.metrics.StressMetrics;
 import org.nohope.test.stress.util.Memory;
 
 import java.util.*;

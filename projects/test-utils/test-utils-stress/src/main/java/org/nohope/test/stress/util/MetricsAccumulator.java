@@ -1,6 +1,6 @@
 package org.nohope.test.stress.util;
 
-import org.nohope.test.stress.result.StressMetrics;
+import org.nohope.test.stress.result.metrics.StressMetrics;
 
 import java.util.ArrayList;
 import java.util.Collections;

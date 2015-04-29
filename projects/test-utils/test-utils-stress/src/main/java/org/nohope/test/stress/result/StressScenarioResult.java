@@ -1,6 +1,7 @@
 package org.nohope.test.stress.result;
 
 import org.nohope.test.stress.InvocationException;
+import org.nohope.test.stress.result.metrics.StressMetrics;
 import org.nohope.test.stress.util.Measurement;
 import org.nohope.test.stress.util.Memory;
 
