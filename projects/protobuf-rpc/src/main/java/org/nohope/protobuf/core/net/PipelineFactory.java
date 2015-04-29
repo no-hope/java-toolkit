@@ -3,10 +3,8 @@ package org.nohope.protobuf.core.net;
 import com.google.protobuf.ExtensionRegistry;
 import com.google.protobuf.Message;
 import com.google.protobuf.MessageLite;
-import org.jboss.netty.channel.ChannelPipeline;
-import org.jboss.netty.channel.ChannelPipelineFactory;
-import org.jboss.netty.channel.ChannelUpstreamHandler;
-import org.jboss.netty.channel.Channels;
+import com.google.protobuf.MessageOrBuilder;
+import org.jboss.netty.channel.*;
 import org.jboss.netty.handler.codec.frame.LengthFieldBasedFrameDecoder;
 import org.jboss.netty.handler.codec.frame.LengthFieldPrepender;
 import org.jboss.netty.handler.codec.protobuf.ProtobufDecoder;
@@ -56,11 +54,11 @@ public final class PipelineFactory implements ChannelPipelineFactory {
 
         final Executor eventExecutor =
                 new OrderedMemoryAwareThreadPoolExecutor(16, MEMORY_SIZE, MEMORY_SIZE, 1000, MILLISECONDS, defaultThreadFactory());
-        final ExecutionHandler executionHandler = new ExecutionHandler(eventExecutor);
+        final ChannelHandler executionHandler = new ExecutionHandler(eventExecutor);
 
         final ExtensionRegistry extensionRegistry;
         if (prototype instanceof Message) {
-            extensionRegistry = getExtensionRegistry(((Message) prototype).getDescriptorForType().getFile());
+            extensionRegistry = getExtensionRegistry(((MessageOrBuilder) prototype).getDescriptorForType().getFile());
         } else {
             extensionRegistry = null;
         }

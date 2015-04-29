@@ -124,7 +124,7 @@ public abstract class TypeReference<T> {
     public final T newInstance(final Object... args)
             throws NoSuchMethodException, IllegalAccessException,
                    InvocationTargetException, InstantiationException {
-        return IntrospectionUtils.newInstance(getTypeClass(), args);
+        return IntrospectionUtils.newInstance(rawType, args);
     }
 
     /** @return class of referenced type */

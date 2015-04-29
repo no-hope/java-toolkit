@@ -11,6 +11,7 @@ import java.io.NotSerializableException;
 import java.io.ObjectOutputStream;
 import java.io.Serializable;
 import java.util.*;
+import java.util.Map.Entry;
 
 /**
  * This class is used for spring-driven beans creation. Allows to inject
@@ -76,7 +77,7 @@ public class PartiallyDefinedArgumentsFactory<T> implements Serializable {
         for (final Object obj : beans) {
             SpringUtils.registerSingleton(child, obj);
         }
-        for (final Map.Entry<String, Object> e : namedBeans.entrySet()) {
+        for (final Entry<String, Object> e : namedBeans.entrySet()) {
             SpringUtils.registerSingleton(child, e.getKey(), e.getValue());
         }
 

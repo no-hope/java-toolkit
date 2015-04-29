@@ -67,7 +67,7 @@ public final class ContractUtils {
 
     public static void assertUtilityClassWellDefined(final Class<?> clazz)
             throws NoSuchMethodException, InvocationTargetException,
-            InstantiationException, IllegalAccessException {
+                   InstantiationException, IllegalAccessException {
         assertTrue(
                 "Class must be final",
                 Modifier.isFinal(clazz.getModifiers())

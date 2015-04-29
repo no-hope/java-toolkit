@@ -1,7 +1,8 @@
 package org.nohope.typetools;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.introspect.VisibilityChecker;
+import com.fasterxml.jackson.databind.ObjectMapper.DefaultTyping;
+import com.fasterxml.jackson.databind.introspect.VisibilityChecker.Std;
 import com.fasterxml.jackson.datatype.joda.JodaModule;
 import org.nohope.logging.Logger;
 import org.nohope.logging.LoggerFactory;
@@ -30,8 +31,8 @@ public final class JSON {
             usualMapper.registerModule(new JodaModule());
             usualMapper.registerModule(new ColorModule());
             usualMapper.setSerializationInclusion(NON_EMPTY);
-            usualMapper.enableDefaultTypingAsProperty(ObjectMapper.DefaultTyping.NON_FINAL, "@class");
-            usualMapper.setVisibilityChecker(VisibilityChecker.Std.defaultInstance().withFieldVisibility(ANY));
+            usualMapper.enableDefaultTypingAsProperty(DefaultTyping.NON_FINAL, "@class");
+            usualMapper.setVisibilityChecker(Std.defaultInstance().withFieldVisibility(ANY));
             usualMapper.configure(FAIL_ON_EMPTY_BEANS, false);
         }
 

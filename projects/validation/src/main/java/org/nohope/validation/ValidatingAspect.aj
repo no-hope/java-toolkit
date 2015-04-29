@@ -102,7 +102,7 @@ public privileged aspect ValidatingAspect {
         } catch (ValidatorInitializationException e) {
             throw new IllegalStateException("Unable to validate return value of @Validate("
                                             + clazz.getCanonicalName()
-                                            + ")", e);
+                                            + ')', e);
         }
     }
 
@@ -117,45 +117,42 @@ public privileged aspect ValidatingAspect {
             cache = methodsCache.get(method);
         } else if (signature instanceof ConstructorSignature) {
             final ConstructorSignature sig = (ConstructorSignature) signature;
-            final Constructor method = sig.getConstructor();
+            final Constructor<?> method = sig.getConstructor();
             cache = methodsCache.get(method);
         } else {
             throw new IllegalStateException("Illegal advice for " + signature.getClass());
         }
 
-        cache.observeParameters(thisJoinPoint.getArgs(), Validate.class, new MethodsCache.IObserver<Validate>() {
-            @Override
-            public void observe(final Validate annotation, final Object arg, final int index) {
-                final Class<? extends IValidator<?>> clazz = annotation.value();
-                try {
-                    validate(clazz, arg);
-                } catch (final ValidatingTypeMismatch e) {
-                    throw new IllegalArgumentException(
-                            "Argument "
-                            + index
-                            + " for @Validate("
-                            + clazz.getCanonicalName()
-                            + ") parameter of "
-                            + cache
-                            + " cannot be applied to "
-                            + arg.getClass().getCanonicalName(), e);
-                } catch (final ValidatorInitializationException e) {
-                    throw new IllegalStateException(
-                            "Unable to validate argument "
-                            + index
-                            + " for @Validate("
-                            + clazz.getCanonicalName()
-                            + ") parameter of "
-                            + cache, e);
-                } catch (final ValidationException e) {
-                    throw new IllegalArgumentException(
-                            "Validation failed for argument "
-                            + index
-                            + " of @Validate("
-                            + clazz.getCanonicalName()
-                            + ") "
-                            + cache, e);
-                }
+        cache.observeParameters(thisJoinPoint.getArgs(), Validate.class, (annotation, arg, index) -> {
+            final Class<? extends IValidator<?>> clazz = annotation.value();
+            try {
+                validate(clazz, arg);
+            } catch (final ValidatingTypeMismatch e) {
+                throw new IllegalArgumentException(
+                        "Argument "
+                        + index
+                        + " for @Validate("
+                        + clazz.getCanonicalName()
+                        + ") parameter of "
+                        + cache
+                        + " cannot be applied to "
+                        + arg.getClass().getCanonicalName(), e);
+            } catch (final ValidatorInitializationException e) {
+                throw new IllegalStateException(
+                        "Unable to validate argument "
+                        + index
+                        + " for @Validate("
+                        + clazz.getCanonicalName()
+                        + ") parameter of "
+                        + cache, e);
+            } catch (final ValidationException e) {
+                throw new IllegalArgumentException(
+                        "Validation failed for argument "
+                        + index
+                        + " of @Validate("
+                        + clazz.getCanonicalName()
+                        + ") "
+                        + cache, e);
             }
         });
     }

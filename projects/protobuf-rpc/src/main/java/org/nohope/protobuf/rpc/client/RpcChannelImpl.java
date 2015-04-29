@@ -1,6 +1,7 @@
 package org.nohope.protobuf.rpc.client;
 
 import com.google.protobuf.*;
+import com.google.protobuf.Descriptors.ServiceDescriptor;
 import org.jboss.netty.bootstrap.ClientBootstrap;
 import org.jboss.netty.channel.Channel;
 import org.jboss.netty.channel.ChannelFuture;
@@ -12,6 +13,9 @@ import org.nohope.protobuf.core.exception.DetailedExpectedException;
 import org.nohope.protobuf.core.exception.RpcTimeoutException;
 import org.nohope.protobuf.core.exception.UnexpectedServiceException;
 import org.nohope.rpc.protocol.RPC;
+import org.nohope.rpc.protocol.RPC.RpcRequest;
+import org.nohope.rpc.protocol.RPC.RpcRequest.Builder;
+import org.nohope.rpc.protocol.RPC.RpcResponse;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -58,7 +62,7 @@ class RpcChannelImpl implements RpcChannel, BlockingRpcChannel {
         return new Controller();
     }
 
-    private void write(@Nonnull final RPC.RpcRequest request) throws UnexpectedServiceException {
+    private void write(@Nonnull final RpcRequest request) throws UnexpectedServiceException {
         getChannel().write(request);
     }
 
@@ -93,13 +97,11 @@ class RpcChannelImpl implements RpcChannel, BlockingRpcChannel {
 
         final BlockingRpcCallback callback = new BlockingRpcCallback();
 
-        final Descriptors.ServiceDescriptor service = method.getService();
+        final ServiceDescriptor service = method.getService();
         final String serviceFullName = service.getFullName();
         if (!extensionsCache.containsKey(serviceFullName)) {
             final ExtensionRegistry extensionRegistry = ExtensionRegistry.newInstance();
-            for (final Descriptors.FieldDescriptor descriptor : service.getFile().getExtensions()) {
-                extensionRegistry.add(descriptor);
-            }
+            service.getFile().getExtensions().forEach(extensionRegistry::add);
             extensionsCache.put(serviceFullName, extensionRegistry);
         }
 
@@ -111,32 +113,29 @@ class RpcChannelImpl implements RpcChannel, BlockingRpcChannel {
                         callback);
 
         final int nextSeqId = handler.getNextSeqId();
-        final RPC.RpcRequest rpcRequest = buildRequest(nextSeqId, method, request);
+        final RpcRequest rpcRequest = buildRequest(nextSeqId, method, request);
         handler.registerCallback(nextSeqId, rpcCallback);
 
         write(rpcRequest);
 
-        final Future<Message> handler = executor.submit(new Callable<Message>() {
-            @Override
-            public Message call() throws Exception {
-                synchronized (callback) {
-                    while (!callback.isDone()) {
-                        callback.wait();
-                    }
+        final Future<Message> handler = executor.submit(() -> {
+            synchronized (callback) {
+                while (!callback.isDone()) {
+                    callback.wait();
                 }
-
-                if (rpcCallback.getRpcResponse() != null && rpcCallback.getRpcResponse().hasError()) {
-                    final RPC.Error error = rpcCallback.controller.getError();
-                    if (error != null) {
-                        throw new DetailedExpectedException(error);
-                    }
-
-                    // TODO: should we only throw this if the error code matches the
-                    // case where the server call threw a ServiceException?
-                    throw new ServiceException(rpcCallback.getRpcResponse().getError().getErrorMessage());
-                }
-                return callback.getMessage();
             }
+
+            if (rpcCallback.getRpcResponse() != null && rpcCallback.getRpcResponse().hasError()) {
+                final RPC.Error error = rpcCallback.controller.getError();
+                if (error != null) {
+                    throw new DetailedExpectedException(error);
+                }
+
+                // TODO: should we only throw this if the error code matches the
+                // case where the server call threw a ServiceException?
+                throw new ServiceException(rpcCallback.getRpcResponse().getError().getErrorMessage());
+            }
+            return callback.getMessage();
         });
 
         try {
@@ -155,10 +154,10 @@ class RpcChannelImpl implements RpcChannel, BlockingRpcChannel {
         }
     }
 
-    private static RPC.RpcRequest buildRequest(final int seqId,
-                                               final MethodDescriptor method,
-                                               final MessageLite request) {
-        final RPC.RpcRequest.Builder requestBuilder = RPC.RpcRequest.newBuilder();
+    private static RpcRequest buildRequest(final int seqId,
+                                           final MethodDescriptor method,
+                                           final MessageLite request) {
+        final Builder requestBuilder = RpcRequest.newBuilder();
         return requestBuilder
                 .setId(seqId)
                 .setServiceName(method.getService().getFullName())
@@ -176,13 +175,13 @@ class RpcChannelImpl implements RpcChannel, BlockingRpcChannel {
         throw new UnsupportedOperationException("TBD");
     }
 
-    static class ResponsePrototypeRpcCallback implements RpcCallback<RPC.RpcResponse> {
+    static class ResponsePrototypeRpcCallback implements RpcCallback<RpcResponse> {
         private final Controller controller;
         private final Message responsePrototype;
         private final RpcCallback<Message> callback;
         private final ExtensionRegistry extensionRegistry;
 
-        private RPC.RpcResponse rpcResponse;
+        private RpcResponse rpcResponse;
 
         ResponsePrototypeRpcCallback(@Nonnull final Controller controller,
                                      @Nonnull final Message responsePrototype,
@@ -195,7 +194,7 @@ class RpcChannelImpl implements RpcChannel, BlockingRpcChannel {
         }
 
         @Override
-        public void run(final RPC.RpcResponse message) {
+        public void run(final RpcResponse message) {
             rpcResponse = message;
             if (rpcResponse == null) {
                 callback.run(null);
@@ -231,7 +230,7 @@ class RpcChannelImpl implements RpcChannel, BlockingRpcChannel {
             return controller;
         }
 
-        public RPC.RpcResponse getRpcResponse() {
+        public RpcResponse getRpcResponse() {
             return rpcResponse;
         }
     }

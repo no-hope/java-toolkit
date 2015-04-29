@@ -166,9 +166,7 @@ abstract class AbstractBlockingMap<K, V> implements IBlockingMap<K, V> {
         // part of remove invariant,should be locked
         removeLock.lock();
         try {
-            for (final Thread thread : blockedThreadsMap.keySet()) {
-                thread.interrupt();
-            }
+            blockedThreadsMap.keySet().forEach(Thread::interrupt);
             map.clear();
         } finally {
             removeLock.unlock();

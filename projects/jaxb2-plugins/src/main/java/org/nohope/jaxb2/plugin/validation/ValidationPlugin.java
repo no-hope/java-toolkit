@@ -36,7 +36,9 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import static org.jvnet.jaxb2_commons.util.CustomizationUtils.containsCustomization;
 import static org.jvnet.jaxb2_commons.util.CustomizationUtils.findCustomization;
@@ -156,11 +158,11 @@ public class ValidationPlugin extends AbstractParameterizablePlugin {
                               final ErrorHandler errorHandler,
                               final CCustomizable locator) {
 
-        final Map.Entry<String, String> pair = new ImmutablePair<>(
+        final Entry<String, String> pair = new ImmutablePair<>(
                 validationNode.getAttribute(VALIDATOR_ATTRIBUTE_CLASS),
                 validationNode.getAttribute(VALIDATOR_ATTRIBUTE_CONTEXT));
 
-        final Map.Entry<String, String> old = validatorsMapping.put(info.getName(), pair);
+        final Entry<String, String> old = validatorsMapping.put(info.getName(), pair);
         if (old != null) {
             throw fatal("Too many bindings found for xsd type " + info.getTypeName().getLocalPart(),
                     errorHandler, locator);
@@ -170,12 +172,10 @@ public class ValidationPlugin extends AbstractParameterizablePlugin {
     private static CClassInfo getComplexTypeByName(@Nonnull final String name,
                                                    final Model model,
                                                    final ErrorHandler errorHandler) {
-        final Set<CClassInfo> collected = new HashSet<>();
-        for (final CClassInfo info : model.beans().values()) {
-            if (info.getTypeName().getLocalPart().equals(name)) {
-                collected.add(info);
-            }
-        }
+        final Set<CClassInfo> collected =
+                model.beans().values().stream()
+                     .filter(info -> info.getTypeName().getLocalPart().equals(name))
+                     .collect(Collectors.toSet());
 
         if (collected.size() != 1) {
             throw fatal("exactly one complex type should be found for name '"

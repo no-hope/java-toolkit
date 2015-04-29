@@ -1,13 +1,14 @@
 package org.nohope.typetools;
 
-import com.fasterxml.jackson.annotation.JsonTypeInfo;
+import com.fasterxml.jackson.annotation.JsonTypeInfo.Id;
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.core.Version;
 import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.ObjectMapper.DefaultTyping;
 import com.fasterxml.jackson.databind.SerializerProvider;
 import com.fasterxml.jackson.databind.deser.std.StdKeyDeserializer;
-import com.fasterxml.jackson.databind.introspect.VisibilityChecker;
+import com.fasterxml.jackson.databind.introspect.VisibilityChecker.Std;
 import com.fasterxml.jackson.databind.module.SimpleModule;
 import com.fasterxml.jackson.databind.ser.std.StdKeySerializer;
 import com.fasterxml.jackson.datatype.joda.JodaModule;
@@ -73,10 +74,10 @@ public class TypeSafeObjectMapper {
         copy.configure(AUTO_DETECT_SETTERS, false);
         copy.configure(FAIL_ON_EMPTY_BEANS, false);
         copy.setSerializationInclusion(NON_NULL);
-        copy.setVisibilityChecker(VisibilityChecker.Std.defaultInstance().withFieldVisibility(ANY));
+        copy.setVisibilityChecker(Std.defaultInstance().withFieldVisibility(ANY));
 
-        copy.enableDefaultTypingAsProperty(ObjectMapper.DefaultTyping.NON_FINAL,
-                JsonTypeInfo.Id.CLASS.getDefaultPropertyName());
+        copy.enableDefaultTypingAsProperty(DefaultTyping.NON_FINAL,
+                Id.CLASS.getDefaultPropertyName());
 
         final SimpleModule module = new SimpleModule("typesafe-jongo-module", Version.unknownVersion());
         module.addKeySerializer(Object.class, ComplexKeySerializer.S_OBJECT);

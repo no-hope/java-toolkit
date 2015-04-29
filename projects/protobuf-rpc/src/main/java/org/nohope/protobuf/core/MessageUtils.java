@@ -1,23 +1,22 @@
 package org.nohope.protobuf.core;
 
-import com.google.protobuf.Descriptors;
+import com.google.protobuf.Descriptors.FileDescriptor;
 import com.google.protobuf.ExtensionRegistry;
 import com.google.protobuf.InvalidProtocolBufferException;
 import com.google.protobuf.Message;
+import com.google.protobuf.Message.Builder;
 
 /**
  * @author <a href="mailto:ketoth.xupack@gmail.com">Ketoth Xupack</a>
  * @since 2013-12-02 20:30
  */
-public class MessageUtils {
+public final class MessageUtils {
     private MessageUtils() {
     }
 
-    public static ExtensionRegistry getExtensionRegistry(final Descriptors.FileDescriptor fileDescriptor) {
+    public static ExtensionRegistry getExtensionRegistry(final FileDescriptor fileDescriptor) {
         final ExtensionRegistry extensionRegistry = ExtensionRegistry.newInstance();
-        for (final Descriptors.FieldDescriptor descriptor : fileDescriptor.getExtensions()) {
-            extensionRegistry.add(descriptor);
-        }
+        fileDescriptor.getExtensions().forEach(extensionRegistry::add);
         return extensionRegistry;
     }
 
@@ -29,7 +28,7 @@ public class MessageUtils {
             return null;
         }
 
-        final Message.Builder builder = message.newBuilderForType();
+        final Builder builder = message.newBuilderForType();
         return (T) builder.mergeFrom(message.toByteString(), registry).build();
     }
 }

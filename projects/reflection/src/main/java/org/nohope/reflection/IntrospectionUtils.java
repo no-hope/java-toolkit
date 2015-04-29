@@ -278,12 +278,9 @@ public final class IntrospectionUtils {
     }
 
     private static <T extends AccessibleObject> T setAccessible(final T obj) {
-        return AccessController.doPrivileged(new PrivilegedAction<T>() {
-            @Override
-            public T run() {
-                obj.setAccessible(true);
-                return obj;
-            }
+        return AccessController.doPrivileged((PrivilegedAction<T>) () -> {
+            obj.setAccessible(true);
+            return obj;
         });
     }
 
@@ -523,13 +520,8 @@ public final class IntrospectionUtils {
             type = instance.getClass();
         }
 
-        final Set<Method> methods = searchMethods(type, new Predicate<Method>() {
-            @Override
-            public boolean apply(final Method target) {
-                return methodName.equals(target.getName())
-                        && matcher.apply(target.getModifiers());
-            }
-        });
+        final Set<Method> methods = searchMethods(type,
+                target -> methodName.equals(target.getName()) && matcher.apply(target.getModifiers()));
 
         Method found = null;
         Method vararg = null;
@@ -1002,7 +994,7 @@ public final class IntrospectionUtils {
         final int argsLength = objects.length;
         final int typesLength = types.length;
 
-        final List<Object> result = new ArrayList<>();
+        final Collection<Object> result = new ArrayList<>();
         if (argsLength == typesLength) {
             for (int i = 0; i < argsLength; i++) {
                 final Class<?> type = types[i];

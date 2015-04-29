@@ -5,7 +5,7 @@ import org.jboss.netty.bootstrap.ClientBootstrap;
 import org.jboss.netty.channel.socket.nio.NioClientSocketChannelFactory;
 import org.nohope.protobuf.core.exception.UnexpectedServiceException;
 import org.nohope.protobuf.core.net.PipelineFactory;
-import org.nohope.rpc.protocol.RPC;
+import org.nohope.rpc.protocol.RPC.RpcResponse;
 
 import javax.annotation.Nonnull;
 import java.util.concurrent.Executors;
@@ -23,7 +23,7 @@ public final class RpcClient implements IRpcClient {
         this.bootstrap = new ClientBootstrap(new NioClientSocketChannelFactory(
                 Executors.newCachedThreadPool(), Executors.newCachedThreadPool()));
         this.bootstrap.setPipelineFactory(new PipelineFactory(new RpcClientHandler(),
-                RPC.RpcResponse.getDefaultInstance()));
+                RpcResponse.getDefaultInstance()));
         this.bootstrap.setOption("remoteAddress", options.getAddress());
     }
 

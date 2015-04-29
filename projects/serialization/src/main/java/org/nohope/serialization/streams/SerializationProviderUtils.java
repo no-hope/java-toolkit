@@ -17,7 +17,6 @@ public final class SerializationProviderUtils {
     private SerializationProviderUtils() {
     }
 
-
     public static <T extends Serializable> ByteBuffer toByteBuffer(
             final T object,
             final SerializationProvider serializationProvider
@@ -31,7 +30,6 @@ public final class SerializationProviderUtils {
         return value;
     }
 
-
     public static <T extends Serializable> T fromByteBuffer(final Class<T> clazz, final ByteBuffer blob, final SerializationProvider serializationProvider) {
         try {
             return fromByteArray(ByteBufferUtils.continuousArray(blob), clazz, serializationProvider);
@@ -39,7 +37,6 @@ public final class SerializationProviderUtils {
             throw new IllegalStateException(e);
         }
     }
-
 
     public static byte[] toByteArray(
             final Serializable object,

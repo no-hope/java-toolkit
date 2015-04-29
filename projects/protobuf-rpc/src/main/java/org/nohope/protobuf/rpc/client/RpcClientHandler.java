@@ -1,13 +1,9 @@
 package org.nohope.protobuf.rpc.client;
 
-import org.jboss.netty.channel.ChannelHandlerContext;
-import org.jboss.netty.channel.ChannelStateEvent;
-import org.jboss.netty.channel.ExceptionEvent;
-import org.jboss.netty.channel.MessageEvent;
-import org.jboss.netty.channel.SimpleChannelUpstreamHandler;
+import org.jboss.netty.channel.*;
 import org.nohope.logging.Logger;
 import org.nohope.logging.LoggerFactory;
-import org.nohope.rpc.protocol.RPC;
+import org.nohope.rpc.protocol.RPC.RpcResponse;
 
 import javax.annotation.Nonnull;
 import java.util.Map;
@@ -46,7 +42,7 @@ class RpcClientHandler extends SimpleChannelUpstreamHandler {
 
     @Override
     public void messageReceived(final ChannelHandlerContext ctx, final MessageEvent e) throws Exception {
-        final RPC.RpcResponse response = (RPC.RpcResponse) e.getMessage();
+        final RpcResponse response = (RpcResponse) e.getMessage();
 
         if (!response.hasId()) {
             LOG.debug("Should never receive response without seqId");

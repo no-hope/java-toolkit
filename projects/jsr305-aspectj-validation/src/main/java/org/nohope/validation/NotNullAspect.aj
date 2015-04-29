@@ -76,17 +76,14 @@ public final privileged aspect NotNullAspect {
             throw new IllegalStateException("Illegal advice for " + signature.getClass());
         }
 
-        cache.observeParameters(thisJoinPoint.getArgs(), Nonnull.class, new MethodsCache.IObserver<Nonnull>() {
-            @Override
-            public void observe(final Nonnull annotation, final Object arg, final int index) {
-                if (arg == null && annotation != null && annotation.when() == When.ALWAYS) {
-                    throw new IllegalArgumentException("Argument "
-                                                       + index
-                                                       + " for @Nonnull parameter of "
-                                                       + cache
-                                                       + " must not be null"
-                    );
-                }
+        cache.observeParameters(thisJoinPoint.getArgs(), Nonnull.class, (annotation, arg, index) -> {
+            if (arg == null && annotation != null && annotation.when() == When.ALWAYS) {
+                throw new IllegalArgumentException("Argument "
+                                                   + index
+                                                   + " for @Nonnull parameter of "
+                                                   + cache
+                                                   + " must not be null"
+                );
             }
         });
     }

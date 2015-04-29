@@ -1,9 +1,7 @@
 package org.nohope.spring.app;
 
-import com.google.common.base.Predicate;
 import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.apache.xbean.finder.ResourceFinder;
-import org.nohope.ITranslator;
 import org.nohope.app.AsyncApp;
 import org.nohope.logging.Logger;
 import org.nohope.logging.LoggerFactory;
@@ -22,6 +20,8 @@ import java.lang.reflect.Constructor;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 import java.util.*;
+import java.util.Map.Entry;
+import java.util.stream.Collectors;
 
 import static org.nohope.reflection.IntrospectionUtils.instanceOf;
 import static org.nohope.reflection.IntrospectionUtils.searchConstructors;
@@ -184,8 +184,8 @@ public final class SpringAsyncModularApp<M, H extends Handler<M>> extends AsyncA
     protected void onStart() throws Exception {
         final Map<String, Properties> properties = finder.mapAvailableProperties(moduleMetaInfNamespace);
 
-        final List<ModuleDescriptor<Class<? extends M>>> descriptors = new ArrayList<>();
-        for (final Map.Entry<String, Properties> e : properties.entrySet()) {
+        final Collection<ModuleDescriptor<Class<? extends M>>> descriptors = new ArrayList<>();
+        for (final Entry<String, Properties> e : properties.entrySet()) {
             final String moduleFileName = e.getKey();
             final Properties moduleProperties = e.getValue();
 
@@ -226,7 +226,7 @@ public final class SpringAsyncModularApp<M, H extends Handler<M>> extends AsyncA
             } catch (NoSuchBeanDefinitionException ignored) {
             }
 
-            descriptors.add(new ModuleDescriptor<Class<? extends M>>(
+            descriptors.add(new ModuleDescriptor<>(
                     moduleName,
                     finalClass,
                     moduleProperties,
@@ -235,17 +235,9 @@ public final class SpringAsyncModularApp<M, H extends Handler<M>> extends AsyncA
         }
 
         final Map<Class<? extends M>, ModuleDescriptor<Class<? extends M>>> unitializedModules =
-                CollectionUtils.toMap(
-                        new LinkedHashMap<Class<? extends M>, ModuleDescriptor<Class<? extends M>>>(),
-                        descriptors,
-                        new ITranslator<ModuleDescriptor<Class<? extends M>>, Class<? extends M>>() {
-                            @Override
-                            public Class<? extends M> translate(final ModuleDescriptor<Class<? extends M>> source) {
-                                return source.getModule();
-                            }
-                        });
+                CollectionUtils.toMap(new LinkedHashMap<>(), descriptors, ModuleDescriptor::getModule);
 
-        final List<M> initializedModules = new ArrayList<>();
+        final Collection<M> initializedModules = new ArrayList<>();
 
         for (final Class<? extends M> clazz : getResolutionOrder(unitializedModules.keySet())) {
             final ModuleDescriptor<Class<? extends M>> descriptor = unitializedModules.get(clazz);
@@ -262,12 +254,9 @@ public final class SpringAsyncModularApp<M, H extends Handler<M>> extends AsyncA
             for (final Class<?> dependencyClass : getDependencies(clazz)) {
                 final AbstractDependencyProvider<M> provider = new AbstractDependencyProvider<>();
 
-                final List<M> instantiatedDependencies = new ArrayList<>();
-                for (final M dep : initializedModules) {
-                    if (IntrospectionUtils.instanceOf(dep.getClass(), dependencyClass)) {
-                        instantiatedDependencies.add(dep);
-                    }
-                }
+                final List<M> instantiatedDependencies = initializedModules.stream().filter(dep ->
+                        IntrospectionUtils.instanceOf(dep.getClass(), dependencyClass))
+                   .collect(Collectors.toList());
 
                 if (!instantiatedDependencies.isEmpty()) {
                     provider.setModules(instantiatedDependencies);
@@ -297,13 +286,10 @@ public final class SpringAsyncModularApp<M, H extends Handler<M>> extends AsyncA
                 throw new IllegalStateException();
             }
 
-            dependencyMatrix.put(module, new LinkedHashSet<Class<?>>());
+            dependencyMatrix.put(module, new LinkedHashSet<>());
             for (final Class<?> dep : getDependencies(module)) {
-                for (final Class<?> m : modules) {
-                    if (instanceOf(m, dep)) {
-                        dependencyMatrix.get(module).add(m);
-                    }
-                }
+                modules.stream().filter(m -> instanceOf(m, dep))
+                       .forEach(m -> dependencyMatrix.get(module).add(m));
             }
         }
 
@@ -317,10 +303,10 @@ public final class SpringAsyncModularApp<M, H extends Handler<M>> extends AsyncA
         int size;
         do {
             size = dependencyMatrix.size();
-            final Iterator<Map.Entry<Class<? extends T>, Set<Class<?>>>> iter =
+            final Iterator<Entry<Class<? extends T>, Set<Class<?>>>> iter =
                     dependencyMatrix.entrySet().iterator();
             while (iter.hasNext()) {
-                final Map.Entry<Class<? extends T>, Set<Class<?>>> e = iter.next();
+                final Entry<Class<? extends T>, Set<Class<?>>> e = iter.next();
                 if (instantiationOrder.containsAll(e.getValue())) {
                     iter.remove();
                     instantiationOrder.add(e.getKey());
@@ -337,15 +323,8 @@ public final class SpringAsyncModularApp<M, H extends Handler<M>> extends AsyncA
 
     static <T> Set<Class<?>> getDependencies(final Class<T> clazz) {
         final Set<Class<?>> dependencies = new LinkedHashSet<>();
-        final Set<Constructor<? extends T>> constructors =
-                searchConstructors(clazz, new Predicate<Constructor<? extends T>>() {
-                    @Override
-                    public boolean apply(final Constructor<? extends T> ctor) {
-                        return ctor.isAnnotationPresent(Inject.class)
-                            && !ctor.isSynthetic()
-                               ;
-                    }
-                });
+        final Set<Constructor<? extends T>> constructors = searchConstructors(clazz, ctor ->
+                ctor.isAnnotationPresent(Inject.class) && !ctor.isSynthetic());
 
         if (constructors.size() > 1) {
             throw new IllegalStateException("More than one injectable constructor found for " + clazz);
@@ -353,7 +332,7 @@ public final class SpringAsyncModularApp<M, H extends Handler<M>> extends AsyncA
 
         for (final Constructor<? extends T> constructor : constructors) {
             int paramIndex = 0;
-            final Map<Integer, Map.Entry<Class<?>, Class<?>>> values = new LinkedHashMap<>();
+            final Map<Integer, Entry<Class<?>, Class<?>>> values = new LinkedHashMap<>();
             final Annotation[][] annotations = constructor.getParameterAnnotations();
             for (final Type type : constructor.getGenericParameterTypes()) {
                 final Class<?> typeClass = IntrospectionUtils.getClass(type);
@@ -375,7 +354,7 @@ public final class SpringAsyncModularApp<M, H extends Handler<M>> extends AsyncA
                             }
                         }
 
-                        values.put(paramIndex, new ImmutablePair<Class<?>, Class<?>>(heldClass, value));
+                        values.put(paramIndex, new ImmutablePair<>(heldClass, value));
                         if (!dependencies.add(heldClass)) {
                             throw new IllegalArgumentException("Duplicate "
                                                                + heldClass
@@ -392,17 +371,17 @@ public final class SpringAsyncModularApp<M, H extends Handler<M>> extends AsyncA
             }
 
             // ensure spring will be able to inject dependencies properly
-            final Iterator<Map.Entry<Integer, Map.Entry<Class<?>, Class<?>>>> i = values.entrySet().iterator();
+            final Iterator<Entry<Integer, Entry<Class<?>, Class<?>>>> i = values.entrySet().iterator();
             if (values.size() == 1) {
-                final Map.Entry<Integer, Map.Entry<Class<?>, Class<?>>> e = i.next();
-                final Map.Entry<Class<?>, Class<?>> pair = e.getValue();
+                final Entry<Integer, Entry<Class<?>, Class<?>>> e = i.next();
+                final Entry<Class<?>, Class<?>> pair = e.getValue();
                 if (pair.getValue() != null && !pair.getKey().equals(pair.getValue())) {
                     throw parameterQualifierMismatch(constructor, e.getKey(), pair.getKey());
                 }
             } else if (values.size() > 1) {
                 while (i.hasNext()) {
-                    final Map.Entry<Integer, Map.Entry<Class<?>, Class<?>>> e = i.next();
-                    final Map.Entry<Class<?>, Class<?>> pair = e.getValue();
+                    final Entry<Integer, Entry<Class<?>, Class<?>>> e = i.next();
+                    final Entry<Class<?>, Class<?>> pair = e.getValue();
                     if (!pair.getKey().equals(pair.getValue())) {
                         throw parameterQualifierMismatch(constructor, e.getKey(), pair.getKey());
                     }

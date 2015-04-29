@@ -3,7 +3,7 @@ package org.nohope.jaxb2.plugin;
 import org.junit.Test;
 import org.jvnet.jaxb2.maven2.AbstractXJC2Mojo;
 import org.jvnet.jaxb2.maven2.ResourceEntry;
-import org.nohope.ITranslator;
+import org.jvnet.jaxb2.maven2.test.RunXJC2Mojo;
 import org.nohope.logging.Logger;
 import org.nohope.logging.LoggerFactory;
 import org.nohope.test.ResourceUtils;
@@ -11,20 +11,19 @@ import org.nohope.test.runner.TestLifecycleListener;
 import org.nohope.typetools.collection.CollectionUtils;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.support.PathMatchingResourcePatternResolver;
+import org.springframework.core.io.support.ResourcePatternResolver;
 
-import javax.tools.Diagnostic;
-import javax.tools.DiagnosticCollector;
-import javax.tools.JavaCompiler;
-import javax.tools.JavaFileObject;
-import javax.tools.SimpleJavaFileObject;
-import javax.tools.ToolProvider;
+import javax.tools.*;
+import javax.tools.JavaCompiler.CompilationTask;
 import java.io.File;
 import java.net.URI;
 import java.net.URL;
 import java.net.URLClassLoader;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.List;
+import java.util.regex.Pattern;
 
 import static org.junit.Assert.assertNotNull;
 
@@ -36,7 +35,7 @@ public abstract class Jaxb2PluginTestSupport implements TestLifecycleListener {
     static final Logger LOG = LoggerFactory.getLogger("jaxb2-testing");
     private static final Slf4jToMavenLogAdapter MVN_LOGGER = new Slf4jToMavenLogAdapter(LOG);
     private static final String TEST_RESOURCES_PATH = "src/test/resources/";
-
+    private static final Pattern SLASH = Pattern.compile("/", Pattern.LITERAL);
 
     static {
         System.setProperty("javax.xml.accessExternalStylesheet", "all");
@@ -112,10 +111,10 @@ public abstract class Jaxb2PluginTestSupport implements TestLifecycleListener {
                 .getLocation()
                 .getFile();
 
-        final PathMatchingResourcePatternResolver resolver = new PathMatchingResourcePatternResolver();
-        final List<JavaSourceFromString> units = new ArrayList<>();
+        final ResourcePatternResolver resolver = new PathMatchingResourcePatternResolver();
+        final Collection<JavaSourceFromString> units = new ArrayList<>();
         final List<String> classFiles = new ArrayList<>();
-        final List<String> classes = new ArrayList<>();
+        final Collection<String> classes = new ArrayList<>();
         for (final Resource resource : resolver.getResources(
                 "classpath*:" + getClasspathPath() + "/**/*.java")) {
             final String file = resource.getFile().getAbsolutePath().replace(root, "");
@@ -123,7 +122,7 @@ public abstract class Jaxb2PluginTestSupport implements TestLifecycleListener {
                 final String prefix = file.substring(0, file.length() - 5);
                 final String code = ResourceUtils.getResourceAsString("/" + file);
                 assertNotNull(code);
-                final String fqdn = prefix.replace("/", ".");
+                final String fqdn = SLASH.matcher(prefix).replaceAll(".");
                 units.add(new JavaSourceFromString(fqdn, code));
                 classFiles.add("/" + prefix + ".class");
                 if (!prefix.endsWith("package-info")) {
@@ -132,8 +131,7 @@ public abstract class Jaxb2PluginTestSupport implements TestLifecycleListener {
             }
         }
 
-        final JavaCompiler.CompilationTask task =
-                compiler.getTask(null, null, diagnostics, Arrays.asList("-d", root), null, units);
+        final CompilationTask task = compiler.getTask(null, null, diagnostics, Arrays.asList("-d", root), null, units);
 
         if (!task.call()) {
             final StringBuilder builder = new StringBuilder("Unable to compile generated source files: ");
@@ -147,13 +145,10 @@ public abstract class Jaxb2PluginTestSupport implements TestLifecycleListener {
 
         final URLClassLoader ucl = new URLClassLoader(
                 CollectionUtils.mapArray(classFiles.toArray(new String[classFiles.size()]), URL.class,
-                        new ITranslator<String, URL>() {
-                            @Override
-                            public URL translate(final String source) {
-                                final URL resource = ResourceUtils.getResource(source);
-                                assertNotNull(resource);
-                                return resource;
-                            }
+                        source -> {
+                            final URL resource = ResourceUtils.getResource(source);
+                            assertNotNull(resource);
+                            return resource;
                         }));
 
         for (final String fqdn : classes) {
@@ -188,8 +183,8 @@ public abstract class Jaxb2PluginTestSupport implements TestLifecycleListener {
             super(URI.create(
                     "string:///"
                     + name.replace('.', '/')
-                    + JavaFileObject.Kind.SOURCE.extension),
-                    JavaFileObject.Kind.SOURCE);
+                    + Kind.SOURCE.extension),
+                    Kind.SOURCE);
             this.code = code;
         }
 
@@ -199,7 +194,7 @@ public abstract class Jaxb2PluginTestSupport implements TestLifecycleListener {
         }
     }
 
-    private class RunMetadataPlugin extends org.jvnet.jaxb2.maven2.test.RunXJC2Mojo {
+    private class RunMetadataPlugin extends RunXJC2Mojo {
 
         @Override
         public File getSchemaDirectory() {

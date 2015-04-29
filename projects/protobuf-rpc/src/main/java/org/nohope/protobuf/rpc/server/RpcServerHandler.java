@@ -1,58 +1,42 @@
 package org.nohope.protobuf.rpc.server;
 
-import com.google.protobuf.BlockingService;
-import com.google.protobuf.ByteString;
+import com.google.protobuf.*;
 import com.google.protobuf.Descriptors.MethodDescriptor;
-import com.google.protobuf.ExtensionRegistry;
-import com.google.protobuf.InvalidProtocolBufferException;
-import com.google.protobuf.Message;
-import com.google.protobuf.RpcController;
-import com.google.protobuf.ServiceException;
-import com.google.protobuf.UninitializedMessageException;
-import org.jboss.netty.channel.Channel;
-import org.jboss.netty.channel.ChannelFuture;
-import org.jboss.netty.channel.ChannelFutureListener;
-import org.jboss.netty.channel.ChannelHandler;
-import org.jboss.netty.channel.ChannelHandlerContext;
-import org.jboss.netty.channel.ExceptionEvent;
-import org.jboss.netty.channel.MessageEvent;
-import org.jboss.netty.channel.SimpleChannelUpstreamHandler;
+import org.jboss.netty.channel.*;
+import org.jboss.netty.channel.ChannelHandler.Sharable;
 import org.nohope.logging.Logger;
 import org.nohope.logging.LoggerFactory;
 import org.nohope.protobuf.core.Controller;
 import org.nohope.protobuf.core.IBlockingServiceRegistry;
 import org.nohope.protobuf.core.MessageUtils;
-import org.nohope.protobuf.core.exception.ExpectedServiceException;
-import org.nohope.protobuf.core.exception.InvalidRpcRequestException;
-import org.nohope.protobuf.core.exception.NoSuchServiceException;
-import org.nohope.protobuf.core.exception.NoSuchServiceMethodException;
-import org.nohope.protobuf.core.exception.RpcException;
-import org.nohope.protobuf.core.exception.RpcServiceException;
-import org.nohope.protobuf.core.exception.ServerSideException;
-import org.nohope.rpc.protocol.RPC;
+import org.nohope.protobuf.core.exception.*;
+import org.nohope.rpc.protocol.RPC.RpcRequest;
+import org.nohope.rpc.protocol.RPC.RpcResponse;
+import org.nohope.rpc.protocol.RPC.RpcResponse.Builder;
 
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * @author <a href="mailto:ketoth.xupack@gmail.com">ketoth xupack</a>
  * @since 8/21/13 3:42 PM
  */
-@ChannelHandler.Sharable
+@Sharable
 class RpcServerHandler extends SimpleChannelUpstreamHandler implements IBlockingServiceRegistry {
     private static final Logger LOG = LoggerFactory.getLogger(RpcServerHandler.class);
-    private final Map<String, Map.Entry<BlockingService, ExtensionRegistry>> blockingServiceMap =
+    private final Map<String, Entry<BlockingService, ExtensionRegistry>> blockingServiceMap =
             new ConcurrentHashMap<>();
 
     @Override
     public void messageReceived(final ChannelHandlerContext ctx, final MessageEvent e) throws Exception {
-        final RPC.RpcRequest request = (RPC.RpcRequest) e.getMessage();
+        final RpcRequest request = (RpcRequest) e.getMessage();
         final String serviceName = request.getServiceName();
         final String methodName = request.getMethodName();
 
         LOG.debug("Received request for serviceName: {}, method: {}", serviceName, methodName);
 
-        final Map.Entry<BlockingService, ExtensionRegistry> pair = blockingServiceMap.get(serviceName);
+        final Entry<BlockingService, ExtensionRegistry> pair = blockingServiceMap.get(serviceName);
         if (pair == null) {
             throw new NoSuchServiceException(request, serviceName);
         }
@@ -94,8 +78,8 @@ class RpcServerHandler extends SimpleChannelUpstreamHandler implements IBlocking
             throw new RpcException(request,
                     String.format("%s.%s RPC returned null response", serviceName, methodName));
         }
-        final RPC.RpcResponse response =
-                RPC.RpcResponse.newBuilder()
+        final RpcResponse response =
+                RpcResponse.newBuilder()
                    .setId(request.getId())
                    .setPayload(methodResponse.toByteString())
                    .build();
@@ -103,14 +87,14 @@ class RpcServerHandler extends SimpleChannelUpstreamHandler implements IBlocking
         writeResponse(e.getChannel(), response);
     }
 
-    private static void writeResponse(final Channel c, final RPC.RpcResponse response) {
+    private static void writeResponse(final Channel c, final RpcResponse response) {
         c.write(response).addListener(new WriteListener(response));
     }
 
     @Override
     public void exceptionCaught(final ChannelHandlerContext ctx, final ExceptionEvent e) {
         final Throwable cause = e.getCause();
-        final RPC.RpcResponse.Builder responseBuilder = RPC.RpcResponse.newBuilder();
+        final Builder responseBuilder = RpcResponse.newBuilder();
 
         /* Cannot respond to this exception, because it is not tied to a request */
         if (!(cause instanceof ServerSideException)) {
@@ -160,9 +144,9 @@ class RpcServerHandler extends SimpleChannelUpstreamHandler implements IBlocking
     }
 
     private static class WriteListener implements ChannelFutureListener {
-        private final RPC.RpcResponse response;
+        private final RpcResponse response;
 
-        private WriteListener(final RPC.RpcResponse response) {
+        private WriteListener(final RpcResponse response) {
             this.response = response;
         }
 
@@ -183,7 +167,7 @@ class RpcServerHandler extends SimpleChannelUpstreamHandler implements IBlocking
         }
     }
 
-    private static final class Pair<K, V> implements Map.Entry<K, V> {
+    private static final class Pair<K, V> implements Entry<K, V> {
         private final K key;
         private final V value;
 

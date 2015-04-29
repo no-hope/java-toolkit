@@ -26,12 +26,7 @@ public final class TRandom {
 
     /** @return TRandom instance based on {@link java.util.concurrent.ThreadLocalRandom} class */
     public static TRandom threadLocal() {
-        return new TRandom(new Callable<Random>() {
-            @Override
-            public Random call() throws Exception {
-                return ThreadLocalRandom.current();
-            }
-        });
+        return new TRandom(ThreadLocalRandom::current);
     }
 
     /** @return TRandom instance based on {@link java.util.Random} class */
@@ -48,12 +43,7 @@ public final class TRandom {
 
     /** @return TRandom instance based on single random instance */
     public static TRandom singleton(@Nonnull final Random rnd) {
-        return new TRandom(new Callable<Random>() {
-            @Override
-            public Random call() throws Exception {
-                return rnd;
-            }
-        });
+        return new TRandom(() -> rnd);
     }
 
     /** @return TRandom instance based on thread-local random instance */
@@ -69,12 +59,7 @@ public final class TRandom {
             }
         };
 
-        return new TRandom(new Callable<Random>() {
-            @Override
-            public Random call() throws Exception {
-                return local.get();
-            }
-        });
+        return new TRandom(local::get);
     }
 
     private Random get() {
@@ -125,7 +110,7 @@ public final class TRandom {
             resultMask += SPECIAL;
         }
 
-        if (mask != null && mask.isEmpty()) {
+        if (mask.isEmpty()) {
             throw new IllegalArgumentException("Mask should contain at last one char from 'aA#!' sequence");
         }
 

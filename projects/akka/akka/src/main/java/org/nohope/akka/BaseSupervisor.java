@@ -2,6 +2,7 @@ package org.nohope.akka;
 
 import akka.actor.ActorRef;
 import akka.actor.Props;
+import org.nohope.akka.SupervisorRequests.StartupRequest;
 
 import java.text.MessageFormat;
 import java.util.HashMap;
@@ -50,7 +51,7 @@ public abstract class BaseSupervisor extends MessageTypeMatchingActor {
                 log.debug("Starting new input processing actor with id {} in supervisor '{}'...", actId, getSelf().path().name());
                 deviceRef = getContext().actorOf(newInputProps(inputClassId), actId);
                 startingActors.put(inputClassId, deviceRef);
-                deviceRef.tell(new SupervisorRequests.StartupRequest(), getSelf());
+                deviceRef.tell(new StartupRequest(), getSelf());
             } else {
                 log.debug("Passing existing device actor...");
             }

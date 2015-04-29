@@ -47,6 +47,6 @@ public final class ModuleDescriptor<ModuleType> {
 
     @Override
     public String toString() {
-        return name + "@" + module.getClass().getCanonicalName();
+        return name + '@' + module.getClass().getCanonicalName();
     }
 }

@@ -29,11 +29,4 @@ public class AbstractDependencyProvider<T>
     public int size() {
         return modules.size();
     }
-
-    /*
-    @Override
-    public List<T> getModules() {
-        return new ArrayList<>(modules);
-    }
-    */
 }

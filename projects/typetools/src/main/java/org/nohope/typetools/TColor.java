@@ -13,7 +13,7 @@ public final class TColor {
     public static String colorToHtml(final Color color) {
         String rgb = Integer.toHexString(color.getRGB());
         // remove alpha
-        rgb = "#"+rgb.substring(2, rgb.length());
+        rgb = '#' + rgb.substring(2, rgb.length());
         return rgb;
     }
 }

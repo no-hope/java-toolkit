@@ -11,14 +11,7 @@ public abstract class App {
     }
 
     public void start() throws Exception {
-        Runtime.getRuntime()
-                .addShutdownHook(new Thread(new Runnable() {
-                    @Override
-                    public void run() {
-                        onVMShutdownWrapper();
-                    }
-                }));
-
+        Runtime.getRuntime().addShutdownHook(new Thread(this::onVMShutdownWrapper));
         onStart();
     }
 

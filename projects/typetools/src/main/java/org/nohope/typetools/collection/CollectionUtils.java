@@ -7,6 +7,8 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
+import java.util.stream.Collectors;
 
 /**
  * @author <a href="mailto:ketoth.xupack@gmail.com">ketoth xupack</a>
@@ -36,9 +38,9 @@ public final class CollectionUtils {
 
     public static <K, V, O> Map<K, V> toExtendedMap(final Map<K, V> target,
                                                     final Collection<O> collection,
-                                                    final ITranslator<O, Map.Entry<K, V>> translator) {
+                                                    final ITranslator<O, Entry<K, V>> translator) {
         for (final O value : collection) {
-            final Map.Entry<K, V> entry = translator.translate(value);
+            final Entry<K, V> entry = translator.translate(value);
             target.put(entry.getKey(), entry.getValue());
         }
 
@@ -49,10 +51,7 @@ public final class CollectionUtils {
             toCollection(final C target,
                          final Collection<V> collection,
                          final ITranslator<V, K> translator) {
-        for (final V value : collection) {
-            target.add(translator.translate(value));
-        }
-
+        target.addAll(collection.stream().map(translator::translate).collect(Collectors.toList()));
         return target;
     }
 
