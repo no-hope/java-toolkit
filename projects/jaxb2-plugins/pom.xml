@@ -16,13 +16,12 @@
 
     <properties>
         <skip.enforcer>true</skip.enforcer>
-        <jaxb-impl.version>2.2.7</jaxb-impl.version>
     </properties>
 
     <!-- enforce @Nonnull checks -->
     <build>
         <plugins>
-            <plugin>
+            <!--plugin>
                 <groupId>org.codehaus.mojo</groupId>
                 <artifactId>aspectj-maven-plugin</artifactId>
                 <configuration>
@@ -33,11 +32,17 @@
                         </aspectLibrary>
                     </aspectLibraries>
                 </configuration>
-            </plugin>
+            </plugin-->
         </plugins>
     </build>
 
     <dependencies>
+        <dependency>
+            <groupId>com.sun.xml.bind</groupId>
+            <artifactId>jaxb-core</artifactId>
+            <version>${jaxb-impl.version}</version>
+        </dependency>
+
         <dependency>
             <groupId>com.sun.xml.bind</groupId>
             <artifactId>jaxb-impl</artifactId>

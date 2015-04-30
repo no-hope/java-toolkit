@@ -82,13 +82,6 @@
         </dependency>
 
         <dependency>
-            <groupId>org.mongodb</groupId>
-            <artifactId>mongo-java-driver</artifactId>
-            <version>${mongo.version}</version>
-            <scope>test</scope>
-        </dependency>
-
-        <dependency>
             <groupId>org.no-hope</groupId>
             <artifactId>test-utils</artifactId>
             <version>${project.version}</version>

@@ -1,8 +1,8 @@
 package org.nohope.jaxb2.plugin.metadata;
 
-import com.sun.istack.Nullable;
 import org.nohope.reflection.TypeReference;
 
+import javax.annotation.Nullable;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;

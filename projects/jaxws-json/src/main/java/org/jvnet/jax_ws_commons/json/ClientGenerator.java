@@ -65,7 +65,7 @@ final class ClientGenerator {
     }
 
     private void writeOperation(final JsonOperation op, final boolean next, final PrintWriter os) {
-        final String reqName = model.convention.x2j.get(op.operation.getReqPayloadName());
+        final String reqName = model.convention.x2j.get(op.operation.getRequestPayloadName());
         shift(os);
         os.printf("%s : function(obj, callback) {\n", op.methodName);
         shift2(os);

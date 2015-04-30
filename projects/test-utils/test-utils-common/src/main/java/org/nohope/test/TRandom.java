@@ -62,7 +62,7 @@ public final class TRandom {
         return new TRandom(local::get);
     }
 
-    private Random get() {
+    public Random get() {
         try {
             final Random rnd = randomGetter.call();
             if (rnd != null) {
@@ -148,7 +148,11 @@ public final class TRandom {
         return get().nextInt();
     }
 
-    public DateTime nextUtcDateTime() {
+    public int nextInt(final int upperBound) {
+        return get().nextInt(upperBound);
+    }
+
+    public static DateTime nextUtcDateTime() {
         return DateTime.now(ISOChronology.getInstanceUTC());
     }
 

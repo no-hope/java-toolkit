@@ -15,7 +15,6 @@
     </parent>
 
     <modules>
-        <module>test-utils-akka</module>
         <module>test-utils-junit</module>
         <module>test-utils-common</module>
         <module>test-utils-stress</module>

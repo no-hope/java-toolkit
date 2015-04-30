@@ -41,11 +41,11 @@ public class JsonOperation {
      */
     private static JsonType build(final String name,
                                   final XSSchemaSet schemas,
-                                  final Map<String, WSDLPart> parts,
+                                  final Map<String, ? extends WSDLPart> parts,
                                   final JsonTypeBuilder builder,
                                   final Style style) {
         final CompositeJsonType wrapper = new CompositeJsonType(name);
-        for (final Map.Entry<String, WSDLPart> in : parts.entrySet()) {
+        for (final Map.Entry<String, ? extends WSDLPart> in : parts.entrySet()) {
             if (!in.getValue().getBinding().isBody()) {
                 continue;   // JSON binding has no header support for now.
             }

@@ -28,6 +28,6 @@ public class ModifierMatcherTest extends EnumTestSupport<ModifierMatcher> {
 
     @Test
     public void reprTest() {
-        assertEquals("Not(Or(And(PUBLIC,ABSTRACT),FINAL))", not(or(and(PUBLIC, ABSTRACT), FINAL)).toString());
+        assertEquals("Predicates.not(Predicates.or(Predicates.and(PUBLIC,ABSTRACT),FINAL))", not(or(and(PUBLIC, ABSTRACT), FINAL)).toString());
     }
 }

@@ -35,7 +35,7 @@ public class TRandomTest {
             rnd.nextLong();
             rnd.nextDouble();
             rnd.nextBoolean();
-            rnd.nextUtcDateTime();
+            TRandom.nextUtcDateTime();
         }
     }
 

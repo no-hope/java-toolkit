@@ -28,9 +28,12 @@ public class ExportingInterpreter implements StressScenarioResult.Interpreter<Pa
 
     private final Path targetDirectory;
     private static final DateTimeFormatter format = DateTimeFormat.forPattern("yyyy-DD-MM--hh-mm-ss");
+    private final String suffix;
 
-    public ExportingInterpreter(final Path targetDirectory) {
+
+    public ExportingInterpreter(final Path targetDirectory, final String suffix) {
         this.targetDirectory = targetDirectory;
+        this.suffix = suffix;
         final File file = targetDirectory.toFile();
 
         if (!file.exists()) {
@@ -46,7 +49,9 @@ public class ExportingInterpreter implements StressScenarioResult.Interpreter<Pa
     @Override
     public Path interpret(final StressScenarioResult result) {
         try {
-            final String filename = String.format("stresstest-%s-%s.zip", getHostName(),
+            final String filename = String.format("stresstest-%s-%s-%s.zip",
+                                                  getHostName(),
+                                                  suffix,
                                                   DateTime.now().toString(format));
             final Path targetName = targetDirectory.resolve(filename);
             final File targetFile = targetName.toFile();

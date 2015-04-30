@@ -60,7 +60,7 @@
     <parent>
         <groupId>org.no-hope</groupId>
         <artifactId>java-toolkit-ci</artifactId>
-        <version>0.2.0</version>
+        <version>0.2.1-SNAPSHOT</version>
         <relativePath>parent/java-toolkit-ci/pom.xml</relativePath>
     </parent>
 
@@ -70,35 +70,32 @@
 
         <skip.coveralls>${skip.jacoco.report}</skip.coveralls>
 
-        <akka.version>2.3.1</akka.version>
-        <akka.version.suffix>_2.10</akka.version.suffix>
         <bson4jackson.version>2.3.1</bson4jackson.version>
-        <commons-beanutils.version>1.9.1</commons-beanutils.version>
+        <commons-beanutils.version>1.9.2</commons-beanutils.version>
         <commons-io.version>2.4</commons-io.version>
-        <commons-lang3.version>3.3</commons-lang3.version>
+        <commons-lang3.version>3.4</commons-lang3.version>
         <commons-math.version>2.2</commons-math.version>
         <easymock.version>3.2</easymock.version>
-        <guava.version>16.0.1</guava.version>
+        <guava.version>18.0</guava.version>
         <hamcrest-core.version>1.3</hamcrest-core.version>
-        <jackson.version>2.4.4</jackson.version>
+        <jackson.version>2.5.3</jackson.version>
         <javax-inject.version>1</javax-inject.version>
-        <jaxb-xjc.version>2.2.7</jaxb-xjc.version>
-        <jaxb2-basics.version>0.6.5.1</jaxb2-basics.version>
+        <jaxb-impl.version>2.2.11</jaxb-impl.version>
+        <jaxb-xjc.version>2.2.11</jaxb-xjc.version>
+        <jaxb2-basics.version>0.9.4</jaxb2-basics.version>
         <jaxb2-testing.version>0.8.3</jaxb2-testing.version>
-        <joda-time.version>2.5</joda-time.version>
-        <jongo.version>1.0</jongo.version>
-        <logback.version>1.1.1</logback.version>
-        <mongo.version>2.11.4</mongo.version>
+        <joda-time.version>2.7</joda-time.version>
+        <logback.version>1.1.3</logback.version>
         <netty.version>3.7.0.Final</netty.version>
         <protobuf.version>2.5.0</protobuf.version>
-        <slf4j.version>1.7.6</slf4j.version>
+        <slf4j.version>1.7.7</slf4j.version>
         <spring.version>3.2.4.RELEASE</spring.version>
         <xbean-finder.version>3.16</xbean-finder.version>
         <maven.github-site-plugin.version>0.9</maven.github-site-plugin.version>
         <protoc-maven-plugin.version>0.0.1</protoc-maven-plugin.version>
         <coveralls-extensions-maven-plugin.version>0.0.3</coveralls-extensions-maven-plugin.version>
         <lz4.version>1.3.0</lz4.version>
-        <kryo.version>2.16</kryo.version>
+        <kryo.version>2.24.0</kryo.version>
     </properties>
 
     <build>
@@ -192,8 +189,6 @@
         <module>projects/apptools</module>
         <module>projects/springapp</module>
         <module>projects/bean-modification-listener</module>
-        <module>projects/jongo</module>
-        <module>projects/akka</module>
         <module>projects/validation</module>
         <module>projects/jaxb2-plugins</module>
         <module>projects/protobuf-rpc</module>
@@ -201,9 +196,8 @@
         <module>projects/serialization</module>
 
         <module>projects/jaxws-json</module>
-
         <module>projects/test-utils</module>
-        <module>projects/test-utils/test-utils</module>
+        <module>projects/test-utils/test-utils-meta</module>
     </modules>
 
     <distributionManagement>
