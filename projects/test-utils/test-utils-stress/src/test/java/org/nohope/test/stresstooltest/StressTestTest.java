@@ -64,7 +64,7 @@ public class StressTestTest {
             }).perform();
 
             final SimpleStressResult m = scenarioResult.interpret(new SimpleInterpreter());
-            //System.err.println(scenarioResult.interpret(new ExportingInterpreter(Paths.get("/tmp"))));
+            //System.err.println(scenarioResult.interpret(new ExportingInterpreter(Paths.get("/tmp"), "test")));
 
             final Map<String, SimpleActionResult> results = m.getResults();
             assertNotNull(m.toString());

@@ -1,6 +1,7 @@
 package org.nohope.test.stress.result;
 
 import org.apache.commons.lang3.ArrayUtils;
+import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.joda.time.DateTime;
 import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
@@ -16,6 +17,7 @@ import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.BiConsumer;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -64,6 +66,10 @@ public class ExportingInterpreter implements StressScenarioResult.Interpreter<Pa
                 newZipEntry("calls_failed.txt", zos, result, ExportingInterpreter::writeFailedOperations);
                 newZipEntry("test_metrics.txt", zos, result, ExportingInterpreter::writeMetrics);
                 newZipEntry("test_summary.txt", zos, result, ExportingInterpreter::writeSummary);
+                newZipEntry("stacktraces.txt", zos, result, ExportingInterpreter::writeStacktraces);
+                writeSeparateStatistics(zos, result);
+
+                zos.closeEntry();
             }
 
             return targetName;
@@ -110,11 +116,61 @@ public class ExportingInterpreter implements StressScenarioResult.Interpreter<Pa
         });
     }
 
+    private static void writeSeparateStatistics(final ZipOutputStream zos, final StressScenarioResult result) throws IOException {
+        final AtomicReference<String> currentName = new AtomicReference<>(null);
+
+        result.visitResult((name, threadId, startNanos, endNanos) -> {
+            try {
+                final String cname = currentName.get();
+                if (!name.equals(cname)) {
+                    final ZipEntry zipEntry = new ZipEntry(
+                            String.format("%s/calls_successful/%s.txt", getHostName(), name));
+                    zos.putNextEntry(zipEntry);
+                    currentName.set(name);
+                }
+                writeLine(zos, name, threadId, startNanos, endNanos, endNanos - startNanos);
+            } catch (IOException e) {
+                throw new IllegalStateException(e);
+            }
+        });
+
+        currentName.set(null);
+
+        result.visitErrors((name, threadId, e, startNanos, endNanos) -> {
+            try {
+                final String cname = currentName.get();
+                if (!name.equals(cname)) {
+                    final ZipEntry zipEntry = new ZipEntry(String.format("%s/calls_failed/%s.txt", getHostName(), name));
+                    zos.putNextEntry(zipEntry);
+                    currentName.set(name);
+                }
+
+                writeLine(zos, name, threadId, startNanos, endNanos, endNanos - startNanos,
+                          e.getClass().getCanonicalName());
+            } catch (IOException ex) {
+                throw new IllegalStateException(ex);
+            }
+        });
+
+    }
+
     private static void writeFailedOperations(final ZipOutputStream zos, final StressScenarioResult result) {
         result.visitErrors((name, threadId, e, startNanos, endNanos) -> {
             try {
                 writeLine(zos, name, threadId, startNanos, endNanos, endNanos - startNanos,
                           e.getClass().getCanonicalName());
+            } catch (IOException ex) {
+                throw new IllegalStateException(ex);
+            }
+        });
+    }
+
+    private static void writeStacktraces(final ZipOutputStream zos, final StressScenarioResult result) {
+        result.visitErrors((name, threadId, e, startNanos, endNanos) -> {
+            try {
+                writeLine(zos, name, threadId, startNanos, endNanos, endNanos - startNanos,
+                          e.getClass().getCanonicalName());
+                zos.write(ExceptionUtils.getStackTrace(e).getBytes());
             } catch (IOException ex) {
                 throw new IllegalStateException(ex);
             }
@@ -158,8 +214,6 @@ public class ExportingInterpreter implements StressScenarioResult.Interpreter<Pa
         final ZipEntry zipEntry = new ZipEntry(String.format("%s/%s", getHostName(), name));
         zos.putNextEntry(zipEntry);
         writer.accept(zos, result);
-        zos.closeEntry();
-
     }
 
     private static void writeLine(final ZipOutputStream zos, final Object... values) throws IOException {
