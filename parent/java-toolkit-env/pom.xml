@@ -5,7 +5,7 @@
     <groupId>org.no-hope</groupId>
     <artifactId>java-toolkit-env</artifactId>
     <name>[java-toolkit-env]</name>
-    <version>0.2.1</version>
+    <version>0.2.2-SNAPSHOT</version>
 
     <packaging>pom</packaging>
 
