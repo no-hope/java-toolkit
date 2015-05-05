@@ -1,10 +1,12 @@
 package org.nohope.test.stress.result;
 
+import com.google.common.base.Charsets;
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.joda.time.DateTime;
 import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
+import org.nohope.test.stress.result.StressScenarioResult.Interpreter;
 import org.nohope.test.stress.result.metrics.GcMetrics;
 import org.nohope.test.stress.result.simplified.SimpleInterpreter;
 
@@ -15,6 +17,7 @@ import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.nio.file.Path;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicReference;
@@ -26,12 +29,11 @@ import java.util.zip.ZipOutputStream;
 
 /**
  */
-public class ExportingInterpreter implements StressScenarioResult.Interpreter<Path> {
+public class ExportingInterpreter implements Interpreter<Path> {
 
     private final Path targetDirectory;
     private static final DateTimeFormatter format = DateTimeFormat.forPattern("yyyy-DD-MM--hh-mm-ss");
     private final String suffix;
-
 
     public ExportingInterpreter(final Path targetDirectory, final String suffix) {
         this.targetDirectory = targetDirectory;
@@ -46,7 +48,6 @@ public class ExportingInterpreter implements StressScenarioResult.Interpreter<Pa
             throw new IllegalStateException(String.format("Not a directory: %s", targetDirectory.toString()));
         }
     }
-
 
     @Override
     public Path interpret(final StressScenarioResult result) {
@@ -66,7 +67,7 @@ public class ExportingInterpreter implements StressScenarioResult.Interpreter<Pa
                 newZipEntry("calls_failed.txt", zos, result, ExportingInterpreter::writeFailedOperations);
                 newZipEntry("test_metrics.txt", zos, result, ExportingInterpreter::writeMetrics);
                 newZipEntry("test_summary.txt", zos, result, ExportingInterpreter::writeSummary);
-                newZipEntry("stacktraces.txt", zos, result, ExportingInterpreter::writeStacktraces);
+                newZipEntry("stacktraces.txt", zos, result, ExportingInterpreter::writeStackTraces);
                 writeSeparateStatistics(zos, result);
 
                 zos.closeEntry();
@@ -78,24 +79,21 @@ public class ExportingInterpreter implements StressScenarioResult.Interpreter<Pa
         }
     }
 
-
     private static String getHostName() throws UnknownHostException {
         return InetAddress.getLocalHost().getHostName();
     }
 
-
     private static void writeMetadata(final ZipOutputStream zipOutputStream, final StressScenarioResult stressScenarioResult) {
         try {
-            zipOutputStream.write("format: 2015-04-29\n".getBytes());
-            zipOutputStream.write(String.format("host: %s\n", getHostName()).getBytes());
-            zipOutputStream.write(String.format("user: %s\n", System.getProperty("user.name")).getBytes());
-            zipOutputStream.write(String.format("cpus: %d\n", Runtime.getRuntime().availableProcessors()).getBytes());
-            zipOutputStream.write(String.format("heapmax: %d\n", Runtime.getRuntime().maxMemory()).getBytes());
+            zipOutputStream.write("format: 2015-04-29\n".getBytes(Charsets.UTF_8));
+            zipOutputStream.write(String.format("host: %s\n", getHostName()).getBytes(Charsets.UTF_8));
+            zipOutputStream.write(String.format("user: %s\n", System.getProperty("user.name")).getBytes(Charsets.UTF_8));
+            zipOutputStream.write(String.format("cpus: %d\n", Runtime.getRuntime().availableProcessors()).getBytes(Charsets.UTF_8));
+            zipOutputStream.write(String.format("heapmax: %d\n", Runtime.getRuntime().maxMemory()).getBytes(Charsets.UTF_8));
         } catch (final IOException e) {
             throw new IllegalStateException(e);
         }
     }
-
 
     private static void writeSummary(final ZipOutputStream zos, final StressScenarioResult result) {
         final String summary = new SimpleInterpreter().interpret(result).toString();
@@ -116,7 +114,7 @@ public class ExportingInterpreter implements StressScenarioResult.Interpreter<Pa
         });
     }
 
-    private static void writeSeparateStatistics(final ZipOutputStream zos, final StressScenarioResult result) throws IOException {
+    private static void writeSeparateStatistics(final ZipOutputStream zos, final StressScenarioResult result) {
         final AtomicReference<String> currentName = new AtomicReference<>(null);
 
         result.visitResult((name, threadId, startNanos, endNanos) -> {
@@ -165,7 +163,7 @@ public class ExportingInterpreter implements StressScenarioResult.Interpreter<Pa
         });
     }
 
-    private static void writeStacktraces(final ZipOutputStream zos, final StressScenarioResult result) {
+    private static void writeStackTraces(final ZipOutputStream zos, final StressScenarioResult result) {
         result.visitErrors((name, threadId, e, startNanos, endNanos) -> {
             try {
                 writeLine(zos, name, threadId, startNanos, endNanos, endNanos - startNanos,
@@ -200,7 +198,7 @@ public class ExportingInterpreter implements StressScenarioResult.Interpreter<Pa
     }
 
     private static Stream<String> gcStat(final Map.Entry<String, GcMetrics> metrics) {
-        final List<String> ret = new ArrayList<>();
+        final Collection<String> ret = new ArrayList<>();
         ret.add(metrics.getKey()+":CC");
         ret.add(Long.valueOf(metrics.getValue().getCollectionCount()).toString());
         ret.add(metrics.getKey()+":CT");
@@ -210,7 +208,10 @@ public class ExportingInterpreter implements StressScenarioResult.Interpreter<Pa
         return ret.stream();
     }
 
-    private static void newZipEntry(final String name, final ZipOutputStream zos, final StressScenarioResult result, final BiConsumer<ZipOutputStream, StressScenarioResult> writer) throws IOException {
+    private static void newZipEntry(final String name,
+                                    final ZipOutputStream zos,
+                                    final StressScenarioResult result,
+                                    final BiConsumer<ZipOutputStream, StressScenarioResult> writer) throws IOException {
         final ZipEntry zipEntry = new ZipEntry(String.format("%s/%s", getHostName(), name));
         zos.putNextEntry(zipEntry);
         writer.accept(zos, result);
@@ -218,7 +219,7 @@ public class ExportingInterpreter implements StressScenarioResult.Interpreter<Pa
 
     private static void writeLine(final ZipOutputStream zos, final Object... values) throws IOException {
         for (final Object value : values) {
-            zos.write(value.toString().getBytes());
+            zos.write(value.toString().getBytes(Charsets.UTF_8));
             zos.write(';');
         }
         zos.write('\n');

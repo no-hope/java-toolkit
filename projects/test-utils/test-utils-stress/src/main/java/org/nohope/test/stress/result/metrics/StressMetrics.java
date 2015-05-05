@@ -33,13 +33,8 @@ public final class StressMetrics {
 
     public static StressMetrics get() {
         final Map<String, GcMetrics> gcStats = GC_BEANS.stream().collect(Collectors.toMap(MemoryManagerMXBean::getName,
-                                                                                          gc -> new GcMetrics(
-                                                                                                  gc.getLastGcInfo(),
-                                                                                                  gc.getCollectionCount(),
-                                                                                                  gc.getCollectionTime())));
-        final ProcessMetrics processStat = new ProcessMetrics(OS_BEAN.getProcessCpuLoad(),
-                                                              OS_BEAN.getProcessCpuTime()
-                                                              );
+                gc -> new GcMetrics(gc.getLastGcInfo(), gc.getCollectionCount(), gc.getCollectionTime())));
+        final ProcessMetrics processStat = new ProcessMetrics(OS_BEAN.getProcessCpuLoad(), OS_BEAN.getProcessCpuTime() );
         final SystemMetrics systemStat = new SystemMetrics(OS_BEAN.getSystemCpuLoad(), OS_BEAN.getSystemLoadAverage());
         return new StressMetrics(gcStats, processStat, systemStat);
     }
@@ -52,16 +47,13 @@ public final class StressMetrics {
         return processMetrics;
     }
 
-
     public SystemMetrics getSystemMetrics() {
         return systemMetrics;
     }
 
-
     public long getTimestampNanos() {
         return timestamp;
     }
-
 
     @Override
     public boolean equals(final Object o) {
@@ -74,16 +66,10 @@ public final class StressMetrics {
 
         final StressMetrics that = (StressMetrics) o;
 
-        if (timestamp != that.timestamp) {
-            return false;
-        }
-        if (!gcMetrics.equals(that.gcMetrics)) {
-            return false;
-        }
-        return processMetrics.equals(that.processMetrics);
-
+        return timestamp == that.timestamp
+            && gcMetrics.equals(that.gcMetrics)
+            && processMetrics.equals(that.processMetrics);
     }
-
 
     @Override
     public int hashCode() {

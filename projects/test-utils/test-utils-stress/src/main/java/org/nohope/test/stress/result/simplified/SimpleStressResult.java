@@ -50,11 +50,9 @@ public class SimpleStressResult {
         this.memoryEnd = memoryEnd;
     }
 
-
     public List<StressMetrics> getMetrics() {
         return metrics;
     }
-
 
     /**
      * @return per test results

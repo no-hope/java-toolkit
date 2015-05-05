@@ -21,7 +21,6 @@ public final class SystemMetrics {
         return systemCpuTime;
     }
 
-
     @Override
     public boolean equals(Object o) {
         if (this == o) {
@@ -32,21 +31,14 @@ public final class SystemMetrics {
         }
 
         final SystemMetrics that = (SystemMetrics) o;
-
         return Double.compare(that.systemLoadAverage, systemLoadAverage) == 0 && Double
                 .compare(that.systemCpuTime, systemCpuTime) == 0;
-
     }
-
 
     @Override
     public int hashCode() {
-        int result;
-        long temp;
-        temp = Double.doubleToLongBits(systemLoadAverage);
-        result = (int) (temp ^ (temp >>> 32));
-        temp = Double.doubleToLongBits(systemCpuTime);
-        result = 31 * result + (int) (temp ^ (temp >>> 32));
+        int result = Long.hashCode(Double.doubleToLongBits(systemLoadAverage));
+        result = 31 * result + Long.hashCode(Double.doubleToLongBits(systemCpuTime));
         return result;
     }
 }

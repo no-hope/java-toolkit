@@ -14,10 +14,8 @@ import java.util.function.Function;
 * @since 2013-12-27 16:18
 */
 final class ActionStatsAccumulator {
-    private static final Function<Long, Queue<Measurement>> NEW_LIST =
-            x -> new ConcurrentLinkedQueue<>();
-    private static final Function<Long, Queue<InvocationException>> NEW_QUEUE =
-            c -> new ConcurrentLinkedQueue<>();
+    private static final Function<Long, Queue<Measurement>> NEW_LIST = x -> new ConcurrentLinkedQueue<>();
+    private static final Function<Long, Queue<InvocationException>> NEW_QUEUE = c -> new ConcurrentLinkedQueue<>();
 
     private final Map<Long, Collection<Measurement>> timesPerThread = new ConcurrentHashMap<>();
     private final Map<Long, Collection<InvocationException>> errorStats = new ConcurrentHashMap<>();
