@@ -66,6 +66,7 @@
 
     <properties>
         <maven.cobertura-plugin.version>2.6</maven.cobertura-plugin.version>
+        <maven.coveralls-plugin.version>3.1.0</maven.coveralls-plugin.version>
         <maven.github-site-plugin.version>0.9</maven.github-site-plugin.version>
         <maven.protoc-plugin.version>0.0.1</maven.protoc-plugin.version>
         <github.global.server>github</github.global.server>
@@ -93,7 +94,6 @@
         <slf4j.version>1.7.7</slf4j.version>
         <spring.version>3.2.4.RELEASE</spring.version>
         <xbean-finder.version>3.16</xbean-finder.version>
-        <coveralls-extensions-maven-plugin.version>0.0.4</coveralls-extensions-maven-plugin.version>
         <lz4.version>1.3.0</lz4.version>
         <kryo.version>2.24.0</kryo.version>
     </properties>
@@ -138,21 +138,18 @@
             </plugin>
 
             <plugin>
-                <groupId>org.no-hope</groupId>
-                <artifactId>coveralls-extensions-maven-plugin</artifactId>
-                <version>${coveralls-extensions-maven-plugin.version}</version>
+                <groupId>org.eluder.coveralls</groupId>
+                <artifactId>coveralls-maven-plugin</artifactId>
+                <version>${maven.coveralls-plugin.version}</version>
                 <configuration>
                     <skip>${skip.coveralls}</skip>
-                    <coverageFile>jacoco/all/jacoco.xml</coverageFile>
+                    <relativeReportDirs>
+                        <relativeReportDir>jacoco/all</relativeReportDir>
+                    </relativeReportDirs>
+                    <jacocoReports>
+                        <jacocoReport>jacoco.xml</jacocoReport>
+                    </jacocoReports>
                 </configuration>
-                <executions>
-                    <execution>
-                        <phase>site</phase>
-                        <goals>
-                            <goal>jacoco-aggregate</goal>
-                        </goals>
-                    </execution>
-                </executions>
             </plugin>
 
             <plugin>

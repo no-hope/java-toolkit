@@ -22,7 +22,7 @@ install:
   - mvn -U -e -q -B -T 1.5C -Dskip.tests=true -Dskip.javadoc=true clean verify
 
 script:
-  - mvn -e -DrepoToken=$COVERALLS_KEY clean install site
+  - mvn -e -DrepoToken=$COVERALLS_KEY clean install site org.eluder.coveralls:coveralls-maven-plugin:report
 
 after_success:
   - scripts/deploy.sh
