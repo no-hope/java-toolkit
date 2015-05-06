@@ -100,6 +100,7 @@
 
         <!-- these options might be used to speed up build -->
         <skip.tests>false</skip.tests>
+        <maven.test.skip>${skip.tests}</maven.test.skip>
         <skipTests>${skip.tests}</skipTests>
         <skip.it.tests>${skip.tests}</skip.it.tests>
         <skipITs>${skip.it.tests}</skipITs>
