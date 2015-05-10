@@ -2,6 +2,7 @@ package org.nohope.test.stress.util;
 
 import org.nohope.test.stress.result.metrics.StressMetrics;
 
+import java.time.Duration;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -15,6 +16,12 @@ public class MetricsAccumulator {
     private final List<StressMetrics> metrics = new ArrayList<>();
     private final ScheduledExecutorService scheduledThreadPoolExecutor = Executors.newSingleThreadScheduledExecutor();
 
+    private final Duration period;
+
+    public MetricsAccumulator(final Duration period) {
+        this.period = period;
+    }
+
     private void storeMetric() {
         metrics.add(StressMetrics.get());
     }
@@ -24,7 +31,8 @@ public class MetricsAccumulator {
     }
 
     public void start() {
-        scheduledThreadPoolExecutor.scheduleAtFixedRate(this::storeMetric, 0, 2, TimeUnit.SECONDS);
+        scheduledThreadPoolExecutor.scheduleAtFixedRate(this::storeMetric, 0,
+                period.toMillis(), TimeUnit.MILLISECONDS);
     }
 
     public void stop() {

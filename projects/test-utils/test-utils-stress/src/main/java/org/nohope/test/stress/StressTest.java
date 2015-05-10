@@ -5,6 +5,7 @@ import org.nohope.test.stress.actions.Scenario;
 import org.nohope.test.stress.functors.Call;
 import org.nohope.test.stress.functors.Get;
 
+import java.time.Duration;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -20,15 +21,22 @@ import java.util.function.Function;
  * @since 2013-12-26 21:39
  */
 public final class StressTest {
-    private StressTest() {
+    private final Builder builder;
+
+    private StressTest(final Builder builder) {
+        this.builder = builder;
+    }
+
+    public static StressTest instance() {
+        return new Builder().build();
     }
 
     /**
      * This method runs {@code threadsNumber}, each performing {@code cycleCount}
      * invocations of {@code scenario}
      */
-    public static PreparedStressTest prepare(final int threadsNumber, final int cycleCount,
-                                             final Scenario<MeasureProvider> scenario) {
+    public PreparedStressTest prepare(final int threadsNumber, final int cycleCount,
+                                      final Scenario<MeasureProvider> scenario) {
         final Map<String, ActionStatsAccumulator> accumulators = new ConcurrentHashMap<>(16, 0.75f, threadsNumber);
         final Function<String, ActionStatsAccumulator> accumulatorLoader = ActionStatsAccumulator::new;
         final Function<String, ActionStatsAccumulator> accumulatorGetter =
@@ -56,7 +64,8 @@ public final class StressTest {
         }
 
         return new PreparedStressTest(threadsNumber, cycleCount,
-                Collections.emptyList(), accumulators.values(), threads);
+                Collections.emptyList(), accumulators.values(), threads,
+                builder.metricsInterval);
     }
 
     /**
@@ -68,10 +77,10 @@ public final class StressTest {
      * {@link MeasureProvider#call(String, Call)} in separate thread pools sized to
      * {@code actionThreadPoolSize}.
      */
-    public static PreparedStressTest prepare(final int coordinatorThreadsCount,
-                                             final int cyclesPerCoordinatorCount,
-                                             final int actionThreadPoolSize,
-                                             final Scenario<PooledMeasureProvider> scenario) {
+    public PreparedStressTest prepare(final int coordinatorThreadsCount,
+                                      final int cyclesPerCoordinatorCount,
+                                      final int actionThreadPoolSize,
+                                      final Scenario<PooledMeasureProvider> scenario) {
         final Map<String, ExecutorService> executors = new ConcurrentHashMap<>(16, 0.75f, coordinatorThreadsCount);
 
         final Function<String, ExecutorService> executorLoader = name -> {
@@ -113,8 +122,20 @@ public final class StressTest {
         }
 
         return new PreparedStressTest(actionThreadPoolSize, cycleCount,
-                executors.values(),
-                accumulators.values(),
-                threads);
+                executors.values(), accumulators.values(),
+                threads, builder.metricsInterval);
+    }
+
+    public static class Builder {
+        private Duration metricsInterval = Duration.ofSeconds(2);
+
+        public Builder metricsInterval(Duration metricsInterval) {
+            this.metricsInterval = metricsInterval;
+            return this;
+        }
+
+        public StressTest build() {
+            return new StressTest(this);
+        }
     }
 }

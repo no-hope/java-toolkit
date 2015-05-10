@@ -25,11 +25,13 @@ public class StressTestTest {
     @Ignore("for manual tests only")
     public void roughTest() throws InterruptedException {
         final SimpleStressResult m1 =
-                StressTest.prepare(50, 1000, p -> p.call("test1", () -> Thread.sleep(10)))
-                              .perform().interpret(new SimpleInterpreter());
+                StressTest.instance()
+                          .prepare(50, 1000, p -> p.call("test1", () -> Thread.sleep(10)))
+                          .perform().interpret(new SimpleInterpreter());
         final SimpleStressResult m2 =
-                StressTest.prepare(50, 1000, p -> p.call("test2", () -> Thread.sleep(10)))
-                              .perform().interpret(new SimpleInterpreter());
+                StressTest.instance()
+                          .prepare(50, 1000, p -> p.call("test2", () -> Thread.sleep(10)))
+                          .perform().interpret(new SimpleInterpreter());
 
         System.err.println(m1);
         System.err.println();
@@ -37,11 +39,11 @@ public class StressTestTest {
         System.err.println("------------------------------------------------");
 
         final SimpleStressResult m3 =
-                StressTest.prepare(50, 1000, p -> {
+                StressTest.instance().prepare(50, 1000, p -> {
                     p.call("test1", () -> Thread.sleep(10));
                 }).perform().interpret(new SimpleInterpreter());
         final SimpleStressResult m4 =
-                StressTest.prepare(50, 1000, p -> {
+                StressTest.instance().prepare(50, 1000, p -> {
                     p.call("test1", () -> Thread.sleep(10));
                 }).perform().interpret(new SimpleInterpreter());
 
@@ -53,7 +55,7 @@ public class StressTestTest {
     @Test
     public void counts() throws InterruptedException {
         {
-            StressScenarioResult scenarioResult = StressTest.prepare(2, 100, p -> {
+            StressScenarioResult scenarioResult = StressTest.instance().prepare(2, 100, p -> {
                 p.call("test", () -> {
                     if (p.getOperationNumber() >= 100) {
                         //System.err.println(p.getOperationNumber());
@@ -104,14 +106,13 @@ public class StressTestTest {
 
         {
             final SimpleStressResult m =
-                    StressTest.prepare(2, 100, p -> {
-                        p.call("test", () -> {
-                            if (p.getOperationNumber() >= 100) {
-                                throw new IllegalStateException();
-                            }
-                            Thread.sleep(1);
-                        });
-                    }).perform().interpret(new SimpleInterpreter());
+                    StressTest.instance().prepare(2, 100, p ->
+                            p.call("test", () -> {
+                                if (p.getOperationNumber() >= 100) {
+                                    throw new IllegalStateException();
+                                }
+                                Thread.sleep(1);
+                            })).perform().interpret(new SimpleInterpreter());
 
             final Map<String, SimpleActionResult> results = m.getResults();
             assertNotNull(m.toString());
@@ -139,21 +140,21 @@ public class StressTestTest {
 
         {
             final SimpleStressResult m2 =
-                    StressTest.prepare(2, 100, p -> p.call("test", () -> Thread.sleep(10)))
-                                  .perform().interpret(new SimpleInterpreter());
+                    StressTest.instance().prepare(2, 100, p -> p.call("test", () -> Thread.sleep(10)))
+                              .perform().interpret(new SimpleInterpreter());
             assertNotNull(m2.toString());
             assertTrue(m2.getRuntime() >= 1);
             assertTrue(m2.getApproxThroughput() <= 200);
 
             final SimpleStressResult m3 =
-                    StressTest.prepare(2, 100, p -> p.call("test", () -> Thread.sleep(10)))
+                    StressTest.instance().prepare(2, 100, p -> p.call("test", () -> Thread.sleep(10)))
                                   .perform().interpret(new SimpleInterpreter());
             assertNotNull(m3.toString());
             assertTrue(m3.getRuntime() >= 1);
             assertTrue(m3.getApproxThroughput() <= 200);
 
             final SimpleStressResult m4 =
-                    StressTest.prepare(2, 100, p -> p.get("test", () -> {
+                    StressTest.instance().prepare(2, 100, p -> p.get("test", () -> {
                         Thread.sleep(10);
                         return null;
                     })).perform().interpret(new SimpleInterpreter());
@@ -164,7 +165,7 @@ public class StressTestTest {
 
         {
             final SimpleStressResult m2 =
-                    StressTest.prepare(2, 100, 2, p -> {
+                    StressTest.instance().prepare(2, 100, 2, p -> {
                         p.call("test", () -> Thread.sleep(10));
                     }).perform().interpret(new SimpleInterpreter());
             assertNotNull(m2.toString());
@@ -173,7 +174,7 @@ public class StressTestTest {
             assertNotNull(m2.toString());
 
             final SimpleStressResult m3 =
-                    StressTest.prepare(2, 100, 2, p -> {
+                    StressTest.instance().prepare(2, 100, 2, p -> {
                         p.call("test", () -> Thread.sleep(10));
                     }).perform().interpret(new SimpleInterpreter());
             assertNotNull(m3.toString());
@@ -189,7 +190,7 @@ public class StressTestTest {
         {
             final AtomicLong atomic = new AtomicLong();
             final SimpleStressResult result =
-                    StressTest.prepare(500, 100, p -> {
+                    StressTest.instance().prepare(500, 100, p -> {
                         p.get("test1", () -> {
                             long old;
                             while (true) {
@@ -211,7 +212,7 @@ public class StressTestTest {
         {
             final AtomicLong atomic = new AtomicLong();
             final SimpleStressResult result =
-                    StressTest.prepare(10, 100, 5, p -> {
+                    StressTest.instance().prepare(10, 100, 5, p -> {
                         p.get("test1", () -> {
                             long old;
                             while (true) {
@@ -231,7 +232,7 @@ public class StressTestTest {
     @Test
     public void sortedOutput() throws InterruptedException {
         final SimpleStressResult result =
-                StressTest.prepare(10, 1, p -> {
+                StressTest.instance().prepare(10, 1, p -> {
                     p.call("action4", () -> Thread.sleep(10));
                     p.call("action1", () -> Thread.sleep(10));
                     p.call("action2", () -> Thread.sleep(10));

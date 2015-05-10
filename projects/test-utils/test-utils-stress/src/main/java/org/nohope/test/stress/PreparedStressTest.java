@@ -5,6 +5,7 @@ import org.nohope.test.stress.result.StressScenarioResult.ActionStats;
 import org.nohope.test.stress.util.Memory;
 import org.nohope.test.stress.util.MetricsAccumulator;
 
+import java.time.Duration;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
@@ -18,17 +19,20 @@ public final class PreparedStressTest {
     private final Iterable<ExecutorService> executors;
     private final Collection<ActionStatsAccumulator> actionStatsAccumulators;
     private final List<Thread> threads;
+    private final Duration metricsInterval;
 
     PreparedStressTest(final int threadsNumber,
                        final int cycleCount,
                        final Iterable<ExecutorService> executors,
                        final Collection<ActionStatsAccumulator> actionStatsAccumulators,
-                       final List<Thread> threads) {
+                       final List<Thread> threads,
+                       final Duration metricsInterval) {
         this.threadsNumber = threadsNumber;
         this.cycleCount = cycleCount;
         this.executors = executors;
         this.actionStatsAccumulators = actionStatsAccumulators;
         this.threads = threads;
+        this.metricsInterval = metricsInterval;
     }
 
     public int getThreadsNumber() {
@@ -52,7 +56,7 @@ public final class PreparedStressTest {
     }
 
     public StressScenarioResult perform() throws InterruptedException {
-        final MetricsAccumulator metrics = new MetricsAccumulator();
+        final MetricsAccumulator metrics = new MetricsAccumulator(metricsInterval);
         metrics.start();
 
         final Memory memoryStart = Memory.getCurrent();
