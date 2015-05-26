@@ -32,7 +32,7 @@ import java.util.zip.ZipOutputStream;
 public class ExportingInterpreter implements Interpreter<Path> {
 
     private final Path targetDirectory;
-    private static final DateTimeFormatter format = DateTimeFormat.forPattern("yyyy-DD-MM--hh-mm-ss");
+    private static final DateTimeFormatter format = DateTimeFormat.forPattern("yyyy-MM-dd--hh-mm-ss");
     private final String suffix;
 
     public ExportingInterpreter(final Path targetDirectory, final String suffix) {
