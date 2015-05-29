@@ -4,6 +4,7 @@ import org.apache.archiva.admin.model.beans.ManagedRepository;
 import org.apache.archiva.consumers.AbstractMonitoredConsumer;
 import org.apache.archiva.consumers.ConsumerException;
 import org.apache.archiva.consumers.KnownRepositoryContentConsumer;
+import org.apache.commons.io.Charsets;
 import org.apache.felix.bundlerepository.DataModelHelper;
 import org.apache.felix.bundlerepository.Repository;
 import org.apache.felix.bundlerepository.Resource;
@@ -19,10 +20,11 @@ import java.io.BufferedInputStream;
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileReader;
-import java.io.FileWriter;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.OutputStreamWriter;
 import java.io.Reader;
 import java.io.Writer;
 import java.util.ArrayList;
@@ -36,11 +38,11 @@ import java.util.Properties;
  * This requires adding the Apache Felix BundleRepository and OSGi Core JARs to
  * Archiva's classpath. This can be accomplished by adding those JARs to the
  * {@code WEB-INF/lib} directory of the web application.
- *
+ * <p>
  * By default the OBR metadata will be created as a file named
  * {@code metadata.xml} at the root of the Archiva repository. The directory can
  * be changed by adding a {@code $appserver.base/conf/obr.properties} file with
- * a {@bold obr.base} key with an associated absolute file path to the
+ * a <b>obr.base</b> key with an associated absolute file path to the
  * desired directory. Note that {@code $appserver.base} represents the
  * {@code appserver.base} System property, which is normally set by the Archiva
  * start up script.
@@ -51,13 +53,12 @@ import java.util.Properties;
 @Service("knownRepositoryContentConsumer#create-obr-metadata")
 @Scope("prototype")
 public class OBRMetadataRepositoryConsumer extends AbstractMonitoredConsumer implements KnownRepositoryContentConsumer {
-    private static final Logger log = LoggerFactory.getLogger(OBRMetadataRepositoryConsumer.class);
+    private static final Logger LOG = LoggerFactory.getLogger(OBRMetadataRepositoryConsumer.class);
 
-    private final String id = "create-obr-metadata";
-    private final String description = "Create OSGi Bundle Repository metadata from artifacts in the repository.";
+    private static final String ID = "create-obr-metadata";
+    private static final String DESC = "Create OSGi Bundle Repository metadata from artifacts in the repository.";
     private String repoId;
     private Properties props;
-    private String basePath;
     private String archivaRepositoryLocation;
     private File metadataFile;
     private RepositoryImpl obrRepository;
@@ -67,12 +68,12 @@ public class OBRMetadataRepositoryConsumer extends AbstractMonitoredConsumer imp
 
     @Override
     public String getId() {
-        return id;
+        return ID;
     }
 
     @Override
     public String getDescription() {
-        return description;
+        return DESC;
     }
 
     @Override
@@ -84,7 +85,7 @@ public class OBRMetadataRepositoryConsumer extends AbstractMonitoredConsumer imp
     @Override
     public List<String> getExcludes() {
         // we also want to exclude searching in the default locations, and exclude source JARs
-        List<String> excludes = new ArrayList<String>(getDefaultArtifactExclusions());
+        List<String> excludes = new ArrayList<>(getDefaultArtifactExclusions());
         excludes.add("**/*-sources.jar");
         return excludes;
     }
@@ -97,95 +98,71 @@ public class OBRMetadataRepositoryConsumer extends AbstractMonitoredConsumer imp
     private void loadProperties() {
         File propFile = new File(System.getProperty("appserver.base", "."), "conf/obr.properties");
         props = new Properties();
-        if ( propFile.canRead() ) {
-            InputStream in = null;
-            try {
-                in = new BufferedInputStream(new FileInputStream(propFile));
+        if (propFile.canRead()) {
+            try (final InputStream in = new BufferedInputStream(new FileInputStream(propFile))) {
                 props.load(in);
-            } catch ( IOException e ) {
-                log.warn("Unable to load OBR properties from {}: {}", propFile, e.getMessage());
-            } finally {
-                if ( in != null ) {
-                    try {
-                        in.close();
-                    } catch ( IOException e ) {
-                        // ignore this
-                    }
-                }
+            } catch (IOException e) {
+                LOG.warn("Unable to load OBR properties from {}: {}", propFile, e.getMessage());
             }
         }
     }
 
     @Override
-    public void beginScan(ManagedRepository repository, Date whenGathered, boolean executeOnEntireRepo)
-            throws ConsumerException {
+    public void beginScan(ManagedRepository repository, Date whenGathered, boolean executeOnEntireRepo) throws ConsumerException {
         repoId = repository.getId();
-        log.info("Beginning scan on repository {} on {}; all = {}", repoId, whenGathered,
-                executeOnEntireRepo);
+        LOG.info("Beginning scan on repository {} on {}; all = {}", repoId, whenGathered, executeOnEntireRepo);
         loadProperties();
         archivaRepositoryLocation = repository.getLocation();
-        basePath = (props.containsKey("obr.base") ? props.getProperty("obr.base")
-                : archivaRepositoryLocation);
+
+        final String basePath = props.getProperty("obr.base", archivaRepositoryLocation);
         obrRepositoryLastModifiedDate = 0;
         foundMostRecentModifiedDate = 0;
         metadataFile = new File(basePath, "metadata.xml");
-        if ( !metadataFile.getParentFile().isDirectory() && !metadataFile.getParentFile().mkdirs() ) {
-            log.error("OBR base path {} does not exist and can't be created.", basePath);
+        if (!metadataFile.getParentFile().isDirectory() && !metadataFile.getParentFile().mkdirs()) {
+            LOG.error("OBR base path {} does not exist and can't be created.", basePath);
             throw new ConsumerException("OBR base path does not exist: " + basePath);
         }
         dataModelHelper = new DataModelHelperImpl();
-        if ( metadataFile.canRead() ) {
+        if (metadataFile.canRead()) {
             // load up existing repository
-            Reader reader = null;
-            try {
-                reader = new FileReader(metadataFile);
+            try (final Reader reader = new InputStreamReader(new FileInputStream(metadataFile), Charsets.UTF_8)) {
                 Repository existingRepo = dataModelHelper.readRepository(reader);
-                if ( executeOnEntireRepo == false ) {
-                    if ( existingRepo != null ) {
+                if (!executeOnEntireRepo) {
+                    if (existingRepo != null) {
                         obrRepositoryLastModifiedDate = existingRepo.getLastModified();
-                        log.info("OBR metadata last generated at {}", new Date(
-                                obrRepositoryLastModifiedDate));
+                        LOG.info("OBR metadata last generated at {}", new Date(obrRepositoryLastModifiedDate));
                     }
                     obrRepository = (RepositoryImpl) existingRepo;
                 }
-            } catch ( Exception e ) {
-                log.warn("Exception reading existing OBR metadata; will recreate", e);
-            } finally {
-                if ( reader != null ) {
-                    try {
-                        reader.close();
-                    } catch ( IOException e ) {
-                        // ignore
-                    }
-                }
+            } catch (Exception e) {
+                LOG.warn("Exception reading existing OBR metadata; will recreate", e);
             }
         }
-        if ( obrRepository == null ) {
+        if (obrRepository == null) {
             obrRepository = new RepositoryImpl();
         }
     }
 
     @Override
     public void processFile(String path) throws ConsumerException {
-        log.debug("Processing file {}", path);
+        LOG.debug("Processing file {}", path);
         try {
             File file = new File(archivaRepositoryLocation, path);
             final long foundLastModified = file.lastModified();
-            if ( foundLastModified > obrRepositoryLastModifiedDate ) {
-                ResourceImpl obrResource = (ResourceImpl) dataModelHelper.createResource(file.toURI()
-                                                                                             .toURL());
+            if (foundLastModified > obrRepositoryLastModifiedDate) {
+                ResourceImpl obrResource = (ResourceImpl) dataModelHelper.createResource(file.toURI().toURL());
                 // we want a relative URL, so override the absolute path ResourceImpl generated
                 obrResource.put(Resource.URI, path);
                 obrRepository.addResource(obrResource);
-                if ( foundLastModified > foundMostRecentModifiedDate ) {
+                if (foundLastModified > foundMostRecentModifiedDate) {
                     foundMostRecentModifiedDate = foundLastModified;
                 }
-            } else if ( log.isTraceEnabled() ) {
-                log.trace("Skipping unmodified OBR resource {}", path);
+            } else if (LOG.isTraceEnabled()) {
+                LOG.trace("Skipping unmodified OBR resource {}", path);
             }
-        } catch ( IllegalArgumentException e ) {
-            log.warn("Skipping OBR resource {}, does not appear to be a bundle", path);
-        } catch ( IOException e ) {
+        } catch (IllegalArgumentException e) {
+            LOG.warn("Skipping OBR resource {}, does not appear to be a bundle", path);
+        } catch (IOException e) {
             throw new ConsumerException("Error creating OBR resource", e);
         }
     }
@@ -197,37 +174,28 @@ public class OBRMetadataRepositoryConsumer extends AbstractMonitoredConsumer imp
 
     @Override
     public void completeScan() {
-        log.debug("Completed scan of repository {}", repoId);
-        if ( metadataFile.exists() && foundMostRecentModifiedDate <= obrRepositoryLastModifiedDate ) {
-            log.info("OBR metadata unchanged.");
+        LOG.debug("Completed scan of repository {}", repoId);
+        if (metadataFile.exists() && foundMostRecentModifiedDate <= obrRepositoryLastModifiedDate) {
+            LOG.info("OBR metadata unchanged.");
             return;
         }
         // write the XML to a temporary file first, and if that succeeds then move the temporary
         // file to the final destination
-        Writer writer = null;
         File tmpFile = new File(metadataFile.getAbsolutePath() + ".tmp");
-        try {
-            writer = new BufferedWriter(new FileWriter(tmpFile));
+        try (final Writer writer = new BufferedWriter(
+                new OutputStreamWriter(new FileOutputStream(metadataFile), Charsets.UTF_8))) {
             dataModelHelper.writeRepository(obrRepository, writer);
             writer.flush();
-            if ( metadataFile.exists() && !metadataFile.delete() ) {
-                log.warn("Unable to delete old OBR metadata file {}", metadataFile);
+            if (metadataFile.exists() && !metadataFile.delete()) {
+                LOG.warn("Unable to delete old OBR metadata file {}", metadataFile);
             }
-            if ( !tmpFile.renameTo(metadataFile) ) {
-                log.warn("Unable to move temporary OBR metadata file to {}", metadataFile);
-            } else if ( log.isInfoEnabled() ) {
-                log.info("Created OBR metadata {}", metadataFile);
+            if (!tmpFile.renameTo(metadataFile)) {
+                LOG.warn("Unable to move temporary OBR metadata file to {}", metadataFile);
+            } else if (LOG.isInfoEnabled()) {
+                LOG.info("Created OBR metadata {}", metadataFile);
             }
-        } catch ( IOException e ) {
-            log.error("Error writing OBR metadata file {}", metadataFile, e);
-        } finally {
-            if ( writer != null ) {
-                try {
-                    writer.close();
-                } catch ( IOException e ) {
-                    // ignore this
-                }
-            }
+        } catch (IOException e) {
+            LOG.error("Error writing OBR metadata file {}", metadataFile, e);
         }
     }
 
@@ -235,5 +203,4 @@ public class OBRMetadataRepositoryConsumer extends AbstractMonitoredConsumer imp
     public void completeScan(boolean executeOnEntireRepo) {
         completeScan();
     }
-
 }
