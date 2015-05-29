@@ -1,0 +1,59 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <artifactId>archiva-obr-plugin</artifactId>
+    <packaging>jar</packaging>
+    <name>${project.artifactId}</name>
+
+    <description />
+
+    <parent>
+        <groupId>org.no-hope</groupId>
+        <artifactId>java-toolkit</artifactId>
+        <version>0.2.3-SNAPSHOT</version>
+        <relativePath>../../pom.xml</relativePath>
+    </parent>
+
+    <properties>
+        <archiva.version>2.2.0</archiva.version>
+        <felix.version>2.0.4</felix.version>
+        <skip.enforcer>true</skip.enforcer>
+    </properties>
+
+    <dependencies>
+        <dependency>
+            <groupId>org.apache.archiva</groupId>
+            <artifactId>archiva-configuration</artifactId>
+            <version>${archiva.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.archiva</groupId>
+            <artifactId>archiva-consumer-api</artifactId>
+            <version>${archiva.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>org.apache.felix</groupId>
+            <artifactId>org.apache.felix.bundlerepository</artifactId>
+            <version>${felix.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-context</artifactId>
+            <version>${spring.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>org.slf4j</groupId>
+            <artifactId>slf4j-api</artifactId>
+            <version>${slf4j.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>junit</groupId>
+            <artifactId>junit</artifactId>
+            <scope>test</scope>
+        </dependency>
+    </dependencies>
+</project>

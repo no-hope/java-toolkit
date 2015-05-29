@@ -11,6 +11,7 @@
  * [jsr305-aspectj-validation](projects/jsr305-aspectj-validation)
  * [slf4j-logging](projects/slf4j-logging)
  * [apptools](projects/apptools)
+ * [archiva-obr-plugin](projects/archiva-obr-plugin)
  * [springtools](projects/springtools)
  * [typetools](projects/typetools)
  * [typetools-json](projects/typetools-json)
