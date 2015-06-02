@@ -6,20 +6,16 @@ repositories.
 
 # Configuring
 
-To enable support, you must first download and install the following dependencies
-into Archiva's `WEB-INF/lib` directory:
-
- 1. [Apache Felix Bundle Repository][3]
- 2. [OSGi Core API][4]
-
 Copy the **archiva-obr-plugin-X.jar** you downloaded or built to the `WEB-INF/lib`
-directory as well.
+directory.
 
 Next, modify the `conf/archiva.xml` file and look for a section starting with
 `<knownContentConsumers>`. There will be a list of `<knownContentConsumer>` elements
 in that section. Add another line after the last one like this:
 
     <knownContentConsumer>create-obr-metadata</knownContentConsumer>
+
+Or you may go to `Repository Scanning -> Consumers` section and enable `create-obr-metadata` consumer.
 
 Now you should be able to (re)start Archiva, and kick off a directory scan on your
 desired repository to generate the OBR metadata file.
