@@ -91,6 +91,11 @@ public class OBRMetadataRepositoryConsumer extends AbstractMonitoredConsumer imp
     }
 
     @Override
+    public boolean isProcessUnmodified() {
+        return true;
+    }
+
+    @Override
     public void beginScan(ManagedRepository repository, Date whenGathered) throws ConsumerException {
         beginScan(repository, whenGathered, true);
     }
@@ -183,14 +188,14 @@ public class OBRMetadataRepositoryConsumer extends AbstractMonitoredConsumer imp
         // file to the final destination
         File tmpFile = new File(metadataFile.getAbsolutePath() + ".tmp");
         try (final Writer writer = new BufferedWriter(
-                new OutputStreamWriter(new FileOutputStream(metadataFile), Charsets.UTF_8))) {
+                new OutputStreamWriter(new FileOutputStream(tmpFile), Charsets.UTF_8))) {
             dataModelHelper.writeRepository(obrRepository, writer);
             writer.flush();
             if (metadataFile.exists() && !metadataFile.delete()) {
                 LOG.warn("Unable to delete old OBR metadata file {}", metadataFile);
             }
             if (!tmpFile.renameTo(metadataFile)) {
-                LOG.warn("Unable to move temporary OBR metadata file to {}", metadataFile);
+                LOG.warn("Unable to move temporary OBR metadata file {} to {}", tmpFile, metadataFile);
             } else if (LOG.isInfoEnabled()) {
                 LOG.info("Created OBR metadata {}", metadataFile);
             }

@@ -17,8 +17,63 @@
     <properties>
         <archiva.version>2.2.0</archiva.version>
         <felix.version>2.0.4</felix.version>
+        <osgi.version>5.0.0</osgi.version>
         <skip.enforcer>true</skip.enforcer>
     </properties>
+
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-shade-plugin</artifactId>
+                <version>2.3</version>
+                <executions>
+                    <execution>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>shade</goal>
+                        </goals>
+                        <configuration>
+                            <artifactSet>
+                                <includes>
+                                    <include>org.osgi:org.osgi.core</include>
+                                    <include>org.apache.felix:org.apache.felix.bundlerepository</include>
+                                </includes>
+                            </artifactSet>
+
+                            <filters>
+                                <filter>
+                                    <artifact>*:*</artifact>
+                                    <excludes>
+                                        <exclude>OSGI-OPT/**</exclude>
+                                    </excludes>
+                                </filter>
+                            </filters>
+
+                            <relocations>
+                                <relocation>
+                                    <pattern>org.osgi</pattern>
+                                    <shadedPattern>org.osgi.shaded</shadedPattern>
+                                </relocation>
+                                <relocation>
+                                    <pattern>org.apache.felix</pattern>
+                                    <shadedPattern>org.apache.felix.shaded</shadedPattern>
+                                </relocation>
+                                <relocation>
+                                    <pattern>org.kxml2</pattern>
+                                    <shadedPattern>org.apache.felix.shaded</shadedPattern>
+                                </relocation>
+                                <relocation>
+                                    <pattern>org.xmlpull</pattern>
+                                    <shadedPattern>org.apache.felix.shaded</shadedPattern>
+                                </relocation>
+                            </relocations>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+        </plugins>
+    </build>
 
     <dependencies>
         <dependency>
@@ -26,6 +81,13 @@
             <artifactId>archiva-configuration</artifactId>
             <version>${archiva.version}</version>
         </dependency>
+
+        <dependency>
+            <groupId>org.osgi</groupId>
+            <artifactId>org.osgi.core</artifactId>
+            <version>${osgi.version}</version>
+        </dependency>
+
         <dependency>
             <groupId>org.apache.archiva</groupId>
             <artifactId>archiva-consumer-api</artifactId>
