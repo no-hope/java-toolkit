@@ -91,11 +91,6 @@ public class OBRMetadataRepositoryConsumer extends AbstractMonitoredConsumer imp
     }
 
     @Override
-    public boolean isProcessUnmodified() {
-        return true;
-    }
-
-    @Override
     public void beginScan(ManagedRepository repository, Date whenGathered) throws ConsumerException {
         beginScan(repository, whenGathered, true);
     }
