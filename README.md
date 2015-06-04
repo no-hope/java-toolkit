@@ -1,5 +1,6 @@
 [![Travis status](https://api.travis-ci.org/no-hope/java-toolkit.svg)](https://travis-ci.org/no-hope/java-toolkit)
 [![Coverage Status](https://coveralls.io/repos/no-hope/java-toolkit/badge.svg?branch=master)](https://coveralls.io/r/no-hope/java-toolkit?branch=master)
+[![License](https://img.shields.io/badge/license-Apache_License_2.0-green.svg)](https://github.com/no-hope/java-toolkit/blob/master/LICENSE)
 
 ### Parent POMs
 
