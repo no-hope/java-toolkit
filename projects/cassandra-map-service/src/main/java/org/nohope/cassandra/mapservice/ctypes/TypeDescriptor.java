@@ -104,4 +104,12 @@ public final class TypeDescriptor<Type> {
         result = (31 * result) + reference.hashCode();
         return result;
     }
+
+    @Override
+    public String toString() {
+        return "TypeDescriptor{" +
+               "dataType=" + dataType +
+               ", reference=" + reference +
+               '}';
+    }
 }

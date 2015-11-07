@@ -1,14 +1,13 @@
 package org.nohope.cassandra.mapservice;
 
-import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
-import org.nohope.cassandra.mapservice.cfilter.CFilter;
 import org.nohope.cassandra.mapservice.columns.CColumn;
 
 import java.text.MessageFormat;
 import java.util.Collection;
 import java.util.LinkedHashSet;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 /**
  */
@@ -52,11 +51,9 @@ final class CFilterCheckTransporter {
     }
 
     private static Set<CColumn<?, ?>> getFilteredColumnSet(final CQuery cQuery) {
-        final Set<CColumn<?, ?>> filteredColumnSet = new LinkedHashSet<>();
-        for (final CFilter filter : cQuery.getFilters()) {
-            filteredColumnSet.add(filter.getValue().getColumn());
-        }
-        return filteredColumnSet;
+        return cQuery.getFilters()
+                     .stream().map(filter -> filter.getValue().getColumn())
+                     .collect(Collectors.toCollection(LinkedHashSet::new));
     }
 
     private static boolean notAllFiltersColumnsFromQueryExistInCurrentTableScheme(
@@ -64,7 +61,7 @@ final class CFilterCheckTransporter {
             final TableScheme scheme) {
 
         for (final CColumn<?, ?> filter : filteredColumns) {
-            if (!scheme.containsColumn(filter)) {
+            if (!scheme.getColumnNames().contains(filter.getName())) {
                 return true;
             }
         }
@@ -96,10 +93,16 @@ final class CFilterCheckTransporter {
     private static boolean notAllMandatoryPrimaryKeysDefinedInFilters(
             final Iterable<CColumn<?, ?>> filteredColumns,
             final TableScheme scheme, final CQuery cQuery) {
-        final Collection<CColumn<?, ?>> primaries = Lists.newArrayList(scheme.getPartitionKeys());
+
+        final Collection<String> primaries =
+                scheme.getPartitionKeys().stream()
+                      .map(CColumn::getName)
+                      .collect(Collectors.toList());
+
         for (final CColumn<?, ?> filter : filteredColumns) {
-            if (primaries.contains(filter)) {
-                primaries.remove(filter);
+            final String name = filter.getName();
+            if (primaries.contains(name)) {
+                primaries.remove(name);
             }
         }
 

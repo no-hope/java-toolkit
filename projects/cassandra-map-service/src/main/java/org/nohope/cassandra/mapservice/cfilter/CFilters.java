@@ -2,7 +2,8 @@ package org.nohope.cassandra.mapservice.cfilter;
 
 import com.datastax.driver.core.querybuilder.QueryBuilder;
 import org.nohope.cassandra.mapservice.Value;
-import org.nohope.cassandra.mapservice.columns.CColumn;
+
+import java.util.List;
 
 /**
  * factory for CFilters
@@ -68,7 +69,7 @@ public final class CFilters {
      * @param value values
      * @return filter bound to {@link QueryBuilder#in(String, Object...)} in} expression
      */
-    public static <V> CFilter<V[]> in(final Value<V[]> value) {
+    public static <V> CFilter<List<V>> in(final Value<List<V>> value) {
         return new Filter<>(value, QueryBuilder::in);
     }
 }

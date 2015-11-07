@@ -6,6 +6,7 @@ import org.nohope.cassandra.mapservice.columns.CColumn;
 
 import javax.annotation.Nonnull;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
@@ -70,8 +71,7 @@ public final class CFilterBuilder {
         @SafeVarargs
         public final <V> GetFilters in(@Nonnull final CColumn<V, ?> column,
                                        @Nonnull final V... values) {
-            // FIXME: cheat
-            return addFilter(CFilters.in(Value.bound((CColumn<V[], ?>) column, values)));
+            return addFilter(CFilters.in(Value.bound(column.asList(), Arrays.asList(values))));
         }
 
         public <V> GetFilters lt(@Nonnull final CColumn<V, ?> column,

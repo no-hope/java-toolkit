@@ -3,8 +3,12 @@ package org.nohope.cassandra.mapservice.columns;
 import com.datastax.driver.core.Row;
 import org.nohope.cassandra.mapservice.Value;
 import org.nohope.cassandra.mapservice.ctypes.Converter;
+import org.nohope.cassandra.mapservice.ctypes.CoreConverter;
 import org.nohope.cassandra.mapservice.ctypes.TypeDescriptor;
 import org.nohope.reflection.TypeReference;
+
+import java.util.List;
+import java.util.Set;
 
 /**
  */
@@ -15,6 +19,14 @@ public class CColumn<JavaType, CassandraType> {
     public CColumn(final String name, final Converter<CassandraType, JavaType> converter) {
         this.name = name;
         this.converter = converter;
+    }
+
+    public CColumn<List<JavaType>, List<CassandraType>> asList() {
+        return new CColumn<>(name, CoreConverter.list(converter));
+    }
+
+    public CColumn<Set<JavaType>, Set<CassandraType>> asSet() {
+        return new CColumn<>(name, CoreConverter.set(converter));
     }
 
     public static <V, C> CColumn<C, V> of(final String name,

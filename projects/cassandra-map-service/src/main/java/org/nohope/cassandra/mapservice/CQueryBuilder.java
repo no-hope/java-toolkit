@@ -280,6 +280,16 @@ public final class CQueryBuilder {
                 return this;
             }
 
+            /**
+             * Eq get filters.
+             *
+             * @param column the column
+             * @return the get filters
+             */
+            public <T> GetPreparedFilters in(@Nonnull final CColumn<T, ?> column) {
+                filters.add(CFilters.in(Value.unbound(column.asList())));
+                return this;
+            }
 
             /**
              * Gt get filters.
@@ -565,8 +575,7 @@ public final class CQueryBuilder {
              * @return the get filters
              */
             public <V> GetFilters in(@Nonnull final CColumn<V, ?> column, @Nonnull final V... values) {
-                // FIXME: we are cheating here!
-                filters.add(CFilters.in(Value.bound((CColumn<V[], ?>) column, values)));
+                filters.add(CFilters.in(Value.bound(column.asList(), Arrays.asList(values))));
                 return this;
             }
 

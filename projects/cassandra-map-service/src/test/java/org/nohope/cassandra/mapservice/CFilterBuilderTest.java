@@ -9,6 +9,7 @@ import org.nohope.cassandra.mapservice.ctypes.CoreConverter;
 import org.nohope.test.ContractUtils;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 
@@ -92,7 +93,7 @@ public final class CFilterBuilderTest {
 
     @Test
     public void testGetQueryINFilters() {
-        filters.add(CFilters.in(Value.boundMany(INT_COL, 2, 4, 5)));
+        filters.add(CFilters.in(Value.bound(INT_COL.asList(), Arrays.asList(2, 4, 5))));
 
         final List<CFilter<?>> builderFilters = CFilterBuilder
                 .getQueryFilters()
@@ -104,7 +105,7 @@ public final class CFilterBuilderTest {
 
     @Test
     public void testRemoveQueryINFilters() {
-        filters.add(CFilters.in(Value.boundMany(INT_COL, 2, 4, 5)));
+        filters.add(CFilters.in(Value.bound(INT_COL.asList(), Arrays.asList(2, 4, 5))));
 
         final List<CFilter<?>> builderFilters = CFilterBuilder
                 .getQueryFilters()

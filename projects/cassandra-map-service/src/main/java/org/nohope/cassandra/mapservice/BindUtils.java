@@ -4,7 +4,10 @@ import com.datastax.driver.core.BoundStatement;
 import com.datastax.driver.core.ColumnDefinitions;
 import com.datastax.driver.core.DataType;
 import com.datastax.driver.core.ProtocolVersion;
-import org.nohope.cassandra.mapservice.columns.CColumn;
+
+import java.text.MessageFormat;
+import java.util.List;
+import java.util.Objects;
 
 /**
  * @author <a href="mailto:ketoth.xupack@gmail.com">Ketoth Xupack</a>
@@ -31,15 +34,32 @@ public final class BindUtils {
             throw new IllegalStateException(); // FIXME: descriptive
         }
 
-        final CColumn<?, ?> column = scheme.getColumns().get(name);
-        final DataType columnDataType = column.getCassandraType().getDataType();
         final DataType tableType = meta.getType(name);
         final DataType valueType = value.getColumn().getCassandraType().getDataType();
-        if (!columnDataType.equals(tableType) || !valueType.equals(tableType)) {
-            throw new IllegalArgumentException(); // FIXME: descriptive
+
+        if (!typesEquals(tableType, valueType)) {
+            throw new IllegalArgumentException(MessageFormat.format("Unexpected types: {0} != {1}", tableType, valueType));
         }
 
         final Object converted = value.asCassandraValue();
-        statement.setBytesUnsafe(name, columnDataType.serialize(converted, ProtocolVersion.NEWEST_SUPPORTED));
+        statement.setBytesUnsafe(name, tableType.serialize(converted, ProtocolVersion.NEWEST_SUPPORTED));
+    }
+
+    private static boolean typesEquals(DataType t1, DataType t2) {
+        if (t1.isCollection() && t2.isCollection()) {
+            final List<DataType> t1Args = t1.getTypeArguments();
+            final List<DataType> t2Args = t2.getTypeArguments();
+            if (t1Args.size() == t2Args.size()) {
+                boolean eq = true;
+                for (int i = 0; i < t1Args.size(); i++) {
+                    eq &= typesEquals(t1Args.get(i), t2Args.get(i));
+                }
+                return eq;
+            }
+        }
+
+        final Class<?> jTableCls = t1.asJavaClass();
+        final Class<?> jColumnCls = t2.asJavaClass();
+        return Objects.equals(jTableCls, jColumnCls);
     }
 }

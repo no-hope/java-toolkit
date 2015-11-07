@@ -11,6 +11,7 @@ import org.nohope.cassandra.mapservice.columns.CColumn;
 import javax.annotation.Nonnull;
 import java.util.LinkedHashMap;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Set;
 
 /**
@@ -61,7 +62,7 @@ public abstract class AbstractStatement<T> {
 
             final BoundStatement bound = new BoundStatement(preparedStatement);
             final ColumnDefinitions meta = preparedStatement.getVariables();
-            for (final Map.Entry<String, Value<?>> e : bindKeysMap.entrySet()) {
+            for (final Entry<String, Value<?>> e : bindKeysMap.entrySet()) {
                 final String key = e.getKey();
                 if (!bound.isSet(key)) {
                     BindUtils.bind(bound, scheme, meta, e.getValue());

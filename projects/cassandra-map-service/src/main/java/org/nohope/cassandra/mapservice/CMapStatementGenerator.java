@@ -110,10 +110,11 @@ final class CMapStatementGenerator {
     private Select.Where addWhereStatementToQuery(final CQuery cQuery, final Select query) {
         final Select.Where where = query.where();
         for (final CFilter<?> filter : cQuery.getFilters()) {
-            final CColumn<?, ?> filterCol = filter.getValue().getColumn();
-            if (!scheme.getColumns().get(filterCol.getName()).equals(filterCol)) {
-                throw new IllegalStateException(); // FIXME!
-            }
+            // FIXME: type checking not works in case of _in_ operator
+            //final CColumn<?, ?> filterCol = filter.getValue().getColumn();
+            //if (!scheme.getColumns().get(filterCol.getName()).equals(filterCol)) {
+            //    throw new IllegalStateException();
+            //}
             where.and(filter.apply());
         }
         return where;

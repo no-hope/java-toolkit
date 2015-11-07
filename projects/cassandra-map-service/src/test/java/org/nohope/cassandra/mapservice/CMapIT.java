@@ -9,6 +9,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.nohope.cassandra.factory.CassandraFactory;
 import org.nohope.cassandra.factory.ITHelpers;
+import org.nohope.cassandra.mapservice.CPreparedGet.PreparedGetExecutor;
 import org.nohope.cassandra.mapservice.cfilter.CFilter;
 import org.nohope.cassandra.mapservice.cfilter.CFilters;
 import org.nohope.cassandra.mapservice.columns.CColumn;
@@ -17,10 +18,7 @@ import org.nohope.cassandra.mapservice.ctypes.custom.UTCDateTimeType;
 import org.nohope.cassandra.util.RowNotFoundException;
 import org.nohope.test.ContractUtils;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
-import java.util.UUID;
+import java.util.*;
 
 import static java.lang.Thread.sleep;
 import static org.junit.Assert.*;
@@ -62,6 +60,32 @@ public class CMapIT {
     @After
     public void tearDown() {
         ITHelpers.destroy(cassandraFactory);
+    }
+
+    @Test
+    public void inQueryWorks() {
+        final CQuery cQuery = CQueryBuilder
+                .createPreparedQuery()
+                .of(COL_QUOTES)
+                .addFilters()
+                .in(COL_QUOTES)
+                .noMoreFilters()
+                .noFiltering();
+        final CMapService service =
+                new CMapService(cassandraFactory, SCHEME);
+
+        final String quote = newQuote();
+        final ValueTuple valueToPut =
+                ValueTuple.of(COL_QUOTES, quote)
+                          .with(COL_TIMESTAMP, DateTime.now(DateTimeZone.UTC));
+        final CPutQuery putQuery = new CPutQuery(valueToPut);
+        testMap.put(putQuery);
+
+        final CPreparedGet ringOfPower = service.prepareGet("RingOfPower", cQuery);
+        final PreparedGetExecutor executor =
+                ringOfPower.bind().bindTo(COL_QUOTES.asList(), Arrays.asList(quote)).stopBinding();
+        final List<ValueTuple> result = Lists.newArrayList(executor.all());
+        assertEquals(1, result.size());
     }
 
     @Test

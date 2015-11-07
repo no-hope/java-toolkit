@@ -25,22 +25,6 @@ public final class Value<T> {
         return column.asCassandraValue(this);
     }
 
-    /*
-    public static <T> Value<T[]> from(final Value<T>... values) {
-        final List<Value<T>> list = Lists.newArrayList(values);
-        final Set<CColumn<T, ?>> columns =
-                list.stream().map(Value::getColumn).collect(Collectors.toSet());
-
-        if (columns.size() != 1) {
-            throw new IllegalStateException(); // FIXME: description
-        }
-
-
-        for (final Value<T> v : list) {
-
-        }
-    }*/
-
     public static<T> Value<T> bound(final CColumn<T, ?> column, final T value) {
         return new Value<>(Type.BOUND, column, value);
     }
@@ -52,6 +36,12 @@ public final class Value<T> {
 
     public static<T> Value<T> unbound(final CColumn<T, ?> column) {
         return new Value<>(Type.UNBOUND, column, QueryBuilder.bindMarker(column.getName()));
+    }
+
+    public static<T> Value<T[]> unboundArray(final CColumn<T, ?> column) {
+        return new Value<>(Type.UNBOUND,
+                (CColumn<T[], ?>) column,
+                QueryBuilder.bindMarker(column.getName()));
     }
 
     public static<T> Value<T> fcall(final CColumn<T, ?> column, final String function, final Object... parameters) {

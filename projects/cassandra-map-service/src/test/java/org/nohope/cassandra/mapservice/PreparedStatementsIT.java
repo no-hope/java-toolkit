@@ -8,6 +8,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.nohope.cassandra.factory.CassandraFactory;
 import org.nohope.cassandra.factory.ITHelpers;
+import org.nohope.cassandra.mapservice.CPreparedGet.PreparedGetExecutor;
 import org.nohope.cassandra.mapservice.columns.CColumn;
 import org.nohope.cassandra.mapservice.ctypes.custom.UTCDateTimeType;
 import org.nohope.cassandra.util.RowNotFoundException;
@@ -174,7 +175,7 @@ public class PreparedStatementsIT {
 
         final CPreparedGet preparedQuery =
                 mapService.prepareGet(RING_OF_POWER_TABLE, query);
-        preparedQuery.bind().bindTo(CColumn.of("god", TEXT), null).stopBinding().all();
+        preparedQuery.bind().bindTo(CColumn.of("god", TEXT), (String) null).stopBinding().all();
     }
 
     @Test
@@ -196,7 +197,7 @@ public class PreparedStatementsIT {
         final CPreparedGet preparedQuery =
                 mapService.prepareGet(RING_OF_POWER_TABLE, query);
 
-        final CPreparedGet.PreparedGetExecutor prepared =
+        final PreparedGetExecutor prepared =
                 preparedQuery.bind()
                              .bindTo(COL_QUOTES, quote)
                              .bindTo(COL_TIMESTAMP, DateTime.now(DateTimeZone.UTC))
@@ -303,7 +304,7 @@ public class PreparedStatementsIT {
                              .noMoreFilters().noFiltering();
 
         final CPreparedGet preparedQuery = mapService.prepareGet(RING_OF_POWER_TABLE, query);
-        preparedQuery.bind().bindTo(CColumn.of("god", TEXT), null).stopBinding().one();
+        preparedQuery.bind().bindTo(CColumn.of("god", TEXT), (String) null).stopBinding().one();
     }
 
     @Test

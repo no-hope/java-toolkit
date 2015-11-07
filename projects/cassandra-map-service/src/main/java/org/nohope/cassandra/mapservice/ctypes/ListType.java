@@ -1,11 +1,11 @@
 package org.nohope.cassandra.mapservice.ctypes;
 
 import com.datastax.driver.core.Row;
-import com.google.common.base.Function;
 import com.google.common.collect.Lists;
 import org.nohope.reflection.TypeReference;
 
 import java.util.List;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 /**
@@ -23,22 +23,12 @@ class ListType<T, C> implements Converter<List<T>, List<C>> {
 
     @Override
     public List<T> asCassandraValue(final List<C> value) {
-        return Lists.transform(value, new Function<C, T>() {
-            @Override
-            public T apply(final C input) {
-                return converter.asCassandraValue(input);
-            }
-        });
+        return Lists.transform(value, converter::asCassandraValue);
     }
 
     @Override
     public List<C> asJavaValue(final List<T> value) {
-        return Lists.transform(value, new Function<T, C>() {
-            @Override
-            public C apply(final T input) {
-                return converter.asJavaValue(input);
-            }
-        });
+        return Lists.transform(value, converter::asJavaValue);
     }
 
     @Override
@@ -58,5 +48,29 @@ class ListType<T, C> implements Converter<List<T>, List<C>> {
                      .stream()
                      .map(converter::asJavaValue)
                      .collect(Collectors.toList());
+    }
+
+    @Override
+    public boolean equals(final Object o) {
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
+        final ListType<?, ?> listType = (ListType<?, ?>) o;
+        return Objects.equals(converter, listType.converter);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(converter);
+    }
+
+    @Override
+    public String toString() {
+        return "ListType{" +
+               "converter=" + converter +
+               '}';
     }
 }

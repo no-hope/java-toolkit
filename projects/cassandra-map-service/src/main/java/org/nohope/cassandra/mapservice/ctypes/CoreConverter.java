@@ -92,4 +92,11 @@ public final class CoreConverter<InternalType> implements Converter<InternalType
     public InternalType readValue(final Row result, final String name) {
         return function.apply(result, name);
     }
+
+    @Override
+    public String toString() {
+        return "CoreConverter{" +
+               "descriptor=" + descriptor +
+               '}';
+    }
 }
