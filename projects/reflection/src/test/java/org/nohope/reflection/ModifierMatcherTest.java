@@ -19,7 +19,7 @@ public class ModifierMatcherTest extends EnumTestSupport<ModifierMatcher> {
     }
 
     @Test
-    public void equals() {
+    public void equality() {
         assertTrue(equalTo(1).apply(1));
         assertTrue(equalTo(null).apply(null));
         assertFalse(equalTo("test").apply(null));

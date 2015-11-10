@@ -74,6 +74,7 @@
         <skip.coveralls>${skip.jacoco.report}</skip.coveralls>
 
         <bson4jackson.version>2.3.1</bson4jackson.version>
+        <cassandra-driver.version>2.1.3</cassandra-driver.version>
         <commons-beanutils.version>1.9.2</commons-beanutils.version>
         <commons-io.version>2.4</commons-io.version>
         <commons-lang3.version>3.4</commons-lang3.version>
@@ -88,14 +89,21 @@
         <jaxb2-basics.version>0.9.4</jaxb2-basics.version>
         <jaxb2-testing.version>0.8.3</jaxb2-testing.version>
         <joda-time.version>2.7</joda-time.version>
+        <jongo.version>1.0</jongo.version>
+        <kryo.version>2.24.0</kryo.version>
         <logback.version>1.1.3</logback.version>
+        <lz4.version>1.3.0</lz4.version>
+        <metrics-core.version>3.0.2</metrics-core.version>
+        <mongo.version>2.11.4</mongo.version>
         <netty.version>3.7.0.Final</netty.version>
+        <netty.version>3.9.0.Final</netty.version>
+        <objenesis.version>2.1</objenesis.version>
         <protobuf.version>2.5.0</protobuf.version>
         <slf4j.version>1.7.7</slf4j.version>
         <spring.version>3.2.4.RELEASE</spring.version>
         <xbean-finder.version>3.16</xbean-finder.version>
-        <lz4.version>1.3.0</lz4.version>
-        <kryo.version>2.24.0</kryo.version>
+
+        <java.major.version>7</java.major.version>
     </properties>
 
     <build>
@@ -192,6 +200,7 @@
         <module>projects/protobuf-rpc</module>
         <module>projects/reflection</module>
         <module>projects/serialization</module>
+        <module>projects/cassandra-map-service</module>
 
         <module>projects/jaxws-json</module>
         <module>projects/test-utils</module>

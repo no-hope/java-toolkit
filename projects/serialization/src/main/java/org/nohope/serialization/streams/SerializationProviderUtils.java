@@ -17,10 +17,8 @@ public final class SerializationProviderUtils {
     private SerializationProviderUtils() {
     }
 
-    public static <T extends Serializable> ByteBuffer toByteBuffer(
-            final T object,
-            final SerializationProvider serializationProvider
-                                                        ) {
+    public static <T extends Serializable> ByteBuffer toByteBuffer(final T object,
+                                                                   final SerializationProvider serializationProvider) {
         final ByteBuffer value;
         try {
             value = ByteBuffer.wrap(toByteArray(object, serializationProvider));

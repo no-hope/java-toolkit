@@ -149,11 +149,12 @@ public abstract class TypeReference<T> {
         if (this == o) {
             return true;
         }
+        //noinspection InstanceofInterfaces
         if (!(o instanceof TypeReference)) {
             return false;
         }
 
-        final TypeReference that = (TypeReference) o;
+        final TypeReference<?> that = (TypeReference<?>) o;
         return rawType.equals(that.rawType) && type.equals(that.type);
     }
 
