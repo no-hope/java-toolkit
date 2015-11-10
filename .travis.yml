@@ -15,8 +15,14 @@ env:
     - secure: "KW4mr3PQT7i+IL/JpOThNvzzj4MXoLjvBGyZalfYk0OjVGiONHZ/qj4S/aS2bHzPlUEgXpLNsQrn12cLPCLcgh2flfUu9k62PNnPeasmI3Cm23f7WeDgs8sM82Il2sSCAgS1nafkxLLqneKEPBgCCBLxOwjThFgmbSZhUzdn9Nc="
     - secure: "DOAf/UBLVLtORH52ds9qEYI3KdBE4Q8I7xr1DAzGoq7Z8YRsWVXOehVPcLXSuZWGkJiZZYfXRNZ8ZEqBTNnefPwpDuBcT4jf+IXcF2UYsJrY50TcEoWbuuSREcM3JAUtkznJC+sBmVeiwG5JV+bKWfog4YzH3AByzeM4CBmubmQ="
 
+addons:
+  apt:
+    packages:
+    - graphviz
+    - xmlstarlet
+    - build-essential
+
 before_install:
-  - sudo apt-get install graphviz xmlstarlet build-essential
   - scripts/compile_protoc.sh
   - scripts/prepare_settings.sh
 
