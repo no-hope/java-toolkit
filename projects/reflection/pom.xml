@@ -12,7 +12,7 @@
     <parent>
         <groupId>org.no-hope</groupId>
         <artifactId>java-toolkit</artifactId>
-        <version>0.2.3</version>
+        <version>0.2.4-SNAPSHOT</version>
         <relativePath>../../pom.xml</relativePath>
     </parent>
 
