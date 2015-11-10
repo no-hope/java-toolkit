@@ -116,7 +116,7 @@
         </dependency>
         <dependency>
             <groupId>org.no-hope</groupId>
-            <artifactId>test-utils</artifactId>
+            <artifactId>test-utils-meta</artifactId>
             <version>${project.version}</version>
             <scope>test</scope>
         </dependency>
