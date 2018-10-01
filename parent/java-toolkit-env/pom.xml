@@ -85,7 +85,7 @@
         <aspectjrt.version>1.8.5</aspectjrt.version>
         <findbugs-annotations.version>3.0.0</findbugs-annotations.version>
         <jcip-annotations.version>1.0</jcip-annotations.version>
-        <jsr305.version>3.0.0</jsr305.version>
+        <jsr305.version>3.0.2</jsr305.version>
         <junit.version>4.12</junit.version>
         <maven.clean-plugin.version>2.6.1</maven.clean-plugin.version>
     </properties>
